@@ -10,25 +10,23 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "document_metadata")
-class DocumentMetadata(
+class DocumentMetadata{
         @Id
         @GeneratedValue
-        var metadataID: Long?,
+        var metadataID: Long = 0
 
         @OneToOne
-        var document: Document,
+       lateinit var document: Document
 
         @Column(name = "name")
-        var name: String,
+       lateinit var name: String
 
         @Column(name = "size")
-        var size: Int,
+         var size: Long = 0
 
         @Column(name = "content_type")
-        var contentType: String,
+        lateinit var contentType: String
 
         @Column(name = "creation_timestamp")
-        var creationTimestamp: LocalDateTime
-) {
-
+        lateinit var creationTimestamp: LocalDateTime
 }
