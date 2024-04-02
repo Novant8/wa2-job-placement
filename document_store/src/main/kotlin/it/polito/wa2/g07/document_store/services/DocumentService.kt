@@ -10,4 +10,6 @@ interface DocumentService {
  fun create(name: String, size:Long, contentType : String, file: ByteArray  ): DocumentMetadataDTO
 
  fun existsByName(name: String): Boolean
+
+ fun getAllDocuments():  List<DocumentMetadataDTO>
 }

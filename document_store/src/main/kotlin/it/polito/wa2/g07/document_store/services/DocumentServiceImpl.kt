@@ -34,4 +34,7 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
     override fun existsByName(name: String): Boolean {
       return  documentMetadataRepository.findByNameIgnoreCase(name) != null
     }
+    override fun getAllDocuments(): List<DocumentMetadataDTO>{
+       return  documentMetadataRepository.findAll().map { d -> d.toDto() }
+    }
 }

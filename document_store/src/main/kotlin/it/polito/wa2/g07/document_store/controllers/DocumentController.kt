@@ -13,7 +13,8 @@ import org.springframework.web.multipart.MultipartFile
 class DocumentController(private val documentService: DocumentService) {
 
     @GetMapping("/", "")
-    fun getDocuments() {
+    fun getDocuments(): List<DocumentMetadataDTO> {
+       return  documentService.getAllDocuments()
         //return "test"  //this is the name of the view
     }
 
