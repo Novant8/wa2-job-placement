@@ -1,8 +1,10 @@
 package it.polito.wa2.g07.document_store.controllers
 
 
+import it.polito.wa2.g07.document_store.dtos.DocumentDTO
 import it.polito.wa2.g07.document_store.dtos.DocumentMetadataDTO
 import it.polito.wa2.g07.document_store.exceptions.DuplicateDocumentException
+import it.polito.wa2.g07.document_store.exceptions.DocumentNotFoundException
 import it.polito.wa2.g07.document_store.services.DocumentService
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -15,9 +17,15 @@ class DocumentController(private val documentService: DocumentService) {
     @GetMapping("/", "")
     fun getDocuments(): List<DocumentMetadataDTO> {
        return  documentService.getAllDocuments()
-        //return "test"  //this is the name of the view
-    }
 
+    }
+   // GET /API/documents/{metadatatId}/data/ -- byte content of document {metatadataId} or fail if it does not exist
+    @GetMapping("/{metadataId}/data")
+    fun getDocumentContent(@PathVariable("metadataId") metadataId: Long,): ByteArray  {
+       // throw  handleDocumentNotFound()
+        val res = documentService.getDocumentContent(metadataId)
+        return res.content
+    }
     @PostMapping("/","",consumes = ["multipart/form-data"])
     fun saveDocument(@RequestParam("size") size: Long,
                      @RequestParam("contentType") contentType: String,

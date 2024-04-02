@@ -1,9 +1,12 @@
 package it.polito.wa2.g07.document_store.services
 
+import it.polito.wa2.g07.document_store.controllers.ProblemDetailsHandler
+import it.polito.wa2.g07.document_store.dtos.DocumentDTO
 import it.polito.wa2.g07.document_store.dtos.DocumentMetadataDTO
 import it.polito.wa2.g07.document_store.dtos.toDto
 import it.polito.wa2.g07.document_store.entities.Document
 import it.polito.wa2.g07.document_store.entities.DocumentMetadata
+import it.polito.wa2.g07.document_store.exceptions.DocumentNotFoundException
 import it.polito.wa2.g07.document_store.repositories.DocumentMetadataRepository
 import it.polito.wa2.g07.document_store.repositories.DocumentRepository
 import jakarta.transaction.Transactional
@@ -36,5 +39,13 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
     }
     override fun getAllDocuments(): List<DocumentMetadataDTO>{
        return  documentMetadataRepository.findAll().map { d -> d.toDto() }
+    }
+
+    override fun getDocumentContent(metadataId: Long): DocumentDTO {
+        val document = documentMetadataRepository.findById(metadataId)
+        if (!document.isPresent()) {
+            throw DocumentNotFoundException("The document doesn't exist")
+        }
+        return document.get().document.toDto();
     }
 }
