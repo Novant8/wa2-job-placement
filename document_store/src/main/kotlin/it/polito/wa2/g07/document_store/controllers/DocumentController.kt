@@ -13,8 +13,7 @@ import org.springframework.web.multipart.MultipartFile
 class DocumentController(private val documentService: DocumentService) {
 
     @GetMapping("/", "")
-    fun index() {
-        print("Test")
+    fun getDocuments() {
         //return "test"  //this is the name of the view
     }
 
