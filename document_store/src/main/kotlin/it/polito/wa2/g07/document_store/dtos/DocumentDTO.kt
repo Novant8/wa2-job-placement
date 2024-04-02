@@ -19,8 +19,16 @@ class DocumentDTO(var id : Long ?, var content : ByteArray/*, var metadata: Docu
 */
 data class DocumentDTO (
     val id :Long?,
-    val content: ByteArray,
+    val size: Long,
+    val contentType: String,
+    val name: String,
+    var creationTimestamp: LocalDateTime,
+    val content:ByteArray
 )
 
-fun Document.toDto(): DocumentDTO = DocumentDTO(id=this.documentID,
-                                                content= this.content)
+fun DocumentMetadata.toDocumentDto(): DocumentDTO = DocumentDTO(id=this.metadataID,
+                                                                contentType = this.contentType,
+                                                                size = this.size,
+                                                                name = this.name,
+                                                                creationTimestamp = this.creationTimestamp,
+                                                                content= this.document.content)

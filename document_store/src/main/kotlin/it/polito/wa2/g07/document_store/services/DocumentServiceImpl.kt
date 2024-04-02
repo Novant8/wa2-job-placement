@@ -1,9 +1,7 @@
 package it.polito.wa2.g07.document_store.services
 
 import it.polito.wa2.g07.document_store.controllers.ProblemDetailsHandler
-import it.polito.wa2.g07.document_store.dtos.DocumentDTO
-import it.polito.wa2.g07.document_store.dtos.DocumentMetadataDTO
-import it.polito.wa2.g07.document_store.dtos.toDto
+import it.polito.wa2.g07.document_store.dtos.*
 import it.polito.wa2.g07.document_store.entities.Document
 import it.polito.wa2.g07.document_store.entities.DocumentMetadata
 import it.polito.wa2.g07.document_store.exceptions.DocumentNotFoundException
@@ -31,14 +29,14 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         docMetadata.size = size
         docMetadata.creationTimestamp= LocalDateTime.now()
 
-        return documentMetadataRepository.save(docMetadata).toDto()
+        return documentMetadataRepository.save(docMetadata).toMetadataDto()
     }
 
     override fun existsByName(name: String): Boolean {
       return  documentMetadataRepository.findByNameIgnoreCase(name) != null
     }
-    override fun getAllDocuments(): List<DocumentMetadataDTO>{
-       return  documentMetadataRepository.findAll().map { d -> d.toDto() }
+    override fun getAllDocuments(): List<DocumentReducedMetadataDTO>{
+       return  documentMetadataRepository.findAll().map { d -> d.toReducedDto() }
     }
 
     override fun getDocumentContent(metadataId: Long): DocumentDTO {
@@ -46,6 +44,14 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         if (!document.isPresent()) {
             throw DocumentNotFoundException("The document doesn't exist")
         }
-        return document.get().document.toDto();
+        return document.get().toDocumentDto();
+    }
+
+    override fun getDocumentMetadataById(metadataId: Long): DocumentMetadataDTO {
+        val document = documentMetadataRepository.findById(metadataId)
+        if (!document.isPresent()) {
+            throw DocumentNotFoundException("The document doesn't exist")
+        }
+        return document.get().toMetadataDto();
     }
 }

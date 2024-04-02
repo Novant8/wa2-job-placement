@@ -10,7 +10,12 @@ data class DocumentMetadataDTO (
     val contentType: String,
     val name: String,
     var creationTimestamp: LocalDateTime,
-    val document : Document
+    //val document : Document
     )
 
-fun DocumentMetadata.toDto(): DocumentMetadataDTO = DocumentMetadataDTO(this.metadataID, this.size, this.contentType, this.name, this.creationTimestamp, this.document)
+fun DocumentMetadata.toMetadataDto(): DocumentMetadataDTO =
+    DocumentMetadataDTO(this.metadataID,
+                        this.size,
+                        this.contentType,
+                        this.name,
+                        this.creationTimestamp )
