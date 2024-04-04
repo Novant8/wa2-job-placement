@@ -25,7 +25,7 @@ class DocumentMetadata{
          var size: Long = 0
 
         @Column(name = "content_type")
-        lateinit var contentType: String
+        var contentType: String? = null
 
         @Column(name = "creation_timestamp")
         lateinit var creationTimestamp: LocalDateTime

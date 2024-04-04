@@ -7,10 +7,10 @@ import java.time.LocalDateTime
 data class DocumentMetadataDTO (
     val id :Long,
     val size: Long,
-    val contentType: String,
+    val contentType: String?,
     val name: String,
     var creationTimestamp: LocalDateTime,
-    //val document : Document
+    //val document : DocumentDTO
     )
 
 fun DocumentMetadata.toMetadataDto(): DocumentMetadataDTO =

@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 
 class DocumentServiceImpl(private val documentRepository: DocumentRepository, private val documentMetadataRepository: DocumentMetadataRepository) : DocumentService {
     @Transactional
-    override fun create(name: String, size:Long, contentType : String, file: ByteArray  ): DocumentMetadataDTO{
+    override fun create(name: String, size:Long, contentType: String?, file: ByteArray): DocumentMetadataDTO{
 
         val doc = Document()
         doc.content= file

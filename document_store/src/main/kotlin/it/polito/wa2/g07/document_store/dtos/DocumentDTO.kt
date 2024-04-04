@@ -20,7 +20,7 @@ class DocumentDTO(var id : Long ?, var content : ByteArray/*, var metadata: Docu
 data class DocumentDTO (
     val id :Long?,
     val size: Long,
-    val contentType: String,
+    val contentType: String?,
     val name: String,
     var creationTimestamp: LocalDateTime,
     val content:ByteArray

@@ -8,7 +8,7 @@ import it.polito.wa2.g07.document_store.dtos.DocumentReducedMetadataDTO
 
 interface DocumentService {
  /*fun getDocuments(): DocumentDTO?*/
- fun create(name: String, size:Long, contentType : String, file: ByteArray  ): DocumentMetadataDTO
+ fun create(name: String, size:Long, contentType: String?, file: ByteArray): DocumentMetadataDTO
 
  fun existsByName(name: String): Boolean
 
