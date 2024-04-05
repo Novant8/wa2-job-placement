@@ -41,6 +41,15 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
     override fun existsByName(name: String): Boolean {
       return  documentMetadataRepository.findByNameIgnoreCase(name) != null
     }
+
+    override fun existsByNameExcludingMetadataID(name: String, metadataId: Long): Boolean {
+        return documentMetadataRepository.findByNameIgnoreCaseAndMetadataIDNot(name, metadataId) != null
+    }
+
+    override fun getAllDocuments(pageable: Pageable): Page<DocumentReducedMetadataDTO>{
+        return documentMetadataRepository.findAll(pageable).map { d-> d.toReducedDto() }
+    }
+
     @Transactional
     override fun deleteDocument(metadataId: Long) {
         val document = documentMetadataRepository.findById(metadataId)
@@ -51,9 +60,7 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         documentMetadataRepository.delete(document.get())
         logger.info("Deleted document {}", metadataId)
     }
-    override fun getAllDocuments(pageable: Pageable): Page<DocumentReducedMetadataDTO>{
-        return documentMetadataRepository.findAll(pageable).map { d-> d.toReducedDto() }
-    }
+
     @Transactional
     override fun getDocumentContent(metadataId: Long): DocumentDTO {
         val document = documentMetadataRepository.findById(metadataId)
@@ -62,6 +69,7 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         }
         return document.get().toDocumentDto()
     }
+
     @Transactional
     override fun getDocumentMetadataById(metadataId: Long): DocumentMetadataDTO {
         val document = documentMetadataRepository.findById(metadataId)
@@ -69,6 +77,29 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
             throw DocumentNotFoundException("The document doesn't exist")
         }
         return document.get().toMetadataDto()
+    }
+
+    @Transactional
+    override fun editDocument(
+        metadataId: Long,
+        name: String,
+        size: Long,
+        contentType: String?,
+        file: ByteArray
+    ): DocumentMetadataDTO {
+        val documentMetadataOpt = documentMetadataRepository.findById(metadataId)
+        if (!documentMetadataOpt.isPresent()) {
+            throw DocumentNotFoundException("The document doesn't exist")
+        }
+
+        val docMetadata = documentMetadataOpt.get()
+        docMetadata.document.content = file
+        docMetadata.name = name
+        docMetadata.contentType= contentType
+        docMetadata.size = size
+        docMetadata.creationTimestamp= LocalDateTime.now()
+
+        return documentMetadataRepository.save(docMetadata).toMetadataDto()
     }
 
     companion object{

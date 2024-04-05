@@ -14,12 +14,13 @@ interface DocumentService {
  fun create(name: String, size:Long, contentType: String?, file: ByteArray): DocumentMetadataDTO
 
  fun existsByName(name: String): Boolean
+ fun existsByNameExcludingMetadataID(name: String, metadataId: Long): Boolean
 
  fun getAllDocuments(pageable: Pageable): Page<DocumentReducedMetadataDTO>
  fun getDocumentContent(metadataId:Long): DocumentDTO
  fun getDocumentMetadataById(metadataId:Long): DocumentMetadataDTO
 
+ fun editDocument(metadataId:Long, name: String, size:Long, contentType: String?, file: ByteArray) : DocumentMetadataDTO
+
  fun deleteDocument(metadataId: Long)
-
-
 }
