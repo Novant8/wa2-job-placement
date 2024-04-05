@@ -39,7 +39,7 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
     override fun existsByName(name: String): Boolean {
       return  documentMetadataRepository.findByNameIgnoreCase(name) != null
     }
-
+    @Transactional
     override fun deleteDocument(metadataId: Long) {
         val document = documentMetadataRepository.findById(metadataId)
         if (!document.isPresent()) {
@@ -52,7 +52,7 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
     override fun getAllDocuments(): List<DocumentReducedMetadataDTO>{
        return  documentMetadataRepository.findAll().map { d -> d.toReducedDto() }
     }
-
+    @Transactional
     override fun getDocumentContent(metadataId: Long): DocumentDTO {
         val document = documentMetadataRepository.findById(metadataId)
         if (!document.isPresent()) {
@@ -60,7 +60,7 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         }
         return document.get().toDocumentDto()
     }
-
+    @Transactional
     override fun getDocumentMetadataById(metadataId: Long): DocumentMetadataDTO {
         val document = documentMetadataRepository.findById(metadataId)
         if (!document.isPresent()) {
