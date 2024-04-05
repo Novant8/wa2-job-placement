@@ -93,13 +93,16 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         }
 
         val docMetadata = documentMetadataOpt.get()
+        val oldName = docMetadata.name
         docMetadata.document.content = file
         docMetadata.name = name
         docMetadata.contentType= contentType
         docMetadata.size = size
         docMetadata.creationTimestamp= LocalDateTime.now()
 
-        return documentMetadataRepository.save(docMetadata).toMetadataDto()
+        val savedMetadata = documentMetadataRepository.save(docMetadata).toMetadataDto()
+        logger.info("Edited Document {} - {} -> {}", savedMetadata.id, oldName, savedMetadata.name)
+        return savedMetadata
     }
 
     companion object{
