@@ -29,4 +29,7 @@ class DocumentMetadata{
 
         @Column(name = "creation_timestamp")
         lateinit var creationTimestamp: LocalDateTime
+
+
+
 }

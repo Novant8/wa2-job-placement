@@ -1,6 +1,6 @@
 package it.polito.wa2.g07.document_store.services
 
-
+import it.polito.wa2.g07.document_store.controllers.ProblemDetailsHandler
 import it.polito.wa2.g07.document_store.dtos.*
 import it.polito.wa2.g07.document_store.entities.Document
 import it.polito.wa2.g07.document_store.entities.DocumentMetadata
@@ -8,6 +8,7 @@ import it.polito.wa2.g07.document_store.exceptions.DocumentNotFoundException
 import it.polito.wa2.g07.document_store.repositories.DocumentMetadataRepository
 import it.polito.wa2.g07.document_store.repositories.DocumentRepository
 import jakarta.transaction.Transactional
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -31,16 +32,29 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         docMetadata.size = size
         docMetadata.creationTimestamp= LocalDateTime.now()
 
-        return documentMetadataRepository.save(docMetadata).toMetadataDto()
+        val savedMetadata = documentMetadataRepository.save(docMetadata).toMetadataDto()
+        logger.info("Created Document {} - {}",savedMetadata.id, savedMetadata.name )
+        return savedMetadata
+
     }
 
     override fun existsByName(name: String): Boolean {
       return  documentMetadataRepository.findByNameIgnoreCase(name) != null
     }
+    @Transactional
+    override fun deleteDocument(metadataId: Long) {
+        val document = documentMetadataRepository.findById(metadataId)
+        if (!document.isPresent()) {
+            throw DocumentNotFoundException("The document doesn't exist")
+        }
+
+        documentMetadataRepository.delete(document.get())
+        logger.info("Deleted document {}", metadataId)
+    }
     override fun getAllDocuments(pageable: Pageable): Page<DocumentReducedMetadataDTO>{
         return documentMetadataRepository.findAll(pageable).map { d-> d.toReducedDto() }
     }
-
+    @Transactional
     override fun getDocumentContent(metadataId: Long): DocumentDTO {
         val document = documentMetadataRepository.findById(metadataId)
         if (!document.isPresent()) {
@@ -48,12 +62,16 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         }
         return document.get().toDocumentDto()
     }
-
+    @Transactional
     override fun getDocumentMetadataById(metadataId: Long): DocumentMetadataDTO {
         val document = documentMetadataRepository.findById(metadataId)
         if (!document.isPresent()) {
             throw DocumentNotFoundException("The document doesn't exist")
         }
         return document.get().toMetadataDto()
+    }
+
+    companion object{
+        val logger = LoggerFactory.getLogger(DocumentServiceImpl::class.java)
     }
 }

@@ -18,4 +18,8 @@ interface DocumentService {
  fun getAllDocuments(pageable: Pageable): Page<DocumentReducedMetadataDTO>
  fun getDocumentContent(metadataId:Long): DocumentDTO
  fun getDocumentMetadataById(metadataId:Long): DocumentMetadataDTO
+
+ fun deleteDocument(metadataId: Long)
+
+
 }
