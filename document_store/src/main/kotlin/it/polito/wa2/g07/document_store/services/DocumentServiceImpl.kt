@@ -1,6 +1,6 @@
 package it.polito.wa2.g07.document_store.services
 
-import it.polito.wa2.g07.document_store.controllers.ProblemDetailsHandler
+
 import it.polito.wa2.g07.document_store.dtos.*
 import it.polito.wa2.g07.document_store.entities.Document
 import it.polito.wa2.g07.document_store.entities.DocumentMetadata
@@ -35,6 +35,16 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
     override fun existsByName(name: String): Boolean {
       return  documentMetadataRepository.findByNameIgnoreCase(name) != null
     }
+
+    override fun deleteDocument(metadataId: Long) {
+        val document = documentMetadataRepository.findById(metadataId)
+        if (!document.isPresent()) {
+            throw DocumentNotFoundException("The document doesn't exist")
+        }
+
+        documentMetadataRepository.delete(document.get())
+
+    }
     override fun getAllDocuments(): List<DocumentReducedMetadataDTO>{
        return  documentMetadataRepository.findAll().map { d -> d.toReducedDto() }
     }
@@ -44,7 +54,7 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         if (!document.isPresent()) {
             throw DocumentNotFoundException("The document doesn't exist")
         }
-        return document.get().toDocumentDto();
+        return document.get().toDocumentDto()
     }
 
     override fun getDocumentMetadataById(metadataId: Long): DocumentMetadataDTO {
@@ -52,6 +62,6 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         if (!document.isPresent()) {
             throw DocumentNotFoundException("The document doesn't exist")
         }
-        return document.get().toMetadataDto();
+        return document.get().toMetadataDto()
     }
 }
