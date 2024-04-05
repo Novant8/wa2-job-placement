@@ -8,6 +8,7 @@ import it.polito.wa2.g07.document_store.exceptions.DocumentNotFoundException
 import it.polito.wa2.g07.document_store.repositories.DocumentMetadataRepository
 import it.polito.wa2.g07.document_store.repositories.DocumentRepository
 import jakarta.transaction.Transactional
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -29,7 +30,10 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         docMetadata.size = size
         docMetadata.creationTimestamp= LocalDateTime.now()
 
-        return documentMetadataRepository.save(docMetadata).toMetadataDto()
+        val savedMetadata = documentMetadataRepository.save(docMetadata).toMetadataDto()
+        logger.info("Created Document {} - {}",savedMetadata.id, savedMetadata.name )
+        return savedMetadata
+
     }
 
     override fun existsByName(name: String): Boolean {
@@ -43,7 +47,7 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         }
 
         documentMetadataRepository.delete(document.get())
-
+        logger.info("Deleted document {}", metadataId)
     }
     override fun getAllDocuments(): List<DocumentReducedMetadataDTO>{
        return  documentMetadataRepository.findAll().map { d -> d.toReducedDto() }
@@ -63,5 +67,9 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
             throw DocumentNotFoundException("The document doesn't exist")
         }
         return document.get().toMetadataDto()
+    }
+
+    companion object{
+        val logger = LoggerFactory.getLogger(DocumentServiceImpl::class.java)
     }
 }

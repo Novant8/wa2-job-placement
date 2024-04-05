@@ -7,6 +7,7 @@ import it.polito.wa2.g07.document_store.exceptions.DuplicateDocumentException
 import it.polito.wa2.g07.document_store.exceptions.InvalidBodyException
 import it.polito.wa2.g07.document_store.services.DocumentService
 
+
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -57,6 +58,7 @@ class DocumentController(private val documentService: DocumentService) {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteDocument(@PathVariable("metadataId") metadataId: Long){
        documentService.deleteDocument(metadataId)
+
     }
     //@GetMapping("")
     //GET /API/documents/{metadatatId}/ -- details of docu {documentId} or fail if it does not exist
