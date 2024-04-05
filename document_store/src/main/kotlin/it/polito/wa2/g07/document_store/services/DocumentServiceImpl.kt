@@ -1,6 +1,6 @@
 package it.polito.wa2.g07.document_store.services
 
-import it.polito.wa2.g07.document_store.controllers.ProblemDetailsHandler
+
 import it.polito.wa2.g07.document_store.dtos.*
 import it.polito.wa2.g07.document_store.entities.Document
 import it.polito.wa2.g07.document_store.entities.DocumentMetadata
@@ -8,6 +8,8 @@ import it.polito.wa2.g07.document_store.exceptions.DocumentNotFoundException
 import it.polito.wa2.g07.document_store.repositories.DocumentMetadataRepository
 import it.polito.wa2.g07.document_store.repositories.DocumentRepository
 import jakarta.transaction.Transactional
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -35,8 +37,8 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
     override fun existsByName(name: String): Boolean {
       return  documentMetadataRepository.findByNameIgnoreCase(name) != null
     }
-    override fun getAllDocuments(): List<DocumentReducedMetadataDTO>{
-       return  documentMetadataRepository.findAll().map { d -> d.toReducedDto() }
+    override fun getAllDocuments(pageable: Pageable): Page<DocumentReducedMetadataDTO>{
+        return documentMetadataRepository.findAll(pageable).map { d-> d.toReducedDto() }
     }
 
     override fun getDocumentContent(metadataId: Long): DocumentDTO {
@@ -44,7 +46,7 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         if (!document.isPresent()) {
             throw DocumentNotFoundException("The document doesn't exist")
         }
-        return document.get().toDocumentDto();
+        return document.get().toDocumentDto()
     }
 
     override fun getDocumentMetadataById(metadataId: Long): DocumentMetadataDTO {
@@ -52,6 +54,6 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         if (!document.isPresent()) {
             throw DocumentNotFoundException("The document doesn't exist")
         }
-        return document.get().toMetadataDto();
+        return document.get().toMetadataDto()
     }
 }

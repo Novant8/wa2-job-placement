@@ -6,7 +6,8 @@ import it.polito.wa2.g07.document_store.dtos.DocumentReducedMetadataDTO
 import it.polito.wa2.g07.document_store.exceptions.DuplicateDocumentException
 import it.polito.wa2.g07.document_store.exceptions.InvalidBodyException
 import it.polito.wa2.g07.document_store.services.DocumentService
-import org.apache.coyote.Response
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,8 +20,9 @@ import org.springframework.web.multipart.MultipartFile
 class DocumentController(private val documentService: DocumentService) {
 
     @GetMapping("/", "")
-    fun getDocuments(): List<DocumentReducedMetadataDTO> {
-       return  documentService.getAllDocuments()
+    fun getDocuments(pageable: Pageable): Page<DocumentReducedMetadataDTO> {
+
+       return  documentService.getAllDocuments(pageable)
     }
    // GET /API/documents/{metadatatId}/data/ -- byte content of document {metatadataId} or fail if it does not exist
     @GetMapping("/{metadataId}/data")
