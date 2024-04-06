@@ -40,6 +40,7 @@ class DocumentController(private val documentService: DocumentService) {
         // throw  handleDocumentNotFound()
         return documentService.getDocumentMetadataById(metadataId)
     }
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/","",consumes = ["multipart/form-data"])
     fun saveDocument(@RequestParam("document") document: MultipartFile): DocumentMetadataDTO {
 
@@ -55,6 +56,7 @@ class DocumentController(private val documentService: DocumentService) {
     }
 
     @PutMapping("/{metadataId}","/{metadataId}/")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun putDocuments(@PathVariable("metadataId") metadataId: Long,
                      @RequestParam("document") document: MultipartFile) : DocumentMetadataDTO {
 
