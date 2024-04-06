@@ -24,7 +24,7 @@ class DocumentController(private val documentService: DocumentService) {
        return  documentService.getAllDocuments(pageable)
     }
    // GET /API/documents/{metadatatId}/data/ -- byte content of document {metatadataId} or fail if it does not exist
-    @GetMapping("/{metadataId}/data")
+    @GetMapping("/{metadataId}/data","/{metadataId}/data/")
     fun getDocumentContent(@PathVariable("metadataId") metadataId: Long): ResponseEntity<ByteArray> {
         // throw  handleDocumentNotFound()
         val document = documentService.getDocumentContent(metadataId)
@@ -35,7 +35,7 @@ class DocumentController(private val documentService: DocumentService) {
         return ResponseEntity<ByteArray>(document.content, headers, HttpStatus.OK)
     }
     //GET /API/documents/{metadatatId}/ -- details of docu {documentId} or fail if it does not exist
-    @GetMapping("/{metadataId}")
+    @GetMapping("/{metadataId}","/{metadataId}/")
     fun getDocumentMetadataById(@PathVariable("metadataId") metadataId: Long,): DocumentMetadataDTO  {
         // throw  handleDocumentNotFound()
         return documentService.getDocumentMetadataById(metadataId)
@@ -54,7 +54,7 @@ class DocumentController(private val documentService: DocumentService) {
         return  documentService.create(document.originalFilename!!, document.size, document.contentType, document.bytes)
     }
 
-    @PutMapping("/{metadataId}")
+    @PutMapping("/{metadataId}","/{metadataId}/")
     fun putDocuments(@PathVariable("metadataId") metadataId: Long,
                      @RequestParam("document") document: MultipartFile) : DocumentMetadataDTO {
 
@@ -75,17 +75,12 @@ class DocumentController(private val documentService: DocumentService) {
         )
     }
 
-    @DeleteMapping("/{metadataId}")
+    @DeleteMapping("/{metadataId}","/{metadataId}/")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteDocument(@PathVariable("metadataId") metadataId: Long){
        documentService.deleteDocument(metadataId)
 
     }
-    //@GetMapping("")
-    //GET /API/documents/{metadatatId}/ -- details of docu {documentId} or fail if it does not exist
 
-    //GET /API/documents/{metadatatId}/data/ -- byte content of document {metatadataId} or fail if it does not exist
-
-    //POST /API/documents/ -- convert the request param into  DocumentMetadataDTO and store it in the DB, provided that a file with that name doesn’t already exist.
 }
 
