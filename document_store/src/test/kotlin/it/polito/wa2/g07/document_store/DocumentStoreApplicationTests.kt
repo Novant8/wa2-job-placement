@@ -6,8 +6,8 @@ import it.polito.wa2.g07.document_store.entities.DocumentMetadata
 import it.polito.wa2.g07.document_store.repositories.DocumentMetadataRepository
 import it.polito.wa2.g07.document_store.repositories.DocumentRepository
 import org.json.JSONObject
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.internal.matchers.ArrayEquals
@@ -23,8 +23,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.lang.reflect.Array
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -125,6 +125,65 @@ class DocumentStoreApplicationTests {
     fun test_double_delete(){
         mvc.perform(delete("/API/documents/"+d1.metadataID)).andExpect(status().isNoContent)
         mvc.perform(delete("/API/documents/"+d1.metadataID)).andExpect(status().isNotFound)
+    }
+    @Test
+    fun test_chain(){
+        val documentStoreEndpoint = "/API/documents/"
+
+        val response1=mvc.perform(get(documentStoreEndpoint))
+            .andExpect(status().isOk())
+            .andReturn()
+            .response
+            .contentAsString
+
+        val testFile = MockMultipartFile("document", "testchain.txt", "text/plain", "some html".toByteArray())
+
+        val postResponse = mvc.perform(
+            MockMvcRequestBuilders.multipart(documentStoreEndpoint)
+                .file(testFile)
+        )
+            .andExpect(status().isCreated())
+            .andReturn()
+            .response
+            .contentAsString
+
+        val newId = JSONObject(postResponse).getLong("id")
+
+        assertNotNull(newId)
+
+        val response2=mvc.perform(get(documentStoreEndpoint))
+            .andExpect(status().isOk())
+            .andReturn()
+            .response
+            .contentAsString
+
+        assertNotEquals(response1,response2)
+        
+        val contentArray = JSONObject(response2).getJSONArray("content")
+        var isIdPresent = false
+        for (i in 0 until contentArray.length()) {
+            val jsonObject = contentArray.getJSONObject(i)
+            val id = jsonObject.getLong("id")
+            if (id == newId) {
+                isIdPresent = true
+                break
+            }
+        }
+
+
+        assertTrue(isIdPresent)
+
+
+        val downloadFile=mvc.perform(get("$documentStoreEndpoint$newId/data"))
+            .andExpect(status().isOk())
+            .andReturn()
+            .response
+            .contentAsByteArray
+
+        assertNotNull(downloadFile)
+
+        mvc.perform(delete("$documentStoreEndpoint$newId"))
+            .andExpect(status().isNoContent)
     }
 
 
