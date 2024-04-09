@@ -52,7 +52,6 @@ class DocumentController(private val documentService: DocumentService) {
     }
 
     @PutMapping("/{metadataId}","/{metadataId}/")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun putDocuments(@PathVariable("metadataId") metadataId: Long,
                      @RequestParam("document") document: MultipartFile) : DocumentMetadataDTO {
 
