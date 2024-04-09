@@ -5,35 +5,38 @@ import it.polito.wa2.g07.document_store.entities.Document
 import it.polito.wa2.g07.document_store.entities.DocumentMetadata
 import it.polito.wa2.g07.document_store.repositories.DocumentMetadataRepository
 import it.polito.wa2.g07.document_store.repositories.DocumentRepository
+import net.bytebuddy.utility.dispatcher.JavaDispatcher
 import org.json.JSONObject
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.mockito.internal.matchers.ArrayEquals
 import org.springframework.beans.factory.annotation.Autowired
-
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.lang.reflect.Array
+import org.testcontainers.junit.jupiter.Container
+
 import java.time.LocalDateTime
+import org.testcontainers.junit.jupiter.Testcontainers
+import org.testcontainers.containers.PostgreSQLContainer
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
+//Create a new context every new test method
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-
+@AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
+@Testcontainers
 class DocumentStoreApplicationTests {
-   // @Autowired
-   // lateinit var restTemplate: TestRestTemplate
-
     @Autowired
     lateinit var mvc: MockMvc
     @Autowired
@@ -41,7 +44,18 @@ class DocumentStoreApplicationTests {
     @Autowired
     lateinit var docMetadataRepo: DocumentMetadataRepository
     companion object {
-        // Members of the companion object
+        @Container
+        val db = PostgreSQLContainer("postgres:latest")
+        @JvmStatic
+        @DynamicPropertySource
+        fun properties(registry: DynamicPropertyRegistry) {
+            registry.add("spring.datasource.url", db::getJdbcUrl)
+            registry.add("spring.datasource.username", db::getUsername)
+            registry.add("spring.datasource.password", db::getPassword)
+            registry.add("spring.jpa.hibernate.ddl-auto") {"create-drop"}
+        }
+
+        /* Prepopulate the DB*/
         val d1 = DocumentMetadata()
         init {
             d1.contentType="text/plain"
@@ -51,11 +65,13 @@ class DocumentStoreApplicationTests {
             d1.creationTimestamp= LocalDateTime.now()
             d1.size= d1.document.content.size.toLong()
         }
+
+
     }
+
     @BeforeEach
     fun initDb() {
-        docMetadataRepo.deleteAll()
-        docRepo.deleteAll()
+        //Each test the DB start clean
         docRepo.save(d1.document)
         docMetadataRepo.save(d1);
     }
@@ -81,10 +97,10 @@ class DocumentStoreApplicationTests {
         )*/
         assertEquals(d1.contentType,obj_res.getString("contentType"))
         assertEquals(d1.size,obj_res.getLong("size"))
-        var responseContent1=mvc.perform(get("/API/documents/"+id+"/data")).andExpect(status().isOk()).andReturn().response.contentAsByteArray
-        var responseContent2= mvc.perform(get("/API/documents/"+id+"/data/")).andExpect(status().isOk()).andReturn().response.contentAsByteArray
-        ArrayEquals(responseContent1).equals(responseContent2)
-        ArrayEquals(responseContent1).equals(d1.document.content)
+        val responseContent1=mvc.perform(get("/API/documents/"+id+"/data")).andExpect(status().isOk()).andReturn().response.contentAsByteArray
+        val responseContent2= mvc.perform(get("/API/documents/"+id+"/data/")).andExpect(status().isOk()).andReturn().response.contentAsByteArray
+        assertTrue(ArrayEquals(responseContent1).equals(responseContent2))
+        assertTrue(ArrayEquals(responseContent1).equals(d1.document.content))
     }
 
     @Test
