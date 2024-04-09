@@ -48,10 +48,6 @@ class DocumentController(private val documentService: DocumentService) {
             throw InvalidBodyException("The document does not have a name")
         }
 
-        if (documentService.existsByName(document.originalFilename!!) ){
-            throw DuplicateDocumentException("A document with the same name already exists")
-        }
-
         return  documentService.create(document.originalFilename!!, document.size, document.contentType, document.bytes)
     }
 
@@ -62,10 +58,6 @@ class DocumentController(private val documentService: DocumentService) {
 
         if(document.originalFilename === null) {
             throw InvalidBodyException("The document does not have a name")
-        }
-
-        if (documentService.existsByNameExcludingMetadataID(document.originalFilename!!, metadataId)){
-            throw DuplicateDocumentException("A document with the same name already exists")
         }
 
         return  documentService.editDocument(

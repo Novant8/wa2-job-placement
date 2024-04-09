@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository
 @EnableJpaRepositories
 @Repository
 interface DocumentMetadataRepository:JpaRepository<DocumentMetadata,Long> {
-    fun findByNameIgnoreCase(name:String): DocumentMetadata?
-
-    fun findByNameIgnoreCaseAndMetadataIDNot(name: String, metadataId: Long): DocumentMetadata?
+    fun existsByNameIgnoreCase(name: String): Boolean
+    fun existsByNameIgnoreCaseAndMetadataIDNot(name: String, metadataId: Long): Boolean
 }
