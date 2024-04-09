@@ -44,7 +44,7 @@ class DocumentController(private val documentService: DocumentService) {
     @PostMapping("/","",consumes = ["multipart/form-data"])
     fun saveDocument(@RequestParam("document") document: MultipartFile): DocumentMetadataDTO {
 
-        if(document.originalFilename === null) {
+        if(document.originalFilename === null || document.originalFilename!!.isEmpty()) {
             throw InvalidBodyException("The document does not have a name")
         }
 
@@ -56,7 +56,7 @@ class DocumentController(private val documentService: DocumentService) {
     fun putDocuments(@PathVariable("metadataId") metadataId: Long,
                      @RequestParam("document") document: MultipartFile) : DocumentMetadataDTO {
 
-        if(document.originalFilename === null) {
+        if(document.originalFilename === null || document.originalFilename!!.isEmpty()) {
             throw InvalidBodyException("The document does not have a name")
         }
 

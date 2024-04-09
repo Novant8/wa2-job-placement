@@ -22,6 +22,6 @@ class ProblemDetailsHandler :ResponseEntityExceptionHandler(){
 
     @ExceptionHandler(InvalidBodyException::class)
     fun handleDuplicateDocument(e: InvalidBodyException) =
-        ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,e.message !!)
+        ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY,e.message !!)
 
 }
