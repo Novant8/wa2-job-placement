@@ -8,18 +8,21 @@ import it.polito.wa2.g07.document_store.exceptions.DocumentNotFoundException
 import it.polito.wa2.g07.document_store.exceptions.DuplicateDocumentException
 import it.polito.wa2.g07.document_store.repositories.DocumentMetadataRepository
 import it.polito.wa2.g07.document_store.repositories.DocumentRepository
-import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
-
+@Transactional
 class DocumentServiceImpl(private val documentRepository: DocumentRepository, private val documentMetadataRepository: DocumentMetadataRepository) : DocumentService {
-    @Transactional
     override fun create(name: String, size:Long, contentType: String?, file: ByteArray): DocumentMetadataDTO{
+
+        if(documentMetadataRepository.existsByNameIgnoreCase(name)) {
+            throw DuplicateDocumentException("A document with the same name already exists")
+        }
 
         val doc = Document()
         doc.content= file
@@ -39,30 +42,21 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
 
     }
 
-    override fun existsByName(name: String): Boolean {
-      return  documentMetadataRepository.findByNameIgnoreCase(name) != null
-    }
-
-    override fun existsByNameExcludingMetadataID(name: String, metadataId: Long): Boolean {
-        return documentMetadataRepository.findByNameIgnoreCaseAndMetadataIDNot(name, metadataId) != null
-    }
-
+    @Transactional(readOnly = true)
     override fun getAllDocuments(pageable: Pageable): Page<DocumentReducedMetadataDTO>{
         return documentMetadataRepository.findAll(pageable).map { d-> d.toReducedDto() }
     }
 
-    @Transactional
     override fun deleteDocument(metadataId: Long) {
-        val document = documentMetadataRepository.findById(metadataId)
-        if (!document.isPresent()) {
-            throw DuplicateDocumentException("The document doesn't exist")
+        if (!documentMetadataRepository.existsById(metadataId)) {
+            throw DocumentNotFoundException("The document doesn't exist")
         }
 
-        documentMetadataRepository.delete(document.get())
+        documentMetadataRepository.deleteById(metadataId)
         logger.info("Deleted document {}", metadataId)
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     override fun getDocumentContent(metadataId: Long): DocumentDTO {
         val document = documentMetadataRepository.findById(metadataId)
         if (!document.isPresent()) {
@@ -71,7 +65,7 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         return document.get().toDocumentDto()
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     override fun getDocumentMetadataById(metadataId: Long): DocumentMetadataDTO {
         val document = documentMetadataRepository.findById(metadataId)
         if (!document.isPresent()) {
@@ -80,7 +74,6 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         return document.get().toMetadataDto()
     }
 
-    @Transactional
     override fun editDocument(
         metadataId: Long,
         name: String,
@@ -91,6 +84,10 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         val documentMetadataOpt = documentMetadataRepository.findById(metadataId)
         if (!documentMetadataOpt.isPresent()) {
             throw DocumentNotFoundException("The document doesn't exist")
+        }
+
+        if(documentMetadataRepository.existsByNameIgnoreCaseAndMetadataIDNot(name, metadataId)) {
+            throw DuplicateDocumentException("A document with the same name already exists")
         }
 
         val docMetadata = documentMetadataOpt.get()
