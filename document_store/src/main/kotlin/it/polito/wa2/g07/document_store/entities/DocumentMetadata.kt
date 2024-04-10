@@ -3,11 +3,10 @@ package it.polito.wa2.g07.document_store.entities
 
 
 import jakarta.persistence.*
-import jakarta.persistence.CascadeType.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "document_metadata")
+
 class DocumentMetadata{
         @Id
         @GeneratedValue
@@ -16,16 +15,16 @@ class DocumentMetadata{
         @OneToOne
        lateinit var document: Document
 
-        @Column(name = "name")
+
        lateinit var name: String
 
-        @Column(name = "size")
+
          var size: Long = 0
 
-        @Column(name = "content_type")
+
         var contentType: String? = null
 
-        @Column(name = "creation_timestamp")
+
         lateinit var creationTimestamp: LocalDateTime
 
 

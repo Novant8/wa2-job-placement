@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Page
 
 interface DocumentService {
- /*fun getDocuments(): DocumentDTO?*/
+
  fun create(name: String, size:Long, contentType: String?, file: ByteArray): DocumentMetadataDTO
 
  fun getAllDocuments(pageable: Pageable): Page<DocumentReducedMetadataDTO>

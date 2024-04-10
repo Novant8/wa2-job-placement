@@ -3,7 +3,6 @@ package it.polito.wa2.g07.document_store.controllers
 
 import it.polito.wa2.g07.document_store.dtos.DocumentMetadataDTO
 import it.polito.wa2.g07.document_store.dtos.DocumentReducedMetadataDTO
-import it.polito.wa2.g07.document_store.exceptions.DuplicateDocumentException
 import it.polito.wa2.g07.document_store.exceptions.InvalidBodyException
 import it.polito.wa2.g07.document_store.services.DocumentService
 import org.springframework.data.domain.Page
@@ -23,7 +22,7 @@ class DocumentController(private val documentService: DocumentService) {
     fun getDocuments(pageable: Pageable): Page<DocumentReducedMetadataDTO> {
        return  documentService.getAllDocuments(pageable)
     }
-   // GET /API/documents/{metadatatId}/data/ -- byte content of document {metatadataId} or fail if it does not exist
+
     @GetMapping("/{metadataId}/data","/{metadataId}/data/")
     fun getDocumentContent(@PathVariable("metadataId") metadataId: Long): ResponseEntity<ByteArray> {
         // throw  handleDocumentNotFound()
@@ -34,10 +33,10 @@ class DocumentController(private val documentService: DocumentService) {
 
         return ResponseEntity<ByteArray>(document.content, headers, HttpStatus.OK)
     }
-    //GET /API/documents/{metadatatId}/ -- details of docu {documentId} or fail if it does not exist
+
     @GetMapping("/{metadataId}","/{metadataId}/")
     fun getDocumentMetadataById(@PathVariable("metadataId") metadataId: Long,): DocumentMetadataDTO  {
-        // throw  handleDocumentNotFound()
+
         return documentService.getDocumentMetadataById(metadataId)
     }
     @ResponseStatus(HttpStatus.CREATED)
