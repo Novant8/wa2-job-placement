@@ -1,4 +1,4 @@
-package it.polito.wa2.g07.document_store
+package it.polito.wa2.g07.document_store.integrations
 
 
 import it.polito.wa2.g07.document_store.entities.Document
@@ -44,6 +44,7 @@ class DocumentStoreApplicationTests {
     companion object {
         @Container
         val db = PostgreSQLContainer("postgres:latest")
+        val documentStoreEndpoint = "/API/documents/"
         @JvmStatic
         @DynamicPropertySource
         fun properties(registry: DynamicPropertyRegistry) {
@@ -77,15 +78,15 @@ class DocumentStoreApplicationTests {
     @Test
     fun test_get_endpoints() {
 
-        var response1= mvc.perform(get("/API/documents/")).andExpect(status().isOk()).andReturn().response.contentAsString
-        var response2= mvc.perform(get("/API/documents")).andExpect(status().isOk()).andReturn().response.contentAsString
-        assertEquals(response1, response2)
+        var response1= mvc.perform(get(documentStoreEndpoint)).andExpect(status().isOk()).andReturn().response.contentAsString
 
+        var response2= mvc.perform(get("/API/documents/")).andExpect(status().isOk()).andReturn().response.contentAsString
+        assertEquals(response1, response2)
         val id=JSONObject(response1).getJSONArray("content").getJSONObject(0).getString("id")
         assertEquals(d1.metadataID, id.toLong())
 
-        response1= mvc.perform(get("/API/documents/$id")).andExpect(status().isOk()).andReturn().response.contentAsString
-        response2= mvc.perform(get("/API/documents/$id/")).andExpect(status().isOk()).andReturn().response.contentAsString
+        response1= mvc.perform(get("$documentStoreEndpoint$id")).andExpect(status().isOk()).andReturn().response.contentAsString
+        response2= mvc.perform(get("$documentStoreEndpoint$id/")).andExpect(status().isOk()).andReturn().response.contentAsString
         assertEquals(response1, response2)
 
         val objRes = JSONObject(response1)
@@ -96,8 +97,8 @@ class DocumentStoreApplicationTests {
         )*/
         assertEquals(d1.contentType,objRes.getString("contentType"))
         assertEquals(d1.size,objRes.getLong("size"))
-        val responseContent1=mvc.perform(get("/API/documents/$id/data")).andExpect(status().isOk()).andReturn().response.contentAsByteArray
-        val responseContent2= mvc.perform(get("/API/documents/$id/data/")).andExpect(status().isOk()).andReturn().response.contentAsByteArray
+        val responseContent1=mvc.perform(get("$documentStoreEndpoint$id/data")).andExpect(status().isOk()).andReturn().response.contentAsByteArray
+        val responseContent2= mvc.perform(get("$documentStoreEndpoint$id/data/")).andExpect(status().isOk()).andReturn().response.contentAsByteArray
         assertArrayEquals(responseContent1, responseContent2)
         assertArrayEquals(responseContent1, d1.document.content)
     }
@@ -109,21 +110,22 @@ class DocumentStoreApplicationTests {
         val secondFile = MockMultipartFile("document", "filename2.txt", "text/plain", "some xml".toByteArray())
 
         mvc.perform(
-            MockMvcRequestBuilders.multipart("/API/documents/").file(firstFile))
+            MockMvcRequestBuilders.multipart(documentStoreEndpoint).file(firstFile))
             .andExpect(status().isCreated)
         mvc.perform(
-            MockMvcRequestBuilders.multipart("/API/documents").file(secondFile))
+            MockMvcRequestBuilders.multipart(documentStoreEndpoint).file(secondFile))
             .andExpect(status().isCreated)
         mvc.perform(
-            MockMvcRequestBuilders.multipart("/API/documents").file(secondFile))
+            MockMvcRequestBuilders.multipart(documentStoreEndpoint).file(secondFile))
             .andExpect(status().isConflict)
     }
 
     @Test
     fun test_put_documents(){
         val file = MockMultipartFile("document", "fileCheSostituisce.txt", "text/plain", "Lorem ipsum".toByteArray())
+        val metadata = d1.metadataID
          mvc.perform(
-            MockMvcRequestBuilders.multipart("/API/documents/"+d1.metadataID).file(file).with { it.method = "PUT"; it })
+            MockMvcRequestBuilders.multipart("$documentStoreEndpoint$metadata").file(file).with { it.method = "PUT"; it })
             .andExpect(status().isOk)
     }
 
@@ -131,22 +133,23 @@ class DocumentStoreApplicationTests {
     fun test_post_documents_duplicate(){
         val firstFile = MockMultipartFile("document", "filename.txt", "text/plain", "some xml".toByteArray())
         mvc.perform(
-            MockMvcRequestBuilders.multipart("/API/documents").file(firstFile))
+            MockMvcRequestBuilders.multipart(documentStoreEndpoint).file(firstFile))
             .andExpect(status().isCreated)
         mvc.perform(
-            MockMvcRequestBuilders.multipart("/API/documents").file(firstFile))
+            MockMvcRequestBuilders.multipart(documentStoreEndpoint).file(firstFile))
             .andExpect(status().isConflict)
     }
 
     @Test
     fun test_double_delete(){
-        mvc.perform(delete("/API/documents/"+d1.metadataID)).andExpect(status().isNoContent)
-        mvc.perform(delete("/API/documents/"+d1.metadataID)).andExpect(status().isNotFound)
+        val metadata = d1.metadataID
+        mvc.perform(delete("$documentStoreEndpoint$metadata")).andExpect(status().isNoContent)
+        mvc.perform(delete("$documentStoreEndpoint$metadata")).andExpect(status().isNotFound)
     }
 
     @Test
     fun test_chain(){
-        val documentStoreEndpoint = "/API/documents/"
+
 
         val response1=mvc.perform(get(documentStoreEndpoint))
             .andExpect(status().isOk())
