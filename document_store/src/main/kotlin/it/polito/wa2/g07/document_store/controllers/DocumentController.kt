@@ -25,11 +25,11 @@ class DocumentController(private val documentService: DocumentService) {
 
     @GetMapping("/{metadataId}/data","/{metadataId}/data/")
     fun getDocumentContent(@PathVariable("metadataId") metadataId: Long): ResponseEntity<ByteArray> {
-        // throw  handleDocumentNotFound()
         val document = documentService.getDocumentContent(metadataId)
         val documentMetadata = documentService.getDocumentMetadataById(metadataId)
         val headers = HttpHeaders()
         headers.set(HttpHeaders.CONTENT_TYPE, documentMetadata.contentType)
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"${documentMetadata.name}\"")
 
         return ResponseEntity<ByteArray>(document.content, headers, HttpStatus.OK)
     }
