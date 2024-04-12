@@ -49,7 +49,7 @@ class Contact {
     )
     val telephones: MutableSet<Telephone> = mutableSetOf()
 
-    @OneToMany(mappedBy = "contact")
+    @OneToMany(mappedBy = "messageID")
     val messages: MutableSet<Message> = mutableSetOf()
 
     fun addAddress(a: Address) {
