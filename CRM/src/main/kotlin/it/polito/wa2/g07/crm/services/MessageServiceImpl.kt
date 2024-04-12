@@ -1,12 +1,14 @@
 package it.polito.wa2.g07.crm.services
 
-import
+
 import it.polito.wa2.g07.crm.repositories.MessageRepository
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 import org.springframework.data.domain.Page
 import it.polito.wa2.g07.crm.dtos.ReducedMessageDTO
+import it.polito.wa2.g07.crm.dtos.toReducedDTO
+
 @Service
 class MessageServiceImpl (private val messageRepository: MessageRepository ):MessageService {
 

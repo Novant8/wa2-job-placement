@@ -1,6 +1,6 @@
 package it.polito.wa2.g07.crm.controllers
 
-import it.polito.wa2.g07.crm.dtos.MessageReducedDTO
+import it.polito.wa2.g07.crm.dtos.ReducedMessageDTO
 import it.polito.wa2.g07.crm.services.MessageService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -18,7 +18,7 @@ class MessageController (private val messageService: MessageService) {
 
 
     @GetMapping("","/")
-    fun getMessages(pageable: Pageable):Page<MessageReducedDTO>{
+    fun getMessages(pageable: Pageable):Page<ReducedMessageDTO>{
         return messageService.getMessages(pageable);
     }
 
