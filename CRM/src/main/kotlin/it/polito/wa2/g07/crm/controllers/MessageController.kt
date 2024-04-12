@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.net.http.HttpHeaders
 
 @RestController
 @RequestMapping("API/messages")
@@ -27,9 +28,8 @@ class MessageController (private val messageService: MessageService) {
     //Getting a specific message
     @GetMapping("/{messageId}", "/{messageId}/")
     fun getMessageById(@PathVariable("messageId") messageId: Long) {
-
-
-
+        val message= messageService.getMessage(messageId)
+        return message
     }
 
     //change the state of a specific message

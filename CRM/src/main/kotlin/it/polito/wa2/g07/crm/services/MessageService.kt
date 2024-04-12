@@ -6,5 +6,6 @@ import org.springframework.data.domain.Page
 
 interface MessageService {
     fun getMessages(pageable: Pageable): Page<ReducedMessageDTO>
+    fun getMessage(messageID:Long): ReducedMessageDTO
 
 }
