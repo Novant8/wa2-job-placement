@@ -21,8 +21,8 @@ class Contact {
     @GeneratedValue
     var contactId: Long = 0
 
-    lateinit var name: String
-    lateinit var surname: String
+    var name: String?=null
+    var surname: String?=null
 
     var SSN: String? = null
 
