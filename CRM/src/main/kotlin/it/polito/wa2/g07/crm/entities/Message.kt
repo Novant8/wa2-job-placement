@@ -16,7 +16,7 @@ class Message {
     @GeneratedValue
     var messageID: Long = 0
 
-    @OneToOne
+    @ManyToOne
     lateinit var sender: Address
 
     lateinit var subject: String

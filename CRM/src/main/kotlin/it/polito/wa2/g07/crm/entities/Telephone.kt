@@ -4,10 +4,7 @@ import jakarta.persistence.*
 
 @Entity
 @DiscriminatorValue("telephone")
-class Telephone {
-    @Id
-    @GeneratedValue
-    var telephoneId : Long = 0
+class Telephone:Address() {
 
     lateinit var number : String
 
