@@ -1,12 +1,7 @@
 package it.polito.wa2.g07.crm.entities
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.JoinTable
-import jakarta.persistence.ManyToMany
-import jakarta.persistence.OneToMany
+import jakarta.persistence.*
+
 
 enum class Category (category : String){
     CUSTOMER("Customer"),
@@ -15,6 +10,7 @@ enum class Category (category : String){
 }
 
 @Entity
+
 class Contact {
 
     @Id
@@ -28,12 +24,18 @@ class Contact {
 
     lateinit var category : Category
 
+    @OneToMany
+    val addresses: MutableSet<Address> = mutableSetOf()
+
+    //val addresses: MutableSet<Address> = mutableSetOf()
+/*
+
     @ManyToMany
     @JoinTable(name = "contact_address",
         joinColumns = [ JoinColumn(name="contact_id") ],
         inverseJoinColumns = [ JoinColumn(name = "address_id") ]
     )
-    val addresses: MutableSet<Address> = mutableSetOf()
+    val dwellings: MutableSet<Dwelling> = mutableSetOf()
 
     @ManyToMany
     @JoinTable(name = "contact_email",
@@ -65,5 +67,5 @@ class Contact {
     fun addTelephone(t: Telephone) {
         this.telephones.add(t)
         t.contacts.add(this)
-    }
+    }*/
 }

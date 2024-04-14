@@ -8,9 +8,7 @@ data class ContactDTO(
         val surname : String? ,
         val category: Category,
         val addresses: MutableSet<Address>,
-        val phoneNumbers : MutableSet<Telephone>,
-        val SSN : String?,
-        val emails : MutableSet<Email>
+        val SSN : String?
 
 )
 
@@ -21,7 +19,5 @@ fun Contact.toContactDto(): ContactDTO=
                 this.surname,
                 this.category,
                 this.addresses,
-                this.telephones,
-                this.SSN,
-                this.emails
+                this.SSN
         )

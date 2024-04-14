@@ -23,7 +23,7 @@ class MessageController (private val messageService: MessageService,
     }
 
     @PostMapping("","/", )
-    fun createNewMessage(msg: MessageCreateDTO):MessageDTO{
+    fun createNewMessage(msg: MessageCreateDTO):MessageDTO?{
        // sender, channel, subject, body
         println("HELLO")
         return messageService.createMessage(msg)

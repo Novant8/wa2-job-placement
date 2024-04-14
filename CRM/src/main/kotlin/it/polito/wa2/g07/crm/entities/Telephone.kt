@@ -1,11 +1,9 @@
 package it.polito.wa2.g07.crm.entities
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToMany
+import jakarta.persistence.*
 
 @Entity
+@DiscriminatorValue("telephone")
 class Telephone {
     @Id
     @GeneratedValue
@@ -13,6 +11,5 @@ class Telephone {
 
     lateinit var number : String
 
-    @ManyToMany(mappedBy = "telephones")
-    val contacts: MutableSet<Contact> = mutableSetOf()
+
 }

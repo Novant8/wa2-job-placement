@@ -1,10 +1,6 @@
 package it.polito.wa2.g07.crm.entities
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.OneToMany
+import jakarta.persistence.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -20,9 +16,8 @@ class Message {
     @GeneratedValue
     var messageID: Long = 0
 
-    @ManyToOne
-    lateinit var sender: Contact
-    lateinit var channel: MessageChannel
+    @OneToOne
+    lateinit var sender: Address
 
     lateinit var subject: String
     lateinit var body: String
