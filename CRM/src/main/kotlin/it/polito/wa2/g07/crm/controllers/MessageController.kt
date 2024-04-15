@@ -28,8 +28,8 @@ class MessageController (private val messageService: MessageService) {
     //Getting a specific message
     @GetMapping("/{messageId}", "/{messageId}/")
     fun getMessageById(@PathVariable("messageId") messageId: Long) {
-        val message= messageService.getMessage(messageId)
-        return message
+        //val message= messageService.getMessage(messageId)
+        //return message
     }
 
     //change the state of a specific message
