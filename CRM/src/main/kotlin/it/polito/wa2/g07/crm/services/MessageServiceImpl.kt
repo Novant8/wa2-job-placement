@@ -16,9 +16,8 @@ import it.polito.wa2.g07.crm.repositories.*
 class MessageServiceImpl(
     private val messageRepository: MessageRepository,
     private val contactRepository: ContactRepository,
-                          //private val addressRepository: AddressRepository,
     private val addressRepository: AddressRepository,
-    private val dwellingRepository: DwellingRepository,
+
 
 ):MessageService {
 
@@ -27,29 +26,29 @@ class MessageServiceImpl(
       return  messageRepository.findAll(pageable).map { m->m.toReducedDTO(); }
     }
     override fun createMessage(msg: MessageCreateDTO):MessageDTO?{
-
-
         val m = Message()
         when (msg.channel) {
 
             "email" -> {
                 val email = Email()
                 email.email=msg.sender
+                m.sender=email
             }
             "dwelling" -> {
                 val dwelling = Dwelling()
                 dwelling.city = msg.sender /// da parsificare meglio
+                m.sender = dwelling
             }
             "telephone" -> {
                 val telephone = Telephone()
                 telephone.number=msg.sender
+                m.sender=telephone
             }
         }
         m.subject=msg.subject
         m.body=msg.body
-        m.sender=Dwelling()
         addressRepository.save(m.sender)
-       return messageRepository.save(m).toMessageDTO()
+        return messageRepository.save(m).toMessageDTO()
 
     }
 
