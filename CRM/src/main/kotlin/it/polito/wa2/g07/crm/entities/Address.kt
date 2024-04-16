@@ -11,4 +11,6 @@ public open class  Address {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     open var id: Long=0
 
+    @ManyToMany(mappedBy = "addresses")
+    open var contacts: MutableSet<Contact> = mutableSetOf()
 }

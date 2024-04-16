@@ -24,48 +24,25 @@ class Contact {
 
     lateinit var category : Category
 
-    @OneToMany
+    @ManyToMany
+    @JoinTable(
+        name = "contacts_addresses",
+        joinColumns = [ JoinColumn(name = "contact_id") ],
+        inverseJoinColumns = [ JoinColumn(name = "course_id") ])
     val addresses: MutableSet<Address> = mutableSetOf()
 
-    //val addresses: MutableSet<Address> = mutableSetOf()
-/*
-
-    @ManyToMany
-    @JoinTable(name = "contact_address",
-        joinColumns = [ JoinColumn(name="contact_id") ],
-        inverseJoinColumns = [ JoinColumn(name = "address_id") ]
-    )
-    val dwellings: MutableSet<Dwelling> = mutableSetOf()
-
-    @ManyToMany
-    @JoinTable(name = "contact_email",
-            joinColumns = [ JoinColumn(name="contact_id") ],
-            inverseJoinColumns = [ JoinColumn(name = "email_id") ]
-    )
-    val emails: MutableSet<Email> = mutableSetOf()
-
-    @ManyToMany
-    @JoinTable(name = "contact_telephone",
-            joinColumns = [ JoinColumn(name="contact_id") ],
-            inverseJoinColumns = [ JoinColumn(name = "telephone_id") ]
-    )
-    val telephones: MutableSet<Telephone> = mutableSetOf()
-
-    @OneToMany(mappedBy = "sender")
-    val messages: MutableSet<Message> = mutableSetOf()
-
-    fun addAddress(a: Address) {
-        a.contacts.add(this)
-        this.addresses.add(a)
+    fun addDwelling(d: Dwelling) {
+        d.contacts.add(this)
+        this.addresses.add(d)
     }
 
     fun addEmail(e: Email) {
         e.contacts.add(this)
-        this.emails.add(e)
+        this.addresses.add(e)
     }
-    
+
     fun addTelephone(t: Telephone) {
-        this.telephones.add(t)
         t.contacts.add(this)
-    }*/
+        this.addresses.add(t)
+    }
 }

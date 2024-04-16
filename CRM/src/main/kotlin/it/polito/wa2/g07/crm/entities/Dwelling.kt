@@ -8,6 +8,7 @@ import jakarta.persistence.*
 @DiscriminatorValue("dwelling")
 public class Dwelling : Address() {
 
+     var street: String? = null
      var city: String? = null
      var district: String? = null
      var country: String? = null
