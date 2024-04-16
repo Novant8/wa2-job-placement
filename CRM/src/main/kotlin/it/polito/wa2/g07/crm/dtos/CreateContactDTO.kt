@@ -1,20 +1,39 @@
 package it.polito.wa2.g07.crm.dtos
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import it.polito.wa2.g07.crm.entities.*
 
-data class CreateContactDTO (
-
-    val name : String,
-    val surname : String,
+data class CreateContactDTO(
+    val name: String,
+    val surname: String,
     val category: String?,
-    val street: String?,
-    val city: String?,
-    val district: String?,
-    val country: String?,
-    val phoneNumbers : MutableSet<String?>,
     val SSN : String?,
-    val emails : MutableSet<String?>
+    val addresses: List<AddressDTO>
 )
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+    JsonSubTypes.Type(value = MailDTO::class, name = "mail"),
+    JsonSubTypes.Type(value = TelephoneDTO::class, name = "phone"),
+    JsonSubTypes.Type(value = DwellingDTO::class, name = "dwelling")
+)
+sealed  class AddressDTO
+
+
+data class MailDTO(
+    val mail: String
+) : AddressDTO()
+
+data class TelephoneDTO(
+    val phone_number: String
+) : AddressDTO()
+
+data class DwellingDTO(
+    val city: String,
+    val district: String,
+    val country: String
+) : AddressDTO()
+
 
 
 
@@ -29,27 +48,28 @@ fun CreateContactDTO.toEntity(): Contact {
     }
     contact.SSN = this.SSN
 
-    // Creating and adding address
-    val address = Address()
-    address.street = this.street ?: ""
-    address.city = this.city ?: ""
-    address.district = this.district ?: ""
-    address.country = this.country ?: ""
-    contact.addAddress(address)
-
-    // Creating and adding emails
-    this.emails.filterNotNull().map { email ->
-        val emailEntity = Email()
-        emailEntity.email = email
-        contact.addEmail(emailEntity)
+    this.addresses.forEach { addressDTO ->
+        when (addressDTO) {
+            is MailDTO -> {
+                val email = Email()
+                email.email = addressDTO.mail
+                contact.addAddress(email)
+            }
+            is TelephoneDTO -> {
+                val telephone = Telephone()
+                telephone.number = addressDTO.phone_number
+                contact.addAddress(telephone)
+            }
+            is DwellingDTO -> {
+                val dwelling = Dwelling()
+                dwelling.city = addressDTO.city
+                dwelling.district = addressDTO.district
+                dwelling.country = addressDTO.country
+                contact.addAddress(dwelling)
+            }
+        }
     }
 
-    // Creating and adding telephones
-    this.phoneNumbers.filterNotNull().map { phoneNumber ->
-        val telephone = Telephone()
-        telephone.number = phoneNumber
-        contact.addTelephone(telephone)
-    }
 
     return contact
 }

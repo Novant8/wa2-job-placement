@@ -1,5 +1,14 @@
 package it.polito.wa2.g07.crm.entities
 
+
+import jakarta.persistence.*
+
+@Entity
+@DiscriminatorValue("email")
+class Email:Address(){
+    lateinit var email: String
+}
+/*
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -17,4 +26,4 @@ class Email {
     @ManyToMany(mappedBy = "emails")
     @JsonBackReference
     val contacts: MutableSet<Contact> = mutableSetOf()
-}
+}*/
