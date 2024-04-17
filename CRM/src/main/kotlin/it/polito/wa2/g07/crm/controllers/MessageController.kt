@@ -1,20 +1,20 @@
 package it.polito.wa2.g07.crm.controllers
 
+import it.polito.wa2.g07.crm.dtos.MessageDTO
 import it.polito.wa2.g07.crm.dtos.ReducedMessageDTO
+import it.polito.wa2.g07.crm.dtos.MessageCreateDTO
+import it.polito.wa2.g07.crm.services.ContactService
 import it.polito.wa2.g07.crm.services.MessageService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("API/messages")
-class MessageController (private val messageService: MessageService) {
+class MessageController (private val messageService: MessageService,
+                         private val contactService: ContactService
+                        ) {
 
 
     @GetMapping("","/")
@@ -22,15 +22,24 @@ class MessageController (private val messageService: MessageService) {
         return messageService.getMessages(pageable);
     }
 
-
-
-    //Getting a specific message
-    @GetMapping("/{messageId}", "/{messageId}/")
-    fun getMessageById(@PathVariable("messageId") messageId: Long) {
-
+    @PostMapping("","/", )
+    fun createNewMessage(msg: MessageCreateDTO):MessageDTO?{
+       // sender, channel, subject, body
+        println("HELLO")
+        return messageService.createMessage(msg)
 
 
     }
+
+
+
+
+    //Getting a specific message
+   /* @GetMapping("/{messageId}", "/{messageId}/")
+    fun getMessageById(@PathVariable("messageId") messageId: Long): MessageDTO {
+
+        return  MessageDTO()
+    }*/
 
     //change the state of a specific message
     @PostMapping("/{messageId}", "/{messageID}/")

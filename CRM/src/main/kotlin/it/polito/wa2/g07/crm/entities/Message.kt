@@ -1,8 +1,7 @@
 package it.polito.wa2.g07.crm.entities
 
-
 import jakarta.persistence.*
-
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 enum class MessageChannel(channel: String) {
@@ -19,6 +18,7 @@ class Message {
 
     @ManyToOne
     lateinit var sender: Address
+
     lateinit var subject: String
     lateinit var body: String
 
