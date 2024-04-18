@@ -22,32 +22,25 @@ class ContactController(private val contactService: ContactService) {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/","")
     fun saveContact (@RequestBody contact: CreateContactDTO ): ContactDTO{
-
         if (contact.name.isBlank() || contact.surname.isBlank()){
             throw MissingFieldException("Name and surname are required fields.")
         }
-        val contactDto = contactService.create(contact)
-
         return contactService.create(contact)
     }
 
     @PostMapping("/{contactId}/email")
     fun addEmail (@PathVariable("contactId") contactId : Long, @RequestBody emailValue :Map<String, String> ){
-       val email = emailValue["email"]
-        if ( email!= null && !email.isBlank()){
+        val email = emailValue["email"]
+        if (!email.isNullOrBlank()) {
             contactService.insertEmail(contactId, email)
-        }else {
+        } else {
             throw MissingFieldException("You should provide an email ")
         }
-
     }
 
     @GetMapping("/{contactId}")
     fun getContactById (@PathVariable("contactId") contactId: Long): ContactDTO{
-
-        val contactDto = contactService.getContactById(contactId)
-
-        return contactDto
+        return contactService.getContactById(contactId)
     }
 
     @GetMapping("", "/")
