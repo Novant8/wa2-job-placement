@@ -1,6 +1,6 @@
 package it.polito.wa2.g07.crm.repositories
 
-import it.polito.wa2.g07.crm.entities.Category
+import it.polito.wa2.g07.crm.entities.ContactCategory
 
 import it.polito.wa2.g07.crm.entities.Contact
 import org.springframework.data.domain.Page
@@ -20,7 +20,7 @@ interface ContactRepository:JpaRepository<Contact,Long> {
 
     fun findAllBySSN(ssn: String, pageable: Pageable): Page<Contact>
 
-    fun findAllByCategory(category: Category, pageable: Pageable): Page<Contact>
+    fun findAllByCategory(category: ContactCategory, pageable: Pageable): Page<Contact>
 
     @Query("SELECT e.contacts FROM Email e WHERE e.email = :email")
     fun findAllByEmail(@Param("email") e: String, pageable: Pageable): Page<Contact>

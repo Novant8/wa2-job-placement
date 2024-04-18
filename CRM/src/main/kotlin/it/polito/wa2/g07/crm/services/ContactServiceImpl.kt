@@ -9,7 +9,7 @@ import it.polito.wa2.g07.crm.dtos.toEntity
 import it.polito.wa2.g07.crm.dtos.ContactFilterBy
 import it.polito.wa2.g07.crm.dtos.ReducedContactDTO
 import it.polito.wa2.g07.crm.dtos.toReducedContactDTO
-import it.polito.wa2.g07.crm.entities.Category
+import it.polito.wa2.g07.crm.entities.ContactCategory
 import it.polito.wa2.g07.crm.entities.Email
 import it.polito.wa2.g07.crm.exceptions.ContactNotFoundException
 import it.polito.wa2.g07.crm.repositories.ContactRepository
@@ -39,7 +39,7 @@ class ContactServiceImpl(private val contactRepository: ContactRepository) : Con
             ContactFilterBy.EMAIL ->        contactRepository.findAllByEmail(query, pageable)
             ContactFilterBy.TELEPHONE ->    contactRepository.findAllByTelephone(query, pageable)
             ContactFilterBy.ADDRESS ->      contactRepository.findAllByDwellingLike(query, pageable)
-            ContactFilterBy.CATEGORY ->     contactRepository.findAllByCategory(Category.valueOf(query), pageable)
+            ContactFilterBy.CATEGORY ->     contactRepository.findAllByCategory(ContactCategory.valueOf(query), pageable)
         }
         return result.map { it.toReducedContactDTO() }
     }

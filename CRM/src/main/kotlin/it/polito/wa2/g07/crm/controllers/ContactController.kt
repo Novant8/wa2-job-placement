@@ -2,7 +2,7 @@ package it.polito.wa2.g07.crm.controllers
 
 import it.polito.wa2.g07.crm.dtos.*
 import it.polito.wa2.g07.crm.exceptions.MissingFieldException
-import it.polito.wa2.g07.crm.entities.Category
+import it.polito.wa2.g07.crm.entities.ContactCategory
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.ContactService
 import org.springframework.http.HttpStatus
@@ -53,14 +53,20 @@ class ContactController(private val contactService: ContactService) {
     @GetMapping("", "/")
     fun getContacts(
         pageable: Pageable,
-        @RequestParam("filterBy") filterBy: ContactFilterBy = ContactFilterBy.NONE,
+        @RequestParam("filterBy") filterByStr: String = "NONE",
         @RequestParam("q") query: String = ""
     ): Page<ReducedContactDTO> {
+        val filterBy = try {
+            ContactFilterBy.valueOf(filterByStr.uppercase())
+        } catch (e: IllegalArgumentException) {
+            throw InvalidParamsException("'$filterByStr' is not a valid filter. Possible filters: ${ContactFilterBy.entries}.")
+        }
+
         if (filterBy == ContactFilterBy.CATEGORY) {
             try {
-                Category.valueOf(query)
+                ContactCategory.valueOf(query.uppercase())
             } catch (e: IllegalArgumentException) {
-                throw InvalidParamsException("'${query}' is not a valid category")
+                throw InvalidParamsException("'$query' is not a valid category. Possible categories: ${ContactCategory.entries}.")
             }
         }
 

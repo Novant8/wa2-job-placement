@@ -2,24 +2,23 @@ package it.polito.wa2.g07.crm.dtos
 
 import it.polito.wa2.g07.crm.entities.*
 
-enum class ContactFilterBy(col: String?) {
-        NONE(null),
-        FULL_NAME("full_name"),
-        CATEGORY("category"),
-        ADDRESS("address"),
-        TELEPHONE("telephone"),
-        SSN("ssn"),
-        EMAIL("email")
+enum class ContactFilterBy {
+        NONE,
+        FULL_NAME,
+        CATEGORY,
+        ADDRESS,
+        TELEPHONE,
+        SSN,
+        EMAIL
 }
 
 data class ContactDTO(
         val id :Long ,
         val name : String ,
         val surname : String ,
-        val category: String,
+        val category: ContactCategory,
         val addresses: List<AddressDTO>,
         val SSN: String?
-
 )
 
 fun Contact.toContactDto(): ContactDTO=
@@ -27,7 +26,7 @@ fun Contact.toContactDto(): ContactDTO=
                 this.contactId,
                 this.name,
                 this.surname,
-                this.category.name,
+                this.category,
                 this.addresses.map { address: Address ->
                         when (address){
                                 is Email -> {
@@ -37,7 +36,7 @@ fun Contact.toContactDto(): ContactDTO=
                                         TelephoneDTO(address.number)
                                 }
                                 is Dwelling ->{
-                                        DwellingDTO(address.city?:"",address.district?:"", address.country?:"")
+                                        DwellingDTO(address.street ?: "", address.city ?:"",address.district?:"", address.country?:"")
                                 }
                                 else -> throw IllegalArgumentException("Unknown address type")
                         }},

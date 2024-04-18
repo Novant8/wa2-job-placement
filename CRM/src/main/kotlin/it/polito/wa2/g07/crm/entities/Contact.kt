@@ -3,13 +3,10 @@ package it.polito.wa2.g07.crm.entities
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
 
-
-
-
-enum class Category (category : String){
-    CUSTOMER("Customer"),
-    PROFESSIONAL("Professional"),
-    UNKNOWN("unknown")
+enum class ContactCategory{
+    CUSTOMER,
+    PROFESSIONAL,
+    UNKNOWN
 }
 
 @Entity
@@ -25,7 +22,7 @@ class Contact {
 
     var SSN: String? = null
 
-    lateinit var category : Category
+    lateinit var category : ContactCategory
 
     @ManyToMany (cascade = [CascadeType.ALL])
     @JsonManagedReference

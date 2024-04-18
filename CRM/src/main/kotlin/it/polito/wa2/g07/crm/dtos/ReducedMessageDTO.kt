@@ -17,7 +17,7 @@ fun Message.toReducedDTO():ReducedMessageDTO{
 
        return  when (this.sender) {
                 is Email ->{ return ReducedMessageDTO(this.messageID, this.subject, (this.sender as Email).email,"email" ) }
-                is Dwelling ->{ return ReducedMessageDTO(this.messageID, this.subject, (this.sender as Dwelling).city,"dwelling" ) }
+                is Dwelling ->{ return ReducedMessageDTO(this.messageID, this.subject, (this.sender as Dwelling).city ?: "","dwelling" ) }
                 is Telephone ->{ return ReducedMessageDTO(this.messageID, this.subject, (this.sender as Telephone).number,"telephone" ) }
                 else-> { throw Exception("")  }
        }

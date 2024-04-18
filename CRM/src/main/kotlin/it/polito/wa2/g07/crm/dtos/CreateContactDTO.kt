@@ -25,26 +25,24 @@ data class EmailDTO(
 ) : AddressDTO()
 
 data class TelephoneDTO(
-    val phone_number: String
+    val phoneNumber: String
 ) : AddressDTO()
 
 data class DwellingDTO(
+    val street: String,
     val city: String,
     val district: String,
     val country: String
 ) : AddressDTO()
 
-
-
-
 fun CreateContactDTO.toEntity(): Contact {
     val contact = Contact()
     contact.name = this.name
     contact.surname = this.surname
-    contact.category = when (this.category?.lowercase()) {
-        "customer" -> Category.CUSTOMER
-        "professional" -> Category.PROFESSIONAL
-        else -> Category.UNKNOWN
+    contact.category = try {
+        ContactCategory.valueOf(this.category?.uppercase() ?: "UNKNOWN")
+    } catch (e: IllegalArgumentException) {
+        ContactCategory.UNKNOWN
     }
     contact.SSN = this.SSN
 
@@ -57,11 +55,12 @@ fun CreateContactDTO.toEntity(): Contact {
             }
             is TelephoneDTO -> {
                 val telephone = Telephone()
-                telephone.number = addressDTO.phone_number
+                telephone.number = addressDTO.phoneNumber
                 contact.addAddress(telephone)
             }
             is DwellingDTO -> {
                 val dwelling = Dwelling()
+                dwelling.street = addressDTO.street
                 dwelling.city = addressDTO.city
                 dwelling.district = addressDTO.district
                 dwelling.country = addressDTO.country
@@ -69,7 +68,6 @@ fun CreateContactDTO.toEntity(): Contact {
             }
         }
     }
-
 
     return contact
 }

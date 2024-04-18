@@ -5,10 +5,10 @@ import jakarta.persistence.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-enum class MessageChannel(channel: String) {
-    PHONE_CALL("Phone_call"),
-    TEXT_MESSAGE("Text_message"),
-    EMAIL("Email")
+enum class MessageChannel {
+    PHONE_CALL,
+    TEXT_MESSAGE,
+    EMAIL
 }
 
 @Entity
