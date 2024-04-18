@@ -18,7 +18,6 @@ class MessageServiceImpl(
     private val contactRepository: ContactRepository,
                           //private val addressRepository: AddressRepository,
     private val addressRepository: AddressRepository,
-    private val dwellingRepository: DwellingRepository,
 
 ):MessageService {
 
@@ -28,27 +27,49 @@ class MessageServiceImpl(
     }
     override fun createMessage(msg: MessageCreateDTO):MessageDTO?{
 
-
         val m = Message()
         when (msg.channel) {
 
             "email" -> {
-                val email = Email()
-                email.email=msg.sender
+                val addr = addressRepository.findMailAddressByMail(msg.sender)
+                if (! addr.isPresent) {
+                    println("EMAIL NOT FOUND")
+                    val email = Email()
+                    email.email=msg.sender
+                    m.sender=email
+                    addressRepository.saveAndFlush(m.sender)
+                } else{
+                    println("EMAIL FOUND:"+addr.get().email)
+                    m.sender = addr.get()
+                    //addressRepository.saveAndFlush(m.sender)
+                }
+
+
             }
             "dwelling" -> {
                 val dwelling = Dwelling()
                 dwelling.city = msg.sender /// da parsificare meglio
             }
             "telephone" -> {
-                val telephone = Telephone()
-                telephone.number=msg.sender
+                val addr = addressRepository.findTelephoneAddressByTelephoneNumber(msg.sender)
+                if (! addr.isPresent) {
+                    println("TELEPHONE NOT FOUND")
+                    val telephone = Telephone()
+                    telephone.number=msg.sender
+                    m.sender=telephone
+                    addressRepository.saveAndFlush(m.sender)
+                } else{
+                    println("TELEPHONE FOUND:"+addr.get().number)
+                    m.sender = addr.get()
+
+                }
+
+
+
             }
         }
         m.subject=msg.subject
         m.body=msg.body
-        m.sender=Dwelling()
-        addressRepository.save(m.sender)
        return messageRepository.save(m).toMessageDTO()
 
     }

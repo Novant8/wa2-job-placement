@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface ContactRepository:JpaRepository<Contact,Long> {
+
+
     @Query("SELECT c FROM Contact c WHERE concat(c.name, ' ', c.surname) LIKE %:query%")
     fun findAllByFullNameLike(@Param("query") query: String, pageable: Pageable): Page<Contact>
 
@@ -28,4 +30,8 @@ interface ContactRepository:JpaRepository<Contact,Long> {
 
     @Query("SELECT d.contacts FROM Dwelling d WHERE concat(d.street, ', ', d.city, '(', d.district, '), ', d.country) LIKE %:address%")
     fun findAllByDwellingLike(@Param("address") a: String, pageable: Pageable): Page<Contact>
+
+
+
+
 }
