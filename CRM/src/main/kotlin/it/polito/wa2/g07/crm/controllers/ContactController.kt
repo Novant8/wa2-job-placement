@@ -1,10 +1,7 @@
 package it.polito.wa2.g07.crm.controllers
 
-import it.polito.wa2.g07.crm.dtos.ContactDTO
-import it.polito.wa2.g07.crm.dtos.CreateContactDTO
+import it.polito.wa2.g07.crm.dtos.*
 import it.polito.wa2.g07.crm.exceptions.MissingFieldException
-import it.polito.wa2.g07.crm.dtos.ContactFilterBy
-import it.polito.wa2.g07.crm.dtos.ReducedContactDTO
 import it.polito.wa2.g07.crm.entities.Category
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.ContactService
@@ -17,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
+
 @RestController
 @RequestMapping("/API/contacts")
 class ContactController(private val contactService: ContactService) {
@@ -28,7 +26,28 @@ class ContactController(private val contactService: ContactService) {
         if (contact.name.isBlank() || contact.surname.isBlank()){
             throw MissingFieldException("Name and surname are required fields.")
         }
+        val contactDto = contactService.create(contact)
+
         return contactService.create(contact)
+    }
+
+    @PostMapping("/{contactId}/email")
+    fun addEmail (@PathVariable("contactId") contactId : Long, @RequestBody emailValue :Map<String, String> ){
+       val email = emailValue["email"]
+        if ( email!= null && !email.isBlank()){
+            contactService.insertEmail(contactId, email)
+        }else {
+            throw MissingFieldException("You should provide an email ")
+        }
+
+    }
+
+    @GetMapping("/{contactId}")
+    fun getContactById (@PathVariable("contactId") contactId: Long): ContactDTO{
+
+        val contactDto = contactService.getContactById(contactId)
+
+        return contactDto
     }
 
     @GetMapping("", "/")

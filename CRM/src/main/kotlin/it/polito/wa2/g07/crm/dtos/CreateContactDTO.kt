@@ -13,15 +13,15 @@ data class CreateContactDTO(
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(value = MailDTO::class, name = "mail"),
+    JsonSubTypes.Type(value = EmailDTO::class, name = "mail"),
     JsonSubTypes.Type(value = TelephoneDTO::class, name = "phone"),
     JsonSubTypes.Type(value = DwellingDTO::class, name = "dwelling")
 )
 sealed  class AddressDTO
 
 
-data class MailDTO(
-    val mail: String
+data class EmailDTO(
+    val email: String
 ) : AddressDTO()
 
 data class TelephoneDTO(
@@ -50,9 +50,9 @@ fun CreateContactDTO.toEntity(): Contact {
 
     this.addresses.forEach { addressDTO ->
         when (addressDTO) {
-            is MailDTO -> {
+            is EmailDTO -> {
                 val email = Email()
-                email.email = addressDTO.mail
+                email.email = addressDTO.email
                 contact.addAddress(email)
             }
             is TelephoneDTO -> {

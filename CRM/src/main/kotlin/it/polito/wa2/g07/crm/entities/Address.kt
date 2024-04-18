@@ -5,7 +5,7 @@ import jakarta.persistence.*
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "type")
-public open class  Address {
+open class  Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

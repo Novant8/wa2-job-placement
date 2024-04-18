@@ -17,7 +17,7 @@ data class ContactDTO(
         val name : String ,
         val surname : String ,
         val category: String,
-        val addresses: MutableSet<Address>
+        val addresses: List<AddressDTO>,
         val SSN: String?
 
 )
@@ -28,6 +28,18 @@ fun Contact.toContactDto(): ContactDTO=
                 this.name,
                 this.surname,
                 this.category.name,
-                this.addresses,
+                this.addresses.map { address: Address ->
+                        when (address){
+                                is Email -> {
+                                        EmailDTO(address.email)
+                                }
+                                is Telephone ->{
+                                        TelephoneDTO(address.number)
+                                }
+                                is Dwelling ->{
+                                        DwellingDTO(address.city?:"",address.district?:"", address.country?:"")
+                                }
+                                else -> throw IllegalArgumentException("Unknown address type")
+                        }},
                 this.SSN
         )

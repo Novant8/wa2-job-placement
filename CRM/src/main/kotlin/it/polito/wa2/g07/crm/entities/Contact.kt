@@ -29,7 +29,7 @@ class Contact {
 
     @ManyToMany (cascade = [CascadeType.ALL])
     @JsonManagedReference
-    val addresses: MutableSet<Address> = mutableSetOf()
+    var addresses: MutableSet<Address> = mutableSetOf()
 
     fun addAddress (a:Address){
         addresses.add(a)

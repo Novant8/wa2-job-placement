@@ -15,4 +15,7 @@ interface ContactService {
 
 
     fun getContacts(filterBy: ContactFilterBy, query: String, pageable: Pageable): Page<ReducedContactDTO>
+
+    fun getContactById (contactId : Long): ContactDTO
+    fun insertEmail (id:Long, value: String )
 }
