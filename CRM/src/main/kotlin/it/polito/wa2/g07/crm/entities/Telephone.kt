@@ -4,9 +4,6 @@ import jakarta.persistence.*
 
 @Entity
 @DiscriminatorValue("telephone")
-class Telephone:Address() {
-
-    lateinit var number : String
-
-
-}
+class Telephone(
+        var number : String
+) : Address()

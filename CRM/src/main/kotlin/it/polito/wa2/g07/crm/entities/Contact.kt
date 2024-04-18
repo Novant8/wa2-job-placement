@@ -11,18 +11,16 @@ enum class ContactCategory{
 
 @Entity
 
-class Contact {
+class Contact(
+        var name: String,
+        var surname: String,
+        var category : ContactCategory,
+        var SSN: String? = null
+) {
 
     @Id
     @GeneratedValue
     var contactId: Long = 0
-
-    lateinit var name: String
-    lateinit var surname: String
-
-    var SSN: String? = null
-
-    lateinit var category : ContactCategory
 
     @ManyToMany (cascade = [CascadeType.ALL])
     @JsonManagedReference

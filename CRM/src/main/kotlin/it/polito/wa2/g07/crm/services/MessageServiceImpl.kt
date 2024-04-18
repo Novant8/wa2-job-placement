@@ -25,53 +25,39 @@ class MessageServiceImpl(
     override fun getMessages(pageable: Pageable): Page<ReducedMessageDTO>{
       return  messageRepository.findAll(pageable).map { m->m.toReducedDTO(); }
     }
-    override fun createMessage(msg: MessageCreateDTO):MessageDTO?{
+    override fun createMessage(msg: MessageCreateDTO) : MessageDTO? {
 
-        val m = Message()
-        when (msg.channel) {
-
+        val sender: Address = when (msg.channel) {
             "email" -> {
                 val addr = addressRepository.findMailAddressByMail(msg.sender)
-                if (! addr.isPresent) {
+                if (!addr.isPresent) {
                     println("EMAIL NOT FOUND")
-                    val email = Email()
-                    email.email=msg.sender
-                    m.sender=email
-                    addressRepository.saveAndFlush(m.sender)
-                } else{
+                    Email(msg.sender)
+                } else {
                     println("EMAIL FOUND:"+addr.get().email)
-                    m.sender = addr.get()
-                    //addressRepository.saveAndFlush(m.sender)
+                    addr.get()
                 }
-
-
             }
             "dwelling" -> {
-                val dwelling = Dwelling()
-                dwelling.city = msg.sender /// da parsificare meglio
+                Dwelling("", msg.sender, "", "") /// da parsificare meglio
             }
             "telephone" -> {
                 val addr = addressRepository.findTelephoneAddressByTelephoneNumber(msg.sender)
                 if (! addr.isPresent) {
                     println("TELEPHONE NOT FOUND")
-                    val telephone = Telephone()
-                    telephone.number=msg.sender
-                    m.sender=telephone
-                    addressRepository.saveAndFlush(m.sender)
-                } else{
+                    Telephone(msg.sender)
+                } else {
                     println("TELEPHONE FOUND:"+addr.get().number)
-                    m.sender = addr.get()
-
+                    addr.get()
                 }
-
-
-
             }
+            else -> TODO("THROW EXCEPTION HERE")
         }
-        m.subject=msg.subject
-        m.body=msg.body
-       return messageRepository.save(m).toMessageDTO()
+        addressRepository.save(sender)
 
+        val m = Message(msg.subject, msg.body, sender)
+
+        return messageRepository.save(m).toMessageDTO()
     }
 
 }

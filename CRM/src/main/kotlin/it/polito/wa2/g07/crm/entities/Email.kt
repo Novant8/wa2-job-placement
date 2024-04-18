@@ -4,6 +4,6 @@ import jakarta.persistence.*
 
 @Entity
 @DiscriminatorValue("email")
-class Email:Address(){
-    lateinit var email: String
-}
+class Email(
+        var email: String
+) :Address()

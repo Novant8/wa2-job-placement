@@ -29,16 +29,11 @@ fun Contact.toContactDto(): ContactDTO=
                 this.category,
                 this.addresses.map { address: Address ->
                         when (address){
-                                is Email -> {
-                                        EmailDTO(address.email)
-                                }
-                                is Telephone ->{
-                                        TelephoneDTO(address.number)
-                                }
-                                is Dwelling ->{
-                                        DwellingDTO(address.street ?: "", address.city ?:"",address.district?:"", address.country?:"")
-                                }
+                                is Email -> EmailDTO(address.email)
+                                is Telephone -> TelephoneDTO(address.number)
+                                is Dwelling -> DwellingDTO(address.street, address.city, address.district, address.country)
                                 else -> throw IllegalArgumentException("Unknown address type")
-                        }},
+                        }
+                },
                 this.SSN
         )

@@ -63,8 +63,7 @@ class ContactServiceImpl(private val contactRepository: ContactRepository) : Con
         if (!contactOpt.isPresent){
             throw ContactNotFoundException("Contact not found ")
         }
-        val email = Email()
-        email.email= value
+        val email = Email(value)
         val contact = contactOpt.get()
         contact.addAddress(email)
     }

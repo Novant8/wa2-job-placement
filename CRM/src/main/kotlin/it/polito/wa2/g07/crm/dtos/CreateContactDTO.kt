@@ -36,37 +36,24 @@ data class DwellingDTO(
 ) : AddressDTO()
 
 fun CreateContactDTO.toEntity(): Contact {
-    val contact = Contact()
-    contact.name = this.name
-    contact.surname = this.surname
-    contact.category = try {
-        ContactCategory.valueOf(this.category?.uppercase() ?: "UNKNOWN")
-    } catch (e: IllegalArgumentException) {
-        ContactCategory.UNKNOWN
-    }
-    contact.SSN = this.SSN
+    val contact = Contact(
+            this.name,
+            this.surname,
+            category = try {
+                ContactCategory.valueOf(this.category?.uppercase() ?: "UNKNOWN")
+            } catch (e: IllegalArgumentException) {
+                ContactCategory.UNKNOWN
+            },
+            this.SSN
+    )
 
     this.addresses.forEach { addressDTO ->
-        when (addressDTO) {
-            is EmailDTO -> {
-                val email = Email()
-                email.email = addressDTO.email
-                contact.addAddress(email)
-            }
-            is TelephoneDTO -> {
-                val telephone = Telephone()
-                telephone.number = addressDTO.phoneNumber
-                contact.addAddress(telephone)
-            }
-            is DwellingDTO -> {
-                val dwelling = Dwelling()
-                dwelling.street = addressDTO.street
-                dwelling.city = addressDTO.city
-                dwelling.district = addressDTO.district
-                dwelling.country = addressDTO.country
-                contact.addAddress(dwelling)
-            }
+        val address = when (addressDTO) {
+            is EmailDTO -> Email(addressDTO.email)
+            is TelephoneDTO -> Telephone(addressDTO.phoneNumber)
+            is DwellingDTO -> Dwelling(addressDTO.street, addressDTO.city, addressDTO.district, addressDTO.country)
         }
+        contact.addAddress(address)
     }
 
     return contact
