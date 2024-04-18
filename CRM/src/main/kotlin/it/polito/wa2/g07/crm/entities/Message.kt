@@ -1,5 +1,6 @@
 package it.polito.wa2.g07.crm.entities
 
+import com.fasterxml.jackson.databind.JsonSerializer.None
 import jakarta.persistence.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -18,7 +19,6 @@ class Message {
 
     @ManyToOne
     lateinit var sender: Address
-
     lateinit var subject: String
     lateinit var body: String
 
