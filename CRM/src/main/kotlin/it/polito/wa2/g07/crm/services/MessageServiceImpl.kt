@@ -21,6 +21,9 @@ class MessageServiceImpl(
 
     ):MessageService {
 
+    override fun getMessage(messageID: Long): ReducedMessageDTO {
+        TODO("Not yet implemented")
+    }
 
     override fun getMessages(pageable: Pageable): Page<ReducedMessageDTO>{
         return  messageRepository.findAll(pageable).map { m->m.toReducedDTO(); }
@@ -55,9 +58,9 @@ class MessageServiceImpl(
         }
         addressRepository.save(sender)
 
-        val m = Message(msg.subject, msg.body, sender)
+        val m = Message(msg.subject, msg.body, sender, MessageChannel.valueOf(msg.channel.uppercase()))
 
-        return messageRepository.save(m).toMessageDTO()
+        return messageRepository.save(m).toMessageDto()
     }
 
 }

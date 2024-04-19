@@ -14,12 +14,13 @@ enum class MessageChannel {
 class Message(
         var subject: String,
         var body: String,
-        @ManyToOne var sender: Address? = null,
+        @ManyToOne var sender: Address,
+        var channel: MessageChannel,
         var priority: Int = 0,
         var creationTimestamp: LocalDateTime = LocalDateTime.now()
 ) {
     init {
-        sender?.messages!!.add(this)
+        sender.messages.add(this)
     }
 
     @Id
