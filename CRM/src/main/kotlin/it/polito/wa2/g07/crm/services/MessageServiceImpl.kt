@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page
 
 
 import it.polito.wa2.g07.crm.repositories.*
+import org.springframework.data.jpa.domain.AbstractPersistable_.id
 import java.time.LocalDateTime
 import java.time.LocalTime
 
@@ -55,13 +56,36 @@ class MessageServiceImpl(
             }
             else -> TODO("THROW EXCEPTION HERE")
         }
-        addressRepository.saveAndFlush(sender)
+        addressRepository.save(sender)
         val m = Message(msg.subject, msg.body, sender)
         val event = MessageEvent(m,MessageStatus.RECEIVED, LocalDateTime.now())
-        m.addEvent(event)
-        val result = messageRepository.saveAndFlush(m).toMessageDTO()
-        messageEventRepository.saveAndFlush(event)
+        val result = messageRepository.save(m).toMessageDTO()
+        messageEventRepository.save(event)
         return result
     }
+
+   override fun updateStatus(id_msg : String, event_data: MessageEventDTO): MessageEventDTO? {
+       val status = MessageStatus.valueOf(event_data.status.toString().uppercase())//TODO: eccezione sul valueOF
+
+       val msg = messageRepository.findById(id_msg.toLong())
+       if (!msg.isPresent) {
+           //TODO: eccezione not found
+       }
+
+       var date: LocalDateTime
+        if (event_data.timestamp == null) {
+            date=   LocalDateTime.now()
+       } else{
+            date= event_data.timestamp!!
+       }
+
+       return messageEventRepository.save(MessageEvent(msg.get(),status,date,event_data.comments)).ToMessageEventDTO()
+
+
+
+
+
+   }
+
 
 }

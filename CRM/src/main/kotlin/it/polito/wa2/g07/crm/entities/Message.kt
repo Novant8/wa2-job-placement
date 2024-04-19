@@ -25,10 +25,7 @@ class Message(
     var messageID: Long = 0
 
     @OneToMany(mappedBy = "message")
-    val events: MutableSet<MessageEvent> = mutableSetOf()
+    var events: MutableSet<MessageEvent> = mutableSetOf()
 
-    fun addEvent(e: MessageEvent) {
-        e.message = this
-        this.events.add(e)
-    }
+
 }
