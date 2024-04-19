@@ -110,14 +110,14 @@ class ContactIntegrationTest:CrmApplicationTests() {
 
         @BeforeEach
         fun init(){
-            val contactDto = Contact()
+            val contactDto = Contact(
+                    "User",
+                    "Test",
+                    ContactCategory.CUSTOMER,
+                    null,
+            )
             contactDto.contactId= 1L
-            contactDto.name= "User"
-            contactDto.surname= "Test"
-            contactDto.category= ContactCategory.CUSTOMER
-            contactDto.SSN= null
             contactDto.addresses= mutableSetOf(Telephone("12345667889"))
-
             contactRepository.save(contactDto)
         }
 
