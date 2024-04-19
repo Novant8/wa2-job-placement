@@ -5,6 +5,3 @@ import jakarta.persistence.*
 @Entity
 @DiscriminatorValue("telephone")
 class Telephone(var number : String):Address()
-
-
-

@@ -16,16 +16,17 @@ enum class MessageStatus (status: String){
 }
 
 @Entity
-class MessageEvent {
+class MessageEvent(
+        @ManyToOne var message: Message,
+        var status: MessageStatus,
+        var timestamp: LocalDateTime,
+        var comments: String? = null
+) {
+    init {
+        message.events.add(this)
+    }
+
     @Id
     @GeneratedValue
     var messageEventId : Long = 0
-
-    lateinit var status: MessageStatus
-    lateinit var timestamp: LocalDateTime
-
-    var comments: String? = null
-
-    @ManyToOne
-    var message: Message? = null
 }

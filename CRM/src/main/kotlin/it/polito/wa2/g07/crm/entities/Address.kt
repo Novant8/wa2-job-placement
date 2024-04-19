@@ -14,6 +14,6 @@ open class  Address {
     @ManyToMany(mappedBy = "addresses")
     open var contacts: MutableSet<Contact> = mutableSetOf()
 
-    @OneToMany
-    open var messages:MutableSet<Message> = mutableSetOf()
+    @OneToMany(mappedBy = "sender")
+    open var messages: MutableSet<Message> = mutableSetOf()
 }
