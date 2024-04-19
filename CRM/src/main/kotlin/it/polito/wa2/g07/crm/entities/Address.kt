@@ -1,21 +1,19 @@
 package it.polito.wa2.g07.crm.entities
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToMany
+import jakarta.persistence.*
 
 @Entity
-class Address {
-    @Id
-    @GeneratedValue
-    var addressId: Long = 0
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "type")
+open class  Address {
 
-    lateinit var street: String
-    lateinit var city: String
-    lateinit var district: String
-    lateinit var country: String
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    open var id: Long=0
 
     @ManyToMany(mappedBy = "addresses")
-    val contacts: MutableSet<Contact> = mutableSetOf()
+    open var contacts: MutableSet<Contact> = mutableSetOf()
+
+    @OneToMany(mappedBy = "sender")
+    open var messages: MutableSet<Message> = mutableSetOf()
 }

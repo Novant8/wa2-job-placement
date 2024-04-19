@@ -3,7 +3,6 @@ package it.polito.wa2.g07.crm.dtos
 import it.polito.wa2.g07.crm.entities.*
 import java.time.LocalDateTime
 
-
 data class MessageDTO(
     val id:Long,
     val sender: Contact,
@@ -25,6 +24,4 @@ fun Message.toMessageDto(): MessageDTO=
         this.priority,
         this.creationTimestamp,
         this.events
-        
-
     )
