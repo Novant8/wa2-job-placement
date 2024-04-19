@@ -36,10 +36,8 @@ class MessageController (private val messageService: MessageService,
     case where the new state is not an allowed one for the message */
     @PostMapping("/{id_message}","/{id_message}/")
     fun updateMessageState(@PathVariable("id_message") idMessage: String,
-                    event:MessageEventDTO ):MessageEventDTO?{
-
+                            event:MessageEventDTO ):MessageEventDTO?{
         return messageService.updateStatus(idMessage, event)
-
     }
 
 

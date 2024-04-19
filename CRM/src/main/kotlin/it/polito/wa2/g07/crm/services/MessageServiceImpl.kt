@@ -3,6 +3,8 @@ package it.polito.wa2.g07.crm.services
 
 import it.polito.wa2.g07.crm.dtos.*
 import it.polito.wa2.g07.crm.entities.*
+import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
+import it.polito.wa2.g07.crm.exceptions.MessageNotFoundException
 import it.polito.wa2.g07.crm.repositories.MessageRepository
 import org.springframework.data.domain.Pageable
 
@@ -64,13 +66,35 @@ class MessageServiceImpl(
         return result
     }
 
+    private fun checkNewStatusValidity(new_status:MessageStatus, old_status:MessageStatus):Boolean{
+        //check if the new state is reachable starting from the actual status
+
+        return when(old_status){
+            MessageStatus.RECEIVED ->  new_status == MessageStatus.READ
+
+            MessageStatus.READ -> new_status != MessageStatus.READ && new_status != MessageStatus.RECEIVED
+            MessageStatus.DISCARDED -> return false //no status update when the message is discarded
+            MessageStatus.PROCESSING -> new_status==MessageStatus.DONE || new_status==MessageStatus.FAILED
+            MessageStatus.DONE -> return false
+            MessageStatus.FAILED -> return false
+        }
+
+    }
+
    override fun updateStatus(id_msg : String, event_data: MessageEventDTO): MessageEventDTO? {
-       val status = MessageStatus.valueOf(event_data.status.toString().uppercase())//TODO: eccezione sul valueOF
+
+       val new_status = MessageStatus.valueOf(event_data.status.toString().uppercase())//TODO: eccezione sul valueOF
+
 
        val msg = messageRepository.findById(id_msg.toLong())
-       if (!msg.isPresent) {
-           //TODO: eccezione not found
+       val old_status = messageEventRepository.getLastEventByMessageId(id_msg.toLong())
+       if (msg == null || old_status==null){
+           throw  MessageNotFoundException("The message doesn't exist")
        }
+       if (!checkNewStatusValidity(new_status, old_status)){
+           throw  InvalidParamsException("The new status is not appliable on the message")
+       }
+
 
        var date: LocalDateTime
         if (event_data.timestamp == null) {
@@ -78,12 +102,7 @@ class MessageServiceImpl(
        } else{
             date= event_data.timestamp!!
        }
-
-       return messageEventRepository.save(MessageEvent(msg.get(),status,date,event_data.comments)).ToMessageEventDTO()
-
-
-
-
+       return messageEventRepository.save(MessageEvent(msg.get(),new_status,date,event_data.comments)).ToMessageEventDTO()
 
    }
 
