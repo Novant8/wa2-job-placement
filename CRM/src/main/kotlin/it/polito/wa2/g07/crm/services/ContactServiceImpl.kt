@@ -22,8 +22,8 @@ import org.springframework.stereotype.Service
 @Service
 class ContactServiceImpl(private val contactRepository: ContactRepository) : ContactService{
     @Transactional
-    override fun create(contact: CreateContactDTO): ContactDTO {
-        return contactRepository.save(contact.toEntity()).toContactDto()
+    override fun create(contact: CreateContactDTO): ReducedContactDTO {
+        return contactRepository.save(contact.toEntity()).toReducedContactDTO()
     }
 
 @Transactional
@@ -63,8 +63,7 @@ class ContactServiceImpl(private val contactRepository: ContactRepository) : Con
         if (!contactOpt.isPresent){
             throw ContactNotFoundException("Contact not found ")
         }
-        val email = Email()
-        email.email= value
+        val email = Email(value)
         val contact = contactOpt.get()
         contact.addAddress(email)
     }

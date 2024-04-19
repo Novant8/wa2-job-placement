@@ -6,12 +6,9 @@ import jakarta.persistence.*
 
 @Entity
 @DiscriminatorValue("dwelling")
- class Dwelling : Address() {
-
-
-     var street: String? = null
-     var city: String? = null
-     var district: String? = null
-     var country: String? = null
-
-}
+class Dwelling(
+    var street: String,
+    var city: String,
+    var district: String,
+    var country: String
+) : Address()

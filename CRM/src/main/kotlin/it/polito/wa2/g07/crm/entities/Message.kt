@@ -1,8 +1,7 @@
 package it.polito.wa2.g07.crm.entities
 
-import com.fasterxml.jackson.databind.JsonSerializer.None
+
 import jakarta.persistence.*
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 enum class MessageChannel {
@@ -12,19 +11,20 @@ enum class MessageChannel {
 }
 
 @Entity
-class Message {
+class Message(
+    var subject: String,
+    var body: String,
+    @ManyToOne var sender: Address? = null,
+    var priority: Int = 0,
+    var creationTimestamp: LocalDateTime = LocalDateTime.now()
+) {
+    init {
+        sender?.messages!!.add(this)
+    }
+
     @Id
     @GeneratedValue
     var messageID: Long = 0
-
-    @ManyToOne
-    lateinit var sender: Address
-    lateinit var subject: String
-    lateinit var body: String
-
-    var priority: Int = 0
-
-    lateinit var creationTimestamp: LocalDateTime
 
     @OneToMany(mappedBy = "message")
     val events: MutableSet<MessageEvent> = mutableSetOf()
