@@ -35,7 +35,7 @@ class MessageController (private val messageService: MessageService,
     comment to enrich the history of actions on the message. Manage the
     case where the new state is not an allowed one for the message */
     @PostMapping("/{id_message}","/{id_message}/")
-    fun updateMessageState(@PathVariable("id_message") idMessage: String,
+    fun updateMessageState(@PathVariable("id_message") idMessage: Long,
                             event:MessageEventDTO ):MessageEventDTO?{
         return messageService.updateStatus(idMessage, event)
     }

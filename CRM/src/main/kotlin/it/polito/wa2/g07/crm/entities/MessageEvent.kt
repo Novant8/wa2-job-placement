@@ -14,7 +14,8 @@ enum class MessageStatus (status: String){
 
 @Entity
 class MessageEvent(
-    @ManyToOne var message: Message,
+    @ManyToOne
+    var message: Message,
     var status: MessageStatus,
     var timestamp: LocalDateTime,
     var comments: String? = null

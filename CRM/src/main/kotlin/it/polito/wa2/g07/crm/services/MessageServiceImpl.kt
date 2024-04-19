@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page
 
 
 import it.polito.wa2.g07.crm.repositories.*
+import jakarta.transaction.Transactional
 import org.springframework.data.jpa.domain.AbstractPersistable_.id
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -21,7 +22,6 @@ import java.time.LocalTime
 class MessageServiceImpl(
     private val messageRepository: MessageRepository,
     private val contactRepository: ContactRepository,
-    private val messageEventRepository: MessageEventRepository,
     private val addressRepository: AddressRepository,
 
 ):MessageService {
@@ -30,6 +30,7 @@ class MessageServiceImpl(
     override fun getMessages(pageable: Pageable): Page<ReducedMessageDTO>{
       return  messageRepository.findAll(pageable).map { m->m.toReducedDTO(); }
     }
+    @Transactional
     override fun createMessage(msg: MessageCreateDTO) : MessageDTO? {
 
         val sender: Address = when (msg.channel) {
@@ -61,9 +62,8 @@ class MessageServiceImpl(
         addressRepository.save(sender)
         val m = Message(msg.subject, msg.body, sender)
         val event = MessageEvent(m,MessageStatus.RECEIVED, LocalDateTime.now())
-        val result = messageRepository.save(m).toMessageDTO()
-        messageEventRepository.save(event)
-        return result
+        m.addEvent(event)
+        return messageRepository.save(m).toMessageDTO()
     }
 
     private fun checkNewStatusValidity(new_status:MessageStatus, old_status:MessageStatus):Boolean{
@@ -81,20 +81,20 @@ class MessageServiceImpl(
 
     }
 
-   override fun updateStatus(id_msg : String, event_data: MessageEventDTO): MessageEventDTO? {
+    @Transactional
+   override fun updateStatus(id_msg : Long, event_data: MessageEventDTO): MessageEventDTO? {
 
-       val new_status = MessageStatus.valueOf(event_data.status.toString().uppercase())//TODO: eccezione sul valueOF
 
 
-       val msg = messageRepository.findById(id_msg.toLong())
-       val old_status = messageEventRepository.getLastEventByMessageId(id_msg.toLong())
-       if (msg == null || old_status==null){
+       val result = messageRepository.findById(id_msg)
+       val old_status = messageRepository.getLastEventByMessageId(id_msg)
+        if (result.isEmpty || old_status==null){
            throw  MessageNotFoundException("The message doesn't exist")
        }
-       if (!checkNewStatusValidity(new_status, old_status)){
-           throw  InvalidParamsException("The new status is not appliable on the message")
+       val msg=result.get()
+       if (!checkNewStatusValidity(event_data.status, old_status)){
+           throw  InvalidParamsException("The status cannot be assigned to the message")
        }
-
 
        var date: LocalDateTime
         if (event_data.timestamp == null) {
@@ -102,8 +102,10 @@ class MessageServiceImpl(
        } else{
             date= event_data.timestamp!!
        }
-       return messageEventRepository.save(MessageEvent(msg.get(),new_status,date,event_data.comments)).ToMessageEventDTO()
 
+       val m_event = MessageEvent(msg,event_data.status,date,event_data.comments)
+       msg.addEvent(m_event)
+        return m_event.ToMessageEventDTO()
    }
 
 

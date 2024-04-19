@@ -24,8 +24,12 @@ class Message(
     @GeneratedValue
     var messageID: Long = 0
 
-    @OneToMany(mappedBy = "message")
+    @OneToMany(cascade = [CascadeType.ALL])
     var events: MutableSet<MessageEvent> = mutableSetOf()
 
+    fun addEvent (a:MessageEvent){
+       // println(events)
+        events.add(a)
+    }
 
 }
