@@ -11,12 +11,14 @@ import org.springframework.data.domain.Page
 
 
 import it.polito.wa2.g07.crm.repositories.*
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 @Service
 class MessageServiceImpl(
     private val messageRepository: MessageRepository,
     private val contactRepository: ContactRepository,
-                          //private val addressRepository: AddressRepository,
+    private val messageEventRepository: MessageEventRepository,
     private val addressRepository: AddressRepository,
 
 ):MessageService {
@@ -53,11 +55,13 @@ class MessageServiceImpl(
             }
             else -> TODO("THROW EXCEPTION HERE")
         }
-        addressRepository.save(sender)
-
+        addressRepository.saveAndFlush(sender)
         val m = Message(msg.subject, msg.body, sender)
-
-        return messageRepository.save(m).toMessageDTO()
+        val event = MessageEvent(m,MessageStatus.RECEIVED, LocalDateTime.now())
+        m.addEvent(event)
+        val result = messageRepository.saveAndFlush(m).toMessageDTO()
+        messageEventRepository.saveAndFlush(event)
+        return result
     }
 
 }
