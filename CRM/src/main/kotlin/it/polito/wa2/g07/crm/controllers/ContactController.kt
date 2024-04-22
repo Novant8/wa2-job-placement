@@ -55,6 +55,10 @@ class ContactController(private val contactService: ContactService) {
             throw InvalidParamsException("'$filterByStr' is not a valid filter. Possible filters: ${ContactFilterBy.entries}.")
         }
 
+        if (filterBy != ContactFilterBy.NONE && query.isEmpty()) {
+            throw InvalidParamsException("A query must be given when specifying a filter")
+        }
+
         if (filterBy == ContactFilterBy.CATEGORY) {
             try {
                 ContactCategory.valueOf(query.uppercase())
