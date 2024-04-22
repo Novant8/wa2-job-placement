@@ -21,4 +21,8 @@ interface ContactService {
 
     fun deleteEmail (contactId: Long, emailId:Long )
 
+    fun updateEmail (contactId: Long, emailId: Long, emailValue: String): ContactDTO
+
+    fun updateTelephone (contactId: Long, telephoneId: Long, phoneNumber: String): ContactDTO
+
 }

@@ -71,4 +71,26 @@ class ContactController(private val contactService: ContactService) {
         return contactService.deleteEmail(contactId,emailId)
     }
 
+    @PutMapping("/{contactId}/email/{emailId}")
+    fun updateEmail (@PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long, @RequestBody emailValue :Map<String, String>): ContactDTO{
+
+        val email = emailValue["email"]
+        if (!email.isNullOrBlank()) {
+           return  contactService.updateEmail(contactId, emailId, email)
+        } else {
+            throw MissingFieldException("You should provide an email ")
+        }
+    }
+
+    @PutMapping("/{contactId}/telephone/{telephoneId}")
+    fun updateTelephone (@PathVariable("contactId") contactId: Long, @PathVariable("telephoneId") telephoneId : Long, @RequestBody phoneNumber :Map<String, String>): ContactDTO{
+
+        val number = phoneNumber["phoneNumber"]
+        if (!number.isNullOrBlank()) {
+            return  contactService.updateTelephone(contactId, telephoneId, number)
+        } else {
+            throw MissingFieldException("You should provide a phone number ")
+        }
+    }
+
 }

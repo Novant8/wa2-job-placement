@@ -11,6 +11,7 @@ import it.polito.wa2.g07.crm.dtos.ReducedContactDTO
 import it.polito.wa2.g07.crm.dtos.toReducedContactDTO
 import it.polito.wa2.g07.crm.entities.ContactCategory
 import it.polito.wa2.g07.crm.entities.Email
+import it.polito.wa2.g07.crm.entities.Telephone
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.AddressRepository
@@ -90,6 +91,52 @@ class ContactServiceImpl(private val contactRepository: ContactRepository, priva
         }
 
 
+    }
+@Transactional
+    override fun updateEmail(contactId: Long, emailId: Long, emailValue: String): ContactDTO {
+        val contact = contactRepository.findById(contactId)
+            .orElseThrow { EntityNotFoundException("Contact not found with ID: $contactId") }
+
+        val emailOpt = addressRepository.findById(emailId)
+
+        if (emailOpt.isPresent && emailOpt.get() is Email){
+            if (contact.addresses.contains(emailOpt.get())) {
+
+                var email:Email = emailOpt.get() as Email
+                email.email= emailValue
+
+                addressRepository.save(email )
+                return contact.toContactDto()
+
+            } else {
+                throw InvalidParamsException("Email with ID $emailId is not associated with Contact with ID $contactId")
+            }
+        } else {
+            throw InvalidParamsException("Address with ID $emailId is not an email or it is not present")
+        }
+    }
+@Transactional
+    override fun updateTelephone(contactId: Long, telephoneId: Long, phoneNumber: String): ContactDTO {
+        val contact = contactRepository.findById(contactId)
+            .orElseThrow { EntityNotFoundException("Contact not found with ID: $contactId") }
+
+        val telephoneOpt = addressRepository.findById(telephoneId)
+
+        if (telephoneOpt.isPresent && telephoneOpt.get() is Telephone){
+            if (contact.addresses.contains(telephoneOpt.get())) {
+
+                var telephone:Telephone = telephoneOpt.get() as Telephone
+                telephone.number = phoneNumber
+
+                addressRepository.save(telephone )
+                return contact.toContactDto()
+
+            } else {
+                throw InvalidParamsException("Telephone Number with ID $telephoneId is not associated with Contact with ID $contactId")
+            }
+        } else {
+            throw InvalidParamsException("Address with ID $telephoneId is not an telephone or it is not present")
+        }
     }
 
     companion object{
