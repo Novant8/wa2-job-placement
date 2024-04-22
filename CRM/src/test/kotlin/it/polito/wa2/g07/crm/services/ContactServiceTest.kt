@@ -98,6 +98,15 @@ class ContactServiceTest {
         }
 
         @Test
+        fun getContacts_categoryFilter_caseInsensitive() {
+            val result = service.getContacts(ContactFilterBy.CATEGORY, ContactCategory.CUSTOMER.name.lowercase(), pageReq)
+
+            val expectedResult = PageImpl(listOf(mockContact.toReducedContactDTO()))
+            verify(exactly = 1) { contactRepository.findAllByCategory(ContactCategory.CUSTOMER, pageReq) }
+            assertEquals(result, expectedResult)
+        }
+
+        @Test
         fun getContactById_success() {
             val result = service.getContactById(mockContact.contactId)
             assertEquals(result, mockContact.toContactDto())

@@ -39,7 +39,7 @@ class ContactServiceImpl(private val contactRepository: ContactRepository) : Con
             ContactFilterBy.EMAIL ->        contactRepository.findAllByEmail(query, pageable)
             ContactFilterBy.TELEPHONE ->    contactRepository.findAllByTelephone(query, pageable)
             ContactFilterBy.ADDRESS ->      contactRepository.findAllByDwellingLike(query, pageable)
-            ContactFilterBy.CATEGORY ->     contactRepository.findAllByCategory(ContactCategory.valueOf(query), pageable)
+            ContactFilterBy.CATEGORY ->     contactRepository.findAllByCategory(ContactCategory.valueOf(query.uppercase()), pageable)
         }
         return result.map { it.toReducedContactDTO() }
     }
