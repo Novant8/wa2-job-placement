@@ -18,4 +18,7 @@ interface ContactService {
 
     fun getContactById (contactId : Long): ContactDTO
     fun insertEmail (id:Long, value: String )
+
+    fun deleteEmail (contactId: Long, emailId:Long )
+
 }

@@ -17,9 +17,30 @@ data class ContactDTO(
         val name : String ,
         val surname : String ,
         val category: ContactCategory,
-        val addresses: List<AddressDTO>,
+        val addresses: List<AddressResponseDTO>,
         val SSN: String?
 )
+
+sealed  class AddressResponseDTO
+
+
+data class EmailResponseDTO(
+        val id :  Long,
+        val email: String
+) : AddressResponseDTO()
+
+data class TelephoneResponseDTO(
+        val id :  Long,
+        val phoneNumber: String
+) : AddressResponseDTO()
+
+data class DwellingResponseDTO(
+        val id :  Long,
+        val street: String,
+        val city: String,
+        val district: String,
+        val country: String
+) : AddressResponseDTO()
 
 fun Contact.toContactDto(): ContactDTO=
         ContactDTO(
@@ -29,9 +50,9 @@ fun Contact.toContactDto(): ContactDTO=
                 this.category,
                 this.addresses.map { address: Address ->
                         when (address){
-                                is Email -> EmailDTO(address.email)
-                                is Telephone -> TelephoneDTO(address.number)
-                                is Dwelling -> DwellingDTO(address.street, address.city, address.district, address.country)
+                                is Email -> EmailResponseDTO(address.id,address.email)
+                                is Telephone -> TelephoneResponseDTO(address.id,address.number)
+                                is Dwelling -> DwellingResponseDTO(address.id,address.street, address.city, address.district, address.country)
                                 else -> throw IllegalArgumentException("Unknown address type")
                         }
                 },

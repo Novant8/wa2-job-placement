@@ -11,7 +11,9 @@ import it.polito.wa2.g07.crm.dtos.ReducedContactDTO
 import it.polito.wa2.g07.crm.dtos.toReducedContactDTO
 import it.polito.wa2.g07.crm.entities.ContactCategory
 import it.polito.wa2.g07.crm.entities.Email
-import it.polito.wa2.g07.crm.exceptions.ContactNotFoundException
+import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
+import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
+import it.polito.wa2.g07.crm.repositories.AddressRepository
 import it.polito.wa2.g07.crm.repositories.ContactRepository
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
@@ -20,7 +22,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
-class ContactServiceImpl(private val contactRepository: ContactRepository) : ContactService{
+class ContactServiceImpl(private val contactRepository: ContactRepository, private val addressRepository: AddressRepository) : ContactService{
     @Transactional
     override fun create(contact: CreateContactDTO): ReducedContactDTO {
         return contactRepository.save(contact.toEntity()).toReducedContactDTO()
@@ -48,7 +50,7 @@ class ContactServiceImpl(private val contactRepository: ContactRepository) : Con
         val contactOpt = contactRepository.findById(contactId)
 
         if (!contactOpt.isPresent){
-            throw ContactNotFoundException("Contact not found ")
+            throw EntityNotFoundException("Contact not found with ID: $contactId")
         }
         val contact = contactOpt.get()
         logger.info("Edited Document {} ", contact.toContactDto())
@@ -61,11 +63,33 @@ class ContactServiceImpl(private val contactRepository: ContactRepository) : Con
         val contactOpt = contactRepository.findById(id)
 
         if (!contactOpt.isPresent){
-            throw ContactNotFoundException("Contact not found ")
+            throw EntityNotFoundException("Contact not found with ID : $id  ")
         }
         val email = Email(value)
         val contact = contactOpt.get()
         contact.addAddress(email)
+    }
+@Transactional
+    override fun deleteEmail(contactId: Long, emailId: Long) {
+        val contact = contactRepository.findById(contactId)
+            .orElseThrow { EntityNotFoundException("Contact not found with ID: $contactId") }
+
+        val email = addressRepository.findById(emailId)
+
+        if (email.isPresent && email.get() is Email){
+            if (contact.addresses.contains(email.get())) {
+
+                contact.removeAddress(email.get())
+                addressRepository.deleteById(emailId)
+
+            } else {
+                throw InvalidParamsException("Email with ID $emailId is not associated with Contact with ID $contactId")
+            }
+        } else {
+            throw InvalidParamsException("Address with ID $emailId is not an email or it is not present")
+        }
+
+
     }
 
     companion object{

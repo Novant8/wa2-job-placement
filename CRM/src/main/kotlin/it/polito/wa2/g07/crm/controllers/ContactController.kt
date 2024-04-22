@@ -66,4 +66,9 @@ class ContactController(private val contactService: ContactService) {
         return contactService.getContacts(filterBy, query, pageable)
     }
 
+    @DeleteMapping("/{contactId}/email/{emailId}")
+    fun deleteEmail (@PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long){
+        return contactService.deleteEmail(contactId,emailId)
+    }
+
 }
