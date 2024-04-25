@@ -1,9 +1,6 @@
 package it.polito.wa2.g07.crm.controllers
 
-import it.polito.wa2.g07.crm.dtos.MessageDTO
-import it.polito.wa2.g07.crm.dtos.ReducedMessageDTO
-import it.polito.wa2.g07.crm.dtos.MessageCreateDTO
-import it.polito.wa2.g07.crm.dtos.MessageEventDTO
+import it.polito.wa2.g07.crm.dtos.*
 import it.polito.wa2.g07.crm.services.ContactService
 import it.polito.wa2.g07.crm.services.MessageService
 import org.springframework.data.domain.Page
@@ -50,16 +47,16 @@ class MessageController (private val messageService: MessageService,
     }
 
 
-
     //retrieve the list of state changes, with their comments, for a specific message
-    @GetMapping("/messages/{messageId}/history","/messages/{messageId}/history/")
-    fun retrieveMessageStateChanges()
+    @GetMapping("/{messageId}/history","/{messageId}/history/")
+    fun retrieveMessageStateChanges(@PathVariable("messageId") messageId: Long,
+                                    pageable: Pageable): Page<MessageEventDTO>
     {
-
+        return messageService.getHistory(messageId,pageable)
     }
 
     //modify the priority value of a message
-    @PutMapping("/messages/{messageId}/priority","/messages/{messageId}/priority/")
+    @PutMapping("/{messageId}/priority","/{messageId}/priority/")
     fun modifyMessagePriority()
     {
 
