@@ -5,15 +5,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import it.polito.wa2.g07.crm.entities.*
 
 data class CreateContactDTO(
-    val name: String,
-    val surname: String,
+    val name: String?,
+    val surname: String?,
     val category: String?,
     val SSN : String?,
     val addresses: List<AddressDTO>
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(value = EmailDTO::class, name = "mail"),
+    JsonSubTypes.Type(value = EmailDTO::class, name = "email"),
     JsonSubTypes.Type(value = TelephoneDTO::class, name = "phone"),
     JsonSubTypes.Type(value = DwellingDTO::class, name = "dwelling")
 )
@@ -37,8 +37,8 @@ data class DwellingDTO(
 
 fun CreateContactDTO.toEntity(): Contact {
     val contact = Contact(
-            this.name,
-            this.surname,
+            this.name ?: "",
+            this.surname ?: "",
             category = try {
                 ContactCategory.valueOf(this.category?.uppercase() ?: "UNKNOWN")
             } catch (e: IllegalArgumentException) {

@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable
 
 
 interface ContactService {
-    fun create (contact:CreateContactDTO): ContactDTO
+    fun create (contact:CreateContactDTO): ReducedContactDTO
 
     fun getContacts(filterBy: ContactFilterBy, query: String, pageable: Pageable): Page<ReducedContactDTO>
 

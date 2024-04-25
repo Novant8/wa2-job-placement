@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 class ProblemDetailsHandler: ResponseEntityExceptionHandler() {
     @ExceptionHandler(MissingFieldException::class)
     fun handleMissingFields(e:MissingFieldException)=
-        ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.message !!)
+        ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, e.message !!)
 
     @ExceptionHandler(InvalidParamsException::class)
     fun handleDuplicateDocument(e: InvalidParamsException) =

@@ -4,6 +4,5 @@ import jakarta.persistence.*
 
 @Entity
 @DiscriminatorValue("email")
-class Email(
-        var email: String
-) :Address()
+class Email(var email: String) : Address()
+

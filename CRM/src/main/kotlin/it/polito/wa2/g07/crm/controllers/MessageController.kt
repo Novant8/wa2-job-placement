@@ -8,9 +8,11 @@ import it.polito.wa2.g07.crm.services.ContactService
 import it.polito.wa2.g07.crm.services.MessageService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+
 import org.springframework.data.repository.query.Param
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+
 
 @RestController
 @RequestMapping("API/messages")
@@ -30,6 +32,7 @@ class MessageController (private val messageService: MessageService,
         return messageService.createMessage(msg)
     }
 
+
     /*POST /API/messages/{messageId} – change the state of a specific
     message. This endpoint must receive the target state and possibly a
     comment to enrich the history of actions on the message. Manage the
@@ -39,7 +42,12 @@ class MessageController (private val messageService: MessageService,
                             event:MessageEventDTO ):MessageEventDTO?{
         return messageService.updateStatus(idMessage, event)
     }
-
+  //Getting a specific message
+    @GetMapping("/{messageId}", "/{messageId}/")
+    fun getMessageById(@PathVariable("messageId") messageId: Long) {
+        //val message= messageService.getMessage(messageId)
+        //return message
+    }
 
 
 
