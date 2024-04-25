@@ -24,11 +24,14 @@ class MessageServiceImpl(
     private val contactRepository: ContactRepository,
     private val addressRepository: AddressRepository,
 
-):MessageService {
+    ):MessageService {
 
+    override fun getMessage(messageID: Long): ReducedMessageDTO {
+        TODO("Not yet implemented")
+    }
 
     override fun getMessages(pageable: Pageable): Page<ReducedMessageDTO>{
-      return  messageRepository.findAll(pageable).map { m->m.toReducedDTO(); }
+        return  messageRepository.findAll(pageable).map { m->m.toReducedDTO(); }
     }
     @Transactional
     override fun createMessage(msg: MessageCreateDTO) : MessageDTO? {
@@ -64,6 +67,7 @@ class MessageServiceImpl(
         val event = MessageEvent(m,MessageStatus.RECEIVED, LocalDateTime.now())
         m.addEvent(event)
         return messageRepository.save(m).toMessageDTO()
+
     }
 
     private fun checkNewStatusValidity(new_status:MessageStatus, old_status:MessageStatus):Boolean{

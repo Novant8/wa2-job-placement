@@ -21,8 +21,8 @@ class ContactController(private val contactService: ContactService) {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/","")
-    fun saveContact (@RequestBody contact: CreateContactDTO ): ContactDTO{
-        if (contact.name.isBlank() || contact.surname.isBlank()){
+    fun saveContact (@RequestBody contact: CreateContactDTO ): ReducedContactDTO{
+        if (contact.name.isNullOrBlank() || contact.surname.isNullOrBlank()){
             throw MissingFieldException("Name and surname are required fields.")
         }
         return contactService.create(contact)
