@@ -11,7 +11,7 @@ data class MessageEventDTO(
     var comments: String? = null
 )
 
-fun MessageEvent.ToMessageEventDTO() : MessageEventDTO {
+fun MessageEvent.toMessageEventDTO() : MessageEventDTO {
     return MessageEventDTO(status=this.status, timestamp=this.timestamp, comments = this.comments)
 
 }

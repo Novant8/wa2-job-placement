@@ -40,10 +40,10 @@ class MessageServiceImpl(
             is EmailDTO -> {
                 val addr = addressRepository.findMailAddressByMail(msg.sender.email)
                 if (!addr.isPresent) {
-                    println("EMAIL NOT FOUND")
+                    logger.info("Email NOT found")
                     Email(msg.sender.email)
                 } else {
-                    println("EMAIL FOUND:"+addr.get().email)
+                    logger.info("Email found: "+addr.get().email)
                     addr.get()
                 }
             }
@@ -54,23 +54,23 @@ class MessageServiceImpl(
                     msg.sender.district,
                     msg.sender.country)
                 if (!addr.isPresent) {
-                    println("DWELLING NOT FOUND")
+                    logger.info("Dwelling NOT found")
                     Dwelling(    msg.sender.street,
                                 msg.sender.city,
                                 msg.sender.district,
                                 msg.sender.country)
                 } else {
-                    println("DWELLING FOUND:"+addr.get().street+", "+addr.get().city)
+                    logger.info("Dwelling found:"+addr.get().street+", "+addr.get().city)
                     addr.get()
                 }
             }
             is TelephoneDTO -> {
                 val addr = addressRepository.findTelephoneAddressByTelephoneNumber(msg.sender.phoneNumber)
                 if (! addr.isPresent) {
-                    println("TELEPHONE NOT FOUND")
+                    logger.info("Telephone found")
                     Telephone(msg.sender.phoneNumber)
                 } else {
-                    println("TELEPHONE FOUND:"+addr.get().number)
+                    logger.info("Telephone found "+addr.get().number)
                     addr.get()
                 }
             }
@@ -124,7 +124,7 @@ class MessageServiceImpl(
 
        val m_event = MessageEvent(msg,event_data.status,date,event_data.comments)
        msg.addEvent(m_event)
-        return m_event.ToMessageEventDTO()
+        return m_event.toMessageEventDTO()
    }
     override fun getHistory(id_msg: Long, pageable: Pageable): Page<MessageEventDTO> {
         if (messageRepository.findById(id_msg).isEmpty){
@@ -132,7 +132,7 @@ class MessageServiceImpl(
             throw  MessageNotFoundException("The message doesn't exist")
         }
         logger.info("Message found")
-        return messageRepository.getEventsByMessageID(id_msg,pageable).map { it.ToMessageEventDTO() }
+        return messageRepository.getEventsByMessageID(id_msg,pageable).map { it.toMessageEventDTO() }
 
     }
 

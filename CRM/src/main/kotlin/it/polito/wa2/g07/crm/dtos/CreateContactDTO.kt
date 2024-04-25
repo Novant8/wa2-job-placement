@@ -19,6 +19,15 @@ data class CreateContactDTO(
 )
 sealed  class AddressDTO
 
+fun Address.toAddressDTO(): AddressDTO {
+
+   return  when (this) {
+        is Email ->  EmailDTO(this.email)
+        is Telephone ->  TelephoneDTO(this.number)
+        is Dwelling ->  DwellingDTO(this.street, this.city, this.district, this.country)
+        else -> {throw Exception("Unknown address type")}
+   }
+}
 
 data class EmailDTO(
     val email: String

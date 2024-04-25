@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 import org.springframework.data.repository.query.Param
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -34,6 +35,7 @@ class MessageController (private val messageService: MessageService,
     message. This endpoint must receive the target state and possibly a
     comment to enrich the history of actions on the message. Manage the
     case where the new state is not an allowed one for the message */
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{id_message}","/{id_message}/")
     fun updateMessageState(@PathVariable("id_message") idMessage: Long,
                             event:MessageEventDTO ):MessageEventDTO?{
@@ -57,9 +59,11 @@ class MessageController (private val messageService: MessageService,
 
     //modify the priority value of a message
     @PutMapping("/{messageId}/priority","/{messageId}/priority/")
-    fun modifyMessagePriority()
+    fun modifyMessagePriority(@PathVariable("messageId") messageId: Long,
+                              @RequestBody priority: Long
+                              ): MessageDTO
     {
-
+        TODO()
     }
 
 
