@@ -13,16 +13,15 @@ import org.springframework.data.domain.Page
 
 
 import it.polito.wa2.g07.crm.repositories.*
+import it.polito.wa2.g07.crm.services.ContactServiceImpl.Companion.logger
 import jakarta.transaction.Transactional
-import org.springframework.data.jpa.domain.AbstractPersistable_.id
+
 import java.time.LocalDateTime
-import java.time.LocalTime
-import kotlin.contracts.Returns
+
 
 @Service
 class MessageServiceImpl(
     private val messageRepository: MessageRepository,
-    private val contactRepository: ContactRepository,
     private val addressRepository: AddressRepository,
 
     ):MessageService {
@@ -106,8 +105,6 @@ class MessageServiceImpl(
     @Transactional
    override fun updateStatus(id_msg : Long, event_data: MessageEventDTO): MessageEventDTO? {
 
-
-
        val result = messageRepository.findById(id_msg)
        val old_status = messageRepository.getLastEventByMessageId(id_msg)
         if (result.isEmpty || old_status==null){
@@ -118,7 +115,7 @@ class MessageServiceImpl(
            throw  InvalidParamsException("The status cannot be assigned to the message")
        }
 
-       var date: LocalDateTime
+       val date: LocalDateTime
         if (event_data.timestamp == null) {
             date=   LocalDateTime.now()
        } else{
@@ -130,12 +127,12 @@ class MessageServiceImpl(
         return m_event.ToMessageEventDTO()
    }
     override fun getHistory(id_msg: Long, pageable: Pageable): Page<MessageEventDTO> {
-        val result = messageRepository.findById(id_msg)
-        if (result.isEmpty){
+        if (messageRepository.findById(id_msg).isEmpty){
+            logger.info("Message NOT found")
             throw  MessageNotFoundException("The message doesn't exist")
         }
-
-      return messageRepository.getEventsByMessageID(id_msg,pageable).map { it.ToMessageEventDTO() }
+        logger.info("Message found")
+        return messageRepository.getEventsByMessageID(id_msg,pageable).map { it.ToMessageEventDTO() }
 
     }
 
