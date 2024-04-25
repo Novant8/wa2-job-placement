@@ -31,8 +31,8 @@ data class TelephoneDTO(
 data class DwellingDTO(
     val street: String,
     val city: String,
-    val district: String,
-    val country: String
+    val district: String?,
+    val country: String?
 ) : AddressDTO()
 
 fun CreateContactDTO.toEntity(): Contact {

@@ -7,6 +7,6 @@ import jakarta.persistence.*
  class Dwelling(
         var street: String,
         var city: String,
-        var district: String,
-        var country: String
+        var district: String?,
+        var country: String?
  ) : Address()

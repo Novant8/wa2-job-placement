@@ -36,25 +36,39 @@ class MessageServiceImpl(
     @Transactional
     override fun createMessage(msg: MessageCreateDTO) : MessageDTO? {
 
-        val sender: Address = when (msg.channel) {
-            "email" -> {
-                val addr = addressRepository.findMailAddressByMail(msg.sender)
+        val sender: Address = when (msg.sender) {
+            is EmailDTO -> {
+                val addr = addressRepository.findMailAddressByMail(msg.sender.email)
                 if (!addr.isPresent) {
                     println("EMAIL NOT FOUND")
-                    Email(msg.sender)
+                    Email(msg.sender.email)
                 } else {
                     println("EMAIL FOUND:"+addr.get().email)
                     addr.get()
                 }
             }
-            "dwelling" -> {
-                Dwelling("", msg.sender, "", "") /// da parsificare meglio
+            is DwellingDTO -> {
+
+                val addr = addressRepository.findDwellingAddressByAddress(  msg.sender.street,
+                    msg.sender.city,
+                    msg.sender.district,
+                    msg.sender.country)
+                if (!addr.isPresent) {
+                    println("DWELLING NOT FOUND")
+                    Dwelling(    msg.sender.street,
+                                msg.sender.city,
+                                msg.sender.district,
+                                msg.sender.country)
+                } else {
+                    println("DWELLING FOUND:"+addr.get().street+", "+addr.get().city)
+                    addr.get()
+                }
             }
-            "telephone" -> {
-                val addr = addressRepository.findTelephoneAddressByTelephoneNumber(msg.sender)
+            is TelephoneDTO -> {
+                val addr = addressRepository.findTelephoneAddressByTelephoneNumber(msg.sender.phoneNumber)
                 if (! addr.isPresent) {
                     println("TELEPHONE NOT FOUND")
-                    Telephone(msg.sender)
+                    Telephone(msg.sender.phoneNumber)
                 } else {
                     println("TELEPHONE FOUND:"+addr.get().number)
                     addr.get()
@@ -68,7 +82,10 @@ class MessageServiceImpl(
         m.addEvent(event)
         return messageRepository.save(m).toMessageDTO()
 
+
+
     }
+
 
     private fun checkNewStatusValidity(new_status:MessageStatus, old_status:MessageStatus):Boolean{
         //check if the new state is reachable starting from the actual status
