@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional
 import org.springframework.data.jpa.domain.AbstractPersistable_.id
 import java.time.LocalDateTime
 import java.time.LocalTime
+import kotlin.contracts.Returns
 
 @Service
 class MessageServiceImpl(
@@ -128,6 +129,15 @@ class MessageServiceImpl(
        msg.addEvent(m_event)
         return m_event.ToMessageEventDTO()
    }
+    override fun getHistory(id_msg: Long, pageable: Pageable): Page<MessageEventDTO> {
+        val result = messageRepository.findById(id_msg)
+        if (result.isEmpty){
+            throw  MessageNotFoundException("The message doesn't exist")
+        }
+
+      return messageRepository.getEventsByMessageID(id_msg,pageable).map { it.ToMessageEventDTO() }
+
+    }
 
 
 }
