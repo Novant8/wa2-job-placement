@@ -133,6 +133,16 @@ class MessageServiceImpl(
         }
         logger.info("Message found")
         return messageRepository.getEventsByMessageID(id_msg,pageable).map { it.toMessageEventDTO() }
+    }
+    override fun changePriority(messageId: Long,priority:Int): MessageDTO?{
+        val message = messageRepository.findById(messageId)
+        if (message.isEmpty){
+            logger.info("Message NOT found")
+            throw  MessageNotFoundException("The message doesn't exist")
+        }
+        var msg  = message.get()
+        msg.priority = priority
+        return messageRepository.save(msg).toMessageDTO()
 
     }
 

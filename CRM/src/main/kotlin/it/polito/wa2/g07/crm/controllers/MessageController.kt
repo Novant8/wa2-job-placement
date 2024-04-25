@@ -1,27 +1,27 @@
 package it.polito.wa2.g07.crm.controllers
 
+
 import it.polito.wa2.g07.crm.dtos.*
+import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.ContactService
 import it.polito.wa2.g07.crm.services.MessageService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
-import org.springframework.data.repository.query.Param
+
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 
 @RestController
 @RequestMapping("API/messages")
-class MessageController (private val messageService: MessageService,
-                         private val contactService: ContactService
+class MessageController (private val messageService: MessageService
                         ) {
 
 
     @GetMapping("","/")
     fun getMessages(pageable: Pageable):Page<ReducedMessageDTO>{
-        return messageService.getMessages(pageable);
+        return messageService.getMessages(pageable)
     }
 
     @PostMapping("","/", )
@@ -60,10 +60,14 @@ class MessageController (private val messageService: MessageService,
     //modify the priority value of a message
     @PutMapping("/{messageId}/priority","/{messageId}/priority/")
     fun modifyMessagePriority(@PathVariable("messageId") messageId: Long,
-                              @RequestBody priority: Long
-                              ): MessageDTO
+                              @RequestBody priority :Map<String, Int>
+                              ): MessageDTO?
     {
-        TODO()
+        if (priority["priority"] ==null) throw InvalidParamsException("Priority cannot be empty")
+        if (priority["priority"]!! <0){
+            throw InvalidParamsException("Priority can not be negative")
+        }
+        return messageService.changePriority(messageId,priority["priority"]!! )
     }
 
 
