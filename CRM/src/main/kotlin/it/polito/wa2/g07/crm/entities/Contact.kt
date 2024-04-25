@@ -28,7 +28,6 @@ class Contact(
 
     fun addAddress (a:Address){
         addresses.add(a)
-
     }
     fun removeAddress (a:Address){
         addresses.remove(a)

@@ -17,21 +17,20 @@ class Message(
         @ManyToOne var sender: Address,
         var channel: MessageChannel,
         var priority: Int = 0,
-        var creationTimestamp: LocalDateTime = LocalDateTime.now()
+        var creationTimestamp: LocalDateTime = LocalDateTime.now(),
 ) {
-    init {
-        sender.messages.add(this)
-    }
+
 
     @Id
     @GeneratedValue
     var messageID: Long = 0
 
-    @OneToMany(mappedBy = "message")
-    val events: MutableSet<MessageEvent> = mutableSetOf()
+    @OneToMany(cascade = [CascadeType.ALL])
+    var events: MutableSet<MessageEvent> = mutableSetOf()
 
-    fun addEvent(e: MessageEvent) {
-        e.message = this
-        this.events.add(e)
+    fun addEvent (a:MessageEvent){
+       // println(events)
+        events.add(a)
     }
+
 }
