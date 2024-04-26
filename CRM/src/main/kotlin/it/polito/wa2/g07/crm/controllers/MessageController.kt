@@ -23,7 +23,7 @@ class MessageController (private val messageService: MessageService
     fun getMessages(pageable: Pageable):Page<ReducedMessageDTO>{
         return messageService.getMessages(pageable)
     }
-
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("","/", )
     fun createNewMessage(@RequestBody msg: MessageCreateDTO):MessageDTO?{
        // sender, channel, subject, body
