@@ -323,6 +323,8 @@ class MessageIntegrationTest {
         }.andReturn().response.contentAsString).getString("id")
         assertEquals(   messageRepository.getMessageByMessageID(msg_1_id.toLong())!!.sender.id,
                         messageRepository.getMessageByMessageID(msg_2_id.toLong())!!.sender.id)
+
+
     }
 
 
