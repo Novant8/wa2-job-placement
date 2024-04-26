@@ -25,8 +25,8 @@ interface AddressRepository: JpaRepository<Address, Long>{
     fun findDwellingAddressByStreet(
         @Param("street") street: String,
         @Param("city") city: String,
-        @Param("district") district: String,
-        @Param("country") country: String,
+        @Param("district") district: String?,
+        @Param("country") country: String?,
     ): Optional<Dwelling>
 
 }

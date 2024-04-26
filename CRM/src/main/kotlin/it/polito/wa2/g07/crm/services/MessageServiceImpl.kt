@@ -58,7 +58,8 @@ class MessageServiceImpl(
             }
             is DwellingDTO -> {
 
-                val addr = addressRepository.findDwellingAddressByAddress(  msg.sender.street,
+                val addr = addressRepository.findDwellingAddressByStreet(
+                    msg.sender.street,
                     msg.sender.city,
                     msg.sender.district,
                     msg.sender.country)
