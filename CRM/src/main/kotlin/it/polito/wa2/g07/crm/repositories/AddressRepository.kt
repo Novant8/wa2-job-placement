@@ -15,7 +15,19 @@ interface AddressRepository: JpaRepository<Address, Long>{
     @Query("SELECT t FROM Telephone t WHERE t.number = :telephone")
     fun findTelephoneAddressByTelephoneNumber(@Param("telephone") a:String) : Optional<Telephone>
 
-
+    @Query("""
+        SELECT d FROM Dwelling d
+        WHERE d.street = :street
+            AND d.city = :city
+            AND d.district = :district
+            AND d.country = :country
+    """)
+    fun findDwellingAddressByStreet(
+        @Param("street") street: String,
+        @Param("city") city: String,
+        @Param("district") district: String,
+        @Param("country") country: String,
+    ): Optional<Dwelling>
 
 }
 

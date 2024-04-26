@@ -15,7 +15,7 @@ class Contact(
         var name: String,
         var surname: String,
         var category : ContactCategory,
-        var SSN: String? = null
+        var ssn: String? = null
 ) {
 
     @Id

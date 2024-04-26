@@ -21,13 +21,14 @@ class ContactController(private val contactService: ContactService) {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/","")
-    fun saveContact (@RequestBody contact: CreateContactDTO ): ReducedContactDTO{
+    fun saveContact (@RequestBody contact: CreateContactDTO ): ContactDTO {
         if (contact.name.isNullOrBlank() || contact.surname.isNullOrBlank()){
             throw MissingFieldException("Name and surname are required fields.")
         }
         return contactService.create(contact)
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{contactId}/email")
     fun addEmail (@PathVariable("contactId") contactId : Long, @RequestBody emailValue :Map<String, String> ){
         val email = emailValue["email"]

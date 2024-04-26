@@ -4,4 +4,7 @@ import jakarta.persistence.*
 
 @Entity
 @DiscriminatorValue("telephone")
-class Telephone(var number : String):Address()
+class Telephone(
+    @Column(unique = true)
+    var number : String
+):Address()

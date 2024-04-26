@@ -10,20 +10,41 @@ import it.polito.wa2.g07.crm.dtos.ContactFilterBy
 import it.polito.wa2.g07.crm.dtos.ReducedContactDTO
 import it.polito.wa2.g07.crm.dtos.toReducedContactDTO
 import it.polito.wa2.g07.crm.entities.ContactCategory
+import it.polito.wa2.g07.crm.entities.Dwelling
 import it.polito.wa2.g07.crm.entities.Email
+import it.polito.wa2.g07.crm.entities.Telephone
 import it.polito.wa2.g07.crm.exceptions.ContactNotFoundException
+import it.polito.wa2.g07.crm.exceptions.DuplicateAddressException
+import it.polito.wa2.g07.crm.repositories.AddressRepository
 import it.polito.wa2.g07.crm.repositories.ContactRepository
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import kotlin.jvm.optionals.getOrDefault
 
 @Service
-class ContactServiceImpl(private val contactRepository: ContactRepository) : ContactService{
+class ContactServiceImpl(
+    private val contactRepository: ContactRepository,
+    private val addressRepository: AddressRepository
+) : ContactService{
     @Transactional
-    override fun create(contact: CreateContactDTO): ReducedContactDTO {
-        return contactRepository.save(contact.toEntity()).toReducedContactDTO()
+    override fun create(contact: CreateContactDTO): ContactDTO {
+        val newContact = contact.toEntity()
+
+        // Search for existing addresses in the DB
+        newContact.addresses =
+            newContact.addresses.map {
+                when (it) {
+                    is Email -> addressRepository.findMailAddressByMail(it.email).getOrDefault(it)
+                    is Telephone -> addressRepository.findTelephoneAddressByTelephoneNumber(it.number).getOrDefault(it)
+                    is Dwelling -> addressRepository.findDwellingAddressByStreet(it.street, it.city, it.district, it.country).getOrDefault(it)
+                    else -> error("Address is not an email, telephone or dwelling")
+                }
+            }.toMutableSet()
+
+        return contactRepository.save(newContact).toContactDto()
     }
 
 @Transactional
@@ -35,7 +56,7 @@ class ContactServiceImpl(private val contactRepository: ContactRepository) : Con
         val result = when (filterBy) {
             ContactFilterBy.NONE ->         contactRepository.findAll(pageable)
             ContactFilterBy.FULL_NAME ->    contactRepository.findAllByFullNameLike(query, pageable)
-            ContactFilterBy.SSN ->          contactRepository.findAllBySSN(query, pageable)
+            ContactFilterBy.SSN ->          contactRepository.findAllBySsn(query, pageable)
             ContactFilterBy.EMAIL ->        contactRepository.findAllByEmail(query, pageable)
             ContactFilterBy.TELEPHONE ->    contactRepository.findAllByTelephone(query, pageable)
             ContactFilterBy.ADDRESS ->      contactRepository.findAllByDwellingLike(query, pageable)
@@ -57,15 +78,20 @@ class ContactServiceImpl(private val contactRepository: ContactRepository) : Con
 
     @Transactional
     override fun insertEmail(id: Long, value: String) {
-
         val contactOpt = contactRepository.findById(id)
-
         if (!contactOpt.isPresent){
             throw ContactNotFoundException("Contact not found ")
         }
-        val email = Email(value)
         val contact = contactOpt.get()
+
+        val duplicateEmail = contact.addresses.find { it is Email && it.email == value } != null
+        if (duplicateEmail) {
+            throw DuplicateAddressException("The mail $value is already associated to contact #$id")
+        }
+
+        val email = addressRepository.findMailAddressByMail(value).getOrDefault(Email(value))
         contact.addAddress(email)
+        contactRepository.save(contact)
     }
 
     companion object{
