@@ -15,6 +15,7 @@ import org.testcontainers.containers.PostgreSQLContainer
 	companion object {
 		private val db = PostgreSQLContainer("postgres:latest")
 	}
+
 	internal class Initializer: ApplicationContextInitializer<ConfigurableApplicationContext> {
 		override fun initialize(applicationContext: ConfigurableApplicationContext) {
 			db.start()

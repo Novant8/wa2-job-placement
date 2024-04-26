@@ -1,5 +1,6 @@
 package it.polito.wa2.g07.crm.dtos
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import it.polito.wa2.g07.crm.entities.*
@@ -30,4 +31,5 @@ data class TelephoneDTO(
     val phoneNumber: String
 ) : AddressDTO()
 
-data class DwellingDTO(val street: String, val city: String, val district: String?,val country: String?) : AddressDTO(){}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class DwellingDTO(val street: String, val city: String, val district: String?,val country: String?) : AddressDTO()
