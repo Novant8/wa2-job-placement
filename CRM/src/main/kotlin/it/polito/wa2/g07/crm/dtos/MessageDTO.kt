@@ -11,7 +11,7 @@ data class MessageDTO(
     val body: String,
     val priority: Int,
     val creationTimestamp: LocalDateTime,
-    val events: MutableSet<MessageEventDTO>
+    val lastEvent: MessageEventDTO
 )
 
 fun Message.toMessageDTO(): MessageDTO=
@@ -22,6 +22,5 @@ fun Message.toMessageDTO(): MessageDTO=
         this.body,
         this.priority,
         this.creationTimestamp,
-        this.events.map{ it.toMessageEventDTO()}.toMutableSet()
-
+        this.events.sortedBy { it.timestamp }.map{ it.toMessageEventDTO()}[0]
     )

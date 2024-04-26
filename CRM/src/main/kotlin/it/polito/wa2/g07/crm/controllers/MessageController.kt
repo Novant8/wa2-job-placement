@@ -43,9 +43,9 @@ class MessageController (private val messageService: MessageService
     }
   //Getting a specific message
     @GetMapping("/{messageId}", "/{messageId}/")
-    fun getMessageById(@PathVariable("messageId") messageId: Long) {
-        //val message= messageService.getMessage(messageId)
-        //return message
+    fun getMessageById(@PathVariable("messageId") messageId: Long) : MessageDTO? {
+        return  messageService.getMessage(messageId)
+
     }
 
 

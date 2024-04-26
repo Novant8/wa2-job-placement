@@ -7,8 +7,7 @@ import org.springframework.data.domain.Page
 
 interface MessageService {
     fun getMessages(pageable: Pageable): Page<ReducedMessageDTO>
-    fun getMessage(messageID:Long): ReducedMessageDTO
-
+    fun getMessage(messageID:Long): MessageDTO?
     fun createMessage(msg:MessageCreateDTO):MessageDTO?
     fun updateStatus(id_msg : Long, event_data: MessageEventDTO): MessageEventDTO?
     fun getHistory(id_msg: Long, pageable: Pageable): Page<MessageEventDTO>

@@ -12,13 +12,19 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface MessageRepository:JpaRepository<Message,Long> {
-    @Query( "SELECT m.status " +
+    @Query( "SELECT m " +
             "FROM MessageEvent m " +
             "WHERE m.message.messageID = :messageId " +
             "ORDER BY m.timestamp DESC LIMIT 1")
-    fun getLastEventByMessageId(messageId: Long): MessageStatus?
+    fun getLastEventByMessageId(messageId: Long): MessageEvent?
+
+
 
     @Query("SELECT m.events FROM Message m WHERE m.messageID = :messageID")
     fun getEventsByMessageID(messageID: Long,pageable: Pageable): Page<MessageEvent>
 
+    @Query("SELECT m FROM Message m, MessageEvent event " +
+            "WHERE m.messageID = :messageID  and event.message.messageID = :messageID"+
+            " ORDER BY event.timestamp DESC LIMIT 1")
+    fun getMessageByMessageID(messageID: Long):Message?
 }

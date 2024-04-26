@@ -26,8 +26,17 @@ class MessageServiceImpl(
 
     ):MessageService {
 
-    override fun getMessage(messageID: Long): ReducedMessageDTO {
-        TODO("Not yet implemented")
+
+    @Transactional
+    override fun getMessage(messageID: Long): MessageDTO? {
+        val msg=  messageRepository.getMessageByMessageID(messageID)
+
+        if (msg == null) {
+            logger.info("The message doesn't exist" )
+            throw MessageNotFoundException("The message doesn't exist")
+        }
+        logger.info("Message found")
+        return msg.toMessageDTO()
     }
 
     override fun getMessages(pageable: Pageable): Page<ReducedMessageDTO>{
@@ -111,7 +120,7 @@ class MessageServiceImpl(
            throw  MessageNotFoundException("The message doesn't exist")
        }
        val msg=result.get()
-       if (!checkNewStatusValidity(event_data.status, old_status)){
+       if (!checkNewStatusValidity(event_data.status, old_status.status)){
            throw  InvalidParamsException("The status cannot be assigned to the message")
        }
 
