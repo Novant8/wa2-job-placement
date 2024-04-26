@@ -56,15 +56,15 @@ class ContactIntegrationTest:CrmApplicationTests() {
                     "surname": "User",
                     "category": "customer",
                     "addresses":[{
-                        "type": "phone",
+                        "channel": "phone",
                         "phoneNumber":"12345678"
                     },
                     {
-                        "type": "email",
+                        "channel": "email",
                         "email":"test.user@email.com"
                     },
                     {
-                        "type": "dwelling",
+                        "channel": "dwelling",
                         "street":"123 Main St", 
                         "city":"City", 
                         "district":"District", 
@@ -93,7 +93,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
                     "surname": "User",
                     "category": "customer",
                     "addresses":[{
-                        "type": "phone",
+                        "channel": "phone",
                         "phoneNumber":"12345678"
                     }]
                 

@@ -11,38 +11,6 @@ data class CreateContactDTO(
     val ssn : String?,
     val addresses: List<AddressDTO>
 )
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes(
-    JsonSubTypes.Type(value = EmailDTO::class, name = "email"),
-    JsonSubTypes.Type(value = TelephoneDTO::class, name = "phone"),
-    JsonSubTypes.Type(value = DwellingDTO::class, name = "dwelling")
-)
-sealed  class AddressDTO
-
-fun Address.toAddressDTO(): AddressDTO {
-
-   return  when (this) {
-        is Email ->  EmailDTO(this.email)
-        is Telephone ->  TelephoneDTO(this.number)
-        is Dwelling ->  DwellingDTO(this.street, this.city, this.district, this.country)
-        else -> {throw Exception("Unknown address type")}
-   }
-}
-
-data class EmailDTO(
-    val email: String
-) : AddressDTO()
-
-data class TelephoneDTO(
-    val phoneNumber: String
-) : AddressDTO()
-
-data class DwellingDTO(
-    val street: String,
-    val city: String,
-    val district: String?,
-    val country: String?
-) : AddressDTO()
 
 fun CreateContactDTO.toEntity(): Contact {
     val contact = Contact(
@@ -61,6 +29,7 @@ fun CreateContactDTO.toEntity(): Contact {
             is EmailDTO -> Email(addressDTO.email)
             is TelephoneDTO -> Telephone(addressDTO.phoneNumber)
             is DwellingDTO -> Dwelling(addressDTO.street, addressDTO.city, addressDTO.district, addressDTO.country)
+            else -> {throw  IllegalArgumentException()}
         }
         contact.addAddress(address)
     }
