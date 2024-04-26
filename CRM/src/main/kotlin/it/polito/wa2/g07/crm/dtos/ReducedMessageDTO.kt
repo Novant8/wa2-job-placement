@@ -9,20 +9,11 @@ import it.polito.wa2.g07.crm.entities.Telephone
 data class ReducedMessageDTO (
         val id: Long,
         val subject: String,
-        val sender:String,
-        val channel:String
+        val sender:AddressDTO,
 )
 
 fun Message.toReducedDTO():ReducedMessageDTO{
-
-       return  when (this.sender) {
-                is Email ->{ return ReducedMessageDTO(this.messageID, this.subject, (this.sender as Email).email,"email" ) }
-                is Dwelling ->{ return ReducedMessageDTO(this.messageID, this.subject, (this.sender as Dwelling).city ?: "","dwelling" ) }
-                is Telephone ->{ return ReducedMessageDTO(this.messageID, this.subject, (this.sender as Telephone).number,"telephone" ) }
-                else-> { throw Exception("")  }
-       }
-
-
+        return ReducedMessageDTO(this.messageID,this.subject,this.sender.toAddressDTO())
 }
 
 

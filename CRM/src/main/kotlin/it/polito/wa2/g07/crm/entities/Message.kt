@@ -15,7 +15,7 @@ enum class MessageChannel {
 class Message(
     var subject: String,
     var body: String,
-    @ManyToOne var sender: Address,
+    @ManyToOne val sender: Address,
     var priority: Int = 0,
     var creationTimestamp: LocalDateTime = LocalDateTime.now(),
 ) {

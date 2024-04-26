@@ -85,8 +85,8 @@ class MessageIntegrationTest {
             content { jsonPath("content"){ isArray()}}
             content { jsonPath("totalElements"){value(1)} }
             content { jsonPath("$.content[0].subject"){ value("There is a message for you")}}
-            content { jsonPath("$.content[0].sender"){ value("lorem@ipsum.com")}}
-            content { jsonPath("$.content[0].channel"){ value("email")}}
+            content { jsonPath("$.content[0].sender.email"){ value("lorem@ipsum.com")}}
+            content { jsonPath("$.content[0].sender.channel"){ value("email")}}
         }
     }
     @Test
