@@ -93,4 +93,18 @@ class ContactController(private val contactService: ContactService) {
         }
     }
 
+    @PutMapping("/{contactId}/dwelling/{dwellingId}")
+    fun updateDwelling (@PathVariable("contactId") contactId: Long, @PathVariable("dwellingId") dwellingId : Long, @RequestBody dwellingInfo :Map<String, String>): ContactDTO{
+
+        val street = dwellingInfo["street"]
+        val district =  dwellingInfo["district"]
+        val city =  dwellingInfo["city"]
+        val country =  dwellingInfo["country"]
+        if (!street.isNullOrBlank() ||!district.isNullOrBlank()||!city.isNullOrBlank()||!country.isNullOrBlank()) {
+            return  contactService.updateDwelling(contactId, dwellingId, street,city, district, country)
+        } else {
+            throw MissingFieldException("You should provide a phone number ")
+        }
+    }
+
 }

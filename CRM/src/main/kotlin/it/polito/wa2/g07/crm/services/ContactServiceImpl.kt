@@ -10,6 +10,7 @@ import it.polito.wa2.g07.crm.dtos.ContactFilterBy
 import it.polito.wa2.g07.crm.dtos.ReducedContactDTO
 import it.polito.wa2.g07.crm.dtos.toReducedContactDTO
 import it.polito.wa2.g07.crm.entities.ContactCategory
+import it.polito.wa2.g07.crm.entities.Dwelling
 import it.polito.wa2.g07.crm.entities.Email
 import it.polito.wa2.g07.crm.entities.Telephone
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
@@ -136,6 +137,32 @@ class ContactServiceImpl(private val contactRepository: ContactRepository, priva
             }
         } else {
             throw InvalidParamsException("Address with ID $telephoneId is not an telephone or it is not present")
+        }
+    }
+    @Transactional
+    override fun updateDwelling(contactId: Long, dwellingId: Long, street: String?, city: String?, district: String?, country: String?): ContactDTO {
+        val contact = contactRepository.findById(contactId)
+            .orElseThrow { EntityNotFoundException("Contact not found with ID: $contactId") }
+
+        val dwellingOpt = addressRepository.findById(dwellingId)
+
+        if (dwellingOpt.isPresent && dwellingOpt.get() is Dwelling){
+            if (contact.addresses.contains(dwellingOpt.get())) {
+
+                var dwelling:Dwelling = dwellingOpt.get() as Dwelling
+                dwelling.street= street?:""
+                dwelling.city= city?:""
+                dwelling.district= district?:""
+                dwelling.country= country?:""
+
+                addressRepository.save(dwelling )
+                return contact.toContactDto()
+
+            } else {
+                throw InvalidParamsException("Dwelling with ID $dwellingId is not associated with Contact with ID $contactId")
+            }
+        } else {
+            throw InvalidParamsException("Address with ID $dwellingId is not an Dwelling or it is not present")
         }
     }
 

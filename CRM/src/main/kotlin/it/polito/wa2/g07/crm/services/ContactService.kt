@@ -25,4 +25,5 @@ interface ContactService {
 
     fun updateTelephone (contactId: Long, telephoneId: Long, phoneNumber: String): ContactDTO
 
+    fun updateDwelling(contactId: Long, dwellingId: Long, street: String?, city: String?, district: String?, country: String?): ContactDTO
 }
