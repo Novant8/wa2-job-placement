@@ -4,6 +4,9 @@ import jakarta.persistence.*
 
 @Entity
 @DiscriminatorValue("dwelling")
+@Table(uniqueConstraints = [
+    UniqueConstraint(columnNames = [ "street", "city", "district", "country" ] )
+])
  class Dwelling(
         var street: String,
         var city: String,

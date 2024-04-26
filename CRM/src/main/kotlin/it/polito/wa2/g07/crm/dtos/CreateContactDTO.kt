@@ -8,7 +8,7 @@ data class CreateContactDTO(
     val name: String?,
     val surname: String?,
     val category: String?,
-    val SSN : String?,
+    val ssn : String?,
     val addresses: List<AddressDTO>
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -53,7 +53,7 @@ fun CreateContactDTO.toEntity(): Contact {
             } catch (e: IllegalArgumentException) {
                 ContactCategory.UNKNOWN
             },
-            this.SSN
+            this.ssn
     )
 
     this.addresses.forEach { addressDTO ->

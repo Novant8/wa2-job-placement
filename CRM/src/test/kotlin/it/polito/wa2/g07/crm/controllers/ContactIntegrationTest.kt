@@ -108,50 +108,61 @@ class ContactIntegrationTest:CrmApplicationTests() {
     @Nested
     inner class PostContactEmail{
 
+        private var contactId: Long = 0
+
         @BeforeEach
         fun init(){
-            val contactDto = Contact(
+            contactRepository.deleteAll()
+            val contact = Contact(
                     "User",
                     "Test",
                     ContactCategory.CUSTOMER,
                     null,
             )
-            contactDto.contactId= 1L
-            contactDto.addresses= mutableSetOf(Telephone("12345667889"))
-            contactRepository.save(contactDto)
+            contact.addresses= mutableSetOf(Telephone("12345667889"), Email("test.user@email.com"))
+            contactId = contactRepository.save(contact).contactId
         }
 
         @Test
         fun postEmail (){
-            val email = "{\"email\":\"test.user@email.com\"}"
-            mockMvc.perform(post("/API/contacts/1/email").contentType(MediaType.APPLICATION_JSON).content(email)).andExpect(
-                status().isOk)
+            val email = "{\"email\":\"test.user1@email.com\"}"
+            mockMvc.perform(post("/API/contacts/$contactId/email").contentType(MediaType.APPLICATION_JSON).content(email)).andExpect(
+                status().isCreated)
         }
+
         @Test
         fun postBlankEmail(){
-            val email= "{\"email\":}"
-            mockMvc.perform(post("/API/contacts/1/email").contentType(MediaType.APPLICATION_JSON).content(email)).andExpect(
-                status().isBadRequest)
+            val email= "{\"email\":\"\"}"
+            mockMvc.perform(post("/API/contacts/$contactId/email").contentType(MediaType.APPLICATION_JSON).content(email)).andExpect(
+                status().isUnprocessableEntity)
         }
 
         @Test
-
         fun postEmailToNonExistingUser(){
-            val email = "{\"email\":\"test.user@email.com\"}"
-            mockMvc.perform(post("/API/contacts/2/email").contentType(MediaType.APPLICATION_JSON).content(email)).andExpect(
+            val invalidContact = contactId + 1
+            val email = "{\"email\":\"test.user1@email.com\"}"
+            mockMvc.perform(post("/API/contacts/$invalidContact/email").contentType(MediaType.APPLICATION_JSON).content(email)).andExpect(
                 status().isNotFound)
+        }
+
+        @Test
+        fun postEmailAlreadyAssociated(){
+            val email = "{\"email\":\"test.user@email.com\"}"
+            mockMvc.perform(post("/API/contacts/$contactId/email").contentType(MediaType.APPLICATION_JSON).content(email)).andExpect(
+                status().isNotModified)
         }
 
     }
 
     @Nested
     inner class GetContactById{
-        private val id = 1L
+        private var id = 1L
+
         @BeforeEach
         fun init(){
-
+            contactRepository.deleteAll()
             val contactDto = CreateContactDTO("Test", "User", "customer",null, listOf(TelephoneDTO("12345667889"),EmailDTO("test.user@email.com"), DwellingDTO("123 Main St", "City", "District","Country")))
-            contactRepository.save(contactDto.toEntity())
+            id = contactRepository.save(contactDto.toEntity()).contactId
         }
 
         @Test

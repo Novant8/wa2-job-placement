@@ -1,7 +1,7 @@
 package it.polito.wa2.g07.crm.controllers
 
-import it.polito.wa2.g07.crm.entities.Message
 import it.polito.wa2.g07.crm.exceptions.ContactNotFoundException
+import it.polito.wa2.g07.crm.exceptions.DuplicateAddressException
 import it.polito.wa2.g07.crm.exceptions.MissingFieldException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
@@ -30,4 +30,7 @@ class ProblemDetailsHandler: ResponseEntityExceptionHandler() {
     fun handleContactNotFound (e: MessageNotFoundException)=
         ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,e.message!!)
 
+    @ExceptionHandler(DuplicateAddressException::class)
+    fun handleContactNotFound (e: DuplicateAddressException)=
+        ProblemDetail.forStatusAndDetail(HttpStatus.NOT_MODIFIED,e.message!!)
 }

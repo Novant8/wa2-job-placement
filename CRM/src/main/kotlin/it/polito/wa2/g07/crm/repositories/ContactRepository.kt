@@ -18,7 +18,7 @@ interface ContactRepository:JpaRepository<Contact,Long> {
     @Query("SELECT c FROM Contact c WHERE concat(c.name, ' ', c.surname) LIKE %:query%")
     fun findAllByFullNameLike(@Param("query") query: String, pageable: Pageable): Page<Contact>
 
-    fun findAllBySSN(ssn: String, pageable: Pageable): Page<Contact>
+    fun findAllBySsn(ssn: String, pageable: Pageable): Page<Contact>
 
     fun findAllByCategory(category: ContactCategory, pageable: Pageable): Page<Contact>
 

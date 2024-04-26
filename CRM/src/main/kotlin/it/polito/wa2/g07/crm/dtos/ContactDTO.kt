@@ -18,7 +18,7 @@ data class ContactDTO(
         val surname : String ,
         val category: ContactCategory,
         val addresses: List<AddressDTO>,
-        val SSN: String?
+        val ssn: String?
 )
 
 fun Contact.toContactDto(): ContactDTO=
@@ -35,5 +35,5 @@ fun Contact.toContactDto(): ContactDTO=
                                 else -> throw IllegalArgumentException("Unknown address type")
                         }
                 },
-                this.SSN
+                this.ssn
         )
