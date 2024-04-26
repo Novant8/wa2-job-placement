@@ -7,8 +7,8 @@ import io.mockk.every
 import io.mockk.verify
 import it.polito.wa2.g07.crm.dtos.*
 import it.polito.wa2.g07.crm.entities.ContactCategory
-import it.polito.wa2.g07.crm.exceptions.ContactNotFoundException
 import it.polito.wa2.g07.crm.exceptions.DuplicateAddressException
+import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.services.ContactService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -29,9 +29,9 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
     @MockkBean
     private lateinit var contactService: ContactService
 
-    private val mockEmailDTO = EmailDTO("mario.rossi@example.org")
-    private val mockTelephoneDTO = TelephoneDTO("34242424242")
-    private val mockDwellingDTO = DwellingDTO("Via Roma, 18", "Torino", "TO", "IT")
+    private val mockEmailDTO = EmailResponseDTO(1L,"mario.rossi@example.org")
+    private val mockTelephoneDTO = TelephoneResponseDTO(2L,"34242424242")
+    private val mockDwellingDTO = DwellingResponseDTO(3L,"Via Roma, 18", "Torino", "TO", "IT")
     private val mockContactDTO = ContactDTO(
         1L,
         "Mario",
@@ -174,7 +174,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         @BeforeEach
         fun initMocks() {
             every { contactService.create(any(CreateContactDTO::class)) } answers { firstArg<CreateContactDTO>().toEntity().toContactDto() }
-            every { contactService.insertEmail(any(Long::class), any(String::class)) } throws ContactNotFoundException("Contact does not exist")
+            every { contactService.insertEmail(any(Long::class), any(String::class)) } throws EntityNotFoundException("Contact does not exist")
             every { contactService.insertEmail(mockContactDTO.id, any(String::class)) } returns Unit
             every { contactService.insertEmail(mockContactDTO.id, mockEmailDTO.email) } throws DuplicateAddressException("Mail already associated to contact")
         }

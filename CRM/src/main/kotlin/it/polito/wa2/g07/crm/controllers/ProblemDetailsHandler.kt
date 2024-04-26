@@ -1,6 +1,6 @@
 package it.polito.wa2.g07.crm.controllers
 
-import it.polito.wa2.g07.crm.exceptions.ContactNotFoundException
+import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.DuplicateAddressException
 import it.polito.wa2.g07.crm.exceptions.MissingFieldException
 import org.springframework.http.HttpStatus
@@ -22,8 +22,8 @@ class ProblemDetailsHandler: ResponseEntityExceptionHandler() {
     fun handleDuplicateDocument(e: InvalidParamsException) =
             ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,e.message!!)
 
-    @ExceptionHandler(ContactNotFoundException::class)
-    fun handleContactNotFound (e: ContactNotFoundException)=
+    @ExceptionHandler(EntityNotFoundException::class)
+    fun handleContactNotFound (e: EntityNotFoundException)=
         ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,e.message!!)
 
     @ExceptionHandler(MessageNotFoundException::class)

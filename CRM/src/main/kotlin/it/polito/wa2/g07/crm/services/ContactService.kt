@@ -17,4 +17,12 @@ interface ContactService {
 
     fun getContactById (contactId : Long): ContactDTO
     fun insertEmail (id:Long, value: String )
+
+    fun deleteEmail (contactId: Long, emailId:Long )
+
+    fun updateEmail (contactId: Long, emailId: Long, emailValue: String): ContactDTO
+
+    fun updateTelephone (contactId: Long, telephoneId: Long, phoneNumber: String): ContactDTO
+
+    fun updateDwelling(contactId: Long, dwellingId: Long, street: String?, city: String?, district: String?, country: String?): ContactDTO
 }

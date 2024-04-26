@@ -3,8 +3,8 @@ package it.polito.wa2.g07.crm.services
 import io.mockk.*
 import it.polito.wa2.g07.crm.dtos.*
 import it.polito.wa2.g07.crm.entities.*
-import it.polito.wa2.g07.crm.exceptions.ContactNotFoundException
 import it.polito.wa2.g07.crm.exceptions.DuplicateAddressException
+import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.repositories.AddressRepository
 import it.polito.wa2.g07.crm.repositories.ContactRepository
 import org.junit.jupiter.api.BeforeEach
@@ -120,7 +120,7 @@ class ContactServiceTest {
 
         @Test
         fun getContactById_notFound() {
-            assertThrows<ContactNotFoundException> {
+            assertThrows<EntityNotFoundException> {
                 service.getContactById(mockContact.contactId + 1)
             }
         }
@@ -161,7 +161,7 @@ class ContactServiceTest {
                 createContactDTO.name!!,
                 createContactDTO.surname!!,
                 ContactCategory.PROFESSIONAL,
-                createContactDTO.addresses,
+                listOf(),
                 createContactDTO.ssn
             )
             assertEquals(result, expectedDTO)
@@ -185,7 +185,7 @@ class ContactServiceTest {
                 createContactDTO.name!!,
                 createContactDTO.surname!!,
                 ContactCategory.PROFESSIONAL,
-                createContactDTO.addresses,
+                listOf(),
                 createContactDTO.ssn
             )
             assertEquals(result, expectedDTO)
@@ -207,13 +207,18 @@ class ContactServiceTest {
             )
 
             val result = service.create(createContactDTO)
+            val expectedAddresses = listOf(
+                EmailResponseDTO(0L,"luigi.verdi@example.org"),
+                TelephoneResponseDTO(0L,"34798989898"),
+                DwellingResponseDTO(0L,"Via Roma, 19", "Torino", "TO", "IT")
+            )
 
             val expectedDTO = ContactDTO(
                 0L,
                 createContactDTO.name!!,
                 createContactDTO.surname!!,
                 ContactCategory.PROFESSIONAL,
-                createContactDTO.addresses,
+                expectedAddresses,
                 createContactDTO.ssn
             )
             assertEquals(result, expectedDTO)
@@ -235,13 +240,18 @@ class ContactServiceTest {
             )
 
             val result = service.create(createContactDTO)
+            val expectedAddresses = listOf(
+                EmailResponseDTO(1L,mockMail.email),
+                TelephoneResponseDTO(2L,mockTelephone.number),
+                DwellingResponseDTO(3L,mockDwelling.street, mockDwelling.city, mockDwelling.district?:"", mockDwelling.country?:"")
+            )
 
             val expectedDTO = ContactDTO(
                 0L,
                 createContactDTO.name!!,
                 createContactDTO.surname!!,
                 ContactCategory.PROFESSIONAL,
-                createContactDTO.addresses,
+                expectedAddresses,
                 createContactDTO.ssn
             )
             assertEquals(result, expectedDTO)
@@ -263,13 +273,18 @@ class ContactServiceTest {
             )
 
             val result = service.create(createContactDTO)
+            val expectedAddresses = listOf(
+                EmailResponseDTO(0L,"luigi.verdi@example.org"),
+                TelephoneResponseDTO(0L,"34798989898"),
+                DwellingResponseDTO(0L,"Via Roma, 19", "Torino", "TO", "IT")
+            )
 
             val expectedDTO = ContactDTO(
                 0L,
                 createContactDTO.name!!,
                 createContactDTO.surname!!,
                 ContactCategory.UNKNOWN,
-                createContactDTO.addresses,
+                expectedAddresses,
                 createContactDTO.ssn
             )
             assertEquals(result, expectedDTO)
@@ -314,7 +329,7 @@ class ContactServiceTest {
         fun insertEmail_invalidUser() {
             val id = mockContact.contactId + 1
             val newMail = "mario.rossi@gmail.com"
-            assertThrows<ContactNotFoundException> {
+            assertThrows<EntityNotFoundException> {
                 service.insertEmail(id, newMail)
             }
             verify { contactRepository.save(any(Contact::class)) wasNot called }

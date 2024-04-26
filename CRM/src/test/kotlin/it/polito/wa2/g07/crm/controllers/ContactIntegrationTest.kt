@@ -155,6 +155,46 @@ class ContactIntegrationTest:CrmApplicationTests() {
     }
 
     @Nested
+    inner class DeleteContactEmail {
+
+        private var contact1Id = 0L
+
+
+        private val email1Id = 2L
+        private val email2Id = 3L
+
+        @BeforeEach
+        fun init(){
+            contactRepository.deleteAll()
+            val contact1Dto = CreateContactDTO("Test", "User", "customer",null, listOf(TelephoneDTO("435433635532424556"),EmailDTO("test.user@email.com")))
+            val contact2Dto = CreateContactDTO("Test2", "User2", "",null, listOf(EmailDTO("test2.user2@email.com")))
+            contact1Id= contactRepository.save(contact1Dto.toEntity()).contactId
+            contactRepository.save(contact2Dto.toEntity())
+        }
+        @Test
+        fun deleteCorrectEmail(){
+            mockMvc.perform(delete("/API/contacts/$contact1Id/email/$email1Id")).andExpect(status().isOk)
+        }
+        @Test
+        fun deleteEmailForNonExistingUser (){
+            mockMvc.perform(delete("/API/contacts/50/email/$email2Id")).andExpect(status().isNotFound)
+        }
+
+
+        @Test
+        fun deleteAddressDifferentFromEmail (){
+            mockMvc.perform(delete("/API/contacts/$contact1Id/email/1")).andExpect(status().isBadRequest)
+        }
+
+        @Test
+        fun deleteEmailNotBelongingToThatUser (){
+            mockMvc.perform(delete("/API/contacts/$contact1Id/email/$email2Id")).andExpect(status().isBadRequest)
+        }
+
+
+    }
+
+    @Nested
     inner class GetContactById{
         private var id = 1L
 
