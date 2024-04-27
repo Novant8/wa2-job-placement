@@ -162,33 +162,41 @@ class ContactIntegrationTest:CrmApplicationTests() {
 
         private var contact1Id = 0L
 
-
+        private var telephoneId = 0L
         private var email1Id = 0L
         private var email2Id = 0L
 
         @BeforeEach
         fun init(){
             contactRepository.deleteAll()
+            addressRepository.deleteAll()
             val contact1Dto = CreateContactDTO("Test", "User", "customer",null, listOf(TelephoneDTO("435433635532424556"),EmailDTO("test.user@email.com")))
             val contact2Dto = CreateContactDTO("Test2", "User2", "",null, listOf(EmailDTO("test2.user2@email.com")))
             contact1Id= contactRepository.save(contact1Dto.toEntity()).contactId
             contactRepository.save(contact2Dto.toEntity())
             email1Id= addressRepository.findMailAddressByMail("test.user@email.com").get().id
             email2Id= addressRepository.findMailAddressByMail("test2.user2@email.com").get().id
+            telephoneId= addressRepository.findTelephoneAddressByTelephoneNumber("435433635532424556").get().id
         }
+        
         @Test
         fun deleteCorrectEmail(){
             mockMvc.perform(delete("/API/contacts/$contact1Id/email/$email1Id")).andExpect(status().isOk)
         }
+
         @Test
         fun deleteEmailForNonExistingUser (){
             mockMvc.perform(delete("/API/contacts/50/email/$email2Id")).andExpect(status().isNotFound)
         }
 
+        @Test
+        fun deleteNonExistentEmail() {
+            mockMvc.perform(delete("/API/contacts/$contact1Id/email/4242")).andExpect(status().isNotFound)
+        }
 
         @Test
         fun deleteAddressDifferentFromEmail (){
-            mockMvc.perform(delete("/API/contacts/$contact1Id/email/1")).andExpect(status().isBadRequest)
+            mockMvc.perform(delete("/API/contacts/$contact1Id/email/$telephoneId")).andExpect(status().isBadRequest)
         }
 
         @Test

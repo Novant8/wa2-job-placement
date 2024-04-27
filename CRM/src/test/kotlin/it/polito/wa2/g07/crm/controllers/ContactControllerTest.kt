@@ -6,7 +6,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import it.polito.wa2.g07.crm.dtos.*
-import it.polito.wa2.g07.crm.entities.ContactCategory
+import it.polito.wa2.g07.crm.entities.*
 import it.polito.wa2.g07.crm.exceptions.DuplicateAddressException
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.services.ContactService
@@ -174,9 +174,25 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         @BeforeEach
         fun initMocks() {
             every { contactService.create(any(CreateContactDTO::class)) } answers { firstArg<CreateContactDTO>().toEntity().toContactDto() }
-            every { contactService.insertEmail(any(Long::class), any(String::class)) } throws EntityNotFoundException("Contact does not exist")
-            every { contactService.insertEmail(mockContactDTO.id, any(String::class)) } returns Unit
-            every { contactService.insertEmail(mockContactDTO.id, mockEmailDTO.email) } throws DuplicateAddressException("Mail already associated to contact")
+            every { contactService.insertAddress(any(Long::class), any(AddressDTO::class)) } throws EntityNotFoundException("Contact does not exist")
+            every { contactService.insertAddress(mockContactDTO.id, any(AddressDTO::class)) } answers {
+                val addressResponseDTO = when(val addressDTO = secondArg<AddressDTO>()) {
+                    is EmailDTO -> EmailResponseDTO(4L, addressDTO.email)
+                    is TelephoneDTO -> TelephoneResponseDTO(4L, addressDTO.phoneNumber)
+                    is DwellingDTO -> DwellingResponseDTO(4L, addressDTO.street, addressDTO.city, addressDTO.district!!, addressDTO.country!!)
+                }
+                ContactDTO(
+                    mockContactDTO.id,
+                    mockContactDTO.name,
+                    mockContactDTO.surname,
+                    mockContactDTO.category,
+                    listOf(mockContactDTO.addresses, listOf(addressResponseDTO)).flatten(),
+                    mockContactDTO.ssn
+                )
+            }
+            every { contactService.insertAddress(mockContactDTO.id, mockEmailDTO.toAddressDTO()) } throws DuplicateAddressException("Mail already associated to contact")
+            every { contactService.insertAddress(mockContactDTO.id, mockTelephoneDTO.toAddressDTO()) } throws DuplicateAddressException("Phone already associated to contact")
+            every { contactService.insertAddress(mockContactDTO.id, mockDwellingDTO.toAddressDTO()) } throws DuplicateAddressException("Dwelling already associated to contact")
         }
 
         @Test

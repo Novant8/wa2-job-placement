@@ -1,6 +1,7 @@
 package it.polito.wa2.g07.crm.controllers
 
 import it.polito.wa2.g07.crm.dtos.*
+import it.polito.wa2.g07.crm.entities.AddressType
 import it.polito.wa2.g07.crm.exceptions.MissingFieldException
 import it.polito.wa2.g07.crm.entities.ContactCategory
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
@@ -33,7 +34,7 @@ class ContactController(private val contactService: ContactService) {
     fun addEmail (@PathVariable("contactId") contactId : Long, @RequestBody emailValue :Map<String, String> ){
         val email = emailValue["email"]
         if (!email.isNullOrBlank()) {
-            contactService.insertEmail(contactId, email)
+            contactService.insertAddress(contactId, EmailDTO(email))
         } else {
             throw MissingFieldException("You should provide an email ")
         }
@@ -72,8 +73,8 @@ class ContactController(private val contactService: ContactService) {
     }
 
     @DeleteMapping("/{contactId}/email/{emailId}")
-    fun deleteEmail (@PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long){
-        return contactService.deleteEmail(contactId,emailId)
+    fun deleteEmail (@PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long) {
+        return contactService.deleteAddress(contactId, emailId, AddressType.EMAIL)
     }
 
     @PutMapping("/{contactId}/email/{emailId}")
@@ -81,7 +82,7 @@ class ContactController(private val contactService: ContactService) {
 
         val email = emailValue["email"]
         if (!email.isNullOrBlank()) {
-           return  contactService.updateEmail(contactId, emailId, email)
+           return  contactService.updateAddress(contactId, emailId, EmailDTO(email))
         } else {
             throw MissingFieldException("You should provide an email ")
         }
@@ -92,7 +93,7 @@ class ContactController(private val contactService: ContactService) {
 
         val number = phoneNumber["phoneNumber"]
         if (!number.isNullOrBlank()) {
-            return  contactService.updateTelephone(contactId, telephoneId, number)
+            return  contactService.updateAddress(contactId, telephoneId, TelephoneDTO(number))
         } else {
             throw MissingFieldException("You should provide a phone number ")
         }
@@ -100,13 +101,12 @@ class ContactController(private val contactService: ContactService) {
 
     @PutMapping("/{contactId}/dwelling/{dwellingId}")
     fun updateDwelling (@PathVariable("contactId") contactId: Long, @PathVariable("dwellingId") dwellingId : Long, @RequestBody dwellingInfo :Map<String, String>): ContactDTO{
-
         val street = dwellingInfo["street"]
         val district =  dwellingInfo["district"]
         val city =  dwellingInfo["city"]
         val country =  dwellingInfo["country"]
         if (!street.isNullOrBlank() ||!district.isNullOrBlank()||!city.isNullOrBlank()||!country.isNullOrBlank()) {
-            return  contactService.updateDwelling(contactId, dwellingId, street,city, district, country)
+            return  contactService.updateAddress(contactId, dwellingId, DwellingDTO(street ?: "", city ?: "", district, country))
         } else {
             throw MissingFieldException("You should provide a valid dwelling ")
         }
