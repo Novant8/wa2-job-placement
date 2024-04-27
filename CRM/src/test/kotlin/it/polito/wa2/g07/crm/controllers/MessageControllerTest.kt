@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.test.web.servlet.get
-
+import org.junit.jupiter.api.Assertions.*
 
 @WebMvcTest(MessageController::class)
 class MessageControllerTest (@Autowired val mockMvc: MockMvc){
@@ -25,7 +25,6 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
     @MockkBean
     private lateinit var messageService: MessageService
     private val mockEmailDTO = EmailDTO("mario.rossi@example.org")
-    //private val mockAddressDTO= AddressDTO()
     private val mockTelephoneDTO = TelephoneDTO("34242424242")
     private val mockDwellingDTO = DwellingDTO("Via Roma, 18", "Torino", "TO", "IT")
     private val mockMessageEventDTO =MessageEventDTO(MessageStatus.RECEIVED, LocalDateTime.now(),"test comment")
@@ -82,11 +81,12 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
         @BeforeEach
         fun initMocks(){
             every { messageService.getMessages(any(Pageable::class)) } returns pageImpl
+            every { messageService.getMessage(any(Long::class))  } returns mockMessageDTO1
         }
 
         @Test
         fun getMessages_noParams() {
-
+            val res1=
             mockMvc
                 .get("/API/messages")
                 .andExpect {
@@ -113,11 +113,24 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
                 }
         }
 
+        @Test
+        fun getMessages_Id() {
+            val res1=
+            mockMvc
+                .get("/API/messages/1")
+                .andExpect {
+                    status { isOk() }
+                    verify(exactly = 1) { messageService.getMessage(1) }
+                    content {
+                        jsonPath("$.id") { value(mockReducedMessageDTO1.id) }
+                        jsonPath("$.subject") { value(mockReducedMessageDTO1.subject) }
+                        jsonPath("$.sender.channel") { value("email")}
+                        jsonPath("$.sender.email") { value(mockEmailDTO.email)}
 
-
+                    }
+                }
+        }
 
     }
-
-
-
+    
 }
