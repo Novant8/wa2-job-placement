@@ -77,7 +77,7 @@ class ContactServiceImpl(
 
     @Transactional
     fun insertAddress(contact: Contact, addressDTO: AddressDTO): ContactDTO {
-        val duplicateAddress = contact.addresses.find { it is Email && it == addressDTO } != null
+        val duplicateAddress = contact.addresses.find { it == addressDTO } != null
         if (duplicateAddress) {
             throw DuplicateAddressException("The given address is already associated to contact #${contact.contactId}")
         }
@@ -105,6 +105,7 @@ class ContactServiceImpl(
         if (!contact.removeAddress(address)) {
             throw InvalidParamsException("Address with ID $addressId is not associated with Contact with ID $contactId")
         }
+        contactRepository.save(contact)
     }
 
     @Transactional
@@ -117,34 +118,12 @@ class ContactServiceImpl(
         }
 
         val address = addressOpt.get()
-        if (address.contacts.size > 1) {
-            // Old address is associated to multiple contacts:
-            // Remove old address from contact and add/associate the new one to it
-            contact.removeAddress(address)
-            return insertAddress(contact, addressDTO)
-        } else {
-            // The address is associated to only one contact:
-            // Edit the existing information
-            when(addressDTO) {
-                is EmailDTO -> {
-                    address as Email
-                    address.email = addressDTO.email
-                }
-                is TelephoneDTO -> {
-                    address as Telephone
-                    address.number = addressDTO.phoneNumber
-                }
-                is DwellingDTO -> {
-                    address as Dwelling
-                    address.street = addressDTO.street
-                    address.city = addressDTO.city
-                    address.district = addressDTO.district
-                    address.country = addressDTO.country
-                }
-            }
-            addressRepository.save(address)
-            return contactRepository.save(contact).toContactDto()
+        if(address == addressDTO) {
+            throw DuplicateAddressException("The given address is already associated with the contact #$contactId")
         }
+
+        contact.removeAddress(address)
+        return insertAddress(contact, addressDTO)
     }
 
     companion object{

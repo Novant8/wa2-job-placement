@@ -255,6 +255,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
         @BeforeEach
         fun init(){
             contactRepository.deleteAll()
+            addressRepository.deleteAll()
             val contactDto = CreateContactDTO("Test", "User", "customer",null, listOf(TelephoneDTO("3015544789"),EmailDTO("test.user@email.com"),DwellingDTO("123 Main St", "City", "District","Country")))
             contactId= contactRepository.save(contactDto.toEntity()).contactId
             emailId=addressRepository.findMailAddressByMail("test.user@email.com").get().id

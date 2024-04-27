@@ -5,13 +5,13 @@ import it.polito.wa2.g07.crm.dtos.*
 import it.polito.wa2.g07.crm.entities.*
 import it.polito.wa2.g07.crm.exceptions.DuplicateAddressException
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
+import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.AddressRepository
 import it.polito.wa2.g07.crm.repositories.ContactRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.assertThrows
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -31,16 +31,33 @@ class ContactServiceTest {
     private val mockTelephone = Telephone("34242424242")
     private val mockDwelling = Dwelling("Via Roma, 18", "Torino", "TO", "IT")
 
-    init {
-        mockContact.contactId = 1L
+    fun initMockContact() {
         mockMail.id = 1L
+        mockMail.email = "mario.rossi@example.org"
+        mockMail.contacts.add(mockContact)
+
         mockTelephone.id = 2L
+        mockTelephone.number = "34242424242"
+        mockTelephone.contacts.add(mockContact)
+
         mockDwelling.id = 3L
+        mockDwelling.street = "Via Roma, 18"
+        mockDwelling.city = "Torino"
+        mockDwelling.district = "TO"
+        mockDwelling.country = "IT"
+        mockDwelling.contacts.add(mockContact)
+
         mockContact.addresses = mutableSetOf(
             mockMail,
             mockTelephone,
             mockDwelling
         )
+
+        mockContact.contactId = 1L
+    }
+
+    init {
+        initMockContact()
     }
 
     private val contactRepository = mockk<ContactRepository>()
@@ -128,21 +145,37 @@ class ContactServiceTest {
     }
 
     @Nested
-    inner class PostContactTests {
+    inner class CreateContactTests {
 
-        val contactSlot = slot<Contact>()
+        private val contactSlot = slot<Contact>()
+        private val addressSlot = slot<Address>()
 
         @BeforeEach
         fun initMocks() {
             every { contactRepository.save(capture(contactSlot)) } answers { firstArg<Contact>() }
+            every { addressRepository.save(capture(addressSlot)) } answers { firstArg<Address>() }
             every { contactRepository.findById(any(Long::class)) } returns Optional.empty()
             every { contactRepository.findById(mockContact.contactId) } returns Optional.of(mockContact)
             every { addressRepository.findMailAddressByMail(any(String::class)) } returns Optional.empty()
             every { addressRepository.findMailAddressByMail(mockMail.email) } returns Optional.of(mockMail)
             every { addressRepository.findTelephoneAddressByTelephoneNumber(any(String::class)) } returns Optional.empty()
             every { addressRepository.findTelephoneAddressByTelephoneNumber(mockTelephone.number) } returns Optional.of(mockTelephone)
-            every { addressRepository.findDwellingAddressByStreet(any(String::class), any(String::class), any(String::class), any(String::class)) } returns Optional.empty()
-            every { addressRepository.findDwellingAddressByStreet(mockDwelling.street, mockDwelling.city, mockDwelling.district, mockDwelling.country) } returns Optional.of(mockDwelling)
+            every {
+                addressRepository.findDwellingAddressByStreet(
+                    any(String::class),
+                    any(String::class),
+                    any(String::class),
+                    any(String::class)
+                )
+            } returns Optional.empty()
+            every {
+                addressRepository.findDwellingAddressByStreet(
+                    mockDwelling.street,
+                    mockDwelling.city,
+                    mockDwelling.district,
+                    mockDwelling.country
+                )
+            } returns Optional.of(mockDwelling)
         }
 
         @Test
@@ -209,9 +242,9 @@ class ContactServiceTest {
 
             val result = service.create(createContactDTO)
             val expectedAddresses = listOf(
-                EmailResponseDTO(0L,"luigi.verdi@example.org"),
-                TelephoneResponseDTO(0L,"34798989898"),
-                DwellingResponseDTO(0L,"Via Roma, 19", "Torino", "TO", "IT")
+                EmailResponseDTO(0L, "luigi.verdi@example.org"),
+                TelephoneResponseDTO(0L, "34798989898"),
+                DwellingResponseDTO(0L, "Via Roma, 19", "Torino", "TO", "IT")
             )
 
             val expectedDTO = ContactDTO(
@@ -242,9 +275,15 @@ class ContactServiceTest {
 
             val result = service.create(createContactDTO)
             val expectedAddresses = listOf(
-                EmailResponseDTO(1L,mockMail.email),
-                TelephoneResponseDTO(2L,mockTelephone.number),
-                DwellingResponseDTO(3L,mockDwelling.street, mockDwelling.city, mockDwelling.district?:"", mockDwelling.country?:"")
+                EmailResponseDTO(1L, mockMail.email),
+                TelephoneResponseDTO(2L, mockTelephone.number),
+                DwellingResponseDTO(
+                    3L,
+                    mockDwelling.street,
+                    mockDwelling.city,
+                    mockDwelling.district ?: "",
+                    mockDwelling.country ?: ""
+                )
             )
 
             val expectedDTO = ContactDTO(
@@ -256,7 +295,7 @@ class ContactServiceTest {
                 createContactDTO.ssn
             )
             assertEquals(result, expectedDTO)
-            verify { contactRepository.save(any(Contact::class)) } 
+            verify { contactRepository.save(any(Contact::class)) }
         }
 
         @Test
@@ -275,9 +314,9 @@ class ContactServiceTest {
 
             val result = service.create(createContactDTO)
             val expectedAddresses = listOf(
-                EmailResponseDTO(0L,"luigi.verdi@example.org"),
-                TelephoneResponseDTO(0L,"34798989898"),
-                DwellingResponseDTO(0L,"Via Roma, 19", "Torino", "TO", "IT")
+                EmailResponseDTO(0L, "luigi.verdi@example.org"),
+                TelephoneResponseDTO(0L, "34798989898"),
+                DwellingResponseDTO(0L, "Via Roma, 19", "Torino", "TO", "IT")
             )
 
             val expectedDTO = ContactDTO(
@@ -291,54 +330,242 @@ class ContactServiceTest {
             assertEquals(result, expectedDTO)
             verify { contactRepository.save(any(Contact::class)) }
         }
+    }
 
-        @Disabled("TODO: REPLACE insertEmail WITH insertAddress")
-        @Test
-        fun insertEmail_success() {
-            val id = mockContact.contactId
-            val newMail = "mario.rossi@gmail.com"
-            //service.insertEmail(id, newMail)
+    @Nested
+    inner class AddressManagementTests {
 
-            verify { contactRepository.save(any(Contact::class)) }
-            assertNotNull(contactSlot.captured.addresses.find { it is Email && it.email == newMail })
+        @BeforeEach
+        fun initMocks() {
+            every { contactRepository.save(any(Contact::class)) } answers { firstArg<Contact>() }
+            every { addressRepository.save(any(Address::class)) } answers { firstArg<Address>() }
+            every { contactRepository.findById(any(Long::class)) } returns Optional.empty()
+            every { contactRepository.findById(mockContact.contactId) } returns Optional.of(mockContact)
+            every { addressRepository.findMailAddressByMail(any(String::class)) } returns Optional.empty()
+            every { addressRepository.findMailAddressByMail(mockMail.email) } returns Optional.of(mockMail)
+            every { addressRepository.findTelephoneAddressByTelephoneNumber(any(String::class)) } returns Optional.empty()
+            every { addressRepository.findTelephoneAddressByTelephoneNumber(mockTelephone.number) } returns Optional.of(mockTelephone)
+            every {
+                addressRepository.findDwellingAddressByStreet(
+                    any(String::class),
+                    any(String::class),
+                    any(String::class),
+                    any(String::class)
+                )
+            } returns Optional.empty()
+            every {
+                addressRepository.findDwellingAddressByStreet(
+                    mockDwelling.street,
+                    mockDwelling.city,
+                    mockDwelling.district,
+                    mockDwelling.country
+                )
+            } returns Optional.of(mockDwelling)
+
+            every { addressRepository.findById(any(Long::class)) } returns Optional.empty()
+            for (address in mockContact.addresses) {
+                every { addressRepository.findById(address.id) } returns Optional.of(address)
+            }
         }
 
-        @Disabled("TODO: REPLACE insertEmail WITH insertAddress")
+        @BeforeEach
+        fun callInitMockContact() {
+            initMockContact()
+        }
+
         @Test
-        fun insertEmail_existingMail() {
+        fun insertAddress_new() {
+            val addressDTOs = listOf(
+                EmailDTO("mario.rossi@gmail.com"),
+                TelephoneDTO("3424242424"),
+                DwellingDTO("Via Garibaldi, 20", "Torino", "TO", "IT")
+            )
+
+            for (addressDTO in addressDTOs) {
+                val result = service.insertAddress(mockContact.contactId, addressDTO)
+
+                assertTrue(mockContact.addresses.contains(addressDTO.toEntity()))
+                assertEquals(result, mockContact.toContactDto())
+                verify { contactRepository.save(any(Contact::class)) }
+
+                mockContact.addresses.remove(addressDTO.toEntity())
+            }
+        }
+
+        @Test
+        fun insertAddress_existing() {
             val existingMail = "existing.mail@example.org"
-            val existingMailEntity = Email(existingMail)
-            existingMailEntity.id = 2L
-            every { addressRepository.findMailAddressByMail(existingMail) } returns Optional.of(existingMailEntity)
+            val existingPhone = "34298989898"
+            val existingDwellingStreet = "Via Esistente, 42"
+            val existingDwellingCity = "Torino"
+            val existingDwellingDistrict = "TO"
+            val existingDwellingCountry = "IT"
+            val existingEntities = listOf(
+                Email(existingMail),
+                Telephone(existingPhone),
+                Dwelling(existingDwellingStreet, existingDwellingCity, existingDwellingDistrict, existingDwellingCountry)
+            )
+            existingEntities[0].id = 4L
+            existingEntities[1].id = 5L
+            existingEntities[2].id = 6L
 
-            val id = mockContact.contactId
-            // service.insertEmail(id, existingMail)
+            every { addressRepository.findMailAddressByMail(existingMail) } returns Optional.of(existingEntities[0] as Email)
+            every { addressRepository.findTelephoneAddressByTelephoneNumber(existingPhone) } returns Optional.of(existingEntities[1] as Telephone)
+            every { addressRepository.findDwellingAddressByStreet(existingDwellingStreet, existingDwellingCity, existingDwellingDistrict, existingDwellingCountry) } returns Optional.of(existingEntities[2] as Dwelling)
 
-            verify { contactRepository.save(any(Contact::class)) }
-            assertEquals(contactSlot.captured.addresses.find { it is Email && it.email == existingMail }?.id, existingMailEntity.id)
-        }
+            for (address in existingEntities) {
+                val result = service.insertAddress(mockContact.contactId, address.toAddressDTO())
 
-        @Disabled("TODO: REPLACE insertEmail WITH insertAddress")
-        @Test
-        fun insertEmail_mailAlreadyAssociatedToContact() {
-            val id = mockContact.contactId
-            val newMail = mockMail.email
-            assertThrows<DuplicateAddressException> {
-                // service.insertEmail(id, newMail)
+                assertTrue(mockContact.addresses.contains(address))
+                assertEquals(result, mockContact.toContactDto())
+                verify { contactRepository.save(any(Contact::class)) }
             }
-            verify { contactRepository.save(any(Contact::class)) wasNot called }
         }
 
-        @Disabled("TODO: REPLACE insertEmail WITH insertAddress")
         @Test
-        fun insertEmail_invalidUser() {
-            val id = mockContact.contactId + 1
-            val newMail = "mario.rossi@gmail.com"
+        fun insertAddress_alreadyAssociated() {
+            for (address in mockContact.addresses) {
+                assertThrows<DuplicateAddressException> {
+                    service.insertAddress(mockContact.contactId, address.toAddressDTO())
+                }
+                verify { contactRepository.save(any(Contact::class)) wasNot called }
+            }
+        }
+
+        @Test
+        fun insertAddress_invalidContact() {
             assertThrows<EntityNotFoundException> {
-                // service.insertEmail(id, newMail)
+                service.insertAddress(mockContact.contactId + 1, EmailDTO("mario.rossi@gmail.com"))
             }
             verify { contactRepository.save(any(Contact::class)) wasNot called }
         }
 
+        @Test
+        fun deleteAddress_success() {
+            service.deleteAddress(mockContact.contactId, mockMail.id, mockMail.addressType)
+
+            assertFalse(mockContact.addresses.contains(mockMail))
+            verify { contactRepository.save(mockContact) }
+        }
+
+        @Test
+        fun deleteAddress_invalidContact() {
+            assertThrows<EntityNotFoundException> {
+                service.deleteAddress(mockContact.contactId + 1, mockMail.id, mockMail.addressType)
+            }
+        }
+
+        @Test
+        fun deleteAddress_invalidAddress() {
+            assertThrows<EntityNotFoundException> {
+                service.deleteAddress(mockContact.contactId, 42L, AddressType.EMAIL)
+            }
+        }
+
+        @Test
+        fun deleteAddress_inconsistentType() {
+            assertThrows<InvalidParamsException> {
+                service.deleteAddress(mockContact.contactId, mockMail.id, AddressType.TELEPHONE)
+            }
+        }
+
+        @Test
+        fun deleteAddress_notAssociated() {
+            val existingMail = Email("existing.mail@example.org")
+            existingMail.id = 98L
+            every { addressRepository.findById(existingMail.id) } returns Optional.of(existingMail)
+
+            assertThrows<InvalidParamsException> {
+                service.deleteAddress(mockContact.contactId, existingMail.id, existingMail.addressType)
+            }
+        }
+
+        @Test
+        fun updateAddress_singleAssociation() {
+            val oldMail = Email(mockMail.email)
+            oldMail.id = mockMail.id
+            val newMailDTO = EmailDTO("new.mail@example.org")
+
+            val result = service.updateAddress(mockContact.contactId, mockMail.id, newMailDTO)
+
+            assertTrue(mockContact.addresses.contains(newMailDTO.toEntity()))
+            assertFalse(mockContact.addresses.contains(oldMail))
+            assertEquals(result, mockContact.toContactDto())
+            verify { contactRepository.save(mockContact) }
+        }
+
+        @Test
+        fun updateAddress_multipleAssociations() {
+            val otherContact = Contact(
+                "Luigi",
+                "Verdi",
+                ContactCategory.PROFESSIONAL
+            )
+            otherContact.addAddress(mockMail)
+
+            val oldMail = Email(mockMail.email)
+            oldMail.id = mockMail.id
+            val newMailDTO = EmailDTO("new.mail@example.org")
+
+            val result = service.updateAddress(mockContact.contactId, mockMail.id, newMailDTO)
+
+            assertTrue(mockContact.addresses.contains(newMailDTO.toEntity()))
+            assertFalse(mockContact.addresses.contains(oldMail))
+            assertTrue(otherContact.addresses.contains(oldMail))
+            assertEquals(result, mockContact.toContactDto())
+            verify { contactRepository.save(mockContact) }
+        }
+
+        @Test
+        fun updateAddress_newAddressAlreadyExists() {
+            val existingMail = Email("existing.mail@example.org")
+            existingMail.id = 98L
+            every { addressRepository.findById(existingMail.id) } returns Optional.of(existingMail)
+
+            val oldMail = Email(mockMail.email)
+            oldMail.id = mockMail.id
+
+            val result = service.updateAddress(mockContact.contactId, mockMail.id, existingMail.toAddressDTO())
+
+            assertTrue(mockContact.addresses.contains(existingMail))
+            assertFalse(mockContact.addresses.contains(oldMail))
+            assertEquals(result, mockContact.toContactDto())
+            verify { contactRepository.save(mockContact) }
+        }
+
+        @Test
+        fun updateAddress_alreadyAssociated() {
+            val oldMail = Email(mockMail.email)
+            oldMail.id = mockMail.id
+            val existingMail = Email("existing.mail@example.org")
+            mockContact.addAddress(existingMail)
+
+            assertThrows<DuplicateAddressException> {
+                service.updateAddress(mockContact.contactId, mockMail.id, existingMail.toAddressDTO())
+            }
+        }
+
+        @Test
+        fun updateAddress_noModifications() {
+            assertThrows<DuplicateAddressException> {
+                service.updateAddress(mockContact.contactId, mockMail.id, mockMail.toAddressDTO())
+            }
+        }
+
+        @Test
+        fun updateAddress_invalidContact() {
+            val newMailDTO = EmailDTO("new.mail@example.org")
+            assertThrows<EntityNotFoundException> {
+                service.updateAddress(mockContact.contactId + 1, mockMail.id, newMailDTO)
+            }
+        }
+
+        @Test
+        fun updateAddress_invalidAddress() {
+            val newMailDTO = EmailDTO("new.mail@example.org")
+            assertThrows<EntityNotFoundException> {
+                service.updateAddress(mockContact.contactId + 1, 42L, newMailDTO)
+            }
+        }
     }
 }
