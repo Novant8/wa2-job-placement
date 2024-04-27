@@ -57,6 +57,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
 
         @Test
         fun getMessages_noParams(){
+
             mockMvc
                 .get("/API/messages")
                 .andExpect {
@@ -65,10 +66,15 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
                     content {
                         jsonPath("$.content[0].id"){value(mockReducedMessageDTO.id)}
                         jsonPath("$.content[0].subject"){value(mockReducedMessageDTO.subject)}
-                        jsonPath("$.content[0].sender"){isMap()}
+                        jsonPath("$.content[0].sender.channel"){value("email")/*isMap()*/}
+                        jsonPath("$.content[0].sender.email"){value(mockEmailDTO.email)/*isMap()*/}
 
                     }
+
                 }
+
+
+
         }
 
 
