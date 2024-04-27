@@ -22,5 +22,5 @@ fun Message.toMessageDTO(): MessageDTO=
         this.body,
         this.priority,
         this.creationTimestamp,
-        this.events.sortedBy { it.timestamp }.map{ it.toMessageEventDTO()}[0]
+        this.events.sortedBy { it.timestamp }.reversed().map{ it.toMessageEventDTO()}[0]  //
     )

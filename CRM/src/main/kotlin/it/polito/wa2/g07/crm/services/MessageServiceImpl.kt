@@ -29,14 +29,13 @@ class MessageServiceImpl(
 
     @Transactional
     override fun getMessage(messageID: Long): MessageDTO? {
-        val msg=  messageRepository.getMessageByMessageID(messageID)
-
-        if (msg == null) {
+        val msg=  messageRepository.findById(messageID)
+        if (msg.isEmpty) {
             logger.info("The message doesn't exist" )
             throw MessageNotFoundException("The message doesn't exist")
         }
         logger.info("Message found")
-        return msg.toMessageDTO()
+        return msg.get().toMessageDTO()
     }
 
     override fun getMessages(pageable: Pageable): Page<ReducedMessageDTO>{

@@ -10,6 +10,7 @@ import org.json.JSONObject
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,6 +25,7 @@ import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.put
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
@@ -63,7 +65,7 @@ class MessageIntegrationTest {
         /* Prepopulate the DB*/
         val sender1=Email("lorem@ipsum.com")
         val sender2=Dwelling("Piazza Centrale","Milano","Lombardia","Italia")
-
+        val sender3=Telephone("011-43553#352")
         val msg1  = Message(
             subject =  "There is a message for you",
             sender = sender1,
@@ -74,11 +76,24 @@ class MessageIntegrationTest {
             sender = sender2,
             body = "Vorrei sapere..."
         )
-        var msg1_id :Long =0 ;
-        var msg2_id :Long=0;
+        val msg3 = Message(
+            subject = "Assumetemi pls",
+            sender = sender3,
+            body= "pls assumetemi"
+        )
+        var msg1_id :Long = 0
+        var msg2_id :Long = 0
+        var msg3_id :Long = 0
         init {
             msg1.addEvent(MessageEvent(msg1,MessageStatus.RECEIVED, LocalDateTime.now(),"The message is received"))
-            msg2.addEvent(MessageEvent(msg1,MessageStatus.RECEIVED, LocalDateTime.now(),"Please read the message"))
+
+            msg2.addEvent(MessageEvent(msg2,MessageStatus.RECEIVED, LocalDateTime.now(),"Please read the message"))
+            msg2.addEvent(MessageEvent(msg2,MessageStatus.READ, LocalDateTime.now(),"Spam"))
+            msg2.addEvent(MessageEvent(msg2,MessageStatus.DISCARDED, LocalDateTime.now(),"Invalid document"))
+
+            msg3.addEvent(MessageEvent(msg3,MessageStatus.RECEIVED, LocalDateTime.now()))
+            msg3.addEvent(MessageEvent(msg3,MessageStatus.READ, LocalDateTime.now()))
+            msg3.addEvent(MessageEvent(msg3,MessageStatus.PROCESSING, LocalDateTime.now()))
 
         }
 
@@ -88,8 +103,10 @@ class MessageIntegrationTest {
         //Each test the DB start clean
         addressRepository.save(sender1)
         addressRepository.save(sender2)
+        addressRepository.save(sender3)
         msg1_id = messageRepository.save(msg1).messageID
         msg2_id = messageRepository.save(msg2).messageID
+        msg3_id = messageRepository.save(msg3).messageID
 
     }
 
@@ -101,10 +118,14 @@ class MessageIntegrationTest {
             status { isOk() }
             content { contentType(MediaType.APPLICATION_JSON) }
             content { jsonPath("content"){ isArray()}}
-            content { jsonPath("totalElements"){value(2)} }
+            content { jsonPath("totalElements"){value(3)} }
             content { jsonPath("$.content[0].subject"){ value("There is a message for you")}}
             content { jsonPath("$.content[0].sender.email"){ value("lorem@ipsum.com")}}
             content { jsonPath("$.content[0].sender.channel"){ value("email")}}
+
+            content { jsonPath("$.content[1].subject"){ value("Richiesta info")}}
+            content { jsonPath("$.content[1].sender.street"){ value("Piazza Centrale")}}
+            content { jsonPath("$.content[1].sender.channel"){ value("dwelling")}}
         }
     }
 
@@ -163,12 +184,6 @@ class MessageIntegrationTest {
         }
 
 
-
-        //check that the address is the same and not duplicated
-
-
-
-
     }
     @Test
     fun checkNoDuplicateAddressForTheSameSender_telephone() {
@@ -217,8 +232,9 @@ class MessageIntegrationTest {
             content { jsonPath("$.body"){value("please visit http://your-bank.com")} }
 
         }.andReturn().response.contentAsString).getString("id")
-        assertEquals(   messageRepository.getMessageByMessageID(msg_1_id.toLong())!!.sender.id,
-                        messageRepository.getMessageByMessageID(msg_2_id.toLong())!!.sender.id)
+        assertEquals(   messageRepository.findById(msg_1_id.toLong()).get().sender.id,
+                        messageRepository.findById(msg_2_id.toLong()).get().sender.id)
+
     }
 
     @Test
@@ -321,8 +337,8 @@ class MessageIntegrationTest {
             content { jsonPath("$.sender.channel") { value("dwelling") } }
             content { jsonPath("$.body") { value("Gentile x, la contatto in merito...") } }
         }.andReturn().response.contentAsString).getString("id")
-        assertEquals(   messageRepository.getMessageByMessageID(msg_1_id.toLong())!!.sender.id,
-                        messageRepository.getMessageByMessageID(msg_2_id.toLong())!!.sender.id)
+        assertEquals(   messageRepository.findById(msg_1_id.toLong()).get().sender.id,
+                        messageRepository.findById(msg_2_id.toLong()).get().sender.id)
 
 
     }
@@ -369,7 +385,81 @@ class MessageIntegrationTest {
             content { contentType(MediaType.APPLICATION_JSON) }
         }.andReturn().response.contentAsString).getString("id")
 
-        assertNotEquals(    messageRepository.getMessageByMessageID(msg_1_id.toLong())!!.sender.id,
-                            messageRepository.getMessageByMessageID(msg_2_id.toLong())!!.sender.id)
+        assertNotEquals(    messageRepository.findById(msg_1_id.toLong()).get().sender.id,
+                            messageRepository.findById(msg_2_id.toLong()).get().sender.id)
+    }
+
+        @Test
+        fun PRIORITY_getPriority(){
+             mockMvc.get("/API/messages/$msg1_id")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    content { jsonPath("$.priority") { value("0") } }
+                }
+        }
+        @Test
+        fun PRIORITY_putPriority(){
+            mockMvc.put("/API/messages/$msg1_id/priority"){
+                content =  """{"priority":3}"""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.priority") { value("3") } }
+            }
+
+            mockMvc.get("/API/messages/$msg1_id")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    content { jsonPath("$.priority") { value("3") } }
+                }
+        }
+        @Test
+        fun PRIORITY_putPriorityNotValid(){
+            mockMvc.put("/API/messages/$msg1_id/priority"){
+                content =  """{"priority":-1}"""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isBadRequest() }
+            }
+            mockMvc.put("/API/messages/$msg1_id/priority"){
+                content =  """{"priority":"A"}"""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isBadRequest() }
+            }
+            mockMvc.put("/API/messages/$msg1_id/priority"){
+                content =  """"""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isBadRequest() }
+            }
+        }
+
+    @Test
+    fun MESSAGE_getMessageState(){
+        mockMvc.get("/API/messages/$msg1_id").andExpect {
+            status { isOk() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            content { jsonPath("$.lastEvent.status") { value("RECEIVED") } }
+            content { jsonPath("$.lastEvent.comments") { value("The message is received") } }
+            content { jsonPath("$.lastEvent.timestamp") { isNotEmpty() } }
+        }
+        mockMvc.get("/API/messages/$msg2_id").andExpect {
+            status { isOk() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            content { jsonPath("$.lastEvent.status") { value("DISCARDED") } }
+            content { jsonPath("$.lastEvent.comments") { value("Invalid document") } }
+            content { jsonPath("$.lastEvent.timestamp") { isNotEmpty() } }
+        }
+        mockMvc.get("/API/messages/$msg3_id").andExpect {
+            status { isOk() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            content { jsonPath("$.lastEvent.status") { value("PROCESSING") } }
+            content { jsonPath("$.lastEvent.comments").doesNotExist() }
+            content { jsonPath("$.lastEvent.timestamp") { isNotEmpty() } }
+        }
     }
 }
