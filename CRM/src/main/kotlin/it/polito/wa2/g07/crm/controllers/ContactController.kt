@@ -108,7 +108,7 @@ class ContactController(private val contactService: ContactService) {
         if (!street.isNullOrBlank() ||!district.isNullOrBlank()||!city.isNullOrBlank()||!country.isNullOrBlank()) {
             return  contactService.updateDwelling(contactId, dwellingId, street,city, district, country)
         } else {
-            throw MissingFieldException("You should provide a phone number ")
+            throw MissingFieldException("You should provide a valid dwelling ")
         }
     }
 
