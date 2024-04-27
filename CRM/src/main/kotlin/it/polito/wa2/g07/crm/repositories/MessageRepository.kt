@@ -20,7 +20,9 @@ interface MessageRepository:JpaRepository<Message,Long> {
 
 
 
-    @Query("SELECT m.events FROM Message m WHERE m.messageID = :messageID")
+    @Query("SELECT events FROM Message m ,MessageEvent events " +
+            "WHERE events.message.messageID = :messageID AND m.messageID= :messageID " +
+            "ORDER BY events.timestamp desc ")
     fun getEventsByMessageID(messageID: Long,pageable: Pageable): Page<MessageEvent>
 
 }

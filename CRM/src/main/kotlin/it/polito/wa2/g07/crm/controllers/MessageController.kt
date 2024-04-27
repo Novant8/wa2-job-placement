@@ -38,7 +38,8 @@ class MessageController (private val messageService: MessageService
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{id_message}","/{id_message}/")
     fun updateMessageState(@PathVariable("id_message") idMessage: Long,
-                            event:MessageEventDTO ):MessageEventDTO?{
+                            @RequestBody event:MessageEventDTO ):MessageEventDTO?{
+
         return messageService.updateStatus(idMessage, event)
     }
   //Getting a specific message

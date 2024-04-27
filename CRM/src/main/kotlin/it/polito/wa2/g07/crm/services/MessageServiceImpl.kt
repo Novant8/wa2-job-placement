@@ -117,10 +117,12 @@ class MessageServiceImpl(
        val result = messageRepository.findById(id_msg)
        val old_status = messageRepository.getLastEventByMessageId(id_msg)
         if (result.isEmpty || old_status==null){
+            logger.info("The message doesn't exist")
            throw  MessageNotFoundException("The message doesn't exist")
        }
        val msg=result.get()
        if (!checkNewStatusValidity(event_data.status, old_status.status)){
+           logger.info("The status cannot be assigned to the message")
            throw  InvalidParamsException("The status cannot be assigned to the message")
        }
 
@@ -130,7 +132,7 @@ class MessageServiceImpl(
        } else{
             date= event_data.timestamp!!
        }
-
+        logger.info("The status has been assigned to the message")
        val m_event = MessageEvent(msg,event_data.status,date,event_data.comments)
        msg.addEvent(m_event)
         return m_event.toMessageEventDTO()
