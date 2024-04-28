@@ -171,6 +171,29 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
 
         private val jsonMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
 
+        private val invalidEmailDTOs = listOf(
+            EmailDTO(""),
+            EmailDTO(" "),
+            EmailDTO("invalid")
+        )
+
+        private val invalidTelephoneDTOs = listOf(
+            TelephoneDTO(""),
+            TelephoneDTO(" "),
+            TelephoneDTO("invalid")
+        )
+
+        private val invalidDwellingDTOs = listOf(
+            DwellingDTO("", "Torino", "TO", "IT"),
+            DwellingDTO(" ", "Torino", "TO", "IT"),
+            DwellingDTO("Via Garibaldi, 42", "", "TO", "IT"),
+            DwellingDTO("Via Garibaldi, 42", " ", "TO", "IT"),
+            DwellingDTO("Via Garibaldi, 42", "Torino", "", "IT"),
+            DwellingDTO("Via Garibaldi, 42", "Torino", " ", "IT"),
+            DwellingDTO("Via Garibaldi, 42", "Torino", "TO", ""),
+            DwellingDTO("Via Garibaldi, 42", "Torino", "TO", " ")
+        )
+
         @BeforeEach
         fun initMocks() {
             every { contactService.create(any(CreateContactDTO::class)) } answers { firstArg<CreateContactDTO>().toEntity().toContactDto() }
@@ -179,7 +202,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
                 val addressResponseDTO = when(val addressDTO = secondArg<AddressDTO>()) {
                     is EmailDTO -> EmailResponseDTO(4L, addressDTO.email)
                     is TelephoneDTO -> TelephoneResponseDTO(4L, addressDTO.phoneNumber)
-                    is DwellingDTO -> DwellingResponseDTO(4L, addressDTO.street, addressDTO.city, addressDTO.district!!, addressDTO.country!!)
+                    is DwellingDTO -> DwellingResponseDTO(4L, addressDTO.street, addressDTO.city, addressDTO.district, addressDTO.country)
                 }
                 ContactDTO(
                     mockContactDTO.id,
@@ -353,13 +376,38 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
+        fun saveContact_invalidAddresses() {
+            val invalidAddresses = invalidEmailDTOs + invalidTelephoneDTOs + invalidDwellingDTOs
+
+            for (address in invalidAddresses) {
+                val createContactDTO = CreateContactDTO(
+                    "Luigi",
+                    "Verdi",
+                    "I am not valid",
+                    "VRDLGU70A01L219G",
+                    addresses = listOf(address)
+                )
+
+                mockMvc
+                    .post("/API/contacts") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper.writeValueAsString(createContactDTO)
+                    }
+                    .andExpect{
+                        status { isUnprocessableEntity() }
+                    }
+            }
+
+        }
+
+        @Test
         fun insertMail_success() {
             val id = mockContactDTO.id
-            val mailJson = "{ \"email\": \"mario.rossi2@gmail.com\" }"
+            val emailDTO = EmailDTO("mario.rossi2@gmail.com")
             mockMvc
                 .post("/API/contacts/$id/email") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = mailJson
+                    content = jsonMapper.writeValueAsString(emailDTO)
                 }
                 .andExpect{
                     status { isCreated() }
@@ -367,13 +415,28 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
+        fun insertMail_invalidMail() {
+            for (emailDTO in invalidEmailDTOs) {
+                val id = mockContactDTO.id
+                mockMvc
+                    .post("/API/contacts/$id/email") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper.writeValueAsString(emailDTO)
+                    }
+                    .andExpect {
+                        status { isUnprocessableEntity() }
+                    }
+            }
+        }
+
+        @Test
         fun insertMail_contactNotFound() {
             val id = mockContactDTO.id + 1
-            val mailJson = "{ \"email\": \"mario.rossi2@gmail.com\" }"
+            val emailDTO = EmailDTO("mario.rossi2@gmail.com")
             mockMvc
                 .post("/API/contacts/$id/email") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = mailJson
+                    content = jsonMapper.writeValueAsString(emailDTO)
                 }
                 .andExpect{
                     status { isNotFound() }
@@ -383,14 +446,174 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         @Test
         fun insertMail_duplicateMail() {
             val id = mockContactDTO.id
-            val mailJson = "{ \"email\": \"${mockEmailDTO.email}\" }"
             mockMvc
                 .post("/API/contacts/$id/email") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = mailJson
+                    content = jsonMapper.writeValueAsString(mockEmailDTO)
                 }
                 .andExpect{
-                    status { isNotModified() }
+                    status { isConflict() }
+                }
+        }
+
+        @Test
+        fun insertMail_invalidAddressType() {
+            val id = mockContactDTO.id
+            val telephoneDTO = TelephoneDTO("34742424242")
+            mockMvc
+                .post("/API/contacts/$id/email") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper.writeValueAsString(telephoneDTO)
+                }
+                .andExpect {
+                    status { isBadRequest() }
+                }
+        }
+
+        @Test
+        fun insertTelephone_success() {
+            val id = mockContactDTO.id
+            val telephoneDTO = TelephoneDTO("34742424242")
+            mockMvc
+                .post("/API/contacts/$id/telephone") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper.writeValueAsString(telephoneDTO)
+                }
+                .andExpect{
+                    status { isCreated() }
+                }
+        }
+
+        @Test
+        fun insertTelephone_invalidTelephone() {
+            for (telephoneDTO in invalidTelephoneDTOs) {
+                val id = mockContactDTO.id
+                mockMvc
+                    .post("/API/contacts/$id/telephone") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper.writeValueAsString(telephoneDTO)
+                    }
+                    .andExpect {
+                        status { isUnprocessableEntity() }
+                    }
+            }
+        }
+
+        @Test
+        fun insertTelephone_contactNotFound() {
+            val id = mockContactDTO.id + 1
+            val telephoneDTO = TelephoneDTO("34742424242")
+            mockMvc
+                .post("/API/contacts/$id/telephone") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper.writeValueAsString(telephoneDTO)
+                }
+                .andExpect{
+                    status { isNotFound() }
+                }
+        }
+
+        @Test
+        fun insertTelephone_duplicateTelephone() {
+            val id = mockContactDTO.id
+            mockMvc
+                .post("/API/contacts/$id/telephone") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper.writeValueAsString(mockTelephoneDTO)
+                }
+                .andExpect{
+                    status { isConflict() }
+                }
+        }
+
+        @Test
+        fun insertTelephone_invalidAddressType() {
+            val id = mockContactDTO.id
+            val emailDTO = EmailDTO("mario.rossi2@gmail.com")
+            mockMvc
+                .post("/API/contacts/$id/telephone") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper.writeValueAsString(emailDTO)
+                }
+                .andExpect {
+                    status { isBadRequest() }
+                }
+        }
+
+        @Test
+        fun insertDwelling_success() {
+            val validDwellingDTOs = listOf(
+                DwellingDTO("Via Garibaldi, 42", "Torino", "TO", "IT"),
+                DwellingDTO("Via Garibaldi, 42", "Torino", "TO", null),
+                DwellingDTO("Via Garibaldi, 42", "Torino", null, null)
+            )
+
+            for (dwellingDTO in validDwellingDTOs) {
+                val id = mockContactDTO.id
+                mockMvc
+                    .post("/API/contacts/$id/address") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper.writeValueAsString(dwellingDTO)
+                    }
+                    .andExpect{
+                        status { isCreated() }
+                    }
+            }
+        }
+
+        @Test
+        fun insertDwelling_invalidDwellings() {
+            for (dwellingDTO in invalidDwellingDTOs) {
+                val id = mockContactDTO.id
+                mockMvc
+                    .post("/API/contacts/$id/address") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper.writeValueAsString(dwellingDTO)
+                    }
+                    .andExpect{
+                        status { isUnprocessableEntity() }
+                    }
+            }
+        }
+
+        @Test
+        fun insertDwelling_contactNotFound() {
+            val id = mockContactDTO.id + 1
+            val dwellingDTO = DwellingDTO("Via Garibaldi, 42", "Torino", "TO", "IT")
+            mockMvc
+                .post("/API/contacts/$id/address") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper.writeValueAsString(dwellingDTO)
+                }
+                .andExpect{
+                    status { isNotFound() }
+                }
+        }
+
+        @Test
+        fun insertDwelling_duplicateDwelling() {
+            val id = mockContactDTO.id
+            mockMvc
+                .post("/API/contacts/$id/address") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper.writeValueAsString(mockDwellingDTO)
+                }
+                .andExpect{
+                    status { isConflict() }
+                }
+        }
+
+        @Test
+        fun insertDwelling_invalidAddressType() {
+            val id = mockContactDTO.id
+            val emailDTO = EmailDTO("mario.rossi2@gmail.com")
+            mockMvc
+                .post("/API/contacts/$id/address") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper.writeValueAsString(emailDTO)
+                }
+                .andExpect {
+                    status { isBadRequest() }
                 }
         }
 
