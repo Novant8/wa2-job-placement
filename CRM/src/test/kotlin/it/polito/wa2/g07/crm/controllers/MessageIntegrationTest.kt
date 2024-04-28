@@ -104,7 +104,6 @@ class MessageIntegrationTest {
             content { jsonPath("totalElements"){value(2)} }
             content { jsonPath("$.content[0].subject"){ value("There is a message for you")}}
             content { jsonPath("$.content[0].sender.email"){ value("lorem@ipsum.com")}}
-            content { jsonPath("$.content[0].sender.channel"){ value("email")}}
         }
     }
 
@@ -126,8 +125,7 @@ class MessageIntegrationTest {
             """
                 {
                     "sender":{
-                        "phoneNumber": "011-765352x",
-                        "channel" : "phone"
+                        "phoneNumber": "011-765352x"
                     },
                     "subject" : "Action required",
                     "body" : "please visit http://your-bank.com"  
@@ -141,7 +139,6 @@ class MessageIntegrationTest {
             content { contentType(MediaType.APPLICATION_JSON) }
             content { jsonPath("$.subject"){ value("Action required")}}
             content { jsonPath("$.sender.phoneNumber"){ value("011-765352x")}}
-            content { jsonPath("$.sender.channel"){ value("phone")}}
             content { jsonPath("$.body"){value("please visit http://your-bank.com")} }
         }
         //missing subject
@@ -149,8 +146,7 @@ class MessageIntegrationTest {
             """
                 {
                     "sender":{
-                        "phoneNumber": "011-765352x",
-                        "channel" : "phone"
+                        "phoneNumber": "011-765352x"
                     },
                     "body" : "please visit http://your-bank.com"  
                 }
@@ -176,8 +172,7 @@ class MessageIntegrationTest {
         """
                 {
                     "sender":{
-                        "phoneNumber": "011-765352x",
-                        "channel" : "phone"
+                        "phoneNumber": "011-765352x"
                     },
                     "subject" : "Action required",
                     "body" : "please visit http://your-bank.com"  
@@ -191,15 +186,13 @@ class MessageIntegrationTest {
             content { contentType(MediaType.APPLICATION_JSON) }
             content { jsonPath("$.subject"){ value("Action required")}}
             content { jsonPath("$.sender.phoneNumber"){ value("011-765352x")}}
-            content { jsonPath("$.sender.channel"){ value("phone")}}
             content { jsonPath("$.body"){value("please visit http://your-bank.com")} }
         }.andReturn().response.contentAsString).getString("id")
         val message_2 =
             """
                 {
                     "sender":{
-                        "phoneNumber": "011-765352x",
-                        "channel" : "phone"
+                        "phoneNumber": "011-765352x"
                     },
                     "subject" : "Action required x 2",
                     "body" : "please visit http://your-bank.com"  
@@ -213,7 +206,6 @@ class MessageIntegrationTest {
             content { contentType(MediaType.APPLICATION_JSON) }
             content { jsonPath("$.subject"){ value("Action required x 2")}}
             content { jsonPath("$.sender.phoneNumber"){ value("011-765352x")}}
-            content { jsonPath("$.sender.channel"){ value("phone")}}
             content { jsonPath("$.body"){value("please visit http://your-bank.com")} }
 
         }.andReturn().response.contentAsString).getString("id")
@@ -228,8 +220,7 @@ class MessageIntegrationTest {
                 {
                     "sender":{
                         "street": "Via Roma",
-                        "city": "Torino",
-                        "channel" : "dwelling"
+                        "city": "Torino"
                     },
                     "subject" : "Raccomandata",
                     "body" : "Gentile x, la contatto in merito..."  
@@ -244,15 +235,13 @@ class MessageIntegrationTest {
             content { jsonPath("$.subject") { value("Raccomandata") } }
             content { jsonPath("$.sender.street") { value("Via Roma") } }
             content { jsonPath("$.sender.city") { value("Torino") } }
-            content { jsonPath("$.sender.channel") { value("dwelling") } }
             content { jsonPath("$.body") { value("Gentile x, la contatto in merito...") } }
         }
         val message_2 =
             """
                 {
                     "sender":{
-                        "street": "Via Roma",
-                        "channel" : "dwelling"
+                        "street": "Via Roma"
                     },
                     "subject" : "Raccomandata",
                     "body" : "Gentile x, la contatto in merito..."  
@@ -273,8 +262,7 @@ class MessageIntegrationTest {
                 {
                     "sender":{
                         "street": "Via Roma",
-                        "city": "Torino",
-                        "channel" : "dwelling"
+                        "city": "Torino"
                     },
                     "subject" : "Raccomandata",
                     "body" : "Gentile x, la contatto in merito..."  
@@ -289,7 +277,6 @@ class MessageIntegrationTest {
             content { jsonPath("$.subject") { value("Raccomandata") } }
             content { jsonPath("$.sender.street") { value("Via Roma") } }
             content { jsonPath("$.sender.city") { value("Torino") } }
-            content { jsonPath("$.sender.channel") { value("dwelling") } }
             content { jsonPath("$.body") { value("Gentile x, la contatto in merito...") } }
         }.andReturn().response.contentAsString).getString("id")
 
@@ -300,8 +287,7 @@ class MessageIntegrationTest {
                         "street": "Via Roma",
                         "city": "Torino",
                         "district": "Piemonte",
-                        "country": "Italy",
-                        "channel" : "dwelling"
+                        "country": "Italy"
                     },
                     "subject" : "Raccomandata",
                     "body" : "Gentile x, la contatto in merito..."  
@@ -318,7 +304,6 @@ class MessageIntegrationTest {
             content { jsonPath("$.sender.city") { value("Torino") } }
             content { jsonPath("$.sender.country").doesNotExist()  }  //there is already an address incomplete with the same street and district
             content { jsonPath("$.sender.district").doesNotExist()  }
-            content { jsonPath("$.sender.channel") { value("dwelling") } }
             content { jsonPath("$.body") { value("Gentile x, la contatto in merito...") } }
         }.andReturn().response.contentAsString).getString("id")
         assertEquals(   messageRepository.getMessageByMessageID(msg_1_id.toLong())!!.sender.id,
@@ -334,8 +319,7 @@ class MessageIntegrationTest {
             """
                 {
                     "sender":{
-                        "phoneNumber": "A",
-                        "channel" : "phone"
+                        "phoneNumber": "A"
                     },
                     "subject" : "TEST",
                     "body" : "TEST"  
@@ -345,8 +329,7 @@ class MessageIntegrationTest {
             """
                 {
                     "sender":{
-                        "email": "A",
-                        "channel" : "email"
+                        "email": "A"
                     },
                     "subject" : "TEST",
                     "body" : "TEST"  

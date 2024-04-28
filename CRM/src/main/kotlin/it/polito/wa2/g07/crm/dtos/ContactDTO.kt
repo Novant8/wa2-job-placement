@@ -38,8 +38,8 @@ data class DwellingResponseDTO(
         val id :  Long,
         val street: String,
         val city: String,
-        val district: String,
-        val country: String
+        val district: String?,
+        val country: String?
 ) : AddressResponseDTO()
 
 fun Contact.toContactDto(): ContactDTO=
