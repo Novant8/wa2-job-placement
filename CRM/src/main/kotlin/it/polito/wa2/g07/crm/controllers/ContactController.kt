@@ -85,16 +85,19 @@ class ContactController(private val contactService: ContactService) {
         return contactService.getContacts(filterBy, query, pageable)
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{contactId}/email/{emailId}")
     fun deleteEmail (@PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long) {
         return contactService.deleteAddress(contactId, emailId, AddressType.EMAIL)
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{contactId}/telephone/{telephoneId}")
     fun deleteTelephone (@PathVariable("contactId") contactId: Long, @PathVariable("telephoneId") telephoneId: Long) {
         return contactService.deleteAddress(contactId, telephoneId, AddressType.TELEPHONE)
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{contactId}/address/{dwellingId}")
     fun deleteDwelling (@PathVariable("contactId") contactId: Long, @PathVariable("dwellingId") dwellingId: Long) {
         return contactService.deleteAddress(contactId, dwellingId, AddressType.DWELLING)
@@ -117,7 +120,7 @@ class ContactController(private val contactService: ContactService) {
         return  contactService.updateAddress(contactId, telephoneId, telephoneDTO)
     }
 
-    @PutMapping("/{contactId}/dwelling/{dwellingId}")
+    @PutMapping("/{contactId}/address/{dwellingId}")
     fun updateDwelling (
         @PathVariable("contactId") contactId: Long,
         @PathVariable("dwellingId") dwellingId: Long,

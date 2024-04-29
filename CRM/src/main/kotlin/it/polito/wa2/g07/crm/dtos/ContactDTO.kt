@@ -21,26 +21,36 @@ data class ContactDTO(
         val ssn: String?
 )
 
-sealed  class AddressResponseDTO
-
+sealed  class AddressResponseDTO(
+        open val id: Long
+)
 
 data class EmailResponseDTO(
-        val id :  Long,
+        override val id: Long,
         val email: String
-) : AddressResponseDTO()
+) : AddressResponseDTO(id)
 
 data class TelephoneResponseDTO(
-        val id :  Long,
+        override val id: Long,
         val phoneNumber: String
-) : AddressResponseDTO()
+) : AddressResponseDTO(id)
 
 data class DwellingResponseDTO(
-        val id :  Long,
+        override val id:  Long,
         val street: String,
         val city: String,
         val district: String?,
         val country: String?
-) : AddressResponseDTO()
+) : AddressResponseDTO(id)
+
+fun Address.toAddressResponseDTO(): AddressResponseDTO {
+        return  when (this) {
+                is Email -> EmailResponseDTO(this.id, this.email)
+                is Telephone -> TelephoneResponseDTO(this.id, this.number)
+                is Dwelling -> DwellingResponseDTO(this.id, this.street, this.city, this.district, this.country)
+                else -> error("Invalid address")
+        }
+}
 
 fun Contact.toContactDto(): ContactDTO=
         ContactDTO(

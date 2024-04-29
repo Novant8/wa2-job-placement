@@ -178,7 +178,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
         
         @Test
         fun deleteCorrectEmail(){
-            mockMvc.perform(delete("/API/contacts/$contact1Id/email/$email1Id")).andExpect(status().isOk)
+            mockMvc.perform(delete("/API/contacts/$contact1Id/email/$email1Id")).andExpect(status().isNoContent)
         }
 
         @Test
@@ -313,7 +313,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
                     }
             """.trimIndent()
 
-            mockMvc.perform(put("/API/contacts/$contactId/dwelling/$dwellingId").contentType(MediaType.APPLICATION_JSON).content(dwelling))
+            mockMvc.perform(put("/API/contacts/$contactId/address/$dwellingId").contentType(MediaType.APPLICATION_JSON).content(dwelling))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("name").value("Test"))
@@ -380,7 +380,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
                         "country":""
                     }
             """.trimIndent()
-            mockMvc.perform(put("/API/contacts/$contactId/dwelling/$dwellingId").contentType(MediaType.APPLICATION_JSON).content(dwelling))
+            mockMvc.perform(put("/API/contacts/$contactId/address/$dwellingId").contentType(MediaType.APPLICATION_JSON).content(dwelling))
                 .andExpect(status().isUnprocessableEntity)
         }
 
@@ -396,7 +396,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
                         "country":"New Country"
                     }
             """.trimIndent()
-            mockMvc.perform(put("/API/contacts/$contactId/dwelling/$dwellingId").contentType(MediaType.APPLICATION_JSON).content(dwelling))
+            mockMvc.perform(put("/API/contacts/$contactId/address/$dwellingId").contentType(MediaType.APPLICATION_JSON).content(dwelling))
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("name").value("Test"))
