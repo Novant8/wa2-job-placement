@@ -26,12 +26,13 @@ class Contact(
     @JsonManagedReference
     var addresses: MutableSet<Address> = mutableSetOf()
 
-    fun addAddress (a:Address){
+    fun addAddress (a:Address) {
         addresses.add(a)
+        a.contacts.add(this)
     }
-    fun removeAddress (a:Address){
-        addresses.remove(a)
-
+    fun removeAddress (a:Address): Boolean {
+        a.contacts.remove(this)
+        return addresses.remove(a)
     }
 
 }

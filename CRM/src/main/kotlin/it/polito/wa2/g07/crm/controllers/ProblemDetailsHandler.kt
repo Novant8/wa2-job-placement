@@ -1,14 +1,13 @@
 package it.polito.wa2.g07.crm.controllers
 
-import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
-import it.polito.wa2.g07.crm.exceptions.DuplicateAddressException
-import it.polito.wa2.g07.crm.exceptions.MissingFieldException
-import org.springframework.http.HttpStatus
-import org.springframework.http.ProblemDetail
+import it.polito.wa2.g07.crm.exceptions.*
 import org.springframework.web.bind.annotation.ExceptionHandler
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.exceptions.MessageNotFoundException
+import org.springframework.http.*
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 
 
@@ -32,5 +31,16 @@ class ProblemDetailsHandler: ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(DuplicateAddressException::class)
     fun handleContactNotFound (e: DuplicateAddressException)=
-        ProblemDetail.forStatusAndDetail(HttpStatus.NOT_MODIFIED,e.message!!)
+        ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,e.message!!)
+
+    override fun handleMethodArgumentNotValid(
+        ex: MethodArgumentNotValidException,
+        headers: HttpHeaders,
+        status: HttpStatusCode,
+        request: WebRequest
+    ): ResponseEntity<Any>? {
+        val problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, "The request body contains invalid fields.")
+        problemDetail.setProperty("fieldErrors", ex.bindingResult.fieldErrors.associate { it.field to it.defaultMessage })
+        return ResponseEntity.unprocessableEntity().body(problemDetail)
+    }
 }

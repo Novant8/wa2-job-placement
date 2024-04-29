@@ -1,14 +1,29 @@
 package it.polito.wa2.g07.crm.dtos
 
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
 import it.polito.wa2.g07.crm.entities.*
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Pattern
 
 data class CreateContactDTO(
+    @field:NotNull
+    @field:NotBlank
     val name: String?,
+
+    @field:NotNull
+    @field:NotBlank
     val surname: String?,
+
+    @field:NotNull
+    @field:NotBlank
     val category: String?,
+
+    // Can be null but not blank
+    @field:Pattern(regexp = "^(?!\\s*$).+", message = "must not be blank")
     val ssn : String?,
+
+    @field:Valid
     val addresses: List<AddressDTO>
 )
 
