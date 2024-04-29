@@ -11,9 +11,9 @@ open class  Address {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     open var id: Long=0
 
-    @ManyToMany(mappedBy = "addresses")
+    @ManyToMany(mappedBy = "addresses", cascade = [CascadeType.ALL])
     open var contacts: MutableSet<Contact> = mutableSetOf()
 
-    @OneToMany(mappedBy = "sender")
+    @OneToMany(mappedBy = "sender", cascade = [CascadeType.ALL])
     open var messages: MutableSet<Message> = mutableSetOf()
 }

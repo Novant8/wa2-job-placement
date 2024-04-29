@@ -34,35 +34,23 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.LocalDateTime
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-//Create a new context every new test method
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
-@Testcontainers
-class MessageIntegrationTest {
+class MessageIntegrationTest:CrmApplicationTests()  {
     @Autowired
     lateinit var mockMvc: MockMvc
-
     @Autowired
     lateinit var messageRepository: MessageRepository
     @Autowired
     lateinit var addressRepository: AddressRepository
-    companion object {
 
-            @Container
-            val db = PostgreSQLContainer("postgres:latest")
-            val documentStoreEndpoint = "/API/documents/"
-            @JvmStatic
-            @DynamicPropertySource
-            fun properties(registry: DynamicPropertyRegistry) {
-                registry.add("spring.datasource.url", db::getJdbcUrl)
-                registry.add("spring.datasource.username", db::getUsername)
-                registry.add("spring.datasource.password", db::getPassword)
-                registry.add("spring.jpa.hibernate.ddl-auto") { "create-drop" }
-            }
-
-        /* Prepopulate the DB*/
+    var msg1_id :Long = 0
+    var msg2_id :Long = 0
+    var msg3_id :Long = 0
+    @BeforeEach
+    fun initDb() {
+        //Each test the DB start clean
+        addressRepository.deleteAll()
+        messageRepository.deleteAll()
         val sender1=Email("lorem@ipsum.com")
         val sender2=Dwelling("Piazza Centrale","Milano","Lombardia","Italia")
         val sender3=Telephone("011-43553#352")
@@ -81,26 +69,16 @@ class MessageIntegrationTest {
             sender = sender3,
             body= "pls assumetemi"
         )
-        var msg1_id :Long = 0
-        var msg2_id :Long = 0
-        var msg3_id :Long = 0
-        init {
-            msg1.addEvent(MessageEvent(msg1,MessageStatus.RECEIVED, LocalDateTime.now(),"The message is received"))
 
-            msg2.addEvent(MessageEvent(msg2,MessageStatus.RECEIVED, LocalDateTime.now(),"Please read the message"))
-            msg2.addEvent(MessageEvent(msg2,MessageStatus.READ, LocalDateTime.now(),"Spam"))
-            msg2.addEvent(MessageEvent(msg2,MessageStatus.DISCARDED, LocalDateTime.now(),"Invalid document"))
+        msg1.addEvent(MessageEvent(msg1,MessageStatus.RECEIVED, LocalDateTime.now(),"The message is received"))
 
-            msg3.addEvent(MessageEvent(msg3,MessageStatus.RECEIVED, LocalDateTime.now()))
-            msg3.addEvent(MessageEvent(msg3,MessageStatus.READ, LocalDateTime.now()))
-            msg3.addEvent(MessageEvent(msg3,MessageStatus.PROCESSING, LocalDateTime.now()))
+        msg2.addEvent(MessageEvent(msg2,MessageStatus.RECEIVED, LocalDateTime.now(),"Please read the message"))
+        msg2.addEvent(MessageEvent(msg2,MessageStatus.READ, LocalDateTime.now(),"Spam"))
+        msg2.addEvent(MessageEvent(msg2,MessageStatus.DISCARDED, LocalDateTime.now(),"Invalid document"))
 
-        }
-
-    }
-    @BeforeEach
-    fun initDb() {
-        //Each test the DB start clean
+        msg3.addEvent(MessageEvent(msg3,MessageStatus.RECEIVED, LocalDateTime.now()))
+        msg3.addEvent(MessageEvent(msg3,MessageStatus.READ, LocalDateTime.now()))
+        msg3.addEvent(MessageEvent(msg3,MessageStatus.PROCESSING, LocalDateTime.now()))
         addressRepository.save(sender1)
         addressRepository.save(sender2)
         addressRepository.save(sender3)
@@ -490,66 +468,70 @@ class MessageIntegrationTest {
             content { jsonPath("$.content[0].status") { value("PROCESSING") } }
         }
     }
-    @Test
-    fun HISTORY_postMessageHistoryValid(){
-        mockMvc.post("/API/messages/$msg1_id"){
-            content =  """{"status":"READ","comments":"Read immediatly"}""""
-            contentType = MediaType.APPLICATION_JSON
-        }.andExpect {
-            status { isCreated() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content { jsonPath("$.status") { value("READ") } }
-            content { jsonPath("$.timestamp").exists()}
-            content { jsonPath("$.comments"){value("Read immediatly") } }
+    @Nested
+    inner class Message_History{
+        @Test
+        fun postMessageHistoryValid(){
+            mockMvc.post("/API/messages/$msg1_id"){
+                content =  """{"status":"READ","comments":"Read immediatly"}""""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isCreated() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.status") { value("READ") } }
+                content { jsonPath("$.timestamp").exists()}
+                content { jsonPath("$.comments"){value("Read immediatly") } }
+            }
+
+            mockMvc.post("/API/messages/$msg1_id"){
+                content =  """{"status":"DONE"}""""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isCreated() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.status") { value("DONE") } }
+                content { jsonPath("$.timestamp").exists()}
+                content { jsonPath("$.comments").doesNotExist()}
+            }
+
+            mockMvc.get("/API/messages/$msg1_id/history").andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.totalElements") { value(3) } }
+                content { jsonPath("$.content[2].status") { value("RECEIVED") } }
+                content { jsonPath("$.content[1].status") { value("READ") } }
+                content { jsonPath("$.content[0].status") { value("DONE") } }
+            }
+
+
         }
+        @Test
+        fun postMessageHistoryInvalid(){
+            mockMvc.post("/API/messages/435643653"){
+                content =  """{"status":"READ","comments":"Read immediatly"}""""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isNotFound() }
+            }
 
-        mockMvc.post("/API/messages/$msg1_id"){
-            content =  """{"status":"DONE"}""""
-            contentType = MediaType.APPLICATION_JSON
-        }.andExpect {
-            status { isCreated() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content { jsonPath("$.status") { value("DONE") } }
-            content { jsonPath("$.timestamp").exists()}
-            content { jsonPath("$.comments").doesNotExist()}
+            mockMvc.post("/API/messages/$msg1_id"){
+                content =  """{"status":"Read","comments":"Read immediatly"}""""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isBadRequest() }
+                content { contentType(MediaType.APPLICATION_PROBLEM_JSON) }
+                content { jsonPath("$.detail") { value("Failed to read request") } }
+            }
+
+            mockMvc.post("/API/messages/$msg1_id"){
+                content =  """{"status":"FAILED","comments":"Read immediatly"}""""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isBadRequest() }
+                content { contentType(MediaType.APPLICATION_PROBLEM_JSON) }
+                content { jsonPath("$.detail") { value("The status cannot be assigned to the message") } }
+            }
         }
-
-        mockMvc.get("/API/messages/$msg1_id/history").andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content { jsonPath("$.totalElements") { value(3) } }
-            content { jsonPath("$.content[2].status") { value("RECEIVED") } }
-            content { jsonPath("$.content[1].status") { value("READ") } }
-            content { jsonPath("$.content[0].status") { value("DONE") } }
-        }
-
-
     }
-    @Test
-    fun HISTORY_postMessageHistoryInvalid(){
-        mockMvc.post("/API/messages/435643653"){
-            content =  """{"status":"READ","comments":"Read immediatly"}""""
-            contentType = MediaType.APPLICATION_JSON
-        }.andExpect {
-            status { isNotFound() }
-        }
 
-        mockMvc.post("/API/messages/$msg1_id"){
-            content =  """{"status":"Read","comments":"Read immediatly"}""""
-            contentType = MediaType.APPLICATION_JSON
-        }.andExpect {
-            status { isBadRequest() }
-            content { contentType(MediaType.APPLICATION_PROBLEM_JSON) }
-            content { jsonPath("$.detail") { value("Failed to read request") } }
-        }
-
-        mockMvc.post("/API/messages/$msg1_id"){
-            content =  """{"status":"FAILED","comments":"Read immediatly"}""""
-            contentType = MediaType.APPLICATION_JSON
-        }.andExpect {
-            status { isBadRequest() }
-            content { contentType(MediaType.APPLICATION_PROBLEM_JSON) }
-            content { jsonPath("$.detail") { value("The status cannot be assigned to the message") } }
-        }
-    }
 }
