@@ -15,10 +15,28 @@ interface MessageRepository:JpaRepository<Message,Long> {
     @Query( "SELECT m " +
             "FROM MessageEvent m " +
             "WHERE m.message.messageID = :messageId " +
-            "ORDER BY m.timestamp DESC LIMIT 1")
+            "ORDER BY m.timestamp DESC LIMIT 1"  )
     fun getLastEventByMessageId(messageId: Long): MessageEvent?
 
-
+    @Query (""" 
+                SELECT ma
+                FROM Message ma
+                where   (
+                        SELECT m.status  FROM MessageEvent m
+                        where m.message.messageID = ma.messageID
+                        ORDER BY m.timestamp DESC LIMIT 1
+                )IN :filter
+                
+        """, countQuery = """ 
+                SELECT count(ma)
+                FROM Message ma
+                where  (
+                        SELECT m.status  FROM MessageEvent m
+                        where m.message.messageID = ma.messageID
+                        ORDER BY m.timestamp DESC LIMIT 1
+                )IN :filter 
+        """)
+    fun findAllByStatus(filter: List<MessageStatus>, pageable: Pageable):Page<Message?>
 
     @Query("SELECT events FROM Message m ,MessageEvent events " +
             "WHERE events.message.messageID = :messageID AND m.messageID= :messageID " +
