@@ -2,7 +2,6 @@ package it.polito.wa2.g07.crm.services
 
 import it.polito.wa2.g07.crm.dtos.*
 import it.polito.wa2.g07.crm.entities.AddressType
-import it.polito.wa2.g07.crm.entities.Contact
 
 
 import org.springframework.data.domain.Page

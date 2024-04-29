@@ -10,11 +10,11 @@ import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.AddressRepository
 import it.polito.wa2.g07.crm.repositories.ContactRepository
 import jakarta.transaction.Transactional
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import java.util.*
 import kotlin.jvm.optionals.getOrDefault
 
 @Service
@@ -37,7 +37,9 @@ class ContactServiceImpl(
                 }
             }.toMutableSet()
 
-        return contactRepository.save(newContact).toContactDto()
+        val contactDTO = contactRepository.save(newContact).toContactDto()
+        logger.info("Created Contact #${contactDTO.id}.")
+        return contactDTO
     }
 
 @Transactional
@@ -65,7 +67,6 @@ class ContactServiceImpl(
             throw EntityNotFoundException("Contact not found with ID: $contactId")
         }
         val contact = contactOpt.get()
-        logger.info("Edited Document {} ", contact.toContactDto())
         return contact.toContactDto()
     }
 
@@ -82,51 +83,50 @@ class ContactServiceImpl(
             throw DuplicateAddressException("The given address is already associated to contact #${contact.contactId}")
         }
 
-        val address = when(addressDTO) {
+        var address = when(addressDTO) {
             is EmailDTO -> addressRepository.findMailAddressByMail(addressDTO.email)
             is TelephoneDTO -> addressRepository.findTelephoneAddressByTelephoneNumber(addressDTO.phoneNumber)
             is DwellingDTO -> addressRepository.findDwellingAddressByStreet(addressDTO.street, addressDTO.city, addressDTO.district, addressDTO.country)
         }.getOrDefault(addressDTO.toEntity())
 
-        addressRepository.save(address)
+        address = addressRepository.save(address)
         contact.addAddress(address)
+        logger.info("Added Address #${address.id} to Contact #${contact.contactId}.")
         return contactRepository.save(contact).toContactDto()
     }
 
     @Transactional
     override fun deleteAddress(contactId: Long, addressId: Long, addressType: AddressType) {
         val contact = contactRepository.findById(contactId).orElseThrow { EntityNotFoundException("Contact not found with ID : $contactId") }
-
         val address = addressRepository.findById(addressId).orElseThrow{ EntityNotFoundException("Address with ID $addressId is not present") }
-        if (address.addressType != addressType) {
-            throw InvalidParamsException("Address with ID $addressId is not of type $addressType")
-        }
+        return deleteAddress(contact, address, addressType)
+    }
 
-        if (!contact.removeAddress(address)) {
-            throw InvalidParamsException("Address with ID $addressId is not associated with Contact with ID $contactId")
+    @Transactional
+    fun deleteAddress(contact: Contact, address: Address, addressType: AddressType) {
+        if (address.addressType != addressType) {
+            throw InvalidParamsException("Address with ID ${address.id} is not of type $addressType")
         }
+        if (!contact.removeAddress(address)) {
+            throw InvalidParamsException("Address with ID ${address.id} is not associated with Contact with ID ${contact.contactId}")
+        }
+        logger.info("Removed Address #${address.id} from Contact #${contact.contactId}.")
         contactRepository.save(contact)
     }
 
     @Transactional
     override fun updateAddress(contactId: Long, addressId: Long, addressDTO: AddressDTO): ContactDTO {
         val contact = contactRepository.findById(contactId).orElseThrow { EntityNotFoundException("Contact not found with ID : $contactId") }
-
-        val addressOpt = addressRepository.findById(addressId)
-        if (!addressOpt.isPresent || addressOpt.get().addressType != addressDTO.addressType) {
-            throw InvalidParamsException("Address with ID $addressId is not of type ${addressDTO.addressType} or it is not present")
-        }
-
-        val address = addressOpt.get()
+        val address = addressRepository.findById(addressId).orElseThrow{ EntityNotFoundException("Address with ID $addressId is not present") }
         if(address == addressDTO) {
             throw DuplicateAddressException("The given address is already associated with the contact #$contactId")
         }
 
-        contact.removeAddress(address)
+        deleteAddress(contact, address, address.addressType)
         return insertAddress(contact, addressDTO)
     }
 
     companion object{
-        val logger = LoggerFactory.getLogger(ContactServiceImpl::class.java)
+        val logger: Logger = LoggerFactory.getLogger(ContactServiceImpl::class.java)
     }
 }

@@ -340,7 +340,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
             val email = "{\"email\":\"new.email@email.com\"}"
 
             mockMvc.perform(put("/API/contacts/$contactId/email/20").contentType(MediaType.APPLICATION_JSON).content(email))
-                .andExpect(status().isBadRequest)
+                .andExpect(status().isNotFound)
         }
 
         @Test
