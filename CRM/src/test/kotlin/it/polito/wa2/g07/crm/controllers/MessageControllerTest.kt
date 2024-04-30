@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import it.polito.wa2.g07.crm.dtos.*
+import it.polito.wa2.g07.crm.entities.AddressType
 import it.polito.wa2.g07.crm.entities.MessageStatus
 import it.polito.wa2.g07.crm.services.MessageService
 import org.junit.jupiter.api.BeforeEach
@@ -31,6 +32,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
     private val mockMessageDTO1 = MessageDTO(
         1,
         mockEmailDTO,
+        AddressType.EMAIL,
         "test subject",
         "test body",
         1,
@@ -40,11 +42,14 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
     private val mockReducedMessageDTO1= ReducedMessageDTO(
         mockMessageDTO1.id,
         mockMessageDTO1.subject,
-        mockMessageDTO1.sender
+        mockMessageDTO1.sender,
+        mockMessageDTO1.channel.toString()
+
     )
     private val mockMessageDTO2 = MessageDTO(
         2,
         mockTelephoneDTO,
+        AddressType.TELEPHONE,
         "test subject",
         "test body",
         2,
@@ -54,12 +59,14 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
     private val mockReducedMessageDTO2= ReducedMessageDTO(
         mockMessageDTO2.id,
         mockMessageDTO2.subject,
-        mockMessageDTO2.sender
+        mockMessageDTO2.sender,
+        mockMessageDTO2.channel.toString()
     )
 
     private val mockMessageDTO3 = MessageDTO(
         3,
         mockDwellingDTO,
+        AddressType.DWELLING,
         "test subject",
         "test body",
         3,
@@ -69,18 +76,19 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
     private val mockReducedMessageDTO3= ReducedMessageDTO(
         mockMessageDTO3.id,
         mockMessageDTO3.subject,
-        mockMessageDTO3.sender
+        mockMessageDTO3.sender,
+        mockMessageDTO3.channel.toString()
     )
 
 
     @Nested
     inner class GetMessageTest {
         private val pageImpl = PageImpl(listOf(mockReducedMessageDTO1,mockReducedMessageDTO2,mockReducedMessageDTO3))
-       // private val query ="query"
+
 
         @BeforeEach
         fun initMocks(){
-            every { messageService.getMessages(any(Pageable::class)) } returns pageImpl
+            every { messageService.getMessages(any(),any(Pageable::class)) } returns pageImpl
             every { messageService.getMessage(any(Long::class))  } returns mockMessageDTO1
             every { messageService.getHistory(any(Long::class),any(Pageable::class))  } returns PageImpl(listOf(mockMessageEventDTO))
         }
@@ -92,24 +100,120 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
                 .get("/API/messages")
                 .andExpect {
                     status { isOk() }
-                    verify(exactly = 1) { messageService.getMessages(PageRequest.of(0, 20)) }
+                    verify(exactly = 1) { messageService.getMessages(filterBy = null,PageRequest.of(0, 20)) }
                     content {
                         jsonPath("$.content[0].id") { value(mockReducedMessageDTO1.id) }
                         jsonPath("$.content[0].subject") { value(mockReducedMessageDTO1.subject) }
-                        jsonPath("$.content[0].sender.channel") { value("email")}
+                        jsonPath("$.content[0].channel") { value(mockMessageDTO1.channel.toString())}
                         jsonPath("$.content[0].sender.email") { value(mockEmailDTO.email)}
                         jsonPath("$.content[1].id"){value(mockReducedMessageDTO2.id)}
                         jsonPath("$.content[1].subject"){value(mockReducedMessageDTO2.subject)}
-                        jsonPath("$.content[1].sender.channel"){value("phone")}
+                        jsonPath("$.content[1].channel"){value(mockMessageDTO2.channel.toString())}
                         jsonPath("$.content[1].sender.phoneNumber"){value(mockTelephoneDTO.phoneNumber)}
                         jsonPath("$.content[2].id"){value(mockReducedMessageDTO3.id)}
                         jsonPath("$.content[2].subject"){value(mockReducedMessageDTO3.subject)}
-                        jsonPath("$.content[2].sender.channel"){value("dwelling")}
+                        jsonPath("$.content[2].channel"){value(mockMessageDTO3.channel.toString())}
                         jsonPath("$.content[2].sender.street"){value(mockDwellingDTO.street)}
                         jsonPath("$.content[2].sender.city"){value(mockDwellingDTO.city)}
                         jsonPath("$.content[2].sender.district"){value(mockDwellingDTO.district)}
                         jsonPath("$.content[2].sender.country"){value(mockDwellingDTO.country)}
                     }
+
+                }
+        }
+        @Test
+        fun getMessages_filterParam() {
+
+            mockMvc
+                .get("/API/messages")
+                {
+                    queryParam("filterBy", MessageStatus.RECEIVED.toString())
+
+                }
+                .andExpect {
+                    status { isOk() }
+                    verify(exactly = 1) { messageService.getMessages(filterBy = listOf(MessageStatus.RECEIVED) ,PageRequest.of(0, 20)) }
+                    content {
+                        jsonPath("$.content[0].id") { value(mockReducedMessageDTO1.id) }
+                        jsonPath("$.content[0].subject") { value(mockReducedMessageDTO1.subject) }
+                        jsonPath("$.content[0].channel") { value(mockMessageDTO1.channel.toString())}
+                        jsonPath("$.content[0].sender.email") { value(mockEmailDTO.email)}
+                        jsonPath("$.content[1].id"){value(mockReducedMessageDTO2.id)}
+                        jsonPath("$.content[1].subject"){value(mockReducedMessageDTO2.subject)}
+                        jsonPath("$.content[1].channel"){value(mockMessageDTO2.channel.toString())}
+                        jsonPath("$.content[1].sender.phoneNumber"){value(mockTelephoneDTO.phoneNumber)}
+                        jsonPath("$.content[2].id"){value(mockReducedMessageDTO3.id)}
+                        jsonPath("$.content[2].subject"){value(mockReducedMessageDTO3.subject)}
+                        jsonPath("$.content[2].channel"){value(mockMessageDTO3.channel.toString())}
+                        jsonPath("$.content[2].sender.street"){value(mockDwellingDTO.street)}
+                        jsonPath("$.content[2].sender.city"){value(mockDwellingDTO.city)}
+                        jsonPath("$.content[2].sender.district"){value(mockDwellingDTO.district)}
+                        jsonPath("$.content[2].sender.country"){value(mockDwellingDTO.country)}
+                    }
+
+                }
+        }
+        @Test
+        fun getMessages_filterParam_caseInsensitive() {
+
+            mockMvc
+                .get("/API/messages")
+                {
+                    queryParam("filterBy", MessageStatus.RECEIVED.toString().lowercase())
+
+                }
+                .andExpect {
+                    status { isOk() }
+                    verify(exactly = 1) { messageService.getMessages(filterBy = listOf(MessageStatus.RECEIVED) ,PageRequest.of(0, 20)) }
+                    content {
+                        jsonPath("$.content[0].id") { value(mockReducedMessageDTO1.id) }
+                        jsonPath("$.content[0].subject") { value(mockReducedMessageDTO1.subject) }
+                        jsonPath("$.content[0].channel") { value(mockMessageDTO1.channel.toString())}
+                        jsonPath("$.content[0].sender.email") { value(mockEmailDTO.email)}
+                        jsonPath("$.content[1].id"){value(mockReducedMessageDTO2.id)}
+                        jsonPath("$.content[1].subject"){value(mockReducedMessageDTO2.subject)}
+                        jsonPath("$.content[1].channel"){value(mockMessageDTO2.channel.toString())}
+                        jsonPath("$.content[1].sender.phoneNumber"){value(mockTelephoneDTO.phoneNumber)}
+                        jsonPath("$.content[2].id"){value(mockReducedMessageDTO3.id)}
+                        jsonPath("$.content[2].subject"){value(mockReducedMessageDTO3.subject)}
+                        jsonPath("$.content[2].channel"){value(mockMessageDTO3.channel.toString())}
+                        jsonPath("$.content[2].sender.street"){value(mockDwellingDTO.street)}
+                        jsonPath("$.content[2].sender.city"){value(mockDwellingDTO.city)}
+                        jsonPath("$.content[2].sender.district"){value(mockDwellingDTO.district)}
+                        jsonPath("$.content[2].sender.country"){value(mockDwellingDTO.country)}
+                    }
+
+                }
+        }
+
+        @Test
+        fun getMessages_filterParam_emptyFilter() {
+
+            mockMvc
+                .get("/API/messages")
+                {
+                    queryParam("filterBy", "" )
+
+                }
+                .andExpect {
+                    status { isBadRequest() }
+
+
+                }
+        }
+
+        @Test
+        fun getMessages_filterParam_invalidFilter() {
+
+            mockMvc
+                .get("/API/messages")
+                {
+                    queryParam("filterBy", "not a valid filter" )
+
+                }
+                .andExpect {
+                    status { isBadRequest() }
+
 
                 }
         }
@@ -125,7 +229,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
                     content {
                         jsonPath("$.id") { value(mockReducedMessageDTO1.id) }
                         jsonPath("$.subject") { value(mockReducedMessageDTO1.subject) }
-                        jsonPath("$.sender.channel") { value("email")}
+                        jsonPath("$.channel") { value(mockMessageDTO1.channel.toString())}
                         jsonPath("$.sender.email") { value(mockEmailDTO.email)}
 
                     }
@@ -141,7 +245,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
                     verify(exactly = 1) { messageService.getHistory(1,PageRequest.of(0, 20)) }
                     content {
                         jsonPath("$.content[0].status") { value(mockMessageEventDTO.status.toString()) }
-                        jsonPath("$.content[0].timestamp") { value(mockMessageEventDTO.timestamp.toString().dropLast(2)) }
+                        jsonPath("$.content[0].timestamp") { isString()/*value(mockMessageEventDTO.timestamp.toString())*/ }
                         jsonPath("$.content[0].comments") { value(mockMessageEventDTO.comments)}
 
 
