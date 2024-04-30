@@ -89,8 +89,10 @@ class MessageIntegrationTest:CrmApplicationTests() {
 
     }
 
+
     @Nested
     inner class Message {
+
 
         @Nested
         inner class GetMessage() {
@@ -123,7 +125,9 @@ class MessageIntegrationTest:CrmApplicationTests() {
                 }
 
 
+
             }
+
 
             @Test
             fun retriveAllMessagesFiltered(){
@@ -135,6 +139,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { jsonPath("content") { isArray() } }
                     content { jsonPath("totalElements") { value(0) } }
                 }
+
 
                 mockMvc.get("/API/messages?filterBy=RECEIVED") {
                     accept = MediaType.APPLICATION_JSON
@@ -174,6 +179,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     status { isBadRequest() }
                 }
 
+
             }
 
             @Test
@@ -202,9 +208,11 @@ class MessageIntegrationTest:CrmApplicationTests() {
                         content { jsonPath("numberOfElements") { value(1) } }
                         content { jsonPath("$.content[0].id") { value(msg1.messageID) } }
                     }
+
                 }
             }
         }
+
 
         @Nested
         inner class PostMessage {
@@ -249,6 +257,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                 }.andExpect {
                     status { isBadRequest() }
                 }
+
 
 
             }
@@ -307,6 +316,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
 
             }
 
+
             @Test
             fun createMessageDwelling() {
                 val message_1 =
@@ -349,6 +359,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content = message_2
                 }.andExpect {
                     status { isBadRequest() }
+
                 }
             }
 
