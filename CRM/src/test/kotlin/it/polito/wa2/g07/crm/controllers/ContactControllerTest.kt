@@ -72,104 +72,29 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
     @Nested
     inner class GetContactTests {
 
-        private val pageImpl = PageImpl(listOf(mockReducedContactDTO))
-        private val query = "query"
-
         @BeforeEach
         fun initMocks() {
-            every { contactService.getContacts(any(ContactFilterBy::class), any(String::class), any(Pageable::class)) } returns pageImpl
+            every { contactService.getContacts(any(ContactFilterDTO::class), any(Pageable::class)) } answers {
+                val filterDTO = firstArg<ContactFilterDTO>()
+                if(!filterDTO.category.isNullOrBlank() && !ContactCategory.entries.map { it.name }.contains(filterDTO.category?.uppercase())) {
+                    throw InvalidParamsException("Invalid category")
+                }
+                PageImpl(listOf(mockReducedContactDTO))
+            }
         }
 
         @Test
-        fun getContacts_noParams() {
+        fun getContacts_success() {
             mockMvc
                 .get("/API/contacts")
                 .andExpect {
                     status{ isOk() }
-                    verify(exactly = 1) { contactService.getContacts(ContactFilterBy.NONE, "", PageRequest.of(0, 20)) }
+                    verify(exactly = 1) { contactService.getContacts(ContactFilterDTO(), PageRequest.of(0, 20)) }
                     content {
                         jsonPath("$.content[0].id") { value(mockReducedContactDTO.id) }
                         jsonPath("$.content[0].name") { value(mockReducedContactDTO.name) }
                         jsonPath("$.content[0].surname") { value(mockReducedContactDTO.surname) }
                     }
-                }
-        }
-
-        @Test
-        fun getContacts_filterParam() {
-            mockMvc
-                .get("/API/contacts") {
-                    queryParam("filterBy", ContactFilterBy.FULL_NAME.name)
-                    queryParam("q", query)
-                }.andExpect{
-                    status{ isOk() }
-                    verify(exactly = 1) { contactService.getContacts(ContactFilterBy.FULL_NAME, query, PageRequest.of(0, 20)) }
-                    content {
-                        jsonPath("$.content[0].id") { value(mockReducedContactDTO.id) }
-                        jsonPath("$.content[0].name") { value(mockReducedContactDTO.name) }
-                        jsonPath("$.content[0].surname") { value(mockReducedContactDTO.surname) }
-                    }
-                }
-        }
-
-        @Test
-        fun getContacts_filterParam_caseInsensitive() {
-            mockMvc
-                .get("/API/contacts"){
-                    queryParam("filterBy", ContactFilterBy.FULL_NAME.name.lowercase())
-                    queryParam("q", query)
-                }
-                .andExpect{
-                    status{ isOk() }
-                    verify(exactly = 1) { contactService.getContacts(ContactFilterBy.FULL_NAME, query, PageRequest.of(0, 20)) }
-                }
-        }
-
-        @Test
-        fun getContacts_emptyQuery() {
-            mockMvc
-                .get("/API/contacts"){
-                    queryParam("filterBy", ContactFilterBy.FULL_NAME.name)
-                }
-                .andExpect{
-                    status { isBadRequest() }
-                }
-        }
-
-        @Test
-        fun getContacts_invalidFilter() {
-            mockMvc
-                .get("/API/contacts") {
-                    queryParam("filterBy", "i am not a valid filter")
-                }
-                .andExpect{
-                    status { isBadRequest() }
-                }
-        }
-
-        @Test
-        fun getContacts_validCategory() {
-            mockMvc
-                .get("/API/contacts"){
-                    queryParam("filterBy", ContactFilterBy.CATEGORY.name)
-                    queryParam("q", ContactCategory.CUSTOMER.name)
-                }
-                .andExpect{
-                    status { isOk() }
-                    verify(exactly = 1) { contactService.getContacts(ContactFilterBy.CATEGORY, ContactCategory.CUSTOMER.name, PageRequest.of(0, 20)) }
-                }
-        }
-
-        @Test
-        fun getContacts_validCategory_caseInsensitive() {
-            mockMvc
-                .get("/API/contacts"){
-                    queryParam("filterBy", ContactFilterBy.CATEGORY.name)
-                    queryParam("q", ContactCategory.CUSTOMER.name.lowercase())
-                }
-                .andExpect{
-                    status { isOk() }
-                    verify(exactly = 1) { contactService.getContacts(ContactFilterBy.CATEGORY, ContactCategory.CUSTOMER.name.lowercase(), PageRequest.of(0, 20)) }
                 }
         }
 
@@ -177,14 +102,12 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         fun getContacts_invalidCategory() {
             mockMvc
                 .get("/API/contacts") {
-                    queryParam("filterBy", ContactFilterBy.CATEGORY.name)
-                    queryParam("q", "i am not a valid category")
+                    queryParam("category", "i am not valid")
                 }
                 .andExpect {
                     status { isBadRequest() }
                 }
         }
-
     }
 
     @Nested

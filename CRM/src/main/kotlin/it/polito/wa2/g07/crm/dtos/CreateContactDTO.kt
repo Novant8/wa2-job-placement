@@ -24,7 +24,7 @@ data class CreateContactDTO(
     val ssn : String?,
 
     @field:Valid
-    val addresses: List<AddressDTO>
+    val addresses: List<AddressDTO> = listOf()
 )
 
 fun CreateContactDTO.toEntity(): Contact {

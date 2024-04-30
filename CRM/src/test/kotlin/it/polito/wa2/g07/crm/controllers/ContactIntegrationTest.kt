@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
@@ -34,17 +33,235 @@ class ContactIntegrationTest:CrmApplicationTests() {
 //    @MockkBean
 //    private lateinit var contactService:ContactService
 
-    @Test
-    fun getEmptyContact (){
-        mockMvc.get("/API/contacts"){
-            accept = MediaType.APPLICATION_JSON
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content { jsonPath("content"){
-                isArray()
-                isEmpty()
-            } }
+    @Nested
+    inner class GetContactsTest {
+        private var id = 1L
+
+        @BeforeEach
+        fun init(){
+            contactRepository.deleteAll()
+            val contactDto = CreateContactDTO(
+                "Test",
+                "User",
+                "customer",
+                "123456",
+                listOf(
+                    TelephoneDTO("12345667889"),
+                    EmailDTO("test.user@email.com"),
+                    DwellingDTO("123 Main St", "City", "District","Country")
+                )
+            )
+            id = contactRepository.save(contactDto.toEntity()).contactId
+        }
+
+        @Test
+        fun getContacts_noFilters() {
+            mockMvc.perform(
+                get("/API/contacts")
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content[0].id").value(id))
+                .andExpect(jsonPath("$.content[0].name").value("Test"))
+                .andExpect(jsonPath("$.content[0].surname").value("User"))
+                .andExpect(jsonPath("$.content[0].category").value("CUSTOMER"))
+        }
+
+        @Test
+        fun getContacts_fullNameFilter() {
+            // Successful filter
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("fullName", "test user")
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content[0].id").value(id))
+                .andExpect(jsonPath("$.content[0].name").value("Test"))
+                .andExpect(jsonPath("$.content[0].surname").value("User"))
+                .andExpect(jsonPath("$.content[0].category").value("CUSTOMER"))
+
+            // Failed filter
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("fullName", "invalid")
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content").isEmpty())
+        }
+
+        @Test
+        fun getContacts_categoryFilter() {
+            // Successful filter
+            for (filter in listOf("customer", "CUSTOMER")) {
+                mockMvc.perform(
+                    get("/API/contacts")
+                        .queryParam("category", filter)
+                )
+                    .andExpect(status().isOk)
+                    .andExpect(jsonPath("$.content[0].id").value(id))
+                    .andExpect(jsonPath("$.content[0].name").value("Test"))
+                    .andExpect(jsonPath("$.content[0].surname").value("User"))
+                    .andExpect(jsonPath("$.content[0].category").value("CUSTOMER"))
+            }
+
+            // Failed filter
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("category", "professional")
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content").isEmpty())
+
+            // Invalid category
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("category", "invalid")
+            )
+                .andExpect(status().isBadRequest)
+        }
+
+        @Test
+        fun getContacts_ssnFilter() {
+            // Successful filter
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("ssn", "123456")
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content[0].id").value(id))
+                .andExpect(jsonPath("$.content[0].name").value("Test"))
+                .andExpect(jsonPath("$.content[0].surname").value("User"))
+                .andExpect(jsonPath("$.content[0].category").value("CUSTOMER"))
+
+            // Failed filter
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("ssn", "invalid")
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content").isEmpty())
+        }
+
+        @Test
+        fun getContacts_emailFilter() {
+            // Successful filter
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("email", "test.user@email.com")
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content[0].id").value(id))
+                .andExpect(jsonPath("$.content[0].name").value("Test"))
+                .andExpect(jsonPath("$.content[0].surname").value("User"))
+                .andExpect(jsonPath("$.content[0].category").value("CUSTOMER"))
+
+            // Failed filter
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("email", "invalid")
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content").isEmpty())
+        }
+
+        @Test
+        fun getContacts_telephoneFilter() {
+            // Successful filter
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("telephone", "12345667889")
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content[0].id").value(id))
+                .andExpect(jsonPath("$.content[0].name").value("Test"))
+                .andExpect(jsonPath("$.content[0].surname").value("User"))
+                .andExpect(jsonPath("$.content[0].category").value("CUSTOMER"))
+
+            // Failed filter
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("telephone", "invalid")
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content").isEmpty())
+        }
+
+        @Test
+        fun getContacts_addressFilter() {
+            // Successful filter
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("address", "123 main st")
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content[0].id").value(id))
+                .andExpect(jsonPath("$.content[0].name").value("Test"))
+                .andExpect(jsonPath("$.content[0].surname").value("User"))
+                .andExpect(jsonPath("$.content[0].category").value("CUSTOMER"))
+
+            // Failed filter
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("address", "invalid")
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content").isEmpty())
+        }
+
+        @Test
+        fun getContacts_multipleFilters() {
+            // Successful filter
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("fullName", "test user")
+                    .queryParam("category", "customer")
+                    .queryParam("ssn", "123456")
+                    .queryParam("email", "test.user@email.com")
+                    .queryParam("telephone", "12345667889")
+                    .queryParam("address", "123 main st")
+
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content[0].id").value(id))
+                .andExpect(jsonPath("$.content[0].name").value("Test"))
+                .andExpect(jsonPath("$.content[0].surname").value("User"))
+                .andExpect(jsonPath("$.content[0].category").value("CUSTOMER"))
+
+            // Failed filter
+            mockMvc.perform(
+                get("/API/contacts")
+                    .queryParam("fullName", "INVALID")
+                    .queryParam("category", "customer")
+                    .queryParam("ssn", "123456")
+                    .queryParam("email", "test.user@email.com")
+                    .queryParam("telephone", "12345667889")
+                    .queryParam("address", "123 main st")
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content").isEmpty())
+        }
+
+        @Test
+        fun getContactFromId() {
+            mockMvc.perform(get("/API/contacts/$id"))
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("name").value("Test"))
+                .andExpect(jsonPath("surname").value("User"))
+                .andExpect(jsonPath("category").value("CUSTOMER"))
+                .andExpect(jsonPath("ssn").value("123456"))
+                .andExpect(jsonPath("addresses[*].email").value("test.user@email.com"))
+                .andExpect(jsonPath("addresses[*].phoneNumber").value("12345667889"))
+                .andExpect(jsonPath("addresses[*].street").value("123 Main St"))
+                .andExpect(jsonPath("addresses[*].city").value("City"))
+                .andExpect(jsonPath("addresses[*].district").value("District"))
+                .andExpect(jsonPath("addresses[*].country").value("Country"))
+
+        }
+
+        @Test
+        fun getNonExistentUser() {
+            mockMvc.perform(get("/API/contacts/202")).andExpect(status().isNotFound)
+
         }
     }
 
@@ -202,41 +419,6 @@ class ContactIntegrationTest:CrmApplicationTests() {
         }
 
 
-    }
-
-    @Nested
-    inner class GetContactById{
-        private var id = 1L
-
-        @BeforeEach
-        fun init(){
-            contactRepository.deleteAll()
-            val contactDto = CreateContactDTO("Test", "User", "customer",null, listOf(TelephoneDTO("12345667889"),EmailDTO("test.user@email.com"), DwellingDTO("123 Main St", "City", "District","Country")))
-            id = contactRepository.save(contactDto.toEntity()).contactId
-        }
-
-        @Test
-        fun getContact() {
-            mockMvc.perform(get("/API/contacts/$id"))
-                .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("name").value("Test"))
-                .andExpect(jsonPath("surname").value("User"))
-                .andExpect(jsonPath("category").value("CUSTOMER"))
-                .andExpect(jsonPath("ssn").value(null))
-                .andExpect(jsonPath("addresses[*].email").value("test.user@email.com"))
-                .andExpect(jsonPath("addresses[*].phoneNumber").value("12345667889"))
-                .andExpect(jsonPath("addresses[*].street").value("123 Main St"))
-                .andExpect(jsonPath("addresses[*].city").value("City"))
-                .andExpect(jsonPath("addresses[*].district").value("District"))
-                .andExpect(jsonPath("addresses[*].country").value("Country"))
-
-        }
-        @Test
-        fun getNonExistentUser() {
-            mockMvc.perform(get("/API/contacts/202")).andExpect(status().isNotFound)
-
-        }
     }
 
     @Nested

@@ -2,16 +2,6 @@ package it.polito.wa2.g07.crm.dtos
 
 import it.polito.wa2.g07.crm.entities.*
 
-enum class ContactFilterBy {
-        NONE,
-        FULL_NAME,
-        CATEGORY,
-        ADDRESS,
-        TELEPHONE,
-        SSN,
-        EMAIL
-}
-
 data class ContactDTO(
         val id :Long ,
         val name : String ,

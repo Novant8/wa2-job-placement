@@ -57,29 +57,10 @@ class ContactController(private val contactService: ContactService) {
 
     @GetMapping("", "/")
     fun getContacts(
-        pageable: Pageable,
-        @RequestParam("filterBy") filterByStr: String = "NONE",
-        @RequestParam("q") query: String = ""
+        filterDTO: ContactFilterDTO,
+        pageable: Pageable
     ): Page<ReducedContactDTO> {
-        val filterBy = try {
-            ContactFilterBy.valueOf(filterByStr.uppercase())
-        } catch (e: IllegalArgumentException) {
-            throw InvalidParamsException("'$filterByStr' is not a valid filter. Possible filters: ${ContactFilterBy.entries}.")
-        }
-
-        if (filterBy != ContactFilterBy.NONE && query.isEmpty()) {
-            throw InvalidParamsException("A query must be given when specifying a filter")
-        }
-
-        if (filterBy == ContactFilterBy.CATEGORY) {
-            try {
-                ContactCategory.valueOf(query.uppercase())
-            } catch (e: IllegalArgumentException) {
-                throw InvalidParamsException("'$query' is not a valid category. Possible categories: ${ContactCategory.entries}.")
-            }
-        }
-
-        return contactService.getContacts(filterBy, query, pageable)
+        return contactService.getContacts(filterDTO, pageable)
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
