@@ -76,17 +76,18 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
     @Nested
     inner class GetMessageTest {
         private val pageImpl = PageImpl(listOf(mockReducedMessageDTO1,mockReducedMessageDTO2,mockReducedMessageDTO3))
-        private val query ="query"
+       // private val query ="query"
 
         @BeforeEach
         fun initMocks(){
             every { messageService.getMessages(any(Pageable::class)) } returns pageImpl
             every { messageService.getMessage(any(Long::class))  } returns mockMessageDTO1
+            every { messageService.getHistory(any(Long::class),any(Pageable::class))  } returns PageImpl(listOf(mockMessageEventDTO))
         }
 
         @Test
         fun getMessages_noParams() {
-            val res1=
+
             mockMvc
                 .get("/API/messages")
                 .andExpect {
@@ -114,8 +115,8 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
         }
 
         @Test
-        fun getMessages_Id() {
-            val res1=
+        fun getMessage_Id() {
+
             mockMvc
                 .get("/API/messages/1")
                 .andExpect {
@@ -131,6 +132,25 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc){
                 }
         }
 
+        @Test
+        fun getMessage_StateChange(){
+            mockMvc
+                .get("/API/messages/1/history")
+                .andExpect {
+                    status { isOk() }
+                    verify(exactly = 1) { messageService.getHistory(1,PageRequest.of(0, 20)) }
+                    content {
+                        jsonPath("$.content[0].status") { value(mockMessageEventDTO.status.toString()) }
+                        jsonPath("$.content[0].timestamp") { value(mockMessageEventDTO.timestamp.toString().dropLast(2)) }
+                        jsonPath("$.content[0].comments") { value(mockMessageEventDTO.comments)}
+
+
+                    }
+                }
+
+
+        }
+
     }
-    
+
 }
