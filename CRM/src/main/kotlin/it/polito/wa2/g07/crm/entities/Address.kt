@@ -2,25 +2,23 @@ package it.polito.wa2.g07.crm.entities
 
 import jakarta.persistence.*
 
-enum class AddressType {
-    EMAIL,
-    TELEPHONE,
-    DWELLING
-}
+
+
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "type")
 abstract class Address {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     open var id: Long=0
 
-    @ManyToMany(mappedBy = "addresses")
+    @ManyToMany(mappedBy = "addresses", cascade = [CascadeType.ALL])
     open var contacts: MutableSet<Contact> = mutableSetOf()
 
-    @OneToMany(mappedBy = "sender")
+    @OneToMany(mappedBy = "sender", cascade = [CascadeType.ALL])
     open var messages: MutableSet<Message> = mutableSetOf()
 
     abstract val addressType: AddressType

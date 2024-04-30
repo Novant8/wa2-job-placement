@@ -3,13 +3,13 @@ package it.polito.wa2.g07.crm.entities
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
-enum class MessageStatus (status: String){
-    RECEIVED("Received"),
-    READ("Read"),
-    DISCARDED("Discarded"),
-    PROCESSING("Processing"),
-    DONE("Done"),
-    FAILED("Failed")
+enum class MessageStatus{
+    RECEIVED,
+    READ,
+    DISCARDED,
+    PROCESSING,
+    DONE,
+    FAILED
 }
 
 @Entity

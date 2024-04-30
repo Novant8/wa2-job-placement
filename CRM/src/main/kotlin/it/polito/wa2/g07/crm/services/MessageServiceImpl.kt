@@ -38,8 +38,15 @@ class MessageServiceImpl(
         return msg.get().toMessageDTO()
     }
 
-    override fun getMessages(pageable: Pageable): Page<ReducedMessageDTO>{
-        return  messageRepository.findAll(pageable).map { m->m.toReducedDTO(); }
+    override fun getMessages(filterBy: List<MessageStatus>?, pageable: Pageable): Page<ReducedMessageDTO>{
+
+        val result = when (filterBy) {
+            null ->    messageRepository.findAll(pageable)
+            else ->    messageRepository.findAllByStatus(filterBy!!,pageable)
+
+        }
+
+        return result.map { m->m.toReducedDTO(); }
     }
     @Transactional
     override fun createMessage(msg: MessageCreateDTO) : MessageDTO? {
@@ -101,7 +108,6 @@ class MessageServiceImpl(
 
         return when(old_status){
             MessageStatus.RECEIVED ->  new_status == MessageStatus.READ
-
             MessageStatus.READ -> new_status != MessageStatus.READ && new_status != MessageStatus.RECEIVED
             MessageStatus.DISCARDED -> return false //no status update when the message is discarded
             MessageStatus.PROCESSING -> new_status==MessageStatus.DONE || new_status==MessageStatus.FAILED

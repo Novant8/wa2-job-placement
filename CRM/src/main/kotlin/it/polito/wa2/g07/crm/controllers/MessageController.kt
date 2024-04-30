@@ -2,6 +2,7 @@ package it.polito.wa2.g07.crm.controllers
 
 
 import it.polito.wa2.g07.crm.dtos.*
+import it.polito.wa2.g07.crm.entities.MessageStatus
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.ContactService
 import it.polito.wa2.g07.crm.services.MessageService
@@ -20,8 +21,20 @@ class MessageController (private val messageService: MessageService
 
 
     @GetMapping("","/")
-    fun getMessages(pageable: Pageable):Page<ReducedMessageDTO>{
-        return messageService.getMessages(pageable)
+    fun getMessages(@RequestParam("filterBy", required = false) filterByStr: List<String>? = null,
+                    pageable: Pageable):Page<ReducedMessageDTO>{
+
+        if (filterByStr == null  ){  return messageService.getMessages(null,pageable = pageable)}
+        if (filterByStr.isEmpty() ) {  throw InvalidParamsException("'$filterByStr' is not a valid filter. Possible filters: ${MessageStatus.entries}.") }
+
+        val filterBy = try {
+            filterByStr.map{MessageStatus.valueOf(it.uppercase())}
+        } catch (e: IllegalArgumentException) {
+                throw InvalidParamsException("'$filterByStr' is not a valid filter. Possible filters: ${MessageStatus.entries}.")
+        }
+        return messageService.getMessages(filterBy=filterBy, pageable = pageable)
+
+
     }
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("","/", )
@@ -39,7 +52,6 @@ class MessageController (private val messageService: MessageService
     @PostMapping("/{id_message}","/{id_message}/")
     fun updateMessageState(@PathVariable("id_message") idMessage: Long,
                             @RequestBody event:MessageEventDTO ):MessageEventDTO?{
-
         return messageService.updateStatus(idMessage, event)
     }
   //Getting a specific message
