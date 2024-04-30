@@ -1,19 +1,19 @@
 package it.polito.wa2.g07.crm.dtos
 
-import it.polito.wa2.g07.crm.entities.Dwelling
-import it.polito.wa2.g07.crm.entities.Email
-import it.polito.wa2.g07.crm.entities.Message
-import it.polito.wa2.g07.crm.entities.Telephone
+import it.polito.wa2.g07.crm.entities.*
 
 
 data class ReducedMessageDTO (
         val id: Long,
         val subject: String,
         val sender:AddressDTO,
+        val channel: String
 )
 
 fun Message.toReducedDTO():ReducedMessageDTO{
-        return ReducedMessageDTO(this.messageID,this.subject,this.sender.toAddressDTO())
+        return ReducedMessageDTO(this.messageID,this.subject,this.sender.toAddressDTO(),
+            this.sender.addressType.toString()
+        )
 }
 
 

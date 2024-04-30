@@ -29,21 +29,28 @@ class MessageServiceImpl(
 
     @Transactional
     override fun getMessage(messageID: Long): MessageDTO? {
-        val msg=  messageRepository.getMessageByMessageID(messageID)
-
-        if (msg == null) {
+        val msg=  messageRepository.findById(messageID)
+        if (msg.isEmpty) {
             logger.info("The message doesn't exist" )
             throw MessageNotFoundException("The message doesn't exist")
         }
         logger.info("Message found")
-        return msg.toMessageDTO()
+        return msg.get().toMessageDTO()
     }
+    @Transactional
+    override fun getMessages(filterBy: List<MessageStatus>?, pageable: Pageable): Page<ReducedMessageDTO>{
 
-    override fun getMessages(pageable: Pageable): Page<ReducedMessageDTO>{
-        return  messageRepository.findAll(pageable).map { m->m.toReducedDTO(); }
+        val result = when (filterBy) {
+            null ->    messageRepository.findAll(pageable)
+            else ->    messageRepository.findAllByStatus(filterBy!!,pageable)
+
+        }
+
+        return result.map { m->m.toReducedDTO(); }
     }
     @Transactional
     override fun createMessage(msg: MessageCreateDTO) : MessageDTO? {
+
 
         val sender: Address = when (msg.sender) {
             is EmailDTO -> {
@@ -102,7 +109,6 @@ class MessageServiceImpl(
 
         return when(old_status){
             MessageStatus.RECEIVED ->  new_status == MessageStatus.READ
-
             MessageStatus.READ -> new_status != MessageStatus.READ && new_status != MessageStatus.RECEIVED
             MessageStatus.DISCARDED -> return false //no status update when the message is discarded
             MessageStatus.PROCESSING -> new_status==MessageStatus.DONE || new_status==MessageStatus.FAILED
@@ -118,10 +124,12 @@ class MessageServiceImpl(
        val result = messageRepository.findById(id_msg)
        val old_status = messageRepository.getLastEventByMessageId(id_msg)
         if (result.isEmpty || old_status==null){
+            logger.info("The message doesn't exist")
            throw  MessageNotFoundException("The message doesn't exist")
        }
        val msg=result.get()
        if (!checkNewStatusValidity(event_data.status, old_status.status)){
+           logger.info("The status cannot be assigned to the message")
            throw  InvalidParamsException("The status cannot be assigned to the message")
        }
 
@@ -131,7 +139,7 @@ class MessageServiceImpl(
        } else{
             date= event_data.timestamp!!
        }
-
+        logger.info("The status has been assigned to the message")
        val m_event = MessageEvent(msg,event_data.status,date,event_data.comments)
        msg.addEvent(m_event)
         return m_event.toMessageEventDTO()

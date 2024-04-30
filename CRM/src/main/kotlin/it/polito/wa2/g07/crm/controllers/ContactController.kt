@@ -1,18 +1,16 @@
 package it.polito.wa2.g07.crm.controllers
 
 import it.polito.wa2.g07.crm.dtos.*
-import it.polito.wa2.g07.crm.exceptions.MissingFieldException
+import it.polito.wa2.g07.crm.entities.AddressType
 import it.polito.wa2.g07.crm.entities.ContactCategory
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.ContactService
-import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.WebDataBinder
+import org.springframework.web.bind.annotation.*
 
 
 @RestController
@@ -21,22 +19,35 @@ class ContactController(private val contactService: ContactService) {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/","")
-    fun saveContact (@RequestBody contact: CreateContactDTO ): ContactDTO {
-        if (contact.name.isNullOrBlank() || contact.surname.isNullOrBlank()){
-            throw MissingFieldException("Name and surname are required fields.")
-        }
+    fun saveContact (@Valid @RequestBody contact: CreateContactDTO): ContactDTO {
         return contactService.create(contact)
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{contactId}/email")
-    fun addEmail (@PathVariable("contactId") contactId : Long, @RequestBody emailValue :Map<String, String> ){
-        val email = emailValue["email"]
-        if (!email.isNullOrBlank()) {
-            contactService.insertEmail(contactId, email)
-        } else {
-            throw MissingFieldException("You should provide an email ")
-        }
+    fun addEmail (
+        @PathVariable("contactId") contactId : Long,
+        @Valid @RequestBody emailDTO: EmailDTO
+    ): ContactDTO {
+        return contactService.insertAddress(contactId, emailDTO)
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{contactId}/telephone")
+    fun addTelephone (
+        @PathVariable("contactId") contactId : Long,
+        @Valid @RequestBody telephoneDTO: TelephoneDTO
+    ): ContactDTO {
+        return contactService.insertAddress(contactId, telephoneDTO)
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{contactId}/address")
+    fun addDwelling (
+        @PathVariable("contactId") contactId : Long,
+        @Valid @RequestBody dwellingDTO: DwellingDTO
+    ): ContactDTO {
+        return contactService.insertAddress(contactId, dwellingDTO)
     }
 
     @GetMapping("/{contactId}")
@@ -71,45 +82,50 @@ class ContactController(private val contactService: ContactService) {
         return contactService.getContacts(filterBy, query, pageable)
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{contactId}/email/{emailId}")
-    fun deleteEmail (@PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long){
-        return contactService.deleteEmail(contactId,emailId)
+    fun deleteEmail (@PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long) {
+        return contactService.deleteAddress(contactId, emailId, AddressType.EMAIL)
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{contactId}/telephone/{telephoneId}")
+    fun deleteTelephone (@PathVariable("contactId") contactId: Long, @PathVariable("telephoneId") telephoneId: Long) {
+        return contactService.deleteAddress(contactId, telephoneId, AddressType.TELEPHONE)
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{contactId}/address/{dwellingId}")
+    fun deleteDwelling (@PathVariable("contactId") contactId: Long, @PathVariable("dwellingId") dwellingId: Long) {
+        return contactService.deleteAddress(contactId, dwellingId, AddressType.DWELLING)
     }
 
     @PutMapping("/{contactId}/email/{emailId}")
-    fun updateEmail (@PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long, @RequestBody emailValue :Map<String, String>): ContactDTO{
-
-        val email = emailValue["email"]
-        if (!email.isNullOrBlank()) {
-           return  contactService.updateEmail(contactId, emailId, email)
-        } else {
-            throw MissingFieldException("You should provide an email ")
-        }
+    fun updateEmail (
+        @PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long,
+        @Valid @RequestBody emailDTO: EmailDTO
+    ): ContactDTO{
+       return contactService.updateAddress(contactId, emailId, emailDTO)
     }
 
     @PutMapping("/{contactId}/telephone/{telephoneId}")
-    fun updateTelephone (@PathVariable("contactId") contactId: Long, @PathVariable("telephoneId") telephoneId : Long, @RequestBody phoneNumber :Map<String, String>): ContactDTO{
-
-        val number = phoneNumber["phoneNumber"]
-        if (!number.isNullOrBlank()) {
-            return  contactService.updateTelephone(contactId, telephoneId, number)
-        } else {
-            throw MissingFieldException("You should provide a phone number ")
-        }
+    fun updateTelephone (
+        @PathVariable("contactId") contactId: Long,
+        @PathVariable("telephoneId") telephoneId : Long,
+        @Valid @RequestBody telephoneDTO: TelephoneDTO
+    ): ContactDTO{
+        return  contactService.updateAddress(contactId, telephoneId, telephoneDTO)
     }
 
-    @PutMapping("/{contactId}/dwelling/{dwellingId}")
-    fun updateDwelling (@PathVariable("contactId") contactId: Long, @PathVariable("dwellingId") dwellingId : Long, @RequestBody dwellingInfo :Map<String, String>): ContactDTO{
-
-        val street = dwellingInfo["street"]
-        val district =  dwellingInfo["district"]
-        val city =  dwellingInfo["city"]
-        val country =  dwellingInfo["country"]
-        if (!street.isNullOrBlank() ||!district.isNullOrBlank()||!city.isNullOrBlank()||!country.isNullOrBlank()) {
-            return  contactService.updateDwelling(contactId, dwellingId, street,city, district, country)
-        } else {
-            throw MissingFieldException("You should provide a phone number ")
-        }
+    @PutMapping("/{contactId}/address/{dwellingId}")
+    fun updateDwelling (
+        @PathVariable("contactId") contactId: Long,
+        @PathVariable("dwellingId") dwellingId: Long,
+        @Valid @RequestBody dwellingDTO: DwellingDTO
+    ): ContactDTO{
+        return contactService.updateAddress(contactId, dwellingId, dwellingDTO)
     }
+
+
 
 }

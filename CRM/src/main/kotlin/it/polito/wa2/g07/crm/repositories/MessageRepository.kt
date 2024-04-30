@@ -15,16 +15,32 @@ interface MessageRepository:JpaRepository<Message,Long> {
     @Query( "SELECT m " +
             "FROM MessageEvent m " +
             "WHERE m.message.messageID = :messageId " +
-            "ORDER BY m.timestamp DESC LIMIT 1")
+            "ORDER BY m.timestamp DESC LIMIT 1"  )
     fun getLastEventByMessageId(messageId: Long): MessageEvent?
 
+    @Query (""" 
+                SELECT ma
+                FROM Message ma
+                where   (
+                        SELECT m.status  FROM MessageEvent m
+                        where m.message.messageID = ma.messageID
+                        ORDER BY m.timestamp DESC LIMIT 1
+                )IN :filter
+                
+        """, countQuery = """ 
+                SELECT count(ma)
+                FROM Message ma
+                where  (
+                        SELECT m.status  FROM MessageEvent m
+                        where m.message.messageID = ma.messageID
+                        ORDER BY m.timestamp DESC LIMIT 1
+                )IN :filter 
+        """)
+    fun findAllByStatus(filter: List<MessageStatus>, pageable: Pageable):Page<Message?>
 
-
-    @Query("SELECT m.events FROM Message m WHERE m.messageID = :messageID")
+    @Query("SELECT events FROM Message m ,MessageEvent events " +
+            "WHERE events.message.messageID = :messageID AND m.messageID= :messageID " +
+            "ORDER BY events.timestamp desc ")
     fun getEventsByMessageID(messageID: Long,pageable: Pageable): Page<MessageEvent>
 
-    @Query("SELECT m FROM Message m, MessageEvent event " +
-            "WHERE m.messageID = :messageID  and event.message.messageID = :messageID"+
-            " ORDER BY event.timestamp DESC LIMIT 1")
-    fun getMessageByMessageID(messageID: Long):Message?
 }

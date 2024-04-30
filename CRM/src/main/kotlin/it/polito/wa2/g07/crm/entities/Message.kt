@@ -1,15 +1,10 @@
 package it.polito.wa2.g07.crm.entities
 
-import com.fasterxml.jackson.databind.JsonSerializer.None
+
 import jakarta.persistence.*
-import java.time.LocalDate
+
 import java.time.LocalDateTime
 
-enum class MessageChannel {
-    PHONE_CALL,
-    TEXT_MESSAGE,
-    EMAIL
-}
 
 @Entity
 class Message(

@@ -8,4 +8,17 @@ import jakarta.persistence.*
 class Email(
     @Column(unique = true)
     var email: String
-) : Address()
+) : Address() {
+    override val addressType: AddressType
+        get() = AddressType.EMAIL
+
+    override fun equals(other: Any?): Boolean {
+        if(other is Email) return this.email == other.email
+        if(other is EmailDTO) return this.email == other.email
+        return super.equals(other)
+    }
+
+    override fun hashCode(): Int {
+        return this.email.hashCode()
+    }
+}
