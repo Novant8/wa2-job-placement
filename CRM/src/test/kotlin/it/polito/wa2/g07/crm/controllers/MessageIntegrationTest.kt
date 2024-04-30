@@ -51,6 +51,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
     val msg1 = Message(
         subject = "There is a message for you",
         sender = sender1,
+
         body = "lorem ipsum dolor sit amet",
     )
     val msg2 = Message(
@@ -107,11 +108,11 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { jsonPath("totalElements") { value(3) } }
                     content { jsonPath("$.content[0].subject") { value("There is a message for you") } }
                     content { jsonPath("$.content[0].sender.email") { value("lorem@ipsum.com") } }
-                    content { jsonPath("$.content[0].sender.channel") { value("email") } }
+                    content { jsonPath("$.content[0].channel") { value("EMAIL") } }
 
                     content { jsonPath("$.content[1].subject") { value("Richiesta info") } }
                     content { jsonPath("$.content[1].sender.street") { value("Piazza Centrale") } }
-                    content { jsonPath("$.content[1].sender.channel") { value("dwelling") } }
+                    content { jsonPath("$.content[1].channel") { value("DWELLING") } }
                 }
             }
 
@@ -150,7 +151,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { jsonPath("totalElements") { value(1) } }
                     content { jsonPath("$.content[0].subject") { value(msg1.subject) } }
                     content { jsonPath("$.content[0].sender.email") { value(((msg1.sender)as Email ).email) } }
-                    content { jsonPath("$.content[0].sender.channel") { value("email") } }
+                    content { jsonPath("$.content[0].channel") { value("EMAIL") } }
                 }
             }
             @Test
@@ -222,9 +223,9 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     """
                     {
                         "sender":{
-                            "phoneNumber": "011-765352x",
-                            "channel" : "phone"
+                            "phoneNumber": "011-765352x"
                         },
+                        "channel" : "TELEPHONE",
                         "subject" : "Action required",
                         "body" : "please visit http://your-bank.com"  
                     }
@@ -237,7 +238,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { contentType(MediaType.APPLICATION_JSON) }
                     content { jsonPath("$.subject") { value("Action required") } }
                     content { jsonPath("$.sender.phoneNumber") { value("011-765352x") } }
-                    content { jsonPath("$.sender.channel") { value("phone") } }
+                    content { jsonPath("$.channel") { value("TELEPHONE") } }
                     content { jsonPath("$.body") { value("please visit http://your-bank.com") } }
                 }
                 //missing subject
@@ -246,8 +247,9 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     {
                         "sender":{
                             "phoneNumber": "011-765352x",
-                            "channel" : "phone"
+                    
                         },
+                        "channel" : "TELEPHONE",
                         "body" : "please visit http://your-bank.com"  
                     }
                 """.trimIndent()
@@ -257,7 +259,28 @@ class MessageIntegrationTest:CrmApplicationTests() {
                 }.andExpect {
                     status { isBadRequest() }
                 }
-
+                val message_3 =
+                    """
+                    {
+                        "sender":{
+                            "phoneNumber": "011-765352x"
+                        },
+                        "channel" : "telephone",
+                        "subject" : "Action required",
+                        "body" : "please visit http://your-bank.com"  
+                    }
+                """.trimIndent()
+                mockMvc.post("/API/messages") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = message_3
+                }.andExpect {
+                    status { isCreated() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    content { jsonPath("$.subject") { value("Action required") } }
+                    content { jsonPath("$.sender.phoneNumber") { value("011-765352x") } }
+                    content { jsonPath("$.channel") { value("TELEPHONE") } }
+                    content { jsonPath("$.body") { value("please visit http://your-bank.com") } }
+                }
 
 
             }
@@ -268,13 +291,13 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     """
                     {
                         "sender":{
-                            "phoneNumber": "011-765352x",
-                            "channel" : "phone"
+                            "phoneNumber": "011-765352x"
                         },
+                        "channel" : "TELEPHONE",
                         "subject" : "Action required",
                         "body" : "please visit http://your-bank.com"  
                     }
-            """.trimIndent()
+                    """.trimIndent()
                 val msg_1_id = JSONObject(mockMvc.post("/API/messages") {
                     contentType = MediaType.APPLICATION_JSON
                     content = message_1
@@ -283,16 +306,16 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { contentType(MediaType.APPLICATION_JSON) }
                     content { jsonPath("$.subject") { value("Action required") } }
                     content { jsonPath("$.sender.phoneNumber") { value("011-765352x") } }
-                    content { jsonPath("$.sender.channel") { value("phone") } }
+                    content { jsonPath("$.channel") { value("TELEPHONE") } }
                     content { jsonPath("$.body") { value("please visit http://your-bank.com") } }
                 }.andReturn().response.contentAsString).getString("id")
                 val message_2 =
                     """
                     {
                         "sender":{
-                            "phoneNumber": "011-765352x",
-                            "channel" : "phone"
+                            "phoneNumber": "011-765352x"
                         },
+                        "channel" : "telephone",
                         "subject" : "Action required x 2",
                         "body" : "please visit http://your-bank.com"  
                     }
@@ -305,7 +328,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { contentType(MediaType.APPLICATION_JSON) }
                     content { jsonPath("$.subject") { value("Action required x 2") } }
                     content { jsonPath("$.sender.phoneNumber") { value("011-765352x") } }
-                    content { jsonPath("$.sender.channel") { value("phone") } }
+                    content { jsonPath("$.channel") { value("TELEPHONE") } }
                     content { jsonPath("$.body") { value("please visit http://your-bank.com") } }
 
                 }.andReturn().response.contentAsString).getString("id")
@@ -324,9 +347,11 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     {
                         "sender":{
                             "street": "Via Roma",
-                            "city": "Torino",
-                            "channel" : "dwelling"
+                            "city": "Torino"
+                           
                         },
+    
+                        "channel" : "dwelling",
                         "subject" : "Raccomandata",
                         "body" : "Gentile x, la contatto in merito..."  
                     }
@@ -340,7 +365,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { jsonPath("$.subject") { value("Raccomandata") } }
                     content { jsonPath("$.sender.street") { value("Via Roma") } }
                     content { jsonPath("$.sender.city") { value("Torino") } }
-                    content { jsonPath("$.sender.channel") { value("dwelling") } }
+                    content { jsonPath("$.channel") { value("DWELLING") } }
                     content { jsonPath("$.body") { value("Gentile x, la contatto in merito...") } }
                 }
                 val message_2 =
@@ -348,8 +373,9 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     {
                         "sender":{
                             "street": "Via Roma",
-                            "channel" : "dwelling"
+                            
                         },
+                         "channel" : "dwelling",
                         "subject" : "Raccomandata",
                         "body" : "Gentile x, la contatto in merito..."  
                     }
@@ -370,9 +396,10 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     {
                         "sender":{
                             "street": "Via Roma",
-                            "city": "Torino",
-                            "channel" : "dwelling"
+                            "city": "Torino"
+                        
                         },
+                         "channel" : "dwelling",
                         "subject" : "Raccomandata",
                         "body" : "Gentile x, la contatto in merito..."  
                     }
@@ -386,7 +413,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { jsonPath("$.subject") { value("Raccomandata") } }
                     content { jsonPath("$.sender.street") { value("Via Roma") } }
                     content { jsonPath("$.sender.city") { value("Torino") } }
-                    content { jsonPath("$.sender.channel") { value("dwelling") } }
+                    content { jsonPath("$.channel") { value("DWELLING") } }
                     content { jsonPath("$.body") { value("Gentile x, la contatto in merito...") } }
                 }.andReturn().response.contentAsString).getString("id")
 
@@ -397,9 +424,10 @@ class MessageIntegrationTest:CrmApplicationTests() {
                             "street": "Via Roma",
                             "city": "Torino",
                             "district": "Piemonte",
-                            "country": "Italy",
-                            "channel" : "dwelling"
+                            "country": "Italy"
+                         
                         },
+                        "channel" : "dwelling",
                         "subject" : "Raccomandata",
                         "body" : "Gentile x, la contatto in merito..."  
                     }
@@ -415,7 +443,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { jsonPath("$.sender.city") { value("Torino") } }
                     content { jsonPath("$.sender.country").doesNotExist() }  //there is already an address incomplete with the same street and district
                     content { jsonPath("$.sender.district").doesNotExist() }
-                    content { jsonPath("$.sender.channel") { value("dwelling") } }
+                    content { jsonPath("$.channel") { value("DWELLING") } }
                     content { jsonPath("$.body") { value("Gentile x, la contatto in merito...") } }
                 }.andReturn().response.contentAsString).getString("id")
                 assertEquals(
@@ -432,9 +460,11 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     """
                     {
                         "sender":{
-                            "phoneNumber": "A",
-                            "channel" : "phone"
+                            "phoneNumber": "A"
+                          
                         },
+                        
+                         "channel" : "TELEPHONE",
                         "subject" : "TEST",
                         "body" : "TEST"  
                     }
@@ -443,9 +473,10 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     """
                     {
                         "sender":{
-                            "email": "A",
-                            "channel" : "email"
+                            "email": "A"
+                            
                         },
+                        "channel": "EMAIL",
                         "subject" : "TEST",
                         "body" : "TEST"  
                     }

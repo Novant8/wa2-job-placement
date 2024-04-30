@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 data class MessageDTO(
     val id:Long,
     val sender: AddressDTO,
+    val channel : AddressType,
     val subject: String,
     val body: String,
     val priority: Int,
@@ -18,6 +19,7 @@ fun Message.toMessageDTO(): MessageDTO=
     MessageDTO(
         this.messageID,
         this.sender.toAddressDTO(),
+        this.sender.addressType,
         this.subject,
         this.body,
         this.priority,

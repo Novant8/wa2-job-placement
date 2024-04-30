@@ -15,7 +15,7 @@ import jakarta.validation.constraints.Pattern
     JsonSubTypes.Type(value = DwellingDTO::class)
 )
 sealed class AddressDTO {
-    @get:JsonIgnore
+    //@get:JsonIgnore
     abstract val addressType: AddressType
     abstract fun toEntity(): Address
 }

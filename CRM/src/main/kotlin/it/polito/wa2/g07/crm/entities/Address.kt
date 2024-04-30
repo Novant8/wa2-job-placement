@@ -3,11 +3,15 @@ package it.polito.wa2.g07.crm.entities
 import jakarta.persistence.*
 
 
-
+enum class AddressType {
+    EMAIL,
+    DWELLING,
+    TELEPHONE,
+}
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "type")
+@DiscriminatorColumn(name = "channel")
 abstract class Address {
 
 

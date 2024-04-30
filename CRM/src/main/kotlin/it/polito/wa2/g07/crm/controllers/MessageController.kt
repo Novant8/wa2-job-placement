@@ -2,10 +2,12 @@ package it.polito.wa2.g07.crm.controllers
 
 
 import it.polito.wa2.g07.crm.dtos.*
+import it.polito.wa2.g07.crm.entities.AddressType
 import it.polito.wa2.g07.crm.entities.MessageStatus
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.ContactService
 import it.polito.wa2.g07.crm.services.MessageService
+import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
@@ -38,9 +40,17 @@ class MessageController (private val messageService: MessageService
     }
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("","/", )
-    fun createNewMessage(@RequestBody msg: MessageCreateDTO):MessageDTO?{
+    fun createNewMessage(@RequestBody @Valid  msg: MessageCreateDTO):MessageDTO?{
        // sender, channel, subject, body
-        return messageService.createMessage(msg)
+        try {
+            AddressType.valueOf(msg.channel.uppercase())
+        }catch (e : IllegalArgumentException) {
+            throw InvalidParamsException("'$msg.channel' is not a valid address channel. Possible filters: ${AddressType.entries}.")
+        }
+        if (msg.sender.addressType != AddressType.valueOf(msg.channel.toString().uppercase())){
+            throw InvalidParamsException("Sender's fields are incompatible with channel type")
+        }
+         return messageService.createMessage(msg)
     }
 
 
@@ -51,7 +61,7 @@ class MessageController (private val messageService: MessageService
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{id_message}","/{id_message}/")
     fun updateMessageState(@PathVariable("id_message") idMessage: Long,
-                            @RequestBody event:MessageEventDTO ):MessageEventDTO?{
+                            @RequestBody   event:MessageEventDTO ):MessageEventDTO?{
         return messageService.updateStatus(idMessage, event)
     }
   //Getting a specific message

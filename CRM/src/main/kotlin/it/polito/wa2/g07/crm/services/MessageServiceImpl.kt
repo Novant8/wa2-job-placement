@@ -37,7 +37,7 @@ class MessageServiceImpl(
         logger.info("Message found")
         return msg.get().toMessageDTO()
     }
-
+    @Transactional
     override fun getMessages(filterBy: List<MessageStatus>?, pageable: Pageable): Page<ReducedMessageDTO>{
 
         val result = when (filterBy) {
@@ -50,6 +50,7 @@ class MessageServiceImpl(
     }
     @Transactional
     override fun createMessage(msg: MessageCreateDTO) : MessageDTO? {
+
 
         val sender: Address = when (msg.sender) {
             is EmailDTO -> {

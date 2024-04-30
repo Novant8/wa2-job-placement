@@ -6,14 +6,11 @@ import it.polito.wa2.g07.crm.entities.ContactCategory
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.ContactService
 import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.WebDataBinder
+import org.springframework.web.bind.annotation.*
 
 
 @RestController
@@ -128,5 +125,7 @@ class ContactController(private val contactService: ContactService) {
     ): ContactDTO{
         return contactService.updateAddress(contactId, dwellingId, dwellingDTO)
     }
+
+
 
 }
