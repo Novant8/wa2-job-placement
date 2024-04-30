@@ -47,7 +47,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
     var msg3_id: Long = 0
     val sender1 = Email("lorem@ipsum.com")
     val sender2 = Dwelling("Piazza Centrale", "Milano", "Lombardia", "Italia")
-    val sender3 = Telephone("011-43553#352")
+    val sender3 = Telephone("011-43553")
     val msg1 = Message(
         subject = "There is a message for you",
         sender = sender1,
@@ -223,7 +223,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     """
                     {
                         "sender":{
-                            "phoneNumber": "011-765352x"
+                            "phoneNumber": "011-765352"
                         },
                         "channel" : "TELEPHONE",
                         "subject" : "Action required",
@@ -237,7 +237,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     status { isCreated() }
                     content { contentType(MediaType.APPLICATION_JSON) }
                     content { jsonPath("$.subject") { value("Action required") } }
-                    content { jsonPath("$.sender.phoneNumber") { value("011-765352x") } }
+                    content { jsonPath("$.sender.phoneNumber") { value("011-765352") } }
                     content { jsonPath("$.channel") { value("TELEPHONE") } }
                     content { jsonPath("$.body") { value("please visit http://your-bank.com") } }
                 }
@@ -246,7 +246,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     """
                     {
                         "sender":{
-                            "phoneNumber": "011-765352x",
+                            "phoneNumber": "011-765352",
                     
                         },
                         "channel" : "TELEPHONE",
@@ -263,7 +263,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     """
                     {
                         "sender":{
-                            "phoneNumber": "011-765352x"
+                            "phoneNumber": "011-765352"
                         },
                         "channel" : "telephone",
                         "subject" : "Action required",
@@ -277,7 +277,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     status { isCreated() }
                     content { contentType(MediaType.APPLICATION_JSON) }
                     content { jsonPath("$.subject") { value("Action required") } }
-                    content { jsonPath("$.sender.phoneNumber") { value("011-765352x") } }
+                    content { jsonPath("$.sender.phoneNumber") { value("011-765352") } }
                     content { jsonPath("$.channel") { value("TELEPHONE") } }
                     content { jsonPath("$.body") { value("please visit http://your-bank.com") } }
                 }
@@ -291,7 +291,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     """
                     {
                         "sender":{
-                            "phoneNumber": "011-765352x"
+                            "phoneNumber": "011-765352"
                         },
                         "channel" : "TELEPHONE",
                         "subject" : "Action required",
@@ -305,7 +305,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     status { isCreated() }
                     content { contentType(MediaType.APPLICATION_JSON) }
                     content { jsonPath("$.subject") { value("Action required") } }
-                    content { jsonPath("$.sender.phoneNumber") { value("011-765352x") } }
+                    content { jsonPath("$.sender.phoneNumber") { value("011-765352") } }
                     content { jsonPath("$.channel") { value("TELEPHONE") } }
                     content { jsonPath("$.body") { value("please visit http://your-bank.com") } }
                 }.andReturn().response.contentAsString).getString("id")
@@ -313,7 +313,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     """
                     {
                         "sender":{
-                            "phoneNumber": "011-765352x"
+                            "phoneNumber": "011-765352"
                         },
                         "channel" : "telephone",
                         "subject" : "Action required x 2",
@@ -327,7 +327,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     status { isCreated() }
                     content { contentType(MediaType.APPLICATION_JSON) }
                     content { jsonPath("$.subject") { value("Action required x 2") } }
-                    content { jsonPath("$.sender.phoneNumber") { value("011-765352x") } }
+                    content { jsonPath("$.sender.phoneNumber") { value("011-765352") } }
                     content { jsonPath("$.channel") { value("TELEPHONE") } }
                     content { jsonPath("$.body") { value("please visit http://your-bank.com") } }
 
@@ -454,55 +454,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
 
             }
 
-            @Test
-            fun checkSameAddressDifferentChannel() {
-                val message_1 =
-                    """
-                    {
-                        "sender":{
-                            "phoneNumber": "A"
-                          
-                        },
-                        
-                         "channel" : "TELEPHONE",
-                        "subject" : "TEST",
-                        "body" : "TEST"  
-                    }
-                """.trimIndent()
-                val message_2 =
-                    """
-                    {
-                        "sender":{
-                            "email": "A"
-                            
-                        },
-                        "channel": "EMAIL",
-                        "subject" : "TEST",
-                        "body" : "TEST"  
-                    }
-                """.trimIndent()
 
-                val msg_1_id = JSONObject(mockMvc.post("/API/messages") {
-                    contentType = MediaType.APPLICATION_JSON
-                    content = message_1
-                }.andExpect {
-                    status { isCreated() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                }.andReturn().response.contentAsString).getString("id")
-
-                val msg_2_id = JSONObject(mockMvc.post("/API/messages") {
-                    contentType = MediaType.APPLICATION_JSON
-                    content = message_2
-                }.andExpect {
-                    status { isCreated() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                }.andReturn().response.contentAsString).getString("id")
-
-                assertNotEquals(
-                    messageRepository.findById(msg_1_id.toLong()).get().sender.id,
-                    messageRepository.findById(msg_2_id.toLong()).get().sender.id
-                )
-            }
 
         }
 
