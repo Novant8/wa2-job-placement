@@ -1,11 +1,12 @@
 package it.polito.wa2.g07.crm.controllers
 
-import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.ContentType
+
 import it.polito.wa2.g07.crm.CrmApplicationTests
 import it.polito.wa2.g07.crm.entities.*
-import it.polito.wa2.g07.crm.repositories.ContactRepository
+
 import it.polito.wa2.g07.crm.repositories.MessageRepository
 import it.polito.wa2.g07.crm.repositories.AddressRepository
+
 import org.json.JSONObject
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -14,27 +15,23 @@ import org.junit.jupiter.api.Nested
 
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
+
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
+
 import org.springframework.http.MediaType
-import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
+
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
-import java.time.LocalDateTime
 
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+
+import java.time.LocalDateTime
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK) //just to remove IDE error on mockMvc
 @AutoConfigureMockMvc
+
 class MessageIntegrationTest:CrmApplicationTests() {
     @Autowired
     lateinit var mockMvc: MockMvc
@@ -67,11 +64,12 @@ class MessageIntegrationTest:CrmApplicationTests() {
         body = "pls assumetemi"
     )
     @BeforeEach
+
     fun initDb() {
         //Each test the DB start clean
-        addressRepository.deleteAll()
-        messageRepository.deleteAll()
 
+        messageRepository.deleteAll()
+        addressRepository.deleteAll()
 
         msg1.addEvent(MessageEvent(msg1, MessageStatus.RECEIVED, LocalDateTime.now(), "The message is received"))
 
