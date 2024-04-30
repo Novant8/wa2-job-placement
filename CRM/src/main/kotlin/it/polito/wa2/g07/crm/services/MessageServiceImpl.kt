@@ -23,7 +23,7 @@ import java.time.LocalDateTime
 class MessageServiceImpl(
     private val messageRepository: MessageRepository,
     private val addressRepository: AddressRepository,
-
+    private val contactRepository: ContactRepository,
     ):MessageService {
 
 
@@ -56,8 +56,13 @@ class MessageServiceImpl(
             is EmailDTO -> {
                 val addr = addressRepository.findMailAddressByMail(msg.sender.email)
                 if (!addr.isPresent) {
-                    logger.info("Email NOT found")
-                    Email(msg.sender.email)
+                    logger.info("Email NOT found -> Creating a new Contact")
+                    val c = Contact("Auto-generated","Auto-generated",ContactCategory.UNKNOWN )
+                    val addr= addressRepository.save(Email(msg.sender.email))
+                    c.addAddress(addr)
+                    val contactDTO = contactRepository.save(c).toContactDto()
+                    logger.info("Created automatically Contact #${contactDTO.id}.")
+                    addr
                 } else {
                     logger.info("Email found: "+addr.get().email)
                     addr.get()
@@ -71,11 +76,20 @@ class MessageServiceImpl(
                     msg.sender.district,
                     msg.sender.country)
                 if (!addr.isPresent) {
-                    logger.info("Dwelling NOT found")
-                    Dwelling(    msg.sender.street,
-                                msg.sender.city,
-                                msg.sender.district,
-                                msg.sender.country)
+
+                    logger.info("Dwelling NOT found -> Creating a new Contact")
+                    val c = Contact("Auto-generated","Auto-generated",ContactCategory.UNKNOWN )
+                    val addr= addressRepository.save( Dwelling(     msg.sender.street,
+                                                                    msg.sender.city,
+                                                                    msg.sender.district,
+                                                                    msg.sender.country))
+
+                    c.addAddress(addr)
+                    val contactDTO = contactRepository.save(c).toContactDto()
+                    logger.info("Created automatically Contact #${contactDTO.id}.")
+                    addr
+
+
                 } else {
                     logger.info("Dwelling found:"+addr.get().street+", "+addr.get().city)
                     addr.get()
@@ -84,16 +98,23 @@ class MessageServiceImpl(
             is TelephoneDTO -> {
                 val addr = addressRepository.findTelephoneAddressByTelephoneNumber(msg.sender.phoneNumber)
                 if (! addr.isPresent) {
-                    logger.info("Telephone found")
-                    Telephone(msg.sender.phoneNumber)
+                    logger.info("Dwelling NOT found -> Creating a new Contact")
+                    val c = Contact("Auto-generated","Auto-generated",ContactCategory.UNKNOWN )
+                    val addr= addressRepository.save( Telephone(msg.sender.phoneNumber))
+
+                    c.addAddress(addr)
+                    val contactDTO = contactRepository.save(c).toContactDto()
+                    logger.info("Created automatically Contact #${contactDTO.id}.")
+                    addr
+
                 } else {
                     logger.info("Telephone found "+addr.get().number)
                     addr.get()
                 }
             }
-            else -> TODO("THROW EXCEPTION HERE")
+            else -> error("Not supported DTO")
         }
-        addressRepository.save(sender)
+        //addressRepository.save(sender)
         val m = Message(msg.subject, msg.body, sender)
         val event = MessageEvent(m,MessageStatus.RECEIVED, LocalDateTime.now())
         m.addEvent(event)
