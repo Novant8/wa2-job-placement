@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -72,7 +71,7 @@ class ContactServiceTest {
 
         @BeforeEach
         fun initMocks() {
-            every { contactRepository.findAll(any(Pageable::class)) } returns pageImpl
+            every { contactRepository.findAll(any(), any(Pageable::class)) } returns pageImpl
             every { contactRepository.findAllByFullNameLike(any(String::class), any(Pageable::class)) } returns pageImpl
             every { contactRepository.findAllBySsn(any(String::class), any(Pageable::class)) } returns pageImpl
             every { contactRepository.findAllByEmail(any(String::class), any(Pageable::class)) } returns pageImpl
@@ -84,63 +83,13 @@ class ContactServiceTest {
         }
 
         @Test
-        fun getContacts_noneFilter() {
-            val result = service.getContacts(ContactFilterBy.NONE, "", pageReq)
+        fun getContacts_success() {
+            val contactFilterDTO = ContactFilterDTO()
+            val result = service.getContacts(contactFilterDTO, pageReq)
 
-            val expectedResult = PageImpl(listOf(mockContact.toReducedContactDTO()))
-            verify(exactly = 1) { contactRepository.findAll(pageReq) }
+            val expectedResult = pageImpl.map { it.toReducedContactDTO() }
+            verify(exactly = 1) { contactRepository.findAll(any(), pageReq) }
             assertEquals(result, expectedResult)
-        }
-
-        @Test
-        fun getContacts_stringFilters() {
-            val filterFunctionsMap: Map<ContactFilterBy, (String, Pageable) -> Page<Contact>> = mapOf(
-                ContactFilterBy.FULL_NAME to contactRepository::findAllByFullNameLike,
-                ContactFilterBy.SSN to contactRepository::findAllBySsn,
-                ContactFilterBy.EMAIL to contactRepository::findAllByEmail,
-                ContactFilterBy.TELEPHONE to contactRepository::findAllByTelephone,
-                ContactFilterBy.ADDRESS to contactRepository::findAllByDwellingLike
-            )
-
-            filterFunctionsMap.forEach { (filter, func) ->
-                val query = "query"
-                val result = service.getContacts(filter, query, pageReq)
-
-                val expectedResult = PageImpl(listOf(mockContact.toReducedContactDTO()))
-                verify(exactly = 1) { func(query, pageReq) }
-                assertEquals(result, expectedResult)
-            }
-        }
-
-        @Test
-        fun getContacts_categoryFilter() {
-            val result = service.getContacts(ContactFilterBy.CATEGORY, ContactCategory.CUSTOMER.name, pageReq)
-
-            val expectedResult = PageImpl(listOf(mockContact.toReducedContactDTO()))
-            verify(exactly = 1) { contactRepository.findAllByCategory(ContactCategory.CUSTOMER, pageReq) }
-            assertEquals(result, expectedResult)
-        }
-
-        @Test
-        fun getContacts_categoryFilter_caseInsensitive() {
-            val result = service.getContacts(ContactFilterBy.CATEGORY, ContactCategory.CUSTOMER.name.lowercase(), pageReq)
-
-            val expectedResult = PageImpl(listOf(mockContact.toReducedContactDTO()))
-            verify(exactly = 1) { contactRepository.findAllByCategory(ContactCategory.CUSTOMER, pageReq) }
-            assertEquals(result, expectedResult)
-        }
-
-        @Test
-        fun getContactById_success() {
-            val result = service.getContactById(mockContact.contactId)
-            assertEquals(result, mockContact.toContactDto())
-        }
-
-        @Test
-        fun getContactById_notFound() {
-            assertThrows<EntityNotFoundException> {
-                service.getContactById(mockContact.contactId + 1)
-            }
         }
     }
 

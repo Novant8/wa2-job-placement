@@ -44,21 +44,12 @@ class ContactServiceImpl(
 
 @Transactional
     override fun getContacts(
-        filterBy: ContactFilterBy,
-        query: String,
+        filterDTO: ContactFilterDTO,
         pageable: Pageable
     ): Page<ReducedContactDTO> {
-        val result = when (filterBy) {
-            ContactFilterBy.NONE ->         contactRepository.findAll(pageable)
-            ContactFilterBy.FULL_NAME ->    contactRepository.findAllByFullNameLike(query, pageable)
-            ContactFilterBy.SSN ->          contactRepository.findAllBySsn(query, pageable)
-            ContactFilterBy.EMAIL ->        contactRepository.findAllByEmail(query, pageable)
-            ContactFilterBy.TELEPHONE ->    contactRepository.findAllByTelephone(query, pageable)
-            ContactFilterBy.ADDRESS ->      contactRepository.findAllByDwellingLike(query, pageable)
-            ContactFilterBy.CATEGORY ->     contactRepository.findAllByCategory(ContactCategory.valueOf(query.uppercase()), pageable)
-        }
-        return result.map { it.toReducedContactDTO() }
+        return contactRepository.findAll(filterDTO.toSpecification(), pageable).map { it.toReducedContactDTO() }
     }
+
     @Transactional
     override fun getContactById(contactId: Long): ContactDTO {
         val contactOpt = contactRepository.findById(contactId)
