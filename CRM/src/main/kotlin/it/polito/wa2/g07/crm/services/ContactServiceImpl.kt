@@ -9,12 +9,12 @@ import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.AddressRepository
 import it.polito.wa2.g07.crm.repositories.ContactRepository
-import org.springframework.transaction.annotation.Transactional
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import kotlin.jvm.optionals.getOrDefault
 
 @Service
@@ -42,7 +42,7 @@ class ContactServiceImpl(
         return contactDTO
     }
 
-@Transactional
+    @Transactional(readOnly = true)
     override fun getContacts(
         filterDTO: ContactFilterDTO,
         pageable: Pageable
@@ -50,7 +50,7 @@ class ContactServiceImpl(
         return contactRepository.findAll(filterDTO.toSpecification(), pageable).map { it.toReducedContactDTO() }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     override fun getContactById(contactId: Long): ContactDTO {
         val contactOpt = contactRepository.findById(contactId)
 
