@@ -1,4 +1,4 @@
-package it.polito.wa2.g07.crm.controllers
+package it.polito.wa2.g07.crm.integrations
 
 
 

@@ -1,4 +1,4 @@
-package it.polito.wa2.g07.crm.controllers
+package it.polito.wa2.g07.crm.integrations
 
 
 import it.polito.wa2.g07.crm.CrmApplicationTests
@@ -9,7 +9,6 @@ import it.polito.wa2.g07.crm.repositories.AddressRepository
 import it.polito.wa2.g07.crm.repositories.ContactRepository
 
 import org.json.JSONObject
-import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
