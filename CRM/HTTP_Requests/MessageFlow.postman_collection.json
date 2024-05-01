@@ -259,7 +259,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/API/messages?filterBy=RECEIVED",
+					"raw": "http://localhost:8080/API/messages?filterBy=READ",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -272,7 +272,7 @@
 					"query": [
 						{
 							"key": "filterBy",
-							"value": "RECEIVED"
+							"value": "READ"
 						}
 					]
 				}
@@ -285,7 +285,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/API/messages/1/history",
+					"raw": "http://localhost:8080/API/messages/3/history",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -294,7 +294,7 @@
 					"path": [
 						"API",
 						"messages",
-						"1",
+						"3",
 						"history"
 					]
 				}
