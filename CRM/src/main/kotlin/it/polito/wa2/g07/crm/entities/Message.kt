@@ -1,6 +1,7 @@
 package it.polito.wa2.g07.crm.entities
 
 
+import it.polito.wa2.g07.crm.dtos.MessageChannel
 import jakarta.persistence.*
 
 import java.time.LocalDateTime
@@ -11,6 +12,7 @@ class Message(
     var subject: String,
     var body: String,
     @ManyToOne val sender: Address,
+    val channel: MessageChannel,
     var priority: Int = 0,
     var creationTimestamp: LocalDateTime = LocalDateTime.now(),
 ) {

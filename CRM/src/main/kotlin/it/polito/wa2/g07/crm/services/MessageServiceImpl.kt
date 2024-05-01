@@ -116,7 +116,7 @@ class MessageServiceImpl(
             else -> error("Not supported DTO")
         }
         //addressRepository.save(sender)
-        val m = Message(msg.subject, msg.body, sender)
+        val m = Message(msg.subject, msg.body, sender, MessageChannel.valueOf(msg.channel.uppercase()))
         val event = MessageEvent(m,MessageStatus.RECEIVED, LocalDateTime.now())
         m.addEvent(event)
         return messageRepository.save(m).toMessageDTO()

@@ -2,6 +2,7 @@ package it.polito.wa2.g07.crm.controllers
 
 
 import it.polito.wa2.g07.crm.CrmApplicationTests
+import it.polito.wa2.g07.crm.dtos.MessageChannel
 import it.polito.wa2.g07.crm.entities.*
 
 import it.polito.wa2.g07.crm.repositories.MessageRepository
@@ -55,17 +56,19 @@ class MessageIntegrationTest:CrmApplicationTests() {
     val msg1 = Message(
         subject = "There is a message for you",
         sender = sender1,
-
+        channel = MessageChannel.EMAIL,
         body = "lorem ipsum dolor sit amet",
     )
     val msg2 = Message(
         subject = "Richiesta info",
         sender = sender2,
+        channel = MessageChannel.POSTAL_MAIL,
         body = "Vorrei sapere..."
     )
     val msg3 = Message(
         subject = "Assumetemi pls",
         sender = sender3,
+        channel = MessageChannel.PHONE_CALL,
         body = "pls assumetemi"
     )
     @BeforeEach
@@ -117,7 +120,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
 
                     content { jsonPath("$.content[1].subject") { value("Richiesta info") } }
                     content { jsonPath("$.content[1].sender.street") { value("Piazza Centrale") } }
-                    content { jsonPath("$.content[1].channel") { value("DWELLING") } }
+                    content { jsonPath("$.content[1].channel") { value("POSTAL_MAIL") } }
                 }
             }
 
@@ -230,7 +233,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                         "sender":{
                             "phoneNumber": "011-765352"
                         },
-                        "channel" : "TELEPHONE",
+                        "channel" : "PHONE_CALL",
                         "subject" : "Action required",
                         "body" : "please visit http://your-bank.com"  
                     }
@@ -243,7 +246,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { contentType(MediaType.APPLICATION_JSON) }
                     content { jsonPath("$.subject") { value("Action required") } }
                     content { jsonPath("$.sender.phoneNumber") { value("011-765352") } }
-                    content { jsonPath("$.channel") { value("TELEPHONE") } }
+                    content { jsonPath("$.channel") { value("PHONE_CALL") } }
                     content { jsonPath("$.body") { value("please visit http://your-bank.com") } }
                 }
 
@@ -257,7 +260,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                             "phoneNumber": "011-765352",
                     
                         },
-                        "channel" : "TELEPHONE",
+                        "channel" : "TEXT_MESSAGE",
                         "body" : "please visit http://your-bank.com"  
                     }
                 """.trimIndent()
@@ -273,7 +276,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                         "sender":{
                             "phoneNumber": "011-765352"
                         },
-                        "channel" : "telephone",
+                        "channel" : "text_message",
                         "subject" : "Action required",
                         "body" : "please visit http://your-bank.com"  
                     }
@@ -286,7 +289,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { contentType(MediaType.APPLICATION_JSON) }
                     content { jsonPath("$.subject") { value("Action required") } }
                     content { jsonPath("$.sender.phoneNumber") { value("011-765352") } }
-                    content { jsonPath("$.channel") { value("TELEPHONE") } }
+                    content { jsonPath("$.channel") { value("TEXT_MESSAGE") } }
                     content { jsonPath("$.body") { value("please visit http://your-bank.com") } }
                 }
                 val list = contactRepository.findAllByTelephone("011-765352", pageable = PageRequest.of(0,10))
@@ -298,7 +301,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                         "sender":{
                             "phoneNumber": "+39 011765352"
                         },
-                        "channel" : "teLepHonE",
+                        "channel" : "tExt_MesSagE",
                         "subject" : "Action required",
                         "body" : "please visit http://your-bank.com"  
                     }
@@ -311,7 +314,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { contentType(MediaType.APPLICATION_JSON) }
                     content { jsonPath("$.subject") { value("Action required") } }
                     content { jsonPath("$.sender.phoneNumber") { value("+39 011765352") } }
-                    content { jsonPath("$.channel") { value("TELEPHONE") } }
+                    content { jsonPath("$.channel") { value("TEXT_MESSAGE") } }
                     content { jsonPath("$.body") { value("please visit http://your-bank.com") } }
                 }
 
@@ -329,7 +332,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                         "sender":{
                             "phoneNumber": "011-765352"
                         },
-                        "channel" : "TELEPHONE",
+                        "channel" : "TEXT_MESSAGE",
                         "subject" : "Action required",
                         "body" : "please visit http://your-bank.com"  
                     }
@@ -342,7 +345,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { contentType(MediaType.APPLICATION_JSON) }
                     content { jsonPath("$.subject") { value("Action required") } }
                     content { jsonPath("$.sender.phoneNumber") { value("011-765352") } }
-                    content { jsonPath("$.channel") { value("TELEPHONE") } }
+                    content { jsonPath("$.channel") { value("TEXT_MESSAGE") } }
                     content { jsonPath("$.body") { value("please visit http://your-bank.com") } }
                 }.andReturn().response.contentAsString).getString("id")
                 val message_2 =
@@ -351,7 +354,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                         "sender":{
                             "phoneNumber": "011-765352"
                         },
-                        "channel" : "telephone",
+                        "channel" : "phone_call",
                         "subject" : "Action required x 2",
                         "body" : "please visit http://your-bank.com"  
                     }
@@ -364,7 +367,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { contentType(MediaType.APPLICATION_JSON) }
                     content { jsonPath("$.subject") { value("Action required x 2") } }
                     content { jsonPath("$.sender.phoneNumber") { value("011-765352") } }
-                    content { jsonPath("$.channel") { value("TELEPHONE") } }
+                    content { jsonPath("$.channel") { value("PHONE_CALL") } }
                     content { jsonPath("$.body") { value("please visit http://your-bank.com") } }
 
                 }.andReturn().response.contentAsString).getString("id")
@@ -389,7 +392,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                            
                         },
     
-                        "channel" : "dwelling",
+                        "channel" : "postal_mail",
                         "subject" : "Raccomandata",
                         "body" : "Gentile x, la contatto in merito..."  
                     }
@@ -403,7 +406,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { jsonPath("$.subject") { value("Raccomandata") } }
                     content { jsonPath("$.sender.street") { value("Via Roma") } }
                     content { jsonPath("$.sender.city") { value("Torino") } }
-                    content { jsonPath("$.channel") { value("DWELLING") } }
+                    content { jsonPath("$.channel") { value("POSTAL_MAIL") } }
                     content { jsonPath("$.body") { value("Gentile x, la contatto in merito...") } }
                 }
                 val message_2 =
@@ -413,7 +416,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                             "street": "Via Roma",
                             
                         },
-                         "channel" : "dwelling",
+                         "channel" : "postal_mail",
                         "subject" : "Raccomandata",
                         "body" : "Gentile x, la contatto in merito..."  
                     }
@@ -438,7 +441,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                             "city": "Torino"
                         
                         },
-                         "channel" : "dwelling",
+                         "channel" : "postal_mail",
                         "subject" : "Raccomandata",
                         "body" : "Gentile x, la contatto in merito..."  
                     }
@@ -452,7 +455,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { jsonPath("$.subject") { value("Raccomandata") } }
                     content { jsonPath("$.sender.street") { value("Via Roma") } }
                     content { jsonPath("$.sender.city") { value("Torino") } }
-                    content { jsonPath("$.channel") { value("DWELLING") } }
+                    content { jsonPath("$.channel") { value("POSTAL_MAIL") } }
                     content { jsonPath("$.body") { value("Gentile x, la contatto in merito...") } }
                 }.andReturn().response.contentAsString).getString("id")
 
@@ -466,7 +469,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                             "country": "Italy"
                          
                         },
-                        "channel" : "dwelling",
+                        "channel" : "postal_mail",
                         "subject" : "Raccomandata",
                         "body" : "Gentile x, la contatto in merito..."  
                     }
@@ -482,7 +485,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                     content { jsonPath("$.sender.city") { value("Torino") } }
                     content { jsonPath("$.sender.country").doesNotExist() }  //there is already an address incomplete with the same street and district
                     content { jsonPath("$.sender.district").doesNotExist() }
-                    content { jsonPath("$.channel") { value("DWELLING") } }
+                    content { jsonPath("$.channel") { value("POSTAL_MAIL") } }
                     content { jsonPath("$.body") { value("Gentile x, la contatto in merito...") } }
                 }.andReturn().response.contentAsString).getString("id")
                 assertEquals(
@@ -589,7 +592,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                       
                         },
     
-                        "channel" : "dwelling",
+                        "channel" : "postal_mail",
                         "subject" : "Raccomandata",
                         "body" : "Gentile x, la contatto in merito..."  
                     }
@@ -607,7 +610,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                             "street": "Via Roma",
                             "city":"To"
                         },
-                         "channel" : "dwelling",
+                         "channel" : "postal_mail",
                         "subject" : "",
                         "body" : ""  
                     }
@@ -635,7 +638,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                         
                         },
     
-                        "channel" : "dwelling",
+                        "channel" : "postal_mail",
                         "subject" : "Raccomandata",
                         "body" : "Gentile x, la contatto in merito..."  
                     }
