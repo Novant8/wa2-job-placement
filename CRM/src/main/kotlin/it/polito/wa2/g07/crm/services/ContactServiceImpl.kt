@@ -113,7 +113,7 @@ class ContactServiceImpl(
             throw DuplicateAddressException("The given address is already associated with the contact #$contactId")
         }
 
-        deleteAddress(contact, address, address.addressType)
+        deleteAddress(contact, address, addressDTO.addressType)
         return insertAddress(contact, addressDTO)
     }
 

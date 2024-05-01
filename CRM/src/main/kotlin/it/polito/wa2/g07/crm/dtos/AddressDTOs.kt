@@ -38,7 +38,7 @@ fun AddressResponseDTO.toAddressDTO(): AddressDTO {
 }
 
 data class EmailDTO(
-    @field:NotBlank
+    @field:NotBlank(message = "Email must not be blank")
     @field:jakarta.validation.constraints.Email(message = "must be a valid email")
     val email: String
 ) : AddressDTO() {
@@ -50,7 +50,7 @@ data class EmailDTO(
     }
 }
 data class TelephoneDTO(
-    @field:NotBlank
+    @field:NotBlank(message = "Telephone must not be blank")
     @field:Pattern(
         regexp = "(\\+[0-9]{1,3}\\s)?([0-9\\s-]+)",
         message = "must be a valid phone number"
@@ -67,18 +67,18 @@ data class TelephoneDTO(
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class DwellingDTO(
-    @field:NotBlank
+    @field:NotBlank(message = "Street must not be blank")
     val street: String,
 
-    @field:NotBlank
+    @field:NotBlank(message = "City must not be blank")
     val city: String,
 
     // Can be null but not blank
-    @field:Pattern(regexp = "^(?!\\s*$).+", message = "must not be blank")
+    @field:Pattern(regexp = "^(?!\\s*$).+", message = "District must not be blank")
     val district: String?,
 
     // Can be null but not blank
-    @field:Pattern(regexp = "^(?!\\s*$).+", message = "must not be blank")
+    @field:Pattern(regexp = "^(?!\\s*$).+", message = "Country must not be blank")
     val country: String?
 ) : AddressDTO() {
     override val addressType: AddressType

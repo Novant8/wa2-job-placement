@@ -7,16 +7,16 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 
 data class CreateContactDTO(
-    @field:NotNull
-    @field:NotBlank
+    @field:NotNull(message = "Name must not be null ")
+    @field:NotBlank (message = "Name must not be blank ")
     val name: String?,
 
-    @field:NotNull
-    @field:NotBlank
+    @field:NotNull(message = "Surname must not be null ")
+    @field:NotBlank(message = "Surname must not be blank ")
     val surname: String?,
 
-    @field:NotNull
-    @field:NotBlank
+    @field:NotNull(message = "Category must not be null ")
+    @field:NotBlank(message = "Category must not be blank ")
     val category: String?,
 
     // Can be null but not blank
