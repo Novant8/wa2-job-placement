@@ -24,6 +24,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 
+
 @WebMvcTest(MessageController::class)
 class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
 
@@ -35,7 +36,12 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
     private val mockInvalidDwellingDTO = DwellingDTO("","","","")
     private val mockTelephoneDTO = TelephoneDTO("34242424242")
     private val mockDwellingDTO = DwellingDTO("Via Roma, 18", "Torino", "TO", "IT")
-    private val mockMessageEventDTO = MessageEventDTO(MessageStatus.RECEIVED, LocalDateTime.now(), "test comment")
+    private val mockMessageEventDTO = MessageEventDTO(MessageStatus.RECEIVED, LocalDateTime.now(), "received")
+    private val mockMessageEventDTO_read = MessageEventDTO(MessageStatus.READ, null, "read")
+    private val mockMessageEventDTO_discarded = MessageEventDTO(MessageStatus.DISCARDED, null, "discarded")
+    private val mockMessageEventDTO_processing = MessageEventDTO(MessageStatus.PROCESSING, null, "processing")
+    private val mockMessageEventDTO_done = MessageEventDTO(MessageStatus.DONE, null, "done")
+    private val mockMessageEventDTO_failed = MessageEventDTO(MessageStatus.FAILED, null, "failed")
     private val mockMessageDTO1 = MessageDTO(
         1,
         mockEmailDTO,
@@ -309,6 +315,13 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
                         mockMessageDTO1.lastEvent
                     )
                 }
+                every { messageService.updateStatus(any(Long::class),any(MessageEventDTO::class) )} answers {
+                    MessageEventDTO(
+                        mockMessageEventDTO_read.status,
+                        mockMessageEventDTO_read.timestamp,
+                        mockMessageEventDTO_read.comments
+                    )
+                }
             }
 
             @Test
@@ -436,6 +449,43 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
                         status { isUnprocessableEntity() }
                     }
             }
+            @Test
+            fun changeMessageState_success(){
+                val messageId=mockMessageDTO1.id
+                val newState= mockMessageEventDTO_read
+                mockMvc
+                    .post("/API/messages/$messageId")
+                {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(newState)
+                }
+                    .andExpect {
+                        status { isCreated() }
+                        content {
+                            jsonPath("$.status") { value(newState.status.toString()) }
+
+                        }
+                    }
+
+
+            }
+            @Test
+            fun changeMessageState_InvalidState(){
+                val messageId=mockMessageDTO1.id
+                val newState= "not valid"
+                mockMvc
+                    .post("/API/messages/$messageId")
+                    {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper().writeValueAsString(newState)
+                    }
+                    .andExpect {
+                        status { isBadRequest() }
+
+                    }
+
+
+            }
         }
     }
     @Nested
@@ -452,6 +502,13 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
                     mockMessageDTO2.priority,
                     mockMessageDTO2.creationTimestamp,
                     mockMessageDTO2.lastEvent
+                )
+            }
+            every { messageService.updateStatus(any(Long::class),any(MessageEventDTO::class) )} answers {
+                MessageEventDTO(
+                    mockMessageEventDTO_done.status,
+                    mockMessageEventDTO_done.timestamp,
+                    mockMessageEventDTO_done.comments
                 )
             }
         }
@@ -581,6 +638,43 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
                     status { isUnprocessableEntity() }
                 }
         }
+        @Test
+        fun changeMessageState_success(){
+            val messageId=mockMessageDTO2.id
+            val newState= mockMessageEventDTO_done
+            mockMvc
+                .post("/API/messages/$messageId")
+                {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(newState)
+                }
+                .andExpect {
+                    status { isCreated() }
+                    content {
+                        jsonPath("$.status") { value(newState.status.toString()) }
+
+                    }
+                }
+
+
+        }
+        @Test
+        fun changeMessageState_InvalidState(){
+            val messageId=mockMessageDTO2.id
+            val newState= "not valid"
+            mockMvc
+                .post("/API/messages/$messageId")
+                {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(newState)
+                }
+                .andExpect {
+                    status { isBadRequest() }
+
+                }
+
+
+        }
     }
     @Nested
     inner class PostMessageTestDwelling {
@@ -596,6 +690,13 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
                     mockMessageDTO3.priority,
                     mockMessageDTO3.creationTimestamp,
                     mockMessageDTO3.lastEvent
+                )
+            }
+            every { messageService.updateStatus(any(Long::class),any(MessageEventDTO::class) )} answers {
+                MessageEventDTO(
+                    mockMessageEventDTO_failed.status,
+                    mockMessageEventDTO_failed.timestamp,
+                    mockMessageEventDTO_failed.comments
                 )
             }
         }
@@ -727,6 +828,44 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
                 .andExpect {
                     status { isUnprocessableEntity() }
                 }
+        }
+
+        @Test
+        fun changeMessageState_success(){
+            val messageId=mockMessageDTO3.id
+            val newState= mockMessageEventDTO_failed
+            mockMvc
+                .post("/API/messages/$messageId")
+                {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(newState)
+                }
+                .andExpect {
+                    status { isCreated() }
+                    content {
+                        jsonPath("$.status") { value(newState.status.toString()) }
+
+                    }
+                }
+
+
+        }
+        @Test
+        fun changeMessageState_InvalidState(){
+            val messageId=mockMessageDTO3.id
+            val newState= "not valid"
+            mockMvc
+                .post("/API/messages/$messageId")
+                {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(newState)
+                }
+                .andExpect {
+                    status { isBadRequest() }
+
+                }
+
+
         }
     }
 

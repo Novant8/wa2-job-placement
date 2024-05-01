@@ -177,7 +177,84 @@
 			"response": []
 		},
 		{
-			"name": "GetMessagesStatusFilter",
+			"name": "ChangeMessageStatus",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"status\":\"READ\",\r\n    \"comments\":\"read\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GestMessageById3_AfterStatusChange",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/API/messages/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetMessagesStatusFilter_RECEIVED",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/API/messages?filterBy=RECEIVED",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					],
+					"query": [
+						{
+							"key": "filterBy",
+							"value": "RECEIVED"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetMessagesStatusFilter_READ",
 			"request": {
 				"method": "GET",
 				"header": [],
