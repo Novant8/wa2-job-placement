@@ -8,6 +8,7 @@ import it.polito.wa2.g07.crm.entities.*
 import it.polito.wa2.g07.crm.exceptions.DuplicateAddressException
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
+import it.polito.wa2.g07.crm.exceptions.MessageNotFoundException
 import it.polito.wa2.g07.crm.repositories.AddressRepository
 import it.polito.wa2.g07.crm.repositories.ContactRepository
 import it.polito.wa2.g07.crm.repositories.MessageRepository
@@ -36,6 +37,9 @@ class MessageServiceTest {
 
     private val mockMessage: Message =Message("Titolo","Corpo del messaggio",mockMail,0, LocalDateTime.of(2024,1,12,5,22,3,2))
     private val mockEvent : MessageEvent = MessageEvent(mockMessage,MessageStatus.RECEIVED,LocalDateTime.of(2024,1,12,5,22,3,2),"commento")
+    private val mockEvent2 : MessageEvent = MessageEvent(mockMessage,MessageStatus.READ,LocalDateTime.of(2025,1,12,5,22,3,2),"commento")
+
+
     fun initMockMessage(){
         mockMail.id = 1L
         mockMail.email = "mario.rossi@example.org"
@@ -47,7 +51,7 @@ class MessageServiceTest {
         mockMessage.subject="Titolo"
         mockMessage.body="Corpo del messaggio"
         mockMessage.creationTimestamp=LocalDateTime.of(2024,1,12,5,22,3,2)
-        mockMessage.events= mutableSetOf(mockEvent)
+        mockMessage.events= mutableSetOf(mockEvent,mockEvent2)
     }
 
 
@@ -133,7 +137,7 @@ class MessageServiceTest {
     }
 
     @Nested
-    inner class CreateContactTests {
+    inner class CreateMessageTests {
 
         private val contactSlot = slot<Contact>()
         private val addressSlot = slot<Address>()
@@ -168,8 +172,6 @@ class MessageServiceTest {
                 )
             } returns Optional.empty()
 
-
-
         }
 
         @Test
@@ -198,9 +200,171 @@ class MessageServiceTest {
             verify (exactly = 0){ addressRepository.save(any()) }
 
         }
+        @Test
+        fun createEmailMessage_newContact() {
+            val msg = MessageCreateDTO(
+                 EmailDTO("completly.new@gmail.com"), "email", "a", "b"
+            )
+            val result = service.createMessage(msg)
+            result!!.creationTimestamp =LocalDateTime.of(2024,1,12,5,22,3,2)
+            result.lastEvent.timestamp=LocalDateTime.of(2024,1,12,5,22,3,2)
+            val expectedDTO = MessageDTO(
+                0L,
+                (msg.sender as EmailDTO),
+                AddressType.EMAIL,
+                msg.subject,
+                msg.body,
+                0,
+                LocalDateTime.of(2024,1,12,5,22,3,2),
+                MessageEventDTO(MessageStatus.RECEIVED,LocalDateTime.of(2024,1,12,5,22,3,2))
+            )
+
+            assertEquals(result, expectedDTO)
+            verify (exactly = 1){ contactRepository.save(any()) }
+            verify (exactly = 1){ addressRepository.findMailAddressByMail(any()) }
+            verify (exactly = 1){ messageRepository.save(any()) }
+            verify (exactly = 1){ addressRepository.save(any()) }
+
+        }
+        @Test
+        fun createTelephoneMessage_newContact() {
+            val msg = MessageCreateDTO(
+                TelephoneDTO("333"), "telephone", "a", "b"
+            )
+            val result = service.createMessage(msg)
+            result!!.creationTimestamp =LocalDateTime.of(2024,1,12,5,22,3,2)
+            result.lastEvent.timestamp=LocalDateTime.of(2024,1,12,5,22,3,2)
+            val expectedDTO = MessageDTO(
+                0L,
+                (msg.sender as TelephoneDTO),
+                AddressType.TELEPHONE,
+                msg.subject,
+                msg.body,
+                0,
+                LocalDateTime.of(2024,1,12,5,22,3,2),
+                MessageEventDTO(MessageStatus.RECEIVED,LocalDateTime.of(2024,1,12,5,22,3,2))
+            )
+
+            assertEquals(result, expectedDTO)
+            verify (exactly = 1){ contactRepository.save(any()) }
+            verify (exactly = 1){ addressRepository.findTelephoneAddressByTelephoneNumber(any()) }
+            verify (exactly = 1){ messageRepository.save(any()) }
+            verify (exactly = 1){ addressRepository.save(any()) }
+
+        }
+        @Test
+        fun createDwellingMessage_newContact() {
+            val msg = MessageCreateDTO(
+                DwellingDTO("c","b","c","d"), "telephone", "a", "b"
+            )
+            val result = service.createMessage(msg)
+            result!!.creationTimestamp =LocalDateTime.of(2024,1,12,5,22,3,2)
+            result.lastEvent.timestamp=LocalDateTime.of(2024,1,12,5,22,3,2)
+            val expectedDTO = MessageDTO(
+                0L,
+                (msg.sender as DwellingDTO),
+                AddressType.DWELLING,
+                msg.subject,
+                msg.body,
+                0,
+                LocalDateTime.of(2024,1,12,5,22,3,2),
+                MessageEventDTO(MessageStatus.RECEIVED,LocalDateTime.of(2024,1,12,5,22,3,2))
+            )
+
+            assertEquals(result, expectedDTO)
+            verify (exactly = 1){ contactRepository.save(any()) }
+            verify (exactly = 1){ addressRepository.findDwellingAddressByStreet(any(),any(),any(),any()) }
+            verify (exactly = 1){ messageRepository.save(any()) }
+            verify (exactly = 1){ addressRepository.save(any()) }
+
+        }
 
 
     }
 
+    @Nested
+    inner class UpdateStatus{
+        //private val mockEvent : MessageEvent = MessageEvent(mockMessage,MessageStatus.RECEIVED,LocalDateTime.of(2024,1,12,5,22,3,2),"commento")
+        private val messageSlot = slot<Message>()
+        @BeforeEach
+        fun initMocks() {
+            every { messageRepository.save(capture(messageSlot)) } answers { firstArg<Message>() }
+            every { messageRepository.findById(any()) } returns Optional.of(mockMessage)
+            every { messageRepository.getLastEventByMessageId(any()) } returns mockEvent2
+        }
+
+        @Test
+        fun addNewState(){
+            val time = LocalDateTime.of(2026,1,12,5,22,3,2)
+            val newStatus = MessageEventDTO(MessageStatus.PROCESSING,time,"commento")
+            val result = service.updateStatus(mockMessage.messageID,newStatus)
+            assertEquals(result,newStatus)
+            verify(exactly = 1) { messageRepository.findById(any()) }
+            //verify(exactly = 1) { messageRepository.save(any()) }
+
+        }
+        @Test
+        fun addNewStateWrong(){
+            val time = LocalDateTime.of(2024,1,12,5,22,3,2)
+            val newStatus = MessageEventDTO(MessageStatus.RECEIVED,time,"commento")
+            assertThrows<InvalidParamsException> {
+                val result = service.updateStatus(mockMessage.messageID,newStatus)
+            }
+            verify(exactly = 1) { messageRepository.findById(any()) }
+            verify { messageRepository.save(any()) wasNot called }
+        }
+    }
+
+    @Nested
+    inner class History{
+
+        private val pageImpl = PageImpl(mockMessage.events.toList())
+        private val pageReq = PageRequest.of(0, 10)
+        private val messageSlot = slot<Message>()
+        @BeforeEach
+        fun initMocks() {
+            every { messageRepository.save(capture(messageSlot)) } answers { firstArg<Message>() }
+            every { messageRepository.findById(any()) } returns Optional.of(mockMessage)
+            every { messageRepository.getEventsByMessageID(any(),any()) } returns pageImpl
+        }
+
+        @Test
+        fun getHistory(){
+           val result= service.getHistory(1L,pageReq)
+            val expectedResult = pageImpl.map { it.toMessageEventDTO() }
+            assertEquals(result,expectedResult)
+        }
+
+    }
+
+    @Nested
+    inner class changePriority{
+        private val pageReq = PageRequest.of(0, 10)
+        private val messageSlot = slot<Message>()
+        @BeforeEach
+        fun initMocks() {
+            every { messageRepository.save(capture(messageSlot)) } answers { firstArg<Message>() }
+            every { messageRepository.findById(mockMessage.messageID) } returns Optional.of(mockMessage)
+            every { messageRepository.findById(1000L) } returns Optional.empty()
+        }
+
+        @Test
+        fun setPriority(){
+            val result= service.changePriority(mockMessage.messageID,10)
+            mockMessage.priority=10
+            val expected = mockMessage.toMessageDTO()
+            assertEquals(result,expected)
+        }
+        @Test
+        fun setPriority_msgNotFound(){
+
+            assertThrows<MessageNotFoundException> {
+                val result= service.changePriority(1000L,100)
+            }
+            verify(exactly = 1) { messageRepository.findById(any()) }
+            verify { messageRepository.save(any()) wasNot called }
+        }
+
+    }
 
     }
