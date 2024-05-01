@@ -16,6 +16,9 @@ sealed class AddressDTO {
     val id:Long?=0
     @get:JsonIgnore
     abstract val addressType: AddressType
+    @get:JsonIgnore
+    abstract val compatibleChannels: List<MessageChannel>
+
     abstract fun toEntity(): Address
 }
 
@@ -45,6 +48,9 @@ data class EmailDTO(
     override val addressType: AddressType
         get() = AddressType.EMAIL
 
+    override val compatibleChannels: List<MessageChannel>
+        get() = listOf(MessageChannel.EMAIL)
+
     override fun toEntity(): Email {
         return Email(this.email)
     }
@@ -59,6 +65,9 @@ data class TelephoneDTO(
 ) : AddressDTO() {
     override val addressType: AddressType
         get() = AddressType.TELEPHONE
+
+    override val compatibleChannels: List<MessageChannel>
+        get() = listOf(MessageChannel.TEXT_MESSAGE, MessageChannel.PHONE_CALL)
 
     override fun toEntity(): Telephone {
         return Telephone(this.phoneNumber)
@@ -83,6 +92,9 @@ data class DwellingDTO(
 ) : AddressDTO() {
     override val addressType: AddressType
         get() = AddressType.DWELLING
+
+    override val compatibleChannels: List<MessageChannel>
+        get() = listOf(MessageChannel.POSTAL_MAIL)
 
     override fun toEntity(): Address {
         return Dwelling(this.street, this.city, this.district, this.country)
