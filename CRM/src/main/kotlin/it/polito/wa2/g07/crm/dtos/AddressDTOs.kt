@@ -1,9 +1,6 @@
 package it.polito.wa2.g07.crm.dtos
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.*
 import it.polito.wa2.g07.crm.entities.*
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
@@ -15,6 +12,8 @@ import jakarta.validation.constraints.Pattern
     JsonSubTypes.Type(value = DwellingDTO::class)
 )
 sealed class AddressDTO {
+    @get:JsonIgnore
+    val id:Long?=0
     @get:JsonIgnore
     abstract val addressType: AddressType
     abstract fun toEntity(): Address
@@ -50,7 +49,6 @@ data class EmailDTO(
         return Email(this.email)
     }
 }
-
 data class TelephoneDTO(
     @field:NotBlank
     @field:Pattern(

@@ -1,10 +1,12 @@
 package it.polito.wa2.g07.crm.controllers
 
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
 import it.polito.wa2.g07.crm.exceptions.*
 import org.springframework.web.bind.annotation.ExceptionHandler
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.exceptions.MessageNotFoundException
 import org.springframework.http.*
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.WebRequest
@@ -32,6 +34,11 @@ class ProblemDetailsHandler: ResponseEntityExceptionHandler() {
     @ExceptionHandler(DuplicateAddressException::class)
     fun handleContactNotFound (e: DuplicateAddressException)=
         ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,e.message!!)
+
+    @ExceptionHandler(UnrecognizedPropertyException::class)
+    fun handleUnrecognizedProperty (e: UnrecognizedPropertyException)=
+       ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY,e.message!!)
+
 
     override fun handleMethodArgumentNotValid(
         ex: MethodArgumentNotValidException,

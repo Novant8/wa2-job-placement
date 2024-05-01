@@ -14,7 +14,8 @@ import org.springframework.data.domain.Page
 
 import it.polito.wa2.g07.crm.repositories.*
 import it.polito.wa2.g07.crm.services.ContactServiceImpl.Companion.logger
-import jakarta.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
+
 
 import java.time.LocalDateTime
 
