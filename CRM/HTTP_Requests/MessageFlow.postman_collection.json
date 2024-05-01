@@ -505,6 +505,36 @@
 			"response": []
 		},
 		{
+			"name": "ChangeMessageStatus_invalidState",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"status\":\"not valid\",\r\n    \"comments\":\"read\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "GetMessagesStatusFilter_emptyFilter",
 			"request": {
 				"method": "GET",
