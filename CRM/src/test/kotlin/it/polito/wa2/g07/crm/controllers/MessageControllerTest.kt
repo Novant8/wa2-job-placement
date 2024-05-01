@@ -37,11 +37,9 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
     private val mockTelephoneDTO = TelephoneDTO("34242424242")
     private val mockDwellingDTO = DwellingDTO("Via Roma, 18", "Torino", "TO", "IT")
     private val mockMessageEventDTO = MessageEventDTO(MessageStatus.RECEIVED, LocalDateTime.now(), "received")
-    private val mockMessageEventDTO_read = MessageEventDTO(MessageStatus.READ, null, "read")
-    private val mockMessageEventDTO_discarded = MessageEventDTO(MessageStatus.DISCARDED, null, "discarded")
-    private val mockMessageEventDTO_processing = MessageEventDTO(MessageStatus.PROCESSING, null, "processing")
-    private val mockMessageEventDTO_done = MessageEventDTO(MessageStatus.DONE, null, "done")
-    private val mockMessageEventDTO_failed = MessageEventDTO(MessageStatus.FAILED, null, "failed")
+    private val mockMessageEventDTORead = MessageEventDTO(MessageStatus.READ, null, "read")
+    private val mockMessageEventDTODone = MessageEventDTO(MessageStatus.DONE, null, "done")
+    private val mockMessageEventDTOFailed = MessageEventDTO(MessageStatus.FAILED, null, "failed")
     private val mockMessageDTO1 = MessageDTO(
         1,
         mockEmailDTO,
@@ -317,9 +315,9 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
                 }
                 every { messageService.updateStatus(any(Long::class),any(MessageEventDTO::class) )} answers {
                     MessageEventDTO(
-                        mockMessageEventDTO_read.status,
-                        mockMessageEventDTO_read.timestamp,
-                        mockMessageEventDTO_read.comments
+                        mockMessageEventDTORead.status,
+                        mockMessageEventDTORead.timestamp,
+                        mockMessageEventDTORead.comments
                     )
                 }
             }
@@ -452,7 +450,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
             @Test
             fun changeMessageState_success(){
                 val messageId=mockMessageDTO1.id
-                val newState= mockMessageEventDTO_read
+                val newState= mockMessageEventDTORead
                 mockMvc
                     .post("/API/messages/$messageId")
                 {
@@ -506,9 +504,9 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
             }
             every { messageService.updateStatus(any(Long::class),any(MessageEventDTO::class) )} answers {
                 MessageEventDTO(
-                    mockMessageEventDTO_done.status,
-                    mockMessageEventDTO_done.timestamp,
-                    mockMessageEventDTO_done.comments
+                    mockMessageEventDTODone.status,
+                    mockMessageEventDTODone.timestamp,
+                    mockMessageEventDTODone.comments
                 )
             }
         }
@@ -641,7 +639,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         @Test
         fun changeMessageState_success(){
             val messageId=mockMessageDTO2.id
-            val newState= mockMessageEventDTO_done
+            val newState= mockMessageEventDTODone
             mockMvc
                 .post("/API/messages/$messageId")
                 {
@@ -694,9 +692,9 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
             }
             every { messageService.updateStatus(any(Long::class),any(MessageEventDTO::class) )} answers {
                 MessageEventDTO(
-                    mockMessageEventDTO_failed.status,
-                    mockMessageEventDTO_failed.timestamp,
-                    mockMessageEventDTO_failed.comments
+                    mockMessageEventDTOFailed.status,
+                    mockMessageEventDTOFailed.timestamp,
+                    mockMessageEventDTOFailed.comments
                 )
             }
         }
@@ -833,7 +831,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         @Test
         fun changeMessageState_success(){
             val messageId=mockMessageDTO3.id
-            val newState= mockMessageEventDTO_failed
+            val newState= mockMessageEventDTOFailed
             mockMvc
                 .post("/API/messages/$messageId")
                 {
