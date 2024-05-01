@@ -1,0 +1,628 @@
+{
+	"info": {
+		"_postman_id": "be992447-890d-4594-bd10-839b9036f20b",
+		"name": "MessageFlow",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31111111"
+	},
+	"item": [
+		{
+			"name": "CreateMessageEmail",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"email\": \"testmail@test.com\"\r\n                        },\r\n                        \"channel\" : \"EMAIL\",\r\n                        \"subject\" : \"Update about you job position\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateMessageTelephone",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"phoneNumber\": \"011-765352\"\r\n                        },\r\n                        \"channel\" : \"TELEPHONE\",\r\n                        \"subject\" : \"Action required\",\r\n                        \"body\" : \"please visit http://your-bank.com\"  \r\n                    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateMessageDwelling",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"street\" : \"Via Roma, 18\",\r\n                            \"city\":\"Torino\",\r\n                            \"district\": \"TO\",\r\n                            \"country\":\"IT\"\r\n                        },\r\n                        \"channel\" : \"DWELLING\",\r\n                        \"subject\" : \"Confirmation on your job interview\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetAllMessages",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/API/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GestMessageById1",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/API/messages/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GestMessageById2",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/API/messages/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GestMessageById3",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/API/messages/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetMessagesStatusFilter",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/API/messages?filterBy=RECEIVED",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					],
+					"query": [
+						{
+							"key": "filterBy",
+							"value": "RECEIVED"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GestMessage_StateHistory",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/API/messages/1/history",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages",
+						"1",
+						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateMessageWrongChannelType",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"email\": \"testmail@test.com\"\r\n                        },\r\n                        \"channel\" : \"TELEPHONE\",\r\n                        \"subject\" : \"Update about you job position\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateMessageEmptySubject",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"email\": \"testmail@test.com\"\r\n                        },\r\n                        \"channel\" : \"EMAIL\",\r\n                        \"subject\" : \"\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateMessageEmptyBody",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"email\": \"testmail@test.com\"\r\n                        },\r\n                        \"channel\" : \"TELEPHONE\",\r\n                        \"subject\" : \"Update about you job position\",\r\n                        \"body\" : \"\"  \r\n                    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateMessageEmptyChannel",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"email\": \"testmail@test.com\"\r\n                        },\r\n                        \"channel\" : \"\",\r\n                        \"subject\" : \"Update about you job position\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateMessageInvalidSender_email",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"email\": \"not valid\"\r\n                        },\r\n                        \"channel\" : \"EMAIL\",\r\n                        \"subject\" : \"Update about you job position\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateMessageInvalidSender_telephone",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"phoneNumber\": \"not valid\"\r\n                        },\r\n                        \"channel\" : \"TELEPHONE\",\r\n                        \"subject\" : \"Update about you job position\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateMessageInvalidSender_dwelling",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"street\" : \"Via Roma, 18\",\r\n                            \"city\":\"Torino\",\r\n                            \"district\": \"\",\r\n                            \"country\":\"\"\r\n                        },\r\n                        \"channel\" : \"DWELLING\",\r\n                        \"subject\" : \"Confirmation on your job interview\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetMessagesStatusFilter_emptyFilter",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/API/messages?filterBy=",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					],
+					"query": [
+						{
+							"key": "filterBy",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetMessagesStatusFilter_invalidFilter",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/API/messages?filterBy=\"not valid\"",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages"
+					],
+					"query": [
+						{
+							"key": "filterBy",
+							"value": "\"not valid\""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GestMessageById_notFound",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/API/messages/2000",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages",
+						"2000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ChangeMessagePriority",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"priority\":\"2\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages/1/priority",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages",
+						"1",
+						"priority"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ChangeMessagePriority_negative",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"priority\":\"-1\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages/1/priority",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages",
+						"1",
+						"priority"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ChangeMessagePriority_blank",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"priority\":\"\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages/1/priority",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages",
+						"1",
+						"priority"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ChangeMessagePriority_messageNotFound",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"priority\":\"2\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/API/messages/40000/priority",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"API",
+						"messages",
+						"40000",
+						"priority"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
