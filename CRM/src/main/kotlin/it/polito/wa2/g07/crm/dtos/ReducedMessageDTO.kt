@@ -7,12 +7,12 @@ data class ReducedMessageDTO (
         val id: Long,
         val subject: String,
         val sender:AddressDTO,
-        val channel: String
+        val channel: MessageChannel
 )
 
 fun Message.toReducedDTO():ReducedMessageDTO{
         return ReducedMessageDTO(this.messageID,this.subject,this.sender.toAddressDTO(),
-            this.sender.addressType.toString()
+            this.channel
         )
 }
 

@@ -43,7 +43,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
     private val mockMessageDTO1 = MessageDTO(
         1,
         mockEmailDTO,
-        AddressType.EMAIL,
+        MessageChannel.EMAIL,
         "test subject",
         "test body",
         1,
@@ -54,13 +54,12 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         mockMessageDTO1.id,
         mockMessageDTO1.subject,
         mockMessageDTO1.sender,
-        mockMessageDTO1.channel.toString()
-
+        mockMessageDTO1.channel
     )
     private val mockMessageDTO2 = MessageDTO(
         2,
         mockTelephoneDTO,
-        AddressType.TELEPHONE,
+        MessageChannel.TEXT_MESSAGE,
         "test subject",
         "test body",
         2,
@@ -71,13 +70,13 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         mockMessageDTO2.id,
         mockMessageDTO2.subject,
         mockMessageDTO2.sender,
-        mockMessageDTO2.channel.toString()
+        mockMessageDTO2.channel
     )
 
     private val mockMessageDTO3 = MessageDTO(
         3,
         mockDwellingDTO,
-        AddressType.DWELLING,
+        MessageChannel.POSTAL_MAIL,
         "test subject",
         "test body",
         3,
@@ -88,7 +87,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         mockMessageDTO3.id,
         mockMessageDTO3.subject,
         mockMessageDTO3.sender,
-        mockMessageDTO3.channel.toString()
+        mockMessageDTO3.channel
     )
 
 

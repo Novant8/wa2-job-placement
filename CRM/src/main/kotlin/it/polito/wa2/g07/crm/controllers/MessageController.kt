@@ -2,10 +2,8 @@ package it.polito.wa2.g07.crm.controllers
 
 
 import it.polito.wa2.g07.crm.dtos.*
-import it.polito.wa2.g07.crm.entities.AddressType
 import it.polito.wa2.g07.crm.entities.MessageStatus
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
-import it.polito.wa2.g07.crm.services.ContactService
 import it.polito.wa2.g07.crm.services.MessageService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
@@ -42,12 +40,12 @@ class MessageController (private val messageService: MessageService
     @PostMapping("","/", )
     fun createNewMessage(@RequestBody @Valid  msg: MessageCreateDTO):MessageDTO?{
        // sender, channel, subject, body
-        try {
-            AddressType.valueOf(msg.channel.uppercase())
-        }catch (e : IllegalArgumentException) {
-            throw InvalidParamsException("'$msg.channel' is not a valid address channel. Possible filters: ${AddressType.entries}.")
+        val channel = try {
+            MessageChannel.valueOf(msg.channel.uppercase())
+        } catch (e : IllegalArgumentException) {
+            throw InvalidParamsException("'${msg.channel}' is not a valid address channel. Possible channels: ${MessageChannel.entries}.")
         }
-        if (msg.sender.addressType != AddressType.valueOf(msg.channel.toString().uppercase())){
+        if (!msg.sender.compatibleChannels.contains(channel)){
             throw InvalidParamsException("Sender's fields are incompatible with channel type")
         }
          return messageService.createMessage(msg)
