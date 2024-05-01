@@ -26,6 +26,7 @@ fun MessageCreateDTO.toEntity() : Message {
          this.subject,
          this.body,
          this.sender.toEntity(),
+         MessageChannel.valueOf(this.channel)
      )
 
     return message
