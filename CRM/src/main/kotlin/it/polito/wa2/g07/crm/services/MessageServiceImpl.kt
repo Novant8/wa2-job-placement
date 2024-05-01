@@ -14,7 +14,7 @@ import org.springframework.data.domain.Page
 
 import it.polito.wa2.g07.crm.repositories.*
 import it.polito.wa2.g07.crm.services.ContactServiceImpl.Companion.logger
-import jakarta.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 import java.time.LocalDateTime
 
@@ -26,8 +26,7 @@ class MessageServiceImpl(
     private val contactRepository: ContactRepository,
     ):MessageService {
 
-
-    @Transactional
+    @Transactional(readOnly = true)
     override fun getMessage(messageID: Long): MessageDTO? {
         val msg=  messageRepository.findById(messageID)
         if (msg.isEmpty) {
@@ -37,7 +36,8 @@ class MessageServiceImpl(
         logger.info("Message found")
         return msg.get().toMessageDTO()
     }
-    @Transactional
+
+    @Transactional(readOnly = true)
     override fun getMessages(filterBy: List<MessageStatus>?, pageable: Pageable): Page<ReducedMessageDTO>{
 
         val result = when (filterBy) {
@@ -48,6 +48,7 @@ class MessageServiceImpl(
 
         return result.map { m->m.toReducedDTO(); }
     }
+
     @Transactional
     override fun createMessage(msg: MessageCreateDTO) : MessageDTO? {
 
@@ -124,7 +125,6 @@ class MessageServiceImpl(
 
     }
 
-
     private fun checkNewStatusValidity(new_status:MessageStatus, old_status:MessageStatus):Boolean{
         //check if the new state is reachable starting from the actual status
 
@@ -140,7 +140,7 @@ class MessageServiceImpl(
     }
 
     @Transactional
-   override fun updateStatus(id_msg : Long, event_data: MessageEventDTO): MessageEventDTO? {
+    override fun updateStatus(id_msg : Long, event_data: MessageEventDTO): MessageEventDTO? {
 
        val result = messageRepository.findById(id_msg)
        val old_status = messageRepository.getLastEventByMessageId(id_msg)
@@ -165,6 +165,8 @@ class MessageServiceImpl(
        msg.addEvent(m_event)
         return m_event.toMessageEventDTO()
    }
+
+    @Transactional(readOnly = true)
     override fun getHistory(id_msg: Long, pageable: Pageable): Page<MessageEventDTO> {
         if (messageRepository.findById(id_msg).isEmpty){
             logger.info("Message NOT found")
@@ -173,6 +175,8 @@ class MessageServiceImpl(
         logger.info("Message found")
         return messageRepository.getEventsByMessageID(id_msg,pageable).map { it.toMessageEventDTO() }
     }
+
+    @Transactional
     override fun changePriority(messageId: Long,priority:Int): MessageDTO?{
         val message = messageRepository.findById(messageId)
         if (message.isEmpty){
