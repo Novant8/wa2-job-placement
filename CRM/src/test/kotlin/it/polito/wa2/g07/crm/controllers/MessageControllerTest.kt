@@ -29,6 +29,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
     @MockkBean
     private lateinit var messageService: MessageService
     private val mockEmailDTO = EmailDTO("mario.rossi@example.org")
+    private val mockInvalidEmailDTO = EmailDTO("I'm not valid")
     private val mockTelephoneDTO = TelephoneDTO("34242424242")
     private val mockDwellingDTO = DwellingDTO("Via Roma, 18", "Torino", "TO", "IT")
     private val mockMessageEventDTO = MessageEventDTO(MessageStatus.RECEIVED, LocalDateTime.now(), "test comment")
@@ -290,11 +291,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
                     mockMessageDTO1.priority,
                     mockMessageDTO1.creationTimestamp,
                     mockMessageDTO1.lastEvent
-
-
                 )
-
-
             }
         }
 
@@ -327,7 +324,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
 
 
         @Test
-        fun createMessage_wrongchannelType() {
+        fun createMessage_wrongChannelType() {
             val createMessageDTO = MessageCreateDTO(
                 mockEmailDTO,
                 AddressType.TELEPHONE.toString(),
@@ -343,6 +340,80 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
                 .andExpect {
                     status { isBadRequest() }
 
+                }
+        }
+        @Test
+        fun createMessage_EmptySubject() {
+            val createMessageDTO = MessageCreateDTO(
+                mockEmailDTO,
+                AddressType.EMAIL.toString(),
+                "",
+                "test body"
+            )
+            mockMvc
+                .post("/API/messages")
+                {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(createMessageDTO)
+                }
+                .andExpect {
+                    status { isUnprocessableEntity() }
+
+                }
+        }
+        @Test
+        fun createMessage_EmptyBody() {
+            val createMessageDTO = MessageCreateDTO(
+                mockEmailDTO,
+                AddressType.EMAIL.toString(),
+                "test subject",
+                ""
+            )
+            mockMvc
+                .post("/API/messages")
+                {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(createMessageDTO)
+                }
+                .andExpect {
+                    status { isUnprocessableEntity() }
+
+                }
+        }
+        @Test
+        fun createMessage_EmptyChannel() {
+            val createMessageDTO = MessageCreateDTO(
+                mockEmailDTO,
+                "",
+                "test subject",
+                "test body"
+            )
+            mockMvc
+                .post("/API/messages")
+                {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(createMessageDTO)
+                }
+                .andExpect {
+                    status { isUnprocessableEntity() }
+                }
+        }
+        @Test
+        fun createMessage_InvalidSender() {
+            val createMessageDTO = MessageCreateDTO(
+                mockInvalidEmailDTO ,
+                AddressType.EMAIL.toString(),
+                "test subject",
+                "test body"
+            )
+            mockMvc
+                .post("/API/messages")
+                {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(createMessageDTO)
+                }
+                .andExpect {
+                    status { isUnprocessableEntity() }
                 }
         }
     }
