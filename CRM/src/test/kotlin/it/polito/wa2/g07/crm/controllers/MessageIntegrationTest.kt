@@ -736,6 +736,8 @@ class MessageIntegrationTest:CrmApplicationTests() {
             }
         }
 
+
+
         @Test
         fun getMessageHistory() {
             mockMvc.get("/API/messages/1010543/history").andExpect {
@@ -763,70 +765,109 @@ class MessageIntegrationTest:CrmApplicationTests() {
                 content { jsonPath("$.content[1].status") { value("READ") } }
                 content { jsonPath("$.content[0].status") { value("PROCESSING") } }
             }
-            @Test
-            fun postMessageHistoryValid() {
-                mockMvc.post("/API/messages/$msg1_id") {
-                    content = """{"status":"READ","comments":"Read immediatly"}""""
-                    contentType = MediaType.APPLICATION_JSON
-                }.andExpect {
-                    status { isCreated() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    content { jsonPath("$.status") { value("READ") } }
-                    content { jsonPath("$.timestamp").exists() }
-                    content { jsonPath("$.comments") { value("Read immediatly") } }
-                }
 
-                mockMvc.post("/API/messages/$msg1_id") {
-                    content = """{"status":"DONE"}""""
-                    contentType = MediaType.APPLICATION_JSON
-                }.andExpect {
-                    status { isCreated() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    content { jsonPath("$.status") { value("DONE") } }
-                    content { jsonPath("$.timestamp").exists() }
-                    content { jsonPath("$.comments").doesNotExist() }
-                }
-
-                mockMvc.get("/API/messages/$msg1_id/history").andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    content { jsonPath("$.totalElements") { value(3) } }
-                    content { jsonPath("$.content[2].status") { value("RECEIVED") } }
-                    content { jsonPath("$.content[1].status") { value("READ") } }
-                    content { jsonPath("$.content[0].status") { value("DONE") } }
-                }
-
-
+        }
+        @Test
+        fun postMessageHistoryValid() {
+            mockMvc.post("/API/messages/$msg1_id") {
+                content = """{"status":"READ","comments":"Read immediatly"}""""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isCreated() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.status") { value("READ") } }
+                content { jsonPath("$.timestamp").exists() }
+                content { jsonPath("$.comments") { value("Read immediatly") } }
             }
 
-            @Test
-            fun postMessageHistoryInvalid() {
-                mockMvc.post("/API/messages/435643653") {
-                    content = """{"status":"READ","comments":"Read immediatly"}""""
-                    contentType = MediaType.APPLICATION_JSON
-                }.andExpect {
-                    status { isNotFound() }
-                }
+            mockMvc.post("/API/messages/$msg1_id") {
+                content = """{"status":"DONE"}""""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isCreated() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.status") { value("DONE") } }
+                content { jsonPath("$.timestamp").exists() }
+                content { jsonPath("$.comments").doesNotExist() }
+            }
 
-                mockMvc.post("/API/messages/$msg1_id") {
-                    content = """{"status":"Read","comments":"Read immediatly"}""""
-                    contentType = MediaType.APPLICATION_JSON
-                }.andExpect {
-                    status { isBadRequest() }
-                    content { contentType(MediaType.APPLICATION_PROBLEM_JSON) }
-                    content { jsonPath("$.detail") { value("Failed to read request") } }
-                }
+            mockMvc.get("/API/messages/$msg1_id/history").andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.totalElements") { value(3) } }
+                content { jsonPath("$.content[2].status") { value("RECEIVED") } }
+                content { jsonPath("$.content[1].status") { value("READ") } }
+                content { jsonPath("$.content[0].status") { value("DONE") } }
+            }
 
-                mockMvc.post("/API/messages/$msg1_id") {
-                    content = """{"status":"FAILED","comments":"Read immediatly"}""""
-                    contentType = MediaType.APPLICATION_JSON
-                }.andExpect {
-                    status { isBadRequest() }
-                    content { contentType(MediaType.APPLICATION_PROBLEM_JSON) }
-                    content { jsonPath("$.detail") { value("The status cannot be assigned to the message") } }
-                }
+
+        }
+
+        @Test
+        fun postMessageHistoryInvalid() {
+            mockMvc.post("/API/messages/435643653") {
+                content = """{"status":"READ","comments":"Read immediatly"}""""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isNotFound() }
+            }
+
+            mockMvc.post("/API/messages/$msg1_id") {
+                content = """{"status":"Read","comments":"Read immediatly"}""""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isBadRequest() }
+                content { contentType(MediaType.APPLICATION_PROBLEM_JSON) }
+                content { jsonPath("$.detail") { value("Failed to read request") } }
+            }
+
+            mockMvc.post("/API/messages/$msg1_id") {
+                content = """{"status":"FAILED","comments":"Read immediatly"}""""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isBadRequest() }
+                content { contentType(MediaType.APPLICATION_PROBLEM_JSON) }
+                content { jsonPath("$.detail") { value("The status cannot be assigned to the message") } }
             }
         }
+
+
+        @Test
+        fun postMessageHistoryWithTimestamp(){
+
+            mockMvc.post("/API/messages/$msg1_id") {
+                content = """{"status":"READ","comments":"Read immediatly","timestamp":"2019-06-14T15:50:36.0680763"}""""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isCreated() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.status") { value("READ") } }
+                content { jsonPath("$.timestamp") { value("2019-06-14T15:50:36.0680763")}}
+                content { jsonPath("$.comments") { value("Read immediatly") } }
+            }
+        }
+
+        @Test
+        fun postMessageHistoryWithTimestampWrong(){
+
+            mockMvc.post("/API/messages/$msg1_id") {
+                content = """{"status":"READ","comments":"Read immediatly","timestamp":"gdfgdfg"}""""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isBadRequest() }
+            }
+            mockMvc.post("/API/messages/$msg1_id") {
+                content = """{"status":"READ","comments":"Read immediatly","timestamp":""}""""
+                contentType = MediaType.APPLICATION_JSON
+            }.andExpect {
+                status { isCreated() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.status") { value("READ") } }
+                content { jsonPath("$.timestamp") .exists() }
+                content { jsonPath("$.comments") { value("Read immediatly") } }
+            }
+        }
+
 
     }
 
