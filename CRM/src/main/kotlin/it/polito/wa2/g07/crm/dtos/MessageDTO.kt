@@ -11,7 +11,7 @@ data class MessageDTO(
     val subject: String,
     val body: String,
     val priority: Int,
-    val creationTimestamp: LocalDateTime,
+    var creationTimestamp: LocalDateTime,
     val lastEvent: MessageEventDTO
 )
 
