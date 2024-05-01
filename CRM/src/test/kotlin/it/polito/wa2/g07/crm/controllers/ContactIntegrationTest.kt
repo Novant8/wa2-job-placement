@@ -14,12 +14,14 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.springframework.transaction.annotation.Transactional
 
-
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK) //just to remove IDE error on mockMvc
 @AutoConfigureMockMvc
 class ContactIntegrationTest:CrmApplicationTests() {
     @Autowired
@@ -372,7 +374,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
     }
 
     @Nested
-    inner class DeleteContactEmail {
+    open inner class DeleteContactEmail {
 
         private var contact1Id = 0L
 
@@ -381,7 +383,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
         private var email2Id = 0L
 
         @BeforeEach
-        fun init(){
+        open fun init(){
             contactRepository.deleteAll()
             addressRepository.deleteAll()
             val contact1Dto = CreateContactDTO("Test", "User", "customer",null, listOf(TelephoneDTO("435433635532424556"),EmailDTO("test.user@email.com")))
@@ -394,8 +396,34 @@ class ContactIntegrationTest:CrmApplicationTests() {
         }
         
         @Test
-        fun deleteCorrectEmail(){
+        open fun deleteCorrectEmail_singleAssociation(){
             mockMvc.perform(delete("/API/contacts/$contact1Id/email/$email1Id")).andExpect(status().isNoContent)
+
+            mockMvc.perform(get("/API/contacts/$contact1Id"))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.addresses[?(@.id == ${email1Id})]").doesNotExist())
+
+            // The mail should have been deleted from the database, as it was only associated to one contact
+            assert(!addressRepository.existsById(email1Id))
+        }
+
+        @Test
+        @Transactional
+        open fun deleteCorrectEmail_multipleAssociations() {
+            // Associate email2 to both contacts
+            val contact1 = contactRepository.findById(contact1Id).get()
+            val email2 = addressRepository.findById(email2Id).get()
+            contact1.addAddress(email2)
+            contactRepository.save(contact1)
+
+            mockMvc.perform(delete("/API/contacts/$contact1Id/email/$email2Id")).andExpect(status().isNoContent)
+
+            mockMvc.perform(get("/API/contacts/$contact1Id"))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.addresses[?(@.id == ${email2Id})]").doesNotExist())
+
+            // The mail should NOT have been deleted from the database, as it should be still associated to contact2
+            assert(addressRepository.existsById(email2Id))
         }
 
         @Test
@@ -417,7 +445,6 @@ class ContactIntegrationTest:CrmApplicationTests() {
         fun deleteEmailNotBelongingToThatUser (){
             mockMvc.perform(delete("/API/contacts/$contact1Id/email/$email2Id")).andExpect(status().isBadRequest)
         }
-
 
     }
 

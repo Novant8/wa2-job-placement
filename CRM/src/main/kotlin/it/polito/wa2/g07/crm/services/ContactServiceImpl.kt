@@ -102,6 +102,10 @@ class ContactServiceImpl(
             throw InvalidParamsException("Address with ID ${address.id} is not associated with Contact with ID ${contact.contactId}")
         }
         logger.info("Removed Address #${address.id} from Contact #${contact.contactId}.")
+        if(address.contacts.isEmpty()) {
+            addressRepository.delete(address)
+            logger.info("Deleted Address #${address.id} from the database.")
+        }
         contactRepository.save(contact)
     }
 
@@ -113,7 +117,7 @@ class ContactServiceImpl(
             throw DuplicateAddressException("The given address is already associated with the contact #$contactId")
         }
 
-        deleteAddress(contact, address, address.addressType)
+        deleteAddress(contact, address, addressDTO.addressType)
         return insertAddress(contact, addressDTO)
     }
 

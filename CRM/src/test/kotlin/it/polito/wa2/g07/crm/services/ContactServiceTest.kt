@@ -310,6 +310,7 @@ class ContactServiceTest {
                     mockDwelling.country
                 )
             } returns Optional.of(mockDwelling)
+            every { addressRepository.delete(any(Address::class)) } returns Unit
 
             every { addressRepository.findById(any(Long::class)) } returns Optional.empty()
             for (address in mockContact.addresses) {
@@ -377,7 +378,7 @@ class ContactServiceTest {
                 assertThrows<DuplicateAddressException> {
                     service.insertAddress(mockContact.contactId, address.toAddressDTO())
                 }
-                verify { contactRepository.save(any(Contact::class)) wasNot called }
+                verify(exactly = 0) { contactRepository.save(any(Contact::class)) }
             }
         }
 
@@ -386,15 +387,32 @@ class ContactServiceTest {
             assertThrows<EntityNotFoundException> {
                 service.insertAddress(mockContact.contactId + 1, EmailDTO("mario.rossi@gmail.com"))
             }
-            verify { contactRepository.save(any(Contact::class)) wasNot called }
+            verify(exactly = 0) { contactRepository.save(any(Contact::class)) }
         }
 
         @Test
-        fun deleteAddress_success() {
+        fun deleteAddress_singleAssociation() {
             service.deleteAddress(mockContact.contactId, mockMail.id, mockMail.addressType)
 
             assertFalse(mockContact.addresses.contains(mockMail))
             verify { contactRepository.save(mockContact) }
+            verify { addressRepository.delete(mockMail) }
+        }
+
+        @Test
+        fun deleteAddress_multipleAssociations() {
+            val otherContact = Contact(
+                "Luigi",
+                "Verdi",
+                ContactCategory.PROFESSIONAL
+            )
+            otherContact.addAddress(mockMail)
+
+            service.deleteAddress(mockContact.contactId, mockMail.id, mockMail.addressType)
+
+            assertFalse(mockContact.addresses.contains(mockMail))
+            verify { contactRepository.save(mockContact) }
+            verify(exactly = 0) { addressRepository.delete(mockMail) }
         }
 
         @Test
@@ -441,6 +459,7 @@ class ContactServiceTest {
             assertFalse(mockContact.addresses.contains(oldMail))
             assertEquals(result, mockContact.toContactDto())
             verify { contactRepository.save(mockContact) }
+            verify { addressRepository.delete(mockMail) }
         }
 
         @Test
@@ -463,6 +482,7 @@ class ContactServiceTest {
             assertTrue(otherContact.addresses.contains(oldMail))
             assertEquals(result, mockContact.toContactDto())
             verify { contactRepository.save(mockContact) }
+            verify(exactly = 0) { addressRepository.delete(mockMail) }
         }
 
         @Test
