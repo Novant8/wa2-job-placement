@@ -7,6 +7,7 @@ import io.mockk.verify
 import it.polito.wa2.g07.crm.dtos.*
 import it.polito.wa2.g07.crm.entities.AddressType
 import it.polito.wa2.g07.crm.entities.MessageStatus
+import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.services.MessageService
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,9 +20,9 @@ import org.junit.jupiter.api.Test
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.test.web.servlet.get
-import org.junit.jupiter.api.Assertions.*
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.put
 
 @WebMvcTest(MessageController::class)
 class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
@@ -417,5 +418,77 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
                 }
         }
     }
+
+    @Nested
+    inner class PutMessageTests {
+        @BeforeEach
+        fun initMocks(){
+
+            every {messageService.changePriority(any(Long::class),any(Int::class)) } throws EntityNotFoundException("Message Not Found")
+            every {messageService.changePriority(mockMessageDTO1.id,any(Int::class))} answers {
+                MessageDTO(
+                    mockMessageDTO1.id,
+                    mockMessageDTO1.sender,
+                    mockMessageDTO1.channel,
+                    mockMessageDTO1.subject,
+                    mockMessageDTO1.body,
+                    2,
+                    mockMessageDTO1.creationTimestamp,
+                    mockMessageDTO1.lastEvent
+                )
+            }
+
+
+        }
+        @Test
+        fun changeMessagePriority_success(){
+            val messageId=mockMessageDTO1.id
+            val updatedPriority=  mapOf("priority" to 2)
+            mockMvc
+                .put("/API/messages/$messageId/priority")
+                {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(updatedPriority)
+
+                }.andExpect {
+                    status { isOk() }
+                    content {
+                        jsonPath("$.priority") {value(updatedPriority["priority"])}
+
+                    }
+                }
+        }
+        @Test
+        fun changeMessagePriority_negative(){
+            val messageId=mockMessageDTO1.id
+            val updatedPriority=  mapOf("priority" to -1)
+            mockMvc
+                .put("/API/messages/$messageId/priority")
+                {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(updatedPriority)
+
+                }.andExpect {
+                    status { isBadRequest() }
+
+                }
+        }
+        @Test
+        fun changeMessagePriority_MessageNotFound(){
+            val messageId=mockMessageDTO1.id+50
+            val updatedPriority=  mapOf("priority" to 2)
+            mockMvc
+                .put("/API/messages/$messageId/priority")
+                {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(updatedPriority)
+
+                }.andExpect {
+                    status { isNotFound() }
+
+                }
+        }
+    }
+
 }
 
