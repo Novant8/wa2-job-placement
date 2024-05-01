@@ -5,7 +5,6 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import it.polito.wa2.g07.crm.dtos.*
-import it.polito.wa2.g07.crm.entities.AddressType
 import it.polito.wa2.g07.crm.entities.MessageStatus
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.services.MessageService
@@ -314,7 +313,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
             fun createMessage_test1() {
                 val createMessageDTO = MessageCreateDTO(
                     mockEmailDTO,
-                    AddressType.EMAIL.toString(),
+                    MessageChannel.EMAIL.toString(),
                     "test subject",
                     "test body"
                 )
@@ -342,7 +341,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
             fun createMessage_wrongChannelType() {
                 val createMessageDTO = MessageCreateDTO(
                     mockEmailDTO,
-                    AddressType.TELEPHONE.toString(),
+                    MessageChannel.TEXT_MESSAGE.toString(),
                     "test subject",
                     "test body"
                 )
@@ -362,7 +361,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
             fun createMessage_EmptySubject() {
                 val createMessageDTO = MessageCreateDTO(
                     mockEmailDTO,
-                    AddressType.EMAIL.toString(),
+                    MessageChannel.EMAIL.toString(),
                     "",
                     "test body"
                 )
@@ -382,7 +381,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
             fun createMessage_EmptyBody() {
                 val createMessageDTO = MessageCreateDTO(
                     mockEmailDTO,
-                    AddressType.EMAIL.toString(),
+                    MessageChannel.EMAIL.toString(),
                     "test subject",
                     ""
                 )
@@ -421,7 +420,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
             fun createMessage_InvalidSender() {
                 val createMessageDTO = MessageCreateDTO(
                     mockInvalidEmailDTO,
-                    AddressType.EMAIL.toString(),
+                    MessageChannel.EMAIL.toString(),
                     "test subject",
                     "test body"
                 )
@@ -459,7 +458,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         fun createMessage_test2() {
             val createMessageDTO = MessageCreateDTO(
                 mockTelephoneDTO,
-                AddressType.TELEPHONE.toString(),
+                MessageChannel.TEXT_MESSAGE.toString(),
                 "test subject",
                 "test body"
             )
@@ -487,7 +486,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         fun createMessage_wrongChannelType() {
             val createMessageDTO = MessageCreateDTO(
                 mockTelephoneDTO,
-                AddressType.EMAIL.toString(),
+                MessageChannel.EMAIL.toString(),
                 "test subject",
                 "test body"
             )
@@ -507,7 +506,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         fun createMessage_EmptySubject() {
             val createMessageDTO = MessageCreateDTO(
                 mockTelephoneDTO,
-                AddressType.TELEPHONE.toString(),
+                MessageChannel.TEXT_MESSAGE.toString(),
                 "",
                 "test body"
             )
@@ -527,7 +526,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         fun createMessage_EmptyBody() {
             val createMessageDTO = MessageCreateDTO(
                 mockTelephoneDTO,
-                AddressType.TELEPHONE.toString(),
+                MessageChannel.TEXT_MESSAGE.toString(),
                 "test subject",
                 ""
             )
@@ -566,7 +565,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         fun createMessage_InvalidSender() {
             val createMessageDTO = MessageCreateDTO(
                 mockInvalidTelephoneDTO,
-                AddressType.TELEPHONE.toString(),
+                MessageChannel.TEXT_MESSAGE.toString(),
                 "test subject",
                 "test body"
             )
@@ -603,7 +602,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         fun createMessage_test3() {
             val createMessageDTO = MessageCreateDTO(
                 mockDwellingDTO,
-                AddressType.DWELLING.toString(),
+                MessageChannel.POSTAL_MAIL.toString(),
                 "test subject",
                 "test body"
             )
@@ -634,7 +633,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         fun createMessage_wrongChannelType() {
             val createMessageDTO = MessageCreateDTO(
                 mockDwellingDTO,
-                AddressType.EMAIL.toString(),
+                MessageChannel.EMAIL.toString(),
                 "test subject",
                 "test body"
             )
@@ -654,7 +653,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         fun createMessage_EmptySubject() {
             val createMessageDTO = MessageCreateDTO(
                 mockDwellingDTO,
-                AddressType.DWELLING.toString(),
+                MessageChannel.POSTAL_MAIL.toString(),
                 "",
                 "test body"
             )
@@ -674,7 +673,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         fun createMessage_EmptyBody() {
             val createMessageDTO = MessageCreateDTO(
                 mockDwellingDTO,
-                AddressType.DWELLING.toString(),
+                MessageChannel.POSTAL_MAIL.toString(),
                 "test subject",
                 ""
             )
@@ -713,7 +712,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         fun createMessage_InvalidSender() {
             val createMessageDTO = MessageCreateDTO(
                 mockInvalidDwellingDTO,
-                AddressType.DWELLING.toString(),
+                MessageChannel.POSTAL_MAIL.toString(),
                 "test subject",
                 "test body"
             )

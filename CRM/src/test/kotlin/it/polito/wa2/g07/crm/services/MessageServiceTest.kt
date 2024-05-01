@@ -35,7 +35,7 @@ class MessageServiceTest {
     private val mockTelephone = Telephone("34242424242")
     private val mockDwelling = Dwelling("Via Roma, 18", "Torino", "TO", "IT")
 
-    private val mockMessage: Message =Message("Titolo","Corpo del messaggio",mockMail,0, LocalDateTime.of(2024,1,12,5,22,3,2))
+    private val mockMessage: Message =Message("Titolo","Corpo del messaggio",mockMail, MessageChannel.EMAIL, 0, LocalDateTime.of(2024,1,12,5,22,3,2))
     private val mockEvent : MessageEvent = MessageEvent(mockMessage,MessageStatus.RECEIVED,LocalDateTime.of(2024,1,12,5,22,3,2),"commento")
     private val mockEvent2 : MessageEvent = MessageEvent(mockMessage,MessageStatus.READ,LocalDateTime.of(2025,1,12,5,22,3,2),"commento")
 
@@ -185,7 +185,7 @@ class MessageServiceTest {
             val expectedDTO = MessageDTO(
                 0L,
                 (msg.sender as EmailDTO),
-                AddressType.EMAIL,
+                MessageChannel.EMAIL,
                 msg.subject,
                 msg.body,
                 0,
@@ -211,7 +211,7 @@ class MessageServiceTest {
             val expectedDTO = MessageDTO(
                 0L,
                 (msg.sender as EmailDTO),
-                AddressType.EMAIL,
+                MessageChannel.EMAIL,
                 msg.subject,
                 msg.body,
                 0,
@@ -229,7 +229,7 @@ class MessageServiceTest {
         @Test
         fun createTelephoneMessage_newContact() {
             val msg = MessageCreateDTO(
-                TelephoneDTO("333"), "telephone", "a", "b"
+                TelephoneDTO("333"), "phone_call", "a", "b"
             )
             val result = service.createMessage(msg)
             result!!.creationTimestamp =LocalDateTime.of(2024,1,12,5,22,3,2)
@@ -237,7 +237,7 @@ class MessageServiceTest {
             val expectedDTO = MessageDTO(
                 0L,
                 (msg.sender as TelephoneDTO),
-                AddressType.TELEPHONE,
+                MessageChannel.PHONE_CALL,
                 msg.subject,
                 msg.body,
                 0,
@@ -255,7 +255,7 @@ class MessageServiceTest {
         @Test
         fun createDwellingMessage_newContact() {
             val msg = MessageCreateDTO(
-                DwellingDTO("c","b","c","d"), "telephone", "a", "b"
+                DwellingDTO("c","b","c","d"), "postal_mail", "a", "b"
             )
             val result = service.createMessage(msg)
             result!!.creationTimestamp =LocalDateTime.of(2024,1,12,5,22,3,2)
@@ -263,7 +263,7 @@ class MessageServiceTest {
             val expectedDTO = MessageDTO(
                 0L,
                 (msg.sender as DwellingDTO),
-                AddressType.DWELLING,
+                MessageChannel.POSTAL_MAIL,
                 msg.subject,
                 msg.body,
                 0,
