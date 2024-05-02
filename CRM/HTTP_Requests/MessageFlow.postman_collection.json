@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "be992447-890d-4594-bd10-839b9036f20b",
+		"_postman_id": "e0a3d6f0-c676-4481-b23c-c28e532b5ecd",
 		"name": "MessageFlow",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "31111111"
+		"_exporter_id": "31278244"
 	},
 	"item": [
 		{
@@ -42,7 +42,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n                        \"sender\":{\r\n                            \"phoneNumber\": \"011-765352\"\r\n                        },\r\n                        \"channel\" : \"TELEPHONE\",\r\n                        \"subject\" : \"Action required\",\r\n                        \"body\" : \"please visit http://your-bank.com\"  \r\n                    }",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"phoneNumber\": \"011-765352\"\r\n                        },\r\n                        \"channel\" : \"PHONE_CALL\",\r\n                        \"subject\" : \"Action required\",\r\n                        \"body\" : \"please visit http://your-bank.com\"  \r\n                    }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -71,7 +71,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n                        \"sender\":{\r\n                            \"street\" : \"Via Roma, 18\",\r\n                            \"city\":\"Torino\",\r\n                            \"district\": \"TO\",\r\n                            \"country\":\"IT\"\r\n                        },\r\n                        \"channel\" : \"DWELLING\",\r\n                        \"subject\" : \"Confirmation on your job interview\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"street\" : \"Via Roma, 18\",\r\n                            \"city\":\"Torino\",\r\n                            \"district\": \"TO\",\r\n                            \"country\":\"IT\"\r\n                        },\r\n                        \"channel\" : \"postal_mail\",\r\n                        \"subject\" : \"Confirmation on your job interview\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -308,7 +308,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n                        \"sender\":{\r\n                            \"email\": \"testmail@test.com\"\r\n                        },\r\n                        \"channel\" : \"TELEPHONE\",\r\n                        \"subject\" : \"Update about you job position\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"email\": \"testmail@test.com\"\r\n                        },\r\n                        \"channel\" : \"PHONE_CALL\",\r\n                        \"subject\" : \"Update about you job position\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -366,7 +366,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n                        \"sender\":{\r\n                            \"email\": \"testmail@test.com\"\r\n                        },\r\n                        \"channel\" : \"TELEPHONE\",\r\n                        \"subject\" : \"Update about you job position\",\r\n                        \"body\" : \"\"  \r\n                    }",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"email\": \"testmail@test.com\"\r\n                        },\r\n                        \"channel\" : \"PHONE_CALL\",\r\n                        \"subject\" : \"Update about you job position\",\r\n                        \"body\" : \"\"  \r\n                    }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -453,7 +453,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n                        \"sender\":{\r\n                            \"phoneNumber\": \"not valid\"\r\n                        },\r\n                        \"channel\" : \"TELEPHONE\",\r\n                        \"subject\" : \"Update about you job position\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"phoneNumber\": \"not valid\"\r\n                        },\r\n                        \"channel\" : \"PHONE_CALL\",\r\n                        \"subject\" : \"Update about you job position\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -482,7 +482,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n                        \"sender\":{\r\n                            \"street\" : \"Via Roma, 18\",\r\n                            \"city\":\"Torino\",\r\n                            \"district\": \"\",\r\n                            \"country\":\"\"\r\n                        },\r\n                        \"channel\" : \"DWELLING\",\r\n                        \"subject\" : \"Confirmation on your job interview\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
+					"raw": "{\r\n                        \"sender\":{\r\n                            \"street\" : \"Via Roma, 18\",\r\n                            \"city\":\"Torino\",\r\n                            \"district\": \"\",\r\n                            \"country\":\"\"\r\n                        },\r\n                        \"channel\" : \"postal_mail\",\r\n                        \"subject\" : \"Confirmation on your job interview\",\r\n                        \"body\" : \"please visit http://job.com\"  \r\n                    }",
 					"options": {
 						"raw": {
 							"language": "json"
