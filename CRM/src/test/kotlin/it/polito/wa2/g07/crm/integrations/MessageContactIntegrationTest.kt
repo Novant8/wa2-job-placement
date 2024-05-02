@@ -1,4 +1,4 @@
-package it.polito.wa2.g07.crm.integration
+package it.polito.wa2.g07.crm.integrations
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import it.polito.wa2.g07.crm.CrmApplicationTests
