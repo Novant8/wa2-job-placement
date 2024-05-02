@@ -9,7 +9,6 @@ import it.polito.wa2.g07.crm.repositories.AddressRepository
 import it.polito.wa2.g07.crm.repositories.ContactRepository
 
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -593,32 +592,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
                 .andExpect(status().isUnprocessableEntity)
         }
 
-        @Test
-        @Disabled("Empty street should result in a unprocessable entity?")
-        fun putDwellingWithEmptyField(){
 
-            val dwelling = """
-                {
-                        "street":"", 
-                        "city":"New City", 
-                        "district":"New District", 
-                        "country":"New Country"
-                    }
-            """.trimIndent()
-            mockMvc.perform(put("/API/contacts/$contactId/address/$dwellingId").contentType(MediaType.APPLICATION_JSON).content(dwelling))
-                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
-                .andExpect(status().isOk)
-                .andExpect(jsonPath("name").value("Test"))
-                .andExpect(jsonPath("surname").value("User"))
-                .andExpect(jsonPath("category").value("CUSTOMER"))
-                .andExpect(jsonPath("ssn").value(null))
-                .andExpect(jsonPath("addresses[*].email").value("test.user@email.com"))
-                .andExpect(jsonPath("addresses[*].phoneNumber").value("3015544789"))
-                .andExpect(jsonPath("addresses[*].street").value(""))
-                .andExpect(jsonPath("addresses[*].city").value("New City"))
-                .andExpect(jsonPath("addresses[*].district").value("New District"))
-                .andExpect(jsonPath("addresses[*].country").value("New Country"))
-        }
 
 
 
