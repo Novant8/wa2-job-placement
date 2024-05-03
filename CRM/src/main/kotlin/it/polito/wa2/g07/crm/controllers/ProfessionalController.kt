@@ -2,7 +2,6 @@ package it.polito.wa2.g07.crm.controllers
 
 import it.polito.wa2.g07.crm.entities.Professional
 import jakarta.validation.Valid
-import org.springframework.beans.factory.parsing.Location
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -11,10 +10,13 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Page
+import org.springframework.web.bind.annotation.*
 
 
 @RestController
-@RequestMapping("/API/professional")
+@RequestMapping("/API/professionals")
 class ProfessionalController {
 
    /* The web application must allow the creation of a new customer or
@@ -37,6 +39,23 @@ class ProfessionalController {
 
 
 
+    @GetMapping("/", "")
+    fun getProfessionals ( pageable: Pageable, /*filter*/) /*: Page<ProfessionalDTO>*/ {
+        TODO()
+    }
 
+    @PutMapping("/{professionalId}/skill")
+    fun updateSkill(@PathVariable("professionalId") professionalId: Long, @RequestBody skills :Map<String, List<String>>){
+        TODO()
+    }
 
+    @PutMapping("/{professionalId}/location")
+    fun updateLocation(@PathVariable("professionalId") professionalId: Long, @RequestBody location :Map<String,String >){
+        TODO()
+    }
+
+    @PutMapping("/{professionalId}/rate")
+    fun updateDailyRate(@PathVariable("professionalId") professionalId: Long, @RequestBody rate :Map<String,Double >){
+        TODO()
+    }
 }
