@@ -2,7 +2,7 @@ package it.polito.wa2.g07.crm.dtos.lab03
 
 import it.polito.wa2.g07.crm.entities.lab02.Customer
 import it.polito.wa2.g07.crm.entities.lab03.OfferStatus
-import it.polito.wa2.g07.crm.entities.lab02.Professional
+import it.polito.wa2.g07.crm.entities.lab03.Professional
 import kotlin.time.Duration
 
 data class JobOfferDTO (

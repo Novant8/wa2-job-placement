@@ -1,6 +1,6 @@
-package it.polito.wa2.g07.crm.entities.lab02
+package it.polito.wa2.g07.crm.entities.lab03
 
-import it.polito.wa2.g07.crm.entities.lab03.JobOffer
+import it.polito.wa2.g07.crm.entities.lab02.Contact
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.OneToMany
@@ -21,7 +21,7 @@ class Professional(
     var location: String,
 
     @ElementCollection
-    var skill : Set<String>,
+    var skills : Set<String>,
 
     var daily_rate: Double,
 
