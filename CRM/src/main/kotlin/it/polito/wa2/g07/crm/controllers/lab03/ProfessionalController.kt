@@ -1,7 +1,11 @@
 package it.polito.wa2.g07.crm.controllers.lab03
 
 import it.polito.wa2.g07.crm.entities.lab03.Professional
+import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalFilterDTO
+import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalReducedDTO
+import it.polito.wa2.g07.crm.services.lab03.ProfessionalService
 import jakarta.validation.Valid
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -16,7 +20,9 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/API/professionals")
-class ProfessionalController {
+class ProfessionalController(
+    private val professionalService: ProfessionalService
+) {
 
    /* The web application must allow the creation of a new customer or
     professional, search existing ones, update their properties, and add notes on
@@ -36,11 +42,9 @@ class ProfessionalController {
         TODO()
     }
 
-
-
     @GetMapping("/", "")
-    fun getProfessionals ( pageable: Pageable, /*filter*/) /*: Page<ProfessionalDTO>*/ {
-        TODO()
+    fun getProfessionals(filterDTO: ProfessionalFilterDTO, pageable: Pageable) : Page<ProfessionalReducedDTO> {
+        return professionalService.searchProfessionals(filterDTO, pageable)
     }
 
     @PutMapping("/{professionalId}/skill")

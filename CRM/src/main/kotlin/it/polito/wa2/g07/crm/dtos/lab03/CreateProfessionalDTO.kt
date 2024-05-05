@@ -7,7 +7,7 @@ data class CreateProfessionalDTO
             val contactInfo: CreateContactDTO,
             val location: String,
             val skills: Set<String>,
-            var daily_rate: Double,
+            var dailyRate: Double,
             var notes: String?
             )
 {

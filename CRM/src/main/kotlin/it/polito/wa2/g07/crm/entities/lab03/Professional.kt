@@ -1,8 +1,10 @@
 package it.polito.wa2.g07.crm.entities.lab03
 
 import it.polito.wa2.g07.crm.entities.lab02.Contact
+import jakarta.persistence.CascadeType
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Id
@@ -15,7 +17,7 @@ enum class EmploymentState{
 
 @Entity
 class Professional(
-    @OneToOne
+    @OneToOne(cascade = [ CascadeType.ALL ])
     var contactInfo: Contact,
 
     var location: String,
@@ -23,7 +25,7 @@ class Professional(
     @ElementCollection
     var skills : Set<String>,
 
-    var daily_rate: Double,
+    var dailyRate: Double,
 
     var employmentState: EmploymentState = EmploymentState.UNEMPLOYED,
 
@@ -31,6 +33,7 @@ class Professional(
 ) {
 
     @Id
+    @GeneratedValue
     var professionalId: Long = 0L
 
     @OneToMany(mappedBy = "professional")

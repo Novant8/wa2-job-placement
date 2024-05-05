@@ -22,7 +22,7 @@ class JobOffer(
     var customer: Customer,
 
     @ElementCollection
-    var requiredSkills: Set<String> = setOf(),
+    var requiredSkills: MutableSet<String> = mutableSetOf(),
 
     var duration: Duration,
 
@@ -48,7 +48,7 @@ class JobOffer(
     val value: Double
         get() = when(this.professional){
             null -> throw IllegalStateException("Value cannot be calculated if the job offer has no professional!")
-            else -> this.duration.toDouble(DurationUnit.DAYS) * this.professional!!.daily_rate * PROFIT_MARGIN
+            else -> this.duration.toDouble(DurationUnit.DAYS) * this.professional!!.dailyRate * PROFIT_MARGIN
         }
 
 
