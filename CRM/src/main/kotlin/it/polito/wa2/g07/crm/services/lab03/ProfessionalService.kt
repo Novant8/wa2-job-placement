@@ -9,5 +9,6 @@ import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalDTO
 
 interface ProfessionalService {
     fun searchProfessionals(filterDTO: ProfessionalFilterDTO, pageable: Pageable): Page<ProfessionalReducedDTO>
+    fun getProfessionalById(professionalId: Long): ProfessionalDTO
     fun create(professional: CreateProfessionalDTO): ProfessionalDTO
 }

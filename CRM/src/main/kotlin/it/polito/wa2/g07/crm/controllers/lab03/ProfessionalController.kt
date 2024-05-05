@@ -1,5 +1,6 @@
 package it.polito.wa2.g07.crm.controllers.lab03
 
+import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalDTO
 import it.polito.wa2.g07.crm.entities.lab03.Professional
 import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalFilterDTO
 import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalReducedDTO
@@ -45,6 +46,11 @@ class ProfessionalController(
     @GetMapping("/", "")
     fun getProfessionals(filterDTO: ProfessionalFilterDTO, pageable: Pageable) : Page<ProfessionalReducedDTO> {
         return professionalService.searchProfessionals(filterDTO, pageable)
+    }
+
+    @GetMapping("/{professionalId}", "/{professionalId}/")
+    fun getProfessionalById(@PathVariable professionalId: Long): ProfessionalDTO {
+        return professionalService.getProfessionalById(professionalId)
     }
 
     @PutMapping("/{professionalId}/skill")
