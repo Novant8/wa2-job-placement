@@ -1,5 +1,6 @@
 package it.polito.wa2.g07.crm.entities.lab03
 
+import it.polito.wa2.g07.crm.entities.lab03.JobOffer
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 import jakarta.persistence.*
 
@@ -11,15 +12,15 @@ enum class EmploymentState{
 
 @Entity
 class Professional(
-    @OneToOne
+    @OneToOne(cascade = [ CascadeType.ALL ])
     var contactInfo: Contact,
 
     var location: String,
 
     @ElementCollection
-    var skill : Set<String>,
+    var skills : Set<String>,
 
-    var daily_rate: Double,
+    var dailyRate: Double,
 
     var employmentState: EmploymentState = EmploymentState.UNEMPLOYED,
 
