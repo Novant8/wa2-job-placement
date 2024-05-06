@@ -1,11 +1,6 @@
 package it.polito.wa2.g07.crm.entities.lab03
 
-import it.polito.wa2.g07.crm.entities.lab02.Customer
-import it.polito.wa2.g07.crm.entities.lab02.Professional
-import jakarta.persistence.ElementCollection
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToOne
+import jakarta.persistence.*
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
@@ -37,6 +32,7 @@ class JobOffer(
     }
 
     @Id
+    @GeneratedValue
     var offerId: Long = 0L
 
     @ManyToOne
