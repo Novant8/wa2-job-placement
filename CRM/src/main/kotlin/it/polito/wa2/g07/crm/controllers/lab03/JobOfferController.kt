@@ -15,6 +15,8 @@ class JobOfferController {
             TODO("Not yet implemented")
             //using request parameters allow for filtering
             //by customer, professional, and status.
+
+
         }
 
 

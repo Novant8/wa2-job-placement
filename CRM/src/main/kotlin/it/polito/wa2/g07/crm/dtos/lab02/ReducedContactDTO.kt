@@ -12,3 +12,4 @@ data class ReducedContactDTO (
 
 fun Contact.toReducedContactDTO(): ReducedContactDTO =
         ReducedContactDTO(this.contactId, this.name , this.surname, this.category)
+

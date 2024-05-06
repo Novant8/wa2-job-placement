@@ -42,9 +42,10 @@ class JobOffer(
             field = professional
         }
 
-    val value: Double
+    val value: Double?
         get() = when(this.professional){
-            null -> throw IllegalStateException("Value cannot be calculated if the job offer has no professional!")
+            null -> null
+            //  null -> throw IllegalStateException("Value cannot be calculated if the job offer has no professional!")
             else -> this.duration.toDouble(DurationUnit.DAYS) * this.professional!!.daily_rate * PROFIT_MARGIN
         }
 
