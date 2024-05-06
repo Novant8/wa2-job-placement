@@ -1,11 +1,15 @@
 package it.polito.wa2.g07.crm.entities.lab03
 
 import it.polito.wa2.g07.crm.entities.lab02.Contact
+
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Id
+
+import jakarta.persistence.*
+
 
 enum class EmploymentState{
     UNEMPLOYED,
@@ -31,6 +35,7 @@ class Professional(
 ) {
 
     @Id
+    @GeneratedValue
     var professionalId: Long = 0L
 
     @OneToMany(mappedBy = "professional")

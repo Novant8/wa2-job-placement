@@ -1,8 +1,11 @@
 package it.polito.wa2.g07.crm.controllers.lab02
 
 import it.polito.wa2.g07.crm.dtos.lab02.*
+
+import it.polito.wa2.g07.crm.dtos.lab03.CustomerDTO
 import it.polito.wa2.g07.crm.entities.lab02.AddressType
 import it.polito.wa2.g07.crm.services.lab02.ContactService
+import it.polito.wa2.g07.crm.services.lab03.CustomerService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -12,12 +15,20 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/API/contacts")
-class ContactController(private val contactService: ContactService) {
+class ContactController(private val contactService: ContactService, private val customerService: CustomerService) {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/","")
     fun saveContact (@Valid @RequestBody contact: CreateContactDTO): ContactDTO {
         return contactService.create(contact)
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{contactId}/customers",)
+    fun saveCustomer ( @PathVariable("contactId") contactId : Long, @RequestBody notes :Map<String, String>): CustomerDTO {
+
+        return customerService.bindContactToCustomer(contactId,notes["notes"])
+
     }
 
     @ResponseStatus(HttpStatus.CREATED)
