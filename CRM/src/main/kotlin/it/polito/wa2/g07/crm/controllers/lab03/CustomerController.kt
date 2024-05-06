@@ -7,6 +7,7 @@ import it.polito.wa2.g07.crm.dtos.lab03.JobOfferCreateDTO
 import it.polito.wa2.g07.crm.dtos.lab03.JobOfferDTO
 import it.polito.wa2.g07.crm.services.lab03.CustomerService
 import it.polito.wa2.g07.crm.services.lab03.JobOfferService
+import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -33,7 +34,7 @@ class CustomerController (  private val customerService: CustomerService,
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("", "/")
-    fun createCustomer(@RequestBody customer:CreateCustomerDTO):CustomerDTO {
+    fun createCustomer(@RequestBody @Valid customer:CreateCustomerDTO):CustomerDTO {
 
        return customerService.createCustomer(customer)
 
@@ -46,7 +47,7 @@ class CustomerController (  private val customerService: CustomerService,
 
     @PostMapping("/{customerId}/job-offers", "/{customerId}/job-offers/")
     fun createJobOffer( @PathVariable("customerId") customerId: Long,
-                        @RequestBody jobDTO: JobOfferCreateDTO): JobOfferDTO {
+                        @RequestBody @Valid jobDTO: JobOfferCreateDTO): JobOfferDTO {
 
         return jobOfferService.createJobOffer(customerId,jobDTO)
 
