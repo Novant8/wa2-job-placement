@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/API/contacts")
-class ContactController(private val contactService: ContactService, private val customerService: CustomerService) {
+class ContactController(private val contactService: ContactService,
+                        private val customerService: CustomerService) {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/","")

@@ -1,7 +1,5 @@
 package it.polito.wa2.g07.crm.entities.lab03
 
-import it.polito.wa2.g07.crm.entities.lab03.Customer
-import it.polito.wa2.g07.crm.entities.lab03.Professional
 import jakarta.persistence.*
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
@@ -22,7 +20,9 @@ class JobOffer(
     @ElementCollection
     var requiredSkills: MutableSet<String> = mutableSetOf(),
 
-    var duration: Duration,
+    var duration: Long,
+
+    var description: String,
 
     var status: OfferStatus = OfferStatus.CREATED,
 
@@ -44,10 +44,11 @@ class JobOffer(
             field = professional
         }
 
-    val value: Double
+    val value: Double?
         get() = when(this.professional){
-            null -> throw IllegalStateException("Value cannot be calculated if the job offer has no professional!")
-            else -> this.duration.toDouble(DurationUnit.DAYS) * this.professional!!.dailyRate * PROFIT_MARGIN
+            null -> null
+            //  null -> throw IllegalStateException("Value cannot be calculated if the job offer has no professional!")
+            else -> this.duration * this.professional!!.daily_rate * PROFIT_MARGIN
         }
 
 
