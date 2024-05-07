@@ -338,4 +338,43 @@ class CustomerServiceTest {
 
         }
     }
+
+    @Nested
+
+    inner class PutCustomers{
+        private val customerSlot = slot<Customer>()
+
+
+        @BeforeEach
+        fun initMocks(){
+            every { customerRepository.save(capture(customerSlot)) } answers {firstArg<Customer>()}
+            every {customerRepository.delete(any(Customer::class))} returns Unit
+            every {customerRepository.findById(any(Long::class))} returns Optional.empty()
+            every { customerRepository.findById(mockCustomer.customerId) } returns Optional.of(mockCustomer)
+        }
+
+        @Test
+        fun updateNotes(){
+            val notes = "Updated notes"
+
+            val result = service.postCustomerNotes(mockCustomer.customerId,notes)
+
+            val expected = CustomerDTO(
+                mockCustomer.customerId,
+                mockCustomer.contactInfo.toContactDto(),
+                notes
+            )
+
+            Assertions.assertEquals(result,expected)
+            verify (exactly = 1){ customerRepository.save(any(Customer::class)) }
+        }
+
+        @Test
+        fun updateUnknownCustomer(){
+            val notes = "Updated notes"
+
+            assertThrows<EntityNotFoundException> { service.postCustomerNotes(200L,notes) }
+            verify (exactly = 0){ customerRepository.save(any(Customer::class))  }
+        }
+    }
 }

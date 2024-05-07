@@ -356,4 +356,69 @@ class CustomerIntegrationTest: CrmApplicationTests() {
         }
     }
 
+    @Nested
+    inner class PutCustomer(){
+
+        private var customerId = 0L
+
+        @BeforeEach
+        fun init(){
+            customerRepository.deleteAll()
+            contactRepository.deleteAll()
+            val customerDto = CreateCustomerDTO(
+                CreateContactDTO(
+                    "Company",
+                    "Test",
+                    "customer",
+                    "123456",
+                    listOf(
+                        TelephoneDTO("12345667889"),
+                        EmailDTO("company.test@email.com"),
+                        DwellingDTO("123 Main St", "City", "District","Country")
+                    )
+                ),
+                "New Customer"
+            )
+
+            customerId = customerRepository.save(customerDto.toEntity()).customerId
+        }
+
+        @Test
+        fun putCustomerNotes(){
+            val body = """
+                 {
+                    "notes": "Updated Customer Notes" 
+                 }
+            """.trimIndent()
+
+            mockMvc.perform(put("/API/customers/$customerId").content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect( status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("contactInfo.name").value("Company"))
+                .andExpect(jsonPath("contactInfo.surname").value("Test"))
+                .andExpect(jsonPath("contactInfo.category").value("CUSTOMER"))
+                .andExpect(jsonPath("contactInfo.ssn").value("123456"))
+                .andExpect(jsonPath("contactInfo.addresses[*].email").value("company.test@email.com"))
+                .andExpect(jsonPath("contactInfo.addresses[*].phoneNumber").value("12345667889"))
+                .andExpect(jsonPath("contactInfo.addresses[*].street").value("123 Main St"))
+                .andExpect(jsonPath("contactInfo.addresses[*].city").value("City"))
+                .andExpect(jsonPath("contactInfo.addresses[*].district").value("District"))
+                .andExpect(jsonPath("contactInfo.addresses[*].country").value("Country"))
+                .andExpect(jsonPath("notes").value("Updated Customer Notes"))
+        }
+
+        @Test
+        fun putUnknownCustomer(){
+            val body = """
+                 {
+                    "notes": "Updated Customer Notes" 
+                 }
+            """.trimIndent()
+
+            mockMvc.perform(put("/API/customers/202").content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect( status().isNotFound)
+
+        }
+    }
+
 }

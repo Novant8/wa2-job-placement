@@ -25,6 +25,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.put
 
 
 @WebMvcTest(CustomerController::class,ContactController::class)
@@ -351,5 +352,52 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
                 }
 
         }
+    }
+
+    @Nested
+    inner class PutCustomer(){
+        private val contactId = mockContactDTO.id
+
+        @BeforeEach
+        fun initMocks(){
+            every { customerService.postCustomerNotes(any(Long::class), any(String::class)) } throws EntityNotFoundException("Customer not found")
+            every { customerService.postCustomerNotes(mockCustomerDTO.id, any(String::class)) } answers {
+                val notes = secondArg<String>()
+                CustomerDTO(
+                    mockCustomerDTO.id,
+                    mockCustomerDTO.contactInfo,
+                    notes
+                )
+            }
+        }
+
+        @Test
+        fun updateNotes(){
+            val updateNotes = mapOf("notes" to "UpdatedNotes")
+
+            mockMvc.put("/API/customers/$contactId"){
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(updateNotes)
+            }.andExpect {
+                status { isOk() }
+                content {
+                    jsonPath("$.notes") { value(updateNotes["notes"]) }
+                }
+            }
+        }
+
+        @Test
+        fun updateUnknownCustomer(){
+            val updateNotes = mapOf("notes" to "UpdatedNotes")
+
+            mockMvc.put("/API/customers/200"){
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(updateNotes)
+            }.andExpect {
+                status { isNotFound() }
+
+            }
+        }
+
     }
 }

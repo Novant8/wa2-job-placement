@@ -56,4 +56,17 @@ class CustomerServiceImpl(private val customerRepository: CustomerRepository, pr
 
         return customerOpt.get().toCustomerDto()
     }
+
+    override fun postCustomerNotes(customerId: Long, notes: String?):CustomerDTO {
+        val customerOpt = customerRepository.findById(customerId)
+
+        if (!customerOpt.isPresent){
+            throw EntityNotFoundException("Customer with id : $customerId is not present ")
+        }
+
+        val customer = customerOpt.get()
+        customer.notes= notes
+
+        return customerRepository.save(customer).toCustomerDto()
+    }
 }

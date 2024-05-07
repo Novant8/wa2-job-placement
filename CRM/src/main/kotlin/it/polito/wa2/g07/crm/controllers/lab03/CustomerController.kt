@@ -37,8 +37,8 @@ class CustomerController (private val customerService: CustomerService){
     }
 
     @PutMapping("/{customerId}", "/{customerId}/")
-    fun editCustomer(@PathVariable("customerId") customerId: Long) {
-        TODO("Not yet implemented")
+    fun editCustomer(@PathVariable("customerId") customerId: Long, @RequestBody notes : Map<String, String?>): CustomerDTO {
+        return customerService.postCustomerNotes(customerId,notes["notes"])
     }
 
     @PostMapping("/{customerId}/job-offers", "/{customerId}/job-offers/")
