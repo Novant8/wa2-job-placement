@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service
 import java.lang.NullPointerException
 import kotlin.jvm.optionals.getOrElse
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 @Service
 class JobOfferServiceImpl(
@@ -26,7 +29,7 @@ class JobOfferServiceImpl(
         val jobOffer = JobOffer(
             customer = customer,
             requiredSkills = job.requiredSkills,
-            duration = job.duration,
+            duration= job.duration,
             notes = job.notes,
             status = OfferStatus.CREATED
             )

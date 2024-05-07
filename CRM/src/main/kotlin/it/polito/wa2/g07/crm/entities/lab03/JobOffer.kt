@@ -20,7 +20,7 @@ class JobOffer(
     @ElementCollection
     var requiredSkills: Set<String> = setOf(),
 
-    var duration: Duration,
+    var duration: Long,
 
     var status: OfferStatus = OfferStatus.CREATED,
 
@@ -46,7 +46,7 @@ class JobOffer(
         get() = when(this.professional){
             null -> null
             //  null -> throw IllegalStateException("Value cannot be calculated if the job offer has no professional!")
-            else -> this.duration.toDouble(DurationUnit.DAYS) * this.professional!!.daily_rate * PROFIT_MARGIN
+            else -> this.duration * this.professional!!.daily_rate * PROFIT_MARGIN
         }
 
 

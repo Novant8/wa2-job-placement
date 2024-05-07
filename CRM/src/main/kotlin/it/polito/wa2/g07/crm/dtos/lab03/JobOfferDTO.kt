@@ -12,7 +12,7 @@ data class JobOfferDTO (
     val id:Long?,
     val customer: ReducedContactDTO,
     val requiredSkills: Set<String>,
-    val duration: Duration,
+    val duration: Long,
     val offerStatus: OfferStatus,
     val notes: String?,
     val professional: Professional?,    //during the lifecycle of a joboffer professional can be empty

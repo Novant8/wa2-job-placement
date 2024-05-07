@@ -3,18 +3,20 @@ package it.polito.wa2.g07.crm.controllers.lab03
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.verify
 import it.polito.wa2.g07.crm.controllers.lab02.ContactController
 import it.polito.wa2.g07.crm.dtos.lab02.*
-import it.polito.wa2.g07.crm.dtos.lab03.CreateCustomerDTO
-import it.polito.wa2.g07.crm.dtos.lab03.CustomerDTO
-import it.polito.wa2.g07.crm.dtos.lab03.toCustomerDto
-import it.polito.wa2.g07.crm.dtos.lab03.toEntity
+import it.polito.wa2.g07.crm.dtos.lab03.*
+import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
+import it.polito.wa2.g07.crm.entities.lab03.Customer
+import it.polito.wa2.g07.crm.entities.lab03.OfferStatus
 import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.CustomerService
+import it.polito.wa2.g07.crm.services.lab03.JobOfferService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -23,6 +25,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.testcontainers.shaded.org.apache.commons.lang3.time.DurationUtils.toDuration
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 
 @WebMvcTest(CustomerController::class,ContactController::class)
@@ -33,6 +41,11 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @MockkBean
     private lateinit var contactService: ContactService
+
+
+    @MockkBean
+    private lateinit var jobOfferService: JobOfferService
+
 
     private val mockEmailDTO = EmailDTO("company.test@example.org")
     private val mockTelephoneDTO = TelephoneDTO("34242424242")
@@ -259,6 +272,80 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
 
                 }
         }
+
+    }
+    @Nested
+    inner class CreateJobOffer {
+        private var customerID_1 = 0L
+        private var mockJobOffer = JobOfferDTO(0L,
+            ReducedContactDTO(0L,"nome","cognome",ContactCategory.CUSTOMER),
+            requiredSkills = setOf("test"),
+            duration=90,
+            offerStatus = OfferStatus.CREATED,null,null,null)
+
+        @BeforeEach
+        fun initMocks(){
+            every { jobOfferService.createJobOffer(any(),any()) } answers { mockJobOffer }
+        }
+
+
+        @Test
+        fun createJobOffer() {
+
+
+            val dto = JobOfferCreateDTO("descrizione",setOf ("saltare","correre"), 90)
+            mockMvc.post("/API/customers/0/job-offers") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(dto)
+            }.andExpect {
+                verify(exactly = 1){ jobOfferService.createJobOffer(any(),any())}
+            }
+
+
+        }
+
+        @Test
+        fun createJobOfferWithNotes() {
+            val dto = JobOfferCreateDTO("descrizione",setOf ("saltare","correre"), 90, notes = "ciao")
+            mockMvc.post("/API/customers/0/job-offers") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(dto)
+            }.andExpect {
+                verify(exactly = 1){ jobOfferService.createJobOffer(any(),any())}
+            }
+        }
+
+
+        @Test
+        fun createJobOffer_EmptyFields() {
+            //empty requiredSkill
+            var dto = JobOfferCreateDTO("descrizione",setOf (), 90)
+            mockMvc.post("/API/customers/0/job-offers") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(dto)
+            }.andExpect {
+                verify(exactly = 0){ jobOfferService.createJobOffer(any(),any())}
+            }
+            //blanck description
+             dto = JobOfferCreateDTO("",setOf ("saltare","correre"), 90)
+                mockMvc.post("/API/customers/0/job-offers") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(dto)
+                }.andExpect {
+                    verify(exactly =0){ jobOfferService.createJobOffer(any(),any())}
+                }
+            //duration negative
+            dto = JobOfferCreateDTO("descrizione",setOf ("saltare","correre"), -90)
+            mockMvc.post("/API/customers/0/job-offers") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(dto)
+            }.andExpect {
+                verify(exactly = 0){ jobOfferService.createJobOffer(any(),any())}
+            }
+
+
+        }
+
 
     }
 }
