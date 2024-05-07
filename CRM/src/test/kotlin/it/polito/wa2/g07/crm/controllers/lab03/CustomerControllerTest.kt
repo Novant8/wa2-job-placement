@@ -7,9 +7,9 @@ import io.mockk.verify
 import it.polito.wa2.g07.crm.controllers.lab02.ContactController
 import it.polito.wa2.g07.crm.dtos.lab02.*
 import it.polito.wa2.g07.crm.dtos.lab03.*
-import it.polito.wa2.g07.crm.entities.lab02.Contact
+
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
-import it.polito.wa2.g07.crm.entities.lab03.Customer
+
 import it.polito.wa2.g07.crm.entities.lab03.OfferStatus
 import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
@@ -25,12 +25,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import org.testcontainers.shaded.org.apache.commons.lang3.time.DurationUtils.toDuration
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+
 
 
 @WebMvcTest(CustomerController::class,ContactController::class)
@@ -278,7 +273,8 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
     inner class CreateJobOffer {
         private var customerID_1 = 0L
         private var mockJobOffer = JobOfferDTO(0L,
-            ReducedContactDTO(0L,"nome","cognome",ContactCategory.CUSTOMER),
+            description = "descrizione",
+            customer = ReducedContactDTO(0L,"nome","cognome",ContactCategory.CUSTOMER),
             requiredSkills = setOf("test"),
             duration=90,
             offerStatus = OfferStatus.CREATED,null,null,null)

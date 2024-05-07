@@ -9,12 +9,8 @@ import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 
 import org.springframework.stereotype.Service
-import java.lang.NullPointerException
+
 import kotlin.jvm.optionals.getOrElse
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 @Service
 class JobOfferServiceImpl(
@@ -31,7 +27,8 @@ class JobOfferServiceImpl(
             requiredSkills = job.requiredSkills,
             duration= job.duration,
             notes = job.notes,
-            status = OfferStatus.CREATED
+            status = OfferStatus.CREATED,
+            description = job.description
             )
         return jobOfferRepository.save(jobOffer).toJobOfferDTO()
     }

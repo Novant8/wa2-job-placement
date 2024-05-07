@@ -12,7 +12,8 @@ import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
-class CustomerServiceImpl(private val customerRepository: CustomerRepository, private val contactRepository: ContactRepository):CustomerService {
+class CustomerServiceImpl(private val customerRepository: CustomerRepository,
+                          private val contactRepository: ContactRepository):CustomerService {
     @Transactional
     override fun createCustomer(customer: CreateCustomerDTO): CustomerDTO {
         if (customer.contact.category?.uppercase()!= "CUSTOMER" ){

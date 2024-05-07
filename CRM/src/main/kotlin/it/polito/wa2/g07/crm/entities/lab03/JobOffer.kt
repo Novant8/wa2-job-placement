@@ -1,8 +1,7 @@
 package it.polito.wa2.g07.crm.entities.lab03
 
 import jakarta.persistence.*
-import kotlin.time.Duration
-import kotlin.time.DurationUnit
+
 
 enum class OfferStatus {
     CREATED,
@@ -21,6 +20,8 @@ class JobOffer(
     var requiredSkills: Set<String> = setOf(),
 
     var duration: Long,
+
+    var description: String,
 
     var status: OfferStatus = OfferStatus.CREATED,
 

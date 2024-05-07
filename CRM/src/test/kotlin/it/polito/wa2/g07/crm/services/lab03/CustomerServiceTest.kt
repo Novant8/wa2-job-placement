@@ -9,11 +9,13 @@ import it.polito.wa2.g07.crm.dtos.lab03.CreateCustomerDTO
 import it.polito.wa2.g07.crm.dtos.lab03.CustomerDTO
 import it.polito.wa2.g07.crm.entities.lab02.*
 import it.polito.wa2.g07.crm.entities.lab03.Customer
+
 import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
+
 import org.junit.jupiter.api.*
 import java.util.*
 
@@ -73,8 +75,9 @@ class CustomerServiceTest {
     }
 
     private val contactRepository= mockk<ContactRepository>()
+
     private val customerRepository= mockk<CustomerRepository>()
-    private val service = CustomerServiceImpl(customerRepository,contactRepository)
+    private val service = CustomerServiceImpl(customerRepository,contactRepository,)
 
      @Nested
      inner class CreateCustomerTests{
@@ -292,4 +295,6 @@ class CustomerServiceTest {
             verify(exactly = 0) { customerRepository.delete(any(Customer::class)) }
         }
     }
+
+
 }
