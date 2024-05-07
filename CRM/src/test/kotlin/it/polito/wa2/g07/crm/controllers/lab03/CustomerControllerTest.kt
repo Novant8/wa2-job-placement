@@ -369,7 +369,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
         private var mockJobOffer = JobOfferDTO(0L,
             description = "descrizione",
             customer = ReducedContactDTO(0L,"nome","cognome",ContactCategory.CUSTOMER),
-            requiredSkills = setOf("test"),
+            requiredSkills = mutableSetOf("test"),
             duration=90,
             offerStatus = OfferStatus.CREATED,null,null,null)
 
@@ -383,7 +383,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
         fun createJobOffer() {
 
 
-            val dto = JobOfferCreateDTO("descrizione",setOf ("saltare","correre"), 90)
+            val dto = JobOfferCreateDTO("descrizione",mutableSetOf ("saltare","correre"), 90)
             mockMvc.post("/API/customers/0/job-offers") {
                 contentType = MediaType.APPLICATION_JSON
                 content = jsonMapper().writeValueAsString(dto)
@@ -396,7 +396,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
 
         @Test
         fun createJobOfferWithNotes() {
-            val dto = JobOfferCreateDTO("descrizione",setOf ("saltare","correre"), 90, notes = "ciao")
+            val dto = JobOfferCreateDTO("descrizione",mutableSetOf ("saltare","correre"), 90, notes = "ciao")
             mockMvc.post("/API/customers/0/job-offers") {
                 contentType = MediaType.APPLICATION_JSON
                 content = jsonMapper().writeValueAsString(dto)
@@ -409,7 +409,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
         @Test
         fun createJobOffer_EmptyFields() {
             //empty requiredSkill
-            var dto = JobOfferCreateDTO("descrizione",setOf (), 90)
+            var dto = JobOfferCreateDTO("descrizione",mutableSetOf (), 90)
             mockMvc.post("/API/customers/0/job-offers") {
                 contentType = MediaType.APPLICATION_JSON
                 content = jsonMapper().writeValueAsString(dto)
@@ -417,7 +417,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
                 verify(exactly = 0){ jobOfferService.createJobOffer(any(),any())}
             }
             //blanck description
-             dto = JobOfferCreateDTO("",setOf ("saltare","correre"), 90)
+             dto = JobOfferCreateDTO("",mutableSetOf ("saltare","correre"), 90)
                 mockMvc.post("/API/customers/0/job-offers") {
                     contentType = MediaType.APPLICATION_JSON
                     content = jsonMapper().writeValueAsString(dto)
@@ -425,7 +425,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
                     verify(exactly =0){ jobOfferService.createJobOffer(any(),any())}
                 }
             //duration negative
-            dto = JobOfferCreateDTO("descrizione",setOf ("saltare","correre"), -90)
+            dto = JobOfferCreateDTO("descrizione",mutableSetOf ("saltare","correre"), -90)
             mockMvc.post("/API/customers/0/job-offers") {
                 contentType = MediaType.APPLICATION_JSON
                 content = jsonMapper().writeValueAsString(dto)

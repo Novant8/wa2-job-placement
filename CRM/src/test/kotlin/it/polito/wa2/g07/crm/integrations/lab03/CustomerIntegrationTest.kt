@@ -5,9 +5,11 @@ import it.polito.wa2.g07.crm.dtos.lab02.*
 import it.polito.wa2.g07.crm.dtos.lab03.CreateCustomerDTO
 import it.polito.wa2.g07.crm.dtos.lab03.toEntity
 import it.polito.wa2.g07.crm.entities.lab02.Contact
+import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 import it.polito.wa2.g07.crm.entities.lab03.Customer
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
+import it.polito.wa2.g07.crm.repositories.lab03.JobOfferRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

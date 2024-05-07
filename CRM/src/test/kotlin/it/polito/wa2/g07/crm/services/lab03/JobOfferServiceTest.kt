@@ -53,13 +53,13 @@ class JobOfferServiceTest {
         }
        @Test
         fun createJobOffer(){
-            val createJobOfferDTO = JobOfferCreateDTO("test",setOf("skill1"), 90, notes = "nota")
+            val createJobOfferDTO = JobOfferCreateDTO("test",mutableSetOf("skill1"), 90, notes = "nota")
 
             val expectedDto = JobOfferDTO(
                 customer = ReducedContactDTO(0L,"Mario","Rossi",ContactCategory.CUSTOMER),
                 duration = 90,
                 description = "test",
-                requiredSkills=setOf("skill1"),
+                requiredSkills=mutableSetOf("skill1"),
                 notes = "nota",
                 id=0L,
                 professional = null,
@@ -74,7 +74,7 @@ class JobOfferServiceTest {
         }
         @Test
         fun createJobOfferNotExistCustomer(){
-            val createJobOfferDTO = JobOfferCreateDTO("Descrizione",setOf("skill1"), 90, notes = "nota")
+            val createJobOfferDTO = JobOfferCreateDTO("Descrizione",mutableSetOf("skill1"), 90, notes = "nota")
             assertThrows<EntityNotFoundException> {
                  service.createJobOffer(10,createJobOfferDTO)
             }

@@ -11,7 +11,7 @@ class JobOfferCreateDTO (
     @field:NotBlank
     val description: String,
     @field:Size(min=1)
-    val requiredSkills: Set<String>,
+    val requiredSkills: MutableSet<String>,
     @field: Positive
     var duration: Long,
     val notes: String? = null

@@ -11,7 +11,7 @@ import it.polito.wa2.g07.crm.services.lab03.CustomerService
 import org.springframework.data.domain.Page
 import it.polito.wa2.g07.crm.services.lab03.JobOfferService
 import jakarta.validation.Valid
-import org.springframework.data.domain.Pageable
+
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.data.domain.Pageable

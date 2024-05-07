@@ -11,7 +11,7 @@ data class JobOfferDTO (
     val id:Long?,
     val description : String,
     val customer: ReducedContactDTO,
-    val requiredSkills: Set<String>,
+    val requiredSkills: MutableSet<String>,
     val duration: Long,
     val offerStatus: OfferStatus,
     val notes: String?,
