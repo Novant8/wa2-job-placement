@@ -9,6 +9,8 @@ import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import jakarta.transaction.Transactional
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -38,5 +40,20 @@ class CustomerServiceImpl(private val customerRepository: CustomerRepository, pr
         val customer = Customer(contactInfo = contact, notes)
 
         return customerRepository.save(customer).toCustomerDto()
+    }
+
+    @Transactional
+    override fun getCustomers(pageable: Pageable): Page<ReducedCustomerDTO> {
+        return customerRepository.findAll(pageable).map { it.toReduceCustomerDTO() }
+    }
+    @Transactional
+    override fun getCustomerById(customerId: Long): CustomerDTO {
+      val customerOpt = customerRepository.findById(customerId)
+
+        if (!customerOpt.isPresent){
+            throw EntityNotFoundException("Customer with id : $customerId is not present ")
+        }
+
+        return customerOpt.get().toCustomerDto()
     }
 }

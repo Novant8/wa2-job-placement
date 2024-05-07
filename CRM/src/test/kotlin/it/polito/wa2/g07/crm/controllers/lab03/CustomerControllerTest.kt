@@ -3,12 +3,10 @@ package it.polito.wa2.g07.crm.controllers.lab03
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.verify
 import it.polito.wa2.g07.crm.controllers.lab02.ContactController
 import it.polito.wa2.g07.crm.dtos.lab02.*
-import it.polito.wa2.g07.crm.dtos.lab03.CreateCustomerDTO
-import it.polito.wa2.g07.crm.dtos.lab03.CustomerDTO
-import it.polito.wa2.g07.crm.dtos.lab03.toCustomerDto
-import it.polito.wa2.g07.crm.dtos.lab03.toEntity
+import it.polito.wa2.g07.crm.dtos.lab03.*
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
@@ -20,8 +18,12 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 
 
@@ -50,6 +52,24 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
         ContactCategory.CUSTOMER,
         listOf(mockResponseEmailDTO, mockResponseTelephoneDTO, mockResponseDwellingDTO),
         "RSSMRA70A01L219K"
+    )
+    private val mockReducedContactDTO = ReducedContactDTO(
+        mockContactDTO.id,
+        mockContactDTO.name,
+        mockContactDTO.surname,
+        mockContactDTO.category
+    )
+
+    private val mockReducedCustomerDTO = ReducedCustomerDTO(
+        1L,
+        mockReducedContactDTO,
+        "New Customer"
+    )
+
+    private val mockCustomerDTO = CustomerDTO(
+        1L,
+        mockContactDTO,
+        "New Customer"
     )
 
     @Nested
@@ -260,5 +280,76 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
                 }
         }
 
+    }
+
+    @Nested
+    inner class GetCustomerTest {
+        @BeforeEach
+        fun initMocks() {
+            every { customerService.getCustomers(any(Pageable::class)) } answers {
+                PageImpl(
+                    listOf(
+                        mockReducedCustomerDTO
+                    )
+                )
+            }
+            every { customerService.getCustomerById(any(Long::class)) } answers {
+                val customerId = firstArg<Long>()
+                if (customerId != mockCustomerDTO.id) {
+                    throw EntityNotFoundException("Customer with id : $customerId is not found")
+                }
+                mockCustomerDTO
+            }
+        }
+
+        @Test
+        fun getCustomers(){
+            mockMvc.get("/API/customers")
+                .andExpect {
+                    status { isOk() }
+                    verify (exactly = 1){customerService.getCustomers(PageRequest.of(0,20))  }
+                    content {
+                        jsonPath("$.content[0].id") { value(mockReducedCustomerDTO.id) }
+                        jsonPath("$.content[0].contactInfo.id") { value(mockReducedCustomerDTO.contactInfo.id) }
+                        jsonPath("$.content[0].contactInfo.name") { value(mockReducedCustomerDTO.contactInfo.name) }
+                        jsonPath("$.content[0].contactInfo.surname") { value(mockReducedCustomerDTO.contactInfo.surname) }
+                        jsonPath("$.content[0].contactInfo.category") { value(mockReducedCustomerDTO.contactInfo.category.name) }
+                        jsonPath("$.content[0].notes") { value(mockReducedCustomerDTO.notes) }
+                    }
+                }
+
+        }
+
+        @Test
+        fun getCustomersById(){
+            mockMvc.get("/API/customers/${mockCustomerDTO.id}")
+                .andExpect {
+                    status { isOk() }
+                    verify (exactly = 1){customerService.getCustomerById(mockCustomerDTO.id)  }
+                    content {
+                        jsonPath("$.id") { value(mockCustomerDTO.id) }
+                        jsonPath("$.contactInfo.id") { value(mockCustomerDTO.contactInfo.id) }
+                        jsonPath("$.contactInfo.name") { value(mockCustomerDTO.contactInfo.name) }
+                        jsonPath("$.contactInfo.surname") { value(mockCustomerDTO.contactInfo.surname) }
+                        jsonPath("$.contactInfo.category") { value(mockCustomerDTO.contactInfo.category.name) }
+                        jsonPath("$.contactInfo.addresses[*].email") { value(mockEmailDTO.email) }
+                        jsonPath("$.contactInfo.addresses[*].phoneNumber") { value(mockTelephoneDTO.phoneNumber) }
+                        jsonPath("$.contactInfo.addresses[*].street") { value(mockDwellingDTO.street) }
+                        jsonPath("$.contactInfo.addresses[*].city") { value(mockDwellingDTO.city) }
+                        jsonPath("$.contactInfo.addresses[*].district") { value(mockDwellingDTO.district) }
+                        jsonPath("$.contactInfo.addresses[*].country") { value(mockDwellingDTO.country) }
+                        jsonPath("$.notes") { value(mockCustomerDTO.notes) }
+                    }
+                }
+
+        }
+        @Test
+        fun getNonExistentCustomer(){
+            mockMvc.get("/API/customers/202")
+                .andExpect {
+                    status { isNotFound() }
+                }
+
+        }
     }
 }
