@@ -196,6 +196,29 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
                 status { isNotFound() }
             }
         }
+        @Test
+        fun getJobOffersValueNull(){
+            mockMvc.get("/API/joboffers/$jobOfferID_1/value") {
+            }.andExpect {
+                status { isOk() }
+                content { jsonPath("$.value") { value(null) } }
+            }
+        }
+        @Test
+        fun getJobOffersValue(){
+            mockMvc.get("/API/joboffers/$jobOfferID_2/value") {
+            }.andExpect {
+                status { isOk() }
+                content { jsonPath("$.value") { value(180.0) } }
+            }
+        }
+        @Test
+        fun getJobOffersValue_NotFound(){
+            mockMvc.get("/API/joboffers/345345/value") {
+            }.andExpect {
+                status { isNotFound() }
 
+            }
+        }
     }
 }

@@ -10,6 +10,6 @@ interface JobOfferService {
    fun createJobOffer(customerId:Long,job : JobOfferCreateDTO):JobOfferDTO
    fun searchJobOffer(filterDTO: JobOfferFilterDTO, pageable: Pageable): Page<JobOfferReducedDTO>
    fun searchJobOfferById(idOffer:Long): JobOfferDTO
-
+   fun getJobOfferValue(idOffer:Long):Double?
 
 }

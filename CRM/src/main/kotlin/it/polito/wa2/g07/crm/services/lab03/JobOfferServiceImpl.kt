@@ -48,6 +48,10 @@ class JobOfferServiceImpl(
         val job= jobOfferRepository.findById(idOffer).getOrElse { throw EntityNotFoundException("The offer does not exist") }
         return job.toJobOfferDTO()
     }
-
+    @Transactional
+    override  fun getJobOfferValue(idOffer:Long):Double?{
+        val job= jobOfferRepository.findById(idOffer).getOrElse { throw EntityNotFoundException("The offer does not exist") }
+        return job.value
+    }
 
 }

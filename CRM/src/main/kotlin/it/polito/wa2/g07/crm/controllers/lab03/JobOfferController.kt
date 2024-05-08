@@ -4,6 +4,8 @@ import it.polito.wa2.g07.crm.dtos.lab03.*
 import it.polito.wa2.g07.crm.services.lab03.JobOfferService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -29,8 +31,9 @@ class JobOfferController(private val jobOfferService: JobOfferService) {
         }
 
         @GetMapping("/{joboffer_id}/value")
-        fun getJobOfferValid(){
-            TODO("Not yet implemented")
-            //retrieve the value of a specific Job offer. Pay attention that value is confirmed only if a job offer is  bound to a professional.
+        fun getJobOfferValid(@PathVariable("joboffer_id") idOffer:Long) : Map<String,Double?>{
+
+               return mapOf<String,Double?>("value" to jobOfferService.getJobOfferValue(idOffer))
+
         }
 }
