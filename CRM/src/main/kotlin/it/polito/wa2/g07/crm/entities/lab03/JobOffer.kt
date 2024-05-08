@@ -16,7 +16,7 @@ enum class OfferStatus {
 class JobOffer(
 
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     var requiredSkills: MutableSet<String> = mutableSetOf(),
 
     var duration: Long,

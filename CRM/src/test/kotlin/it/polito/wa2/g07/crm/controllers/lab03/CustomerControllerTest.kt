@@ -368,7 +368,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
         private var customerID_1 = 0L
         private var mockJobOffer = JobOfferDTO(0L,
             description = "descrizione",
-            customer = ReducedContactDTO(0L,"nome","cognome",ContactCategory.CUSTOMER),
+            customer = ReducedCustomerDTO(0L,ReducedContactDTO(0L,"nome","cognome",ContactCategory.CUSTOMER),null),
             requiredSkills = mutableSetOf("test"),
             duration=90,
             offerStatus = OfferStatus.CREATED,null,null,null)

@@ -56,8 +56,7 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
 
             val contact = Contact("Company", "Test", ContactCategory.CUSTOMER)
             val contactP = Contact("Professional", "Worker", ContactCategory.PROFESSIONAL)
-           // contactRepository.save(contact)
-           // contactRepository.save(contactP)
+
             val customer = Customer(contact, "Affidabile")
             val professional = Professional(contactP, "Torino", setOf("ITA"), 20.0, EmploymentState.UNEMPLOYED)
 
@@ -77,8 +76,6 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
             customer.addPlacement(jobOffer2)
 
             customerID_1 = customerRepository.save(customer).customerId
-
-
 
             jobOfferID_1 = jobOfferRepository.save(jobOffer).offerId
             jobOfferID_2 = jobOfferRepository.save(jobOffer2).offerId
@@ -182,5 +179,23 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
             }
 
         }
+        @Test
+        fun getJobOffersById(){
+            mockMvc.get("/API/joboffers/$jobOfferID_1") {
+            }.andExpect {
+                status { isOk() }
+                content { jsonPath("$.id") { value(jobOfferID_1) } }
+                content { jsonPath("$.customer.id") { value(customerID_1) } }
+                content { jsonPath("$.professional") { value(null) } }
+             }
+        }
+        @Test
+        fun getJobOffersById_NotFound(){
+            mockMvc.get("/API/joboffers/3525") {
+            }.andExpect {
+                status { isNotFound() }
+            }
+        }
+
     }
 }

@@ -6,6 +6,7 @@ import it.polito.wa2.g07.crm.dtos.lab02.ReducedContactDTO
 
 import it.polito.wa2.g07.crm.dtos.lab03.JobOfferCreateDTO
 import it.polito.wa2.g07.crm.dtos.lab03.JobOfferDTO
+import it.polito.wa2.g07.crm.dtos.lab03.ReducedCustomerDTO
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 import it.polito.wa2.g07.crm.entities.lab03.Customer
@@ -56,7 +57,7 @@ class JobOfferServiceTest {
             val createJobOfferDTO = JobOfferCreateDTO("test",mutableSetOf("skill1"), 90, notes = "nota")
 
             val expectedDto = JobOfferDTO(
-                customer = ReducedContactDTO(0L,"Mario","Rossi",ContactCategory.CUSTOMER),
+                customer = ReducedCustomerDTO(0L, ReducedContactDTO(0L,"Mario","Rossi",ContactCategory.CUSTOMER),null),
                 duration = 90,
                 description = "test",
                 requiredSkills=mutableSetOf("skill1"),

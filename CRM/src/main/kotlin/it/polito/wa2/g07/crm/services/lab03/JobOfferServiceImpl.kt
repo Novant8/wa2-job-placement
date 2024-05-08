@@ -43,5 +43,11 @@ class JobOfferServiceImpl(
         return jobOfferRepository.findAll(filterDTO.toSpecification(),pageable).map { it.toJobOfferReducedDTO() }
     }
 
+    @Transactional
+    override fun searchJobOfferById(idOffer: Long): JobOfferDTO {
+        val job= jobOfferRepository.findById(idOffer).getOrElse { throw EntityNotFoundException("The offer does not exist") }
+        return job.toJobOfferDTO()
+    }
+
 
 }
