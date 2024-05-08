@@ -12,3 +12,6 @@ data class ReducedCustomerDTO(
 
 fun Customer.toReduceCustomerDTO():ReducedCustomerDTO=
     ReducedCustomerDTO(this.customerId, this.contactInfo.toReducedContactDTO(), this.notes)
+
+fun Customer.toReduceCustomerDTO_Basic(): ReducedCustomerDTO=
+    ReducedCustomerDTO(this.customerId, this.contactInfo.toReducedContactDTO(),null)

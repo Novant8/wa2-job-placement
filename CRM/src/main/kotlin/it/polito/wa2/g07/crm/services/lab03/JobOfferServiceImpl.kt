@@ -7,8 +7,11 @@ import it.polito.wa2.g07.crm.entities.lab03.*
 import it.polito.wa2.g07.crm.repositories.lab03.*
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 import kotlin.jvm.optionals.getOrElse
 
@@ -17,22 +20,28 @@ class JobOfferServiceImpl(
     private val jobOfferRepository: JobOfferRepository,
     private val customerRepository: CustomerRepository,
 ): JobOfferService {
+
+    @Transactional
     override fun createJobOffer(customerId: Long, job: JobOfferCreateDTO): JobOfferDTO {
 
 
         val customer = customerRepository.findById(customerId).getOrElse { throw EntityNotFoundException("The customer does not exist") }
 
         val jobOffer = JobOffer(
-            customer = customer,
             requiredSkills = job.requiredSkills,
             duration= job.duration,
             notes = job.notes,
             status = OfferStatus.CREATED,
             description = job.description
             )
+        customer.addPlacement(jobOffer)
         return jobOfferRepository.save(jobOffer).toJobOfferDTO()
     }
+    @Transactional
+    override fun searchJobOffer(filterDTO: JobOfferFilterDTO, pageable: Pageable): Page<JobOfferReducedDTO> {
 
+        return jobOfferRepository.findAll(filterDTO.toSpecification(),pageable).map { it.toJobOfferReducedDTO() }
+    }
 
 
 }

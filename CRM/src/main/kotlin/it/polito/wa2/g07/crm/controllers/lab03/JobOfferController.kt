@@ -1,5 +1,9 @@
 package it.polito.wa2.g07.crm.controllers.lab03
 
+import it.polito.wa2.g07.crm.dtos.lab03.*
+import it.polito.wa2.g07.crm.services.lab03.JobOfferService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -7,14 +11,12 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/API/joboffers")
-class JobOfferController {
+class JobOfferController(private val jobOfferService: JobOfferService) {
 
 
-        @GetMapping("/getJobOffer")
-        fun getJobsOffer(){
-            TODO("Not yet implemented")
-            //using request parameters allow for filtering
-            //by customer, professional, and status.
+        @GetMapping("/")
+        fun getJobsOffer(filterDTO: JobOfferFilterDTO, pageable: Pageable) : Page<JobOfferReducedDTO>{
+            return jobOfferService.searchJobOffer(filterDTO,pageable)
 
 
         }

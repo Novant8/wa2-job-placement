@@ -14,8 +14,7 @@ enum class OfferStatus {
 }
 @Entity
 class JobOffer(
-    @ManyToOne
-    var customer: Customer,
+
 
     @ElementCollection
     var requiredSkills: MutableSet<String> = mutableSetOf(),
@@ -29,6 +28,9 @@ class JobOffer(
     var notes: String? = null,
 ) {
 
+    @ManyToOne
+    lateinit var customer: Customer
+
     companion object {
         const val PROFIT_MARGIN = 0.2
     }
@@ -37,7 +39,7 @@ class JobOffer(
     @GeneratedValue
     var offerId: Long = 0L
 
-    @ManyToOne
+    @ManyToOne(cascade = [CascadeType.ALL])
     var professional: Professional? = null
         set(professional) {
             professional?.jobOffers?.add(this)

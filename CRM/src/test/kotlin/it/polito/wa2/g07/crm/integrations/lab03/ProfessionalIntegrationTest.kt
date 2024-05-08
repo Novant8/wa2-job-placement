@@ -5,6 +5,7 @@ import it.polito.wa2.g07.crm.CrmApplicationTests
 import it.polito.wa2.g07.crm.dtos.lab03.toProfessionalDto
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
+import it.polito.wa2.g07.crm.entities.lab03.JobOffer
 import it.polito.wa2.g07.crm.entities.lab03.Professional
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
 import org.junit.jupiter.api.BeforeEach
@@ -26,6 +27,8 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
 
     @Autowired
     lateinit var professionalRepository: ProfessionalRepository
+    @Autowired
+    lateinit var jobOfferRepository: ProfessionalRepository
 
     @Autowired
     lateinit var objectMapper: ObjectMapper
@@ -46,7 +49,9 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
 
         @BeforeEach
         fun init() {
+            jobOfferRepository.deleteAll()
             professionalRepository.deleteAll()
+
             professional = professionalRepository.save(professional)
         }
 

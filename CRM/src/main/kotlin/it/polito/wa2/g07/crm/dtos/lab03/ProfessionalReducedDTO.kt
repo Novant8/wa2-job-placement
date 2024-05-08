@@ -8,9 +8,9 @@ import it.polito.wa2.g07.crm.entities.lab03.Professional
 data class ProfessionalReducedDTO(
     val id: Long,
     val contactInfo: ReducedContactDTO,
-    val location: String,
-    val skills: Set<String>,
-    val employmentState: EmploymentState
+    val location: String?,
+    val skills: Set<String>?,
+    val employmentState: EmploymentState?
 )
 
 fun Professional.toProfessionalReducedDto() =
@@ -20,4 +20,12 @@ fun Professional.toProfessionalReducedDto() =
         this.location,
         this.skills.toSet(),
         this.employmentState
+    )
+fun Professional.toProfessionalReducedDTO_Basic() =
+    ProfessionalReducedDTO(
+        this.professionalId,
+        this.contactInfo.toReducedContactDTO(),
+        null,
+        null,
+        null
     )

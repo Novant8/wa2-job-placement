@@ -31,7 +31,7 @@ class Professional(
     @GeneratedValue
     var professionalId: Long = 0L
 
-    @OneToMany(mappedBy = "professional")
+    @OneToMany(mappedBy = "professional",cascade = [ CascadeType.ALL ])
     val jobOffers : MutableSet<JobOffer> = mutableSetOf()
 
 }
