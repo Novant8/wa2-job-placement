@@ -403,9 +403,9 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                 content = req
             }.andExpect {
                 content { jsonPath("$.customer.id").isNotEmpty }
-                content { jsonPath("$.customer.name") { value("Company") } }
-                content { jsonPath("$.customer.surname") { value("Test") } }
-                content { jsonPath("$.customer.category") { value("CUSTOMER") } }
+                content { jsonPath("$.customer.contactInfo.name") { value("Company") } }
+                content { jsonPath("$.customer.contactInfo.surname") { value("Test") } }
+                content { jsonPath("$.customer.contactInfo.category") { value("CUSTOMER") } }
                 content { jsonPath("$.requiredSkills[0]") { value("correre") } }
                 content { jsonPath("$.requiredSkills[1]") { value("saltare") } }
                 content { jsonPath("$.offerStatus") { value("CREATED") } }

@@ -57,7 +57,7 @@ class JobOfferServiceTest {
             val createJobOfferDTO = JobOfferCreateDTO("test",mutableSetOf("skill1"), 90, notes = "nota")
 
             val expectedDto = JobOfferDTO(
-                customer = ReducedCustomerDTO(0L, ReducedContactDTO(0L,"Mario","Rossi",ContactCategory.CUSTOMER),null),
+                customer = ReducedCustomerDTO(1L, ReducedContactDTO(0L,"Mario","Rossi",ContactCategory.CUSTOMER),null),
                 duration = 90,
                 description = "test",
                 requiredSkills=mutableSetOf("skill1"),
