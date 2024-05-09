@@ -126,10 +126,20 @@ class JobOfferControllerTest(@Autowired val mockMvc: MockMvc) {
 
         @Test
         fun updateJobOfferStatus_invalidStatus() {
+            // Cannot update to status
             mockMvc
                 .post("/API/joboffers/${mockJobOffer.offerId}") {
                     contentType = MediaType.APPLICATION_JSON
                     content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.DONE))
+                }.andExpect {
+                    status { isBadRequest() }
+                }
+
+            // Status does not exist
+            mockMvc
+                .post("/API/joboffers/${mockJobOffer.offerId}") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = """{ "status": "invalid" }"""
                 }.andExpect {
                     status { isBadRequest() }
                 }
