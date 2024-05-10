@@ -7,12 +7,13 @@ import io.mockk.verify
 import it.polito.wa2.g07.crm.controllers.lab02.ContactController
 import it.polito.wa2.g07.crm.dtos.lab02.*
 import it.polito.wa2.g07.crm.dtos.lab03.*
-import it.polito.wa2.g07.crm.dtos.lab03.*
+
 
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 
 import it.polito.wa2.g07.crm.entities.lab03.OfferStatus
 import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
+import it.polito.wa2.g07.crm.exceptions.DuplicateAddressException
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.lab02.ContactService
@@ -81,6 +82,29 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
         1L,
         mockContactDTO,
         "New Customer"
+    )
+
+    private val invalidEmailDTOs = listOf(
+        EmailDTO(""),
+        EmailDTO(" "),
+        EmailDTO("invalid")
+    )
+
+    private val invalidTelephoneDTOs = listOf(
+        TelephoneDTO(""),
+        TelephoneDTO(" "),
+        TelephoneDTO("invalid")
+    )
+
+    private val invalidDwellingDTOs = listOf(
+        DwellingDTO("", "Torino", "TO", "IT"),
+        DwellingDTO(" ", "Torino", "TO", "IT"),
+        DwellingDTO("Via Garibaldi, 42", "", "TO", "IT"),
+        DwellingDTO("Via Garibaldi, 42", " ", "TO", "IT"),
+        DwellingDTO("Via Garibaldi, 42", "Torino", "", "IT"),
+        DwellingDTO("Via Garibaldi, 42", "Torino", " ", "IT"),
+        DwellingDTO("Via Garibaldi, 42", "Torino", "TO", ""),
+        DwellingDTO("Via Garibaldi, 42", "Torino", "TO", " ")
     )
 
     @Nested
@@ -474,13 +498,33 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
                     notes
                 )
             }
+            every {customerService.getCustomerById(any(Long::class))} throws EntityNotFoundException("Customer not found")
+            every { customerService.getCustomerById(mockCustomerDTO.id) } answers {mockCustomerDTO}
+            every { contactService.updateAddress(any(Long::class), any(Long::class), any(AddressDTO::class)) } throws EntityNotFoundException("Contact not found")
+            every { contactService.updateAddress(mockContactDTO.id, any(Long::class), any(AddressDTO::class)) } throws EntityNotFoundException("Address not found")
+            for (addressResponseDTO in listOf(mockResponseEmailDTO, mockResponseTelephoneDTO, mockResponseDwellingDTO)) {
+                every { contactService.updateAddress(mockContactDTO.id, addressResponseDTO.id, any(AddressDTO::class)) } answers {
+                    val addressDTO = thirdArg<AddressDTO>()
+                    if (addressDTO.addressType != addressResponseDTO.toAddressDTO().addressType)
+                        throw InvalidParamsException("Mismatching address types")
+                    ContactDTO(
+                        mockContactDTO.id,
+                        mockContactDTO.name,
+                        mockContactDTO.surname,
+                        mockContactDTO.category,
+                        mockContactDTO.addresses.map { if (it.id == addressResponseDTO.id) addressDTO.toEntity().toAddressResponseDTO() else it },
+                        mockContactDTO.ssn
+                    )
+                }
+                every { contactService.updateAddress(mockContactDTO.id, addressResponseDTO.id, addressResponseDTO.toAddressDTO()) } throws DuplicateAddressException("Address already associated")
+            }
         }
 
         @Test
         fun updateNotes(){
             val updateNotes = mapOf("notes" to "UpdatedNotes")
 
-            mockMvc.put("/API/customers/$contactId"){
+            mockMvc.put("/API/customers/$contactId/notes"){
                 contentType = MediaType.APPLICATION_JSON
                 content = jsonMapper().writeValueAsString(updateNotes)
             }.andExpect {
@@ -492,10 +536,29 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
+        fun updateMail_success() {
+            val customerId = mockCustomerDTO.id
+            val addressId = mockResponseEmailDTO.id
+            val updatedEmailDTO = EmailDTO("updated.mail@example.org")
+            mockMvc
+                .put("/API/customers/$customerId/email/$addressId") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(updatedEmailDTO)
+                }.andExpect {
+                    status { isOk() }
+                    content {
+                        jsonPath("$.contactInfo.addresses[*].email") { value(updatedEmailDTO.email) }
+                        jsonPath("$.contactInfo.addresses[?(@.email == \"${mockEmailDTO.email}\")]") { doesNotExist() }
+                    }
+                }
+        }
+
+
+        @Test
         fun updateUnknownCustomer(){
             val updateNotes = mapOf("notes" to "UpdatedNotes")
 
-            mockMvc.put("/API/customers/200"){
+            mockMvc.put("/API/customers/200/notes"){
                 contentType = MediaType.APPLICATION_JSON
                 content = jsonMapper().writeValueAsString(updateNotes)
             }.andExpect {
@@ -503,6 +566,150 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
 
             }
         }
+
+        @Test
+        fun updateMail_invalidMail() {
+            for (emailDTO in invalidEmailDTOs) {
+                val customerId = mockCustomerDTO.id
+                val addressId = mockResponseEmailDTO.id
+                mockMvc
+                    .put("/API/customers/$customerId/email/$addressId") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper().writeValueAsString(emailDTO)
+                    }.andExpect {
+                        status { isUnprocessableEntity() }
+                    }
+            }
+        }
+
+        @Test
+        fun updateMail_contactNotFound() {
+            val customerId = mockCustomerDTO.id + 1
+            val addressId = mockResponseEmailDTO.id
+            val updatedEmailDTO = EmailDTO("updated.mail@example.org")
+            mockMvc
+                .put("/API/customers/$customerId/email/$addressId") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(updatedEmailDTO)
+                }.andExpect {
+                    status { isNotFound() }
+                }
+        }
+
+        @Test
+        fun updateMail_addressNotFound() {
+            val customerId = mockCustomerDTO.id
+            val addressId = 42L
+            val updatedEmailDTO = EmailDTO("updated.mail@example.org")
+            mockMvc
+                .put("/API/customers/$customerId/email/$addressId") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(updatedEmailDTO)
+                }.andExpect {
+                    status { isNotFound() }
+                }
+        }
+
+        @Test
+        fun updateMail_invalidAddressType() {
+            val customerId = mockCustomerDTO.id
+            val addressId = mockResponseTelephoneDTO.id
+            val updatedEmailDTO = EmailDTO("updated.mail@example.org")
+            mockMvc
+                .put("/API/customers/$customerId/email/$addressId") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(updatedEmailDTO)
+                }.andExpect {
+                    status { isBadRequest() }
+                }
+        }
+
+        @Test
+        fun updateMail_duplicateMail() {
+            val customerId = mockCustomerDTO.id
+            val addressId = mockResponseEmailDTO.id
+            mockMvc
+                .put("/API/customers/$customerId/email/$addressId") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(mockEmailDTO)
+                }.andExpect {
+                    status { isConflict() }
+                }
+        }
+
+        @Test
+        fun updateTelephone_success() {
+            val customerId = mockCustomerDTO.id
+            val addressId = mockResponseTelephoneDTO.id
+            val updatedTelephoneDTO = TelephoneDTO("34298989898")
+            mockMvc
+                .put("/API/customers/$customerId/telephone/$addressId") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(updatedTelephoneDTO)
+                }.andExpect {
+                    status { isOk() }
+                    content {
+                        jsonPath("$.contactInfo.addresses[*].phoneNumber") { value(updatedTelephoneDTO.phoneNumber) }
+                        jsonPath("$.contactInfo.addresses[?(@.phoneNumber == \"${mockTelephoneDTO.phoneNumber}\")]") { doesNotExist() }
+                    }
+                }
+        }
+
+        @Test
+        fun updateTelephone_invalidTelephone() {
+            for (telephoneDTO in invalidTelephoneDTOs) {
+                val customerId = mockCustomerDTO.id
+                val addressId = mockResponseTelephoneDTO.id
+                mockMvc
+                    .put("/API/customers/$customerId/telephone/$addressId") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper().writeValueAsString(telephoneDTO)
+                    }.andExpect {
+                        status { isUnprocessableEntity() }
+                    }
+            }
+        }
+
+
+        @Test
+        fun updateDwelling_success() {
+            val customerId = mockCustomerDTO.id
+            val addressId = mockResponseDwellingDTO.id
+            val validDwellingDTOs = listOf(
+                DwellingDTO("Via Garibaldi, 42", "Torino", "TO", "IT"),
+                DwellingDTO("Via Garibaldi, 42", "Torino", "TO", null),
+                DwellingDTO("Via Garibaldi, 42", "Torino", null, null)
+            )
+            for (dwellingDTO in validDwellingDTOs) {
+                mockMvc
+                    .put("/API/customers/$customerId/address/$addressId") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper().writeValueAsString(dwellingDTO)
+                    }.andExpect {
+                        status { isOk() }
+                        content {
+                            jsonPath("$.contactInfo.addresses[*].street") { value(dwellingDTO.street) }
+                            jsonPath("$.contactInfo.addresses[?(@.street == \"${mockDwellingDTO.street}\")]") { doesNotExist() }
+                        }
+                    }
+            }
+        }
+
+        @Test
+        fun updateDwelling_invalidDwelling() {
+            for (dwellingDTO in invalidDwellingDTOs) {
+                val customerId = mockCustomerDTO.id
+                val addressId = mockResponseDwellingDTO.id
+                mockMvc
+                    .put("/API/customers/$customerId/address/$addressId") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper().writeValueAsString(dwellingDTO)
+                    }.andExpect {
+                        status { isUnprocessableEntity() }
+                    }
+            }
+        }
+
 
     }
 }

@@ -1,6 +1,9 @@
 package it.polito.wa2.g07.crm.controllers.lab03
 
 
+import it.polito.wa2.g07.crm.dtos.lab02.DwellingDTO
+import it.polito.wa2.g07.crm.dtos.lab02.EmailDTO
+import it.polito.wa2.g07.crm.dtos.lab02.TelephoneDTO
 import it.polito.wa2.g07.crm.dtos.lab02.ContactFilterDTO
 import it.polito.wa2.g07.crm.dtos.lab03.CreateCustomerDTO
 import it.polito.wa2.g07.crm.dtos.lab03.CustomerDTO
@@ -52,11 +55,44 @@ class CustomerController (  private val customerService: CustomerService,
 
     }
 
-    @PutMapping("/{customerId}", "/{customerId}/")
-    fun editCustomer(@PathVariable("customerId") customerId: Long, @RequestBody notes : Map<String, String?>): CustomerDTO {
+    @PutMapping("/{customerId}/notes", "/{customerId}/notes/")
+    fun editCustomerNotes(@PathVariable("customerId") customerId: Long, @RequestBody notes : Map<String, String?>): CustomerDTO {
         return customerService.postCustomerNotes(customerId,notes["notes"])
     }
 
+    @PutMapping("/{customerId}/email/{emailId}", "/{customerId}/email/{emailId}/")
+    fun editCustomerEmail(@PathVariable("customerId") customerId: Long, @PathVariable("emailId") emailId : Long,
+                          @Valid @RequestBody emailDTO: EmailDTO
+    ): CustomerDTO {
+        val customer = customerService.getCustomerById(customerId)
+        val contactId = customer.contactInfo.id
+        val contactDTO=  contactService.updateAddress(contactId,emailId,emailDTO)
+
+        return CustomerDTO(customer.id, contactDTO, customer.notes)
+    }
+
+    @PutMapping("/{customerId}/telephone/{telephoneId}", "/{customerId}/telephone/{telephoneId}/")
+    fun editCustomerTelephone(@PathVariable("customerId") customerId: Long, @PathVariable("telephoneId") telephoneId : Long,
+                          @Valid @RequestBody telephoneDTO: TelephoneDTO
+    ): CustomerDTO{
+        val customer = customerService.getCustomerById(customerId)
+        val contactId = customer.contactInfo.id
+        val contactDTO=  contactService.updateAddress(contactId,telephoneId,telephoneDTO)
+
+        return CustomerDTO(customer.id, contactDTO, customer.notes)
+    }
+
+
+    @PutMapping("/{customerId}/address/{dwellingId}", "/{customerId}/address/{dwellingId}/")
+    fun editCustomerDwelling(@PathVariable("customerId") customerId: Long, @PathVariable("dwellingId") dwellingId : Long,
+                              @Valid @RequestBody dwellingDTO: DwellingDTO
+    ): CustomerDTO{
+        val customer = customerService.getCustomerById(customerId)
+        val contactId = customer.contactInfo.id
+        val contactDTO=  contactService.updateAddress(contactId,dwellingId,dwellingDTO)
+
+        return CustomerDTO(customer.id, contactDTO, customer.notes)
+    }
     @PostMapping("/{customerId}/job-offers", "/{customerId}/job-offers/")
     fun createJobOffer( @PathVariable("customerId") customerId: Long,
                         @RequestBody @Valid jobDTO: JobOfferCreateDTO): JobOfferDTO {

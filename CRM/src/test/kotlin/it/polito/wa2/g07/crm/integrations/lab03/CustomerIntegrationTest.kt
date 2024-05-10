@@ -1,5 +1,6 @@
 package it.polito.wa2.g07.crm.integrations.lab03
 
+import com.fasterxml.jackson.module.kotlin.jsonMapper
 import it.polito.wa2.g07.crm.CrmApplicationTests
 import it.polito.wa2.g07.crm.dtos.lab02.*
 import it.polito.wa2.g07.crm.dtos.lab03.CreateCustomerDTO
@@ -7,6 +8,7 @@ import it.polito.wa2.g07.crm.dtos.lab03.toEntity
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 import it.polito.wa2.g07.crm.entities.lab03.Customer
+import it.polito.wa2.g07.crm.repositories.lab02.AddressRepository
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.repositories.lab03.JobOfferRepository
@@ -17,23 +19,18 @@ import org.springframework.beans.factory.annotation.Autowired
 
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.domain.PageRequest
+
 
 import org.springframework.http.MediaType
 
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
-import java.time.LocalDateTime
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK) //just to remove IDE error on mockMvc
 @AutoConfigureMockMvc
 class CustomerIntegrationTest: CrmApplicationTests() {
@@ -49,6 +46,10 @@ class CustomerIntegrationTest: CrmApplicationTests() {
 
     @Autowired
     lateinit var jobOfferRepository: JobOfferRepository
+
+    @Autowired
+    lateinit var addressRepository: AddressRepository
+
 
     @Nested
     inner class PostCustomerTest{
@@ -84,20 +85,20 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                   }
             """.trimIndent()
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/API/customers").contentType(MediaType.APPLICATION_JSON).content(customer))
-                .andExpect(MockMvcResultMatchers.status().isCreated)
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.name").value("Customer"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.surname").value("Company"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.category").value("CUSTOMER"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.ssn").value("123456"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].email").value("customer@company.com"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].phoneNumber").value("6655855"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].street").value("123 Main St"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].city").value("City"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].district").value("District"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].country").value("Country"))
-                .andExpect(MockMvcResultMatchers.jsonPath("notes").value("New customer acquired"))
+            mockMvc.perform(post("/API/customers").contentType(MediaType.APPLICATION_JSON).content(customer))
+                .andExpect(status().isCreated)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("contactInfo.name").value("Customer"))
+                .andExpect(jsonPath("contactInfo.surname").value("Company"))
+                .andExpect(jsonPath("contactInfo.category").value("CUSTOMER"))
+                .andExpect(jsonPath("contactInfo.ssn").value("123456"))
+                .andExpect(jsonPath("contactInfo.addresses[*].email").value("customer@company.com"))
+                .andExpect(jsonPath("contactInfo.addresses[*].phoneNumber").value("6655855"))
+                .andExpect(jsonPath("contactInfo.addresses[*].street").value("123 Main St"))
+                .andExpect(jsonPath("contactInfo.addresses[*].city").value("City"))
+                .andExpect(jsonPath("contactInfo.addresses[*].district").value("District"))
+                .andExpect(jsonPath("contactInfo.addresses[*].country").value("Country"))
+                .andExpect(jsonPath("notes").value("New customer acquired"))
         }
 
         @Test
@@ -127,19 +128,19 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                   }
             """.trimIndent()
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/API/customers").contentType(MediaType.APPLICATION_JSON).content(customer))
-                .andExpect(MockMvcResultMatchers.status().isCreated)
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.name").value("Customer"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.surname").value("Company"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.category").value("CUSTOMER"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.ssn").value("123456"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].email").value("customer@company.com"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].phoneNumber").value("6655855"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].street").value("123 Main St"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].city").value("City"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].district").value("District"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].country").value("Country"))
+            mockMvc.perform(post("/API/customers").contentType(MediaType.APPLICATION_JSON).content(customer))
+                .andExpect(status().isCreated)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("contactInfo.name").value("Customer"))
+                .andExpect(jsonPath("contactInfo.surname").value("Company"))
+                .andExpect(jsonPath("contactInfo.category").value("CUSTOMER"))
+                .andExpect(jsonPath("contactInfo.ssn").value("123456"))
+                .andExpect(jsonPath("contactInfo.addresses[*].email").value("customer@company.com"))
+                .andExpect(jsonPath("contactInfo.addresses[*].phoneNumber").value("6655855"))
+                .andExpect(jsonPath("contactInfo.addresses[*].street").value("123 Main St"))
+                .andExpect(jsonPath("contactInfo.addresses[*].city").value("City"))
+                .andExpect(jsonPath("contactInfo.addresses[*].district").value("District"))
+                .andExpect(jsonPath("contactInfo.addresses[*].country").value("Country"))
 
         }
         @Test
@@ -170,8 +171,8 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                   }
             """.trimIndent()
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/API/customers").contentType(MediaType.APPLICATION_JSON).content(customer))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            mockMvc.perform(post("/API/customers").contentType(MediaType.APPLICATION_JSON).content(customer))
+                .andExpect(status().isBadRequest)
 
         }
 
@@ -223,20 +224,20 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                  }
             """.trimIndent()
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/API/contacts/$contactId1/customers").contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(MockMvcResultMatchers.status().isCreated)
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.name").value("Company"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.surname").value("Test"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.category").value("CUSTOMER"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.ssn").value("123456"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].email").value("company.test@email.com"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].phoneNumber").value("12345667889"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].street").value("123 Main St"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].city").value("City"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].district").value("District"))
-                .andExpect(MockMvcResultMatchers.jsonPath("contactInfo.addresses[*].country").value("Country"))
-                .andExpect(MockMvcResultMatchers.jsonPath("notes").value("New Customer associated"))
+            mockMvc.perform(post("/API/contacts/$contactId1/customers").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("contactInfo.name").value("Company"))
+                .andExpect(jsonPath("contactInfo.surname").value("Test"))
+                .andExpect(jsonPath("contactInfo.category").value("CUSTOMER"))
+                .andExpect(jsonPath("contactInfo.ssn").value("123456"))
+                .andExpect(jsonPath("contactInfo.addresses[*].email").value("company.test@email.com"))
+                .andExpect(jsonPath("contactInfo.addresses[*].phoneNumber").value("12345667889"))
+                .andExpect(jsonPath("contactInfo.addresses[*].street").value("123 Main St"))
+                .andExpect(jsonPath("contactInfo.addresses[*].city").value("City"))
+                .andExpect(jsonPath("contactInfo.addresses[*].district").value("District"))
+                .andExpect(jsonPath("contactInfo.addresses[*].country").value("Country"))
+                .andExpect(jsonPath("notes").value("New Customer associated"))
         }
 
         @Test
@@ -247,8 +248,8 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                  }
             """.trimIndent()
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/API/contacts/20/customers").contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(MockMvcResultMatchers.status().isNotFound)
+            mockMvc.perform(post("/API/contacts/20/customers").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isNotFound)
         }
         @Test
         fun associateAlreadyConnectedContact(){
@@ -264,11 +265,11 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                  }
             """.trimIndent()
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/API/contacts/$contactId1/customers").contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(MockMvcResultMatchers.status().isCreated)
+            mockMvc.perform(post("/API/contacts/$contactId1/customers").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated)
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/API/contacts/$contactId1/customers").contentType(MediaType.APPLICATION_JSON).content(body2))
-                .andExpect(MockMvcResultMatchers.status().isConflict)
+            mockMvc.perform(post("/API/contacts/$contactId1/customers").contentType(MediaType.APPLICATION_JSON).content(body2))
+                .andExpect(status().isConflict)
         }
         @Test
         fun associateProfessionalContact(){
@@ -528,6 +529,10 @@ class CustomerIntegrationTest: CrmApplicationTests() {
 
         private var customerId = 0L
 
+        private var emailId = 0L
+        private var telephoneId = 0L
+        private var dwellingId = 0L
+
         @BeforeEach
         fun init(){
             customerRepository.deleteAll()
@@ -547,6 +552,10 @@ class CustomerIntegrationTest: CrmApplicationTests() {
             )
 
             customerId = customerRepository.save(customerDto.toEntity()).customerId
+            emailId = addressRepository.findMailAddressByMail("company.test@email.com").get().id
+            telephoneId= addressRepository.findTelephoneAddressByTelephoneNumber("12345667889").get().id
+            dwellingId = addressRepository.findDwellingAddressByStreet("123 Main St", "City", "District","Country").get().id
+
         }
 
         @Test
@@ -557,7 +566,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                  }
             """.trimIndent()
 
-            mockMvc.perform(put("/API/customers/$customerId").content(body).contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(put("/API/customers/$customerId/notes").content(body).contentType(MediaType.APPLICATION_JSON))
                 .andExpect( status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("contactInfo.name").value("Company"))
@@ -574,6 +583,122 @@ class CustomerIntegrationTest: CrmApplicationTests() {
         }
 
         @Test
+        fun putCustomerEmail (){
+            val email = EmailDTO("updated.mail@example.org")
+
+            mockMvc.perform(put("/API/customers/$customerId/email/$emailId").content(jsonMapper().writeValueAsString(email)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect( status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("contactInfo.name").value("Company"))
+                .andExpect(jsonPath("contactInfo.surname").value("Test"))
+                .andExpect(jsonPath("contactInfo.category").value("CUSTOMER"))
+                .andExpect(jsonPath("contactInfo.ssn").value("123456"))
+                .andExpect(jsonPath("contactInfo.addresses[*].email").value(email.email))
+                .andExpect(jsonPath("contactInfo.addresses[*].phoneNumber").value("12345667889"))
+                .andExpect(jsonPath("contactInfo.addresses[*].street").value("123 Main St"))
+                .andExpect(jsonPath("contactInfo.addresses[*].city").value("City"))
+                .andExpect(jsonPath("contactInfo.addresses[*].district").value("District"))
+                .andExpect(jsonPath("contactInfo.addresses[*].country").value("Country"))
+                .andExpect(jsonPath("notes").value("New Customer"))
+
+
+        }
+
+        @Test
+        fun putCustomerTelephone (){
+            val telephone = TelephoneDTO("34298989898")
+
+            mockMvc.perform(put("/API/customers/$customerId/telephone/$telephoneId").content(jsonMapper().writeValueAsString(telephone)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect( status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("contactInfo.name").value("Company"))
+                .andExpect(jsonPath("contactInfo.surname").value("Test"))
+                .andExpect(jsonPath("contactInfo.category").value("CUSTOMER"))
+                .andExpect(jsonPath("contactInfo.ssn").value("123456"))
+                .andExpect(jsonPath("contactInfo.addresses[*].email").value("company.test@email.com"))
+                .andExpect(jsonPath("contactInfo.addresses[*].phoneNumber").value(telephone.phoneNumber))
+                .andExpect(jsonPath("contactInfo.addresses[*].street").value("123 Main St"))
+                .andExpect(jsonPath("contactInfo.addresses[*].city").value("City"))
+                .andExpect(jsonPath("contactInfo.addresses[*].district").value("District"))
+                .andExpect(jsonPath("contactInfo.addresses[*].country").value("Country"))
+                .andExpect(jsonPath("notes").value("New Customer"))
+
+
+        }
+
+        @Test
+        fun putCustomerDwelling (){
+            val dwelling = DwellingDTO("Via Garibaldi, 42", "Torino", "TO", "IT")
+
+            mockMvc.perform(put("/API/customers/$customerId/address/$dwellingId").content(jsonMapper().writeValueAsString(dwelling)).contentType(MediaType.APPLICATION_JSON))
+                .andExpect( status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("contactInfo.name").value("Company"))
+                .andExpect(jsonPath("contactInfo.surname").value("Test"))
+                .andExpect(jsonPath("contactInfo.category").value("CUSTOMER"))
+                .andExpect(jsonPath("contactInfo.ssn").value("123456"))
+                .andExpect(jsonPath("contactInfo.addresses[*].email").value("company.test@email.com"))
+                .andExpect(jsonPath("contactInfo.addresses[*].phoneNumber").value("12345667889"))
+                .andExpect(jsonPath("contactInfo.addresses[*].street").value(dwelling.street))
+                .andExpect(jsonPath("contactInfo.addresses[*].city").value(dwelling.city))
+                .andExpect(jsonPath("contactInfo.addresses[*].district").value(dwelling.district))
+                .andExpect(jsonPath("contactInfo.addresses[*].country").value(dwelling.country))
+                .andExpect(jsonPath("notes").value("New Customer"))
+
+
+        }
+
+        @Test
+        fun putAddressNotAssociatedWithTheUser(){
+            val email = "{\"email\":\"new.email@email.com\"}"
+
+            mockMvc.perform(put("/API/contacts/$customerId/email/20").contentType(MediaType.APPLICATION_JSON).content(email))
+                .andExpect(status().isNotFound)
+        }
+
+        @Test
+        fun putAddressFromDifferentTypes(){
+
+            val phoneNumber = "{\"phoneNumber\":\"123456\"}"
+
+            //we call the Put email endpoint, but we are passing a Telephone number
+            mockMvc.perform(put("/API/contacts/$customerId/email/$telephoneId").contentType(MediaType.APPLICATION_JSON).content(phoneNumber))
+                .andExpect(status().isBadRequest)
+        }
+
+
+        @Test
+        fun putEmptyEmail(){
+
+            val email = "{\"email\":\"\"}"
+            mockMvc.perform(put("/API/contacts/$customerId/email/$emailId").contentType(MediaType.APPLICATION_JSON).content(email))
+                .andExpect(status().isUnprocessableEntity)
+        }
+
+        @Test
+        fun putEmptyTelephone(){
+
+            val telephone = "{\"phoneNumber\":\"\"}"
+            mockMvc.perform(put("/API/contacts/$customerId/telephone/$telephoneId").contentType(MediaType.APPLICATION_JSON).content(telephone))
+                .andExpect(status().isUnprocessableEntity)
+        }
+
+        @Test
+        fun putEmptyDwelling(){
+
+            val dwelling = """
+                {
+                        "street":"", 
+                        "city":"", 
+                        "district":"", 
+                        "country":""
+                    }
+            """.trimIndent()
+            mockMvc.perform(put("/API/contacts/$customerId/address/$dwellingId").contentType(MediaType.APPLICATION_JSON).content(dwelling))
+                .andExpect(status().isUnprocessableEntity)
+        }
+
+        @Test
         fun putUnknownCustomer(){
             val body = """
                  {
@@ -581,7 +706,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                  }
             """.trimIndent()
 
-            mockMvc.perform(put("/API/customers/202").content(body).contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(put("/API/customers/202/notes").content(body).contentType(MediaType.APPLICATION_JSON))
                 .andExpect( status().isNotFound)
 
         }
