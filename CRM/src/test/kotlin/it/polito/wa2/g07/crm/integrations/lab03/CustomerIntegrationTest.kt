@@ -332,7 +332,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
         }
 
         @Test
-        fun getCustomers(){
+        fun getCustomers_noFilters(){
             mockMvc.perform(get("/API/customers/"))
                 .andExpect( status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -347,6 +347,29 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                 .andExpect(jsonPath("$.content[1].contactInfo.category").value("CUSTOMER"))
                 .andExpect(jsonPath("$.content[1].notes").value("New Customer associated"))
 
+        }
+
+        @Test
+        fun getCustomers_withFilter_match(){
+            mockMvc
+                .perform(get("/API/customers/").queryParam("fullName", "test user"))
+                .andExpect( status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content[0].id").value(customerId1))
+                .andExpect(jsonPath("$.content[0].contactInfo.name").value("Test"))
+                .andExpect(jsonPath("$.content[0].contactInfo.surname").value("User"))
+                .andExpect(jsonPath("$.content[0].contactInfo.category").value("CUSTOMER"))
+                .andExpect(jsonPath("$.content[0].notes").value(null))
+                .andExpect(jsonPath("$.content[1]").doesNotExist())
+        }
+
+        @Test
+        fun getCustomers_withFilter_noMatch(){
+            mockMvc
+                .perform(get("/API/customers/").queryParam("fullName", "does not exist"))
+                .andExpect( status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content").isEmpty())
         }
 
         @Test
