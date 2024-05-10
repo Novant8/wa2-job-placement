@@ -43,7 +43,6 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
     @MockkBean
     private lateinit var contactService: ContactService
 
-
     @MockkBean
     private lateinit var jobOfferService: JobOfferService
 
@@ -312,10 +311,12 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
                 }
                 mockCustomerDTO
             }
+            every { contactService.getContacts(any(ContactFilterDTO::class), any(Pageable::class)) } returns PageImpl(listOf(mockReducedContactDTO))
+            every { customerService.getCustomersByContactIds(match { it.contains(mockContactDTO.id) }, any(Pageable::class)) } returns PageImpl(listOf(mockReducedCustomerDTO))
         }
 
         @Test
-        fun getCustomers(){
+        fun getCustomers_noFilters(){
             mockMvc.get("/API/customers")
                 .andExpect {
                     status { isOk() }
@@ -330,6 +331,24 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
                     }
                 }
 
+        }
+
+        @Test
+        fun getCustomers_withFilter() {
+            mockMvc.get("/API/customers") {
+                queryParam("full_name", mockContactDTO.name)
+            }.andExpect {
+                status { isOk() }
+                verify (exactly = 1){customerService.getCustomers(PageRequest.of(0,20))  }
+                content {
+                    jsonPath("$.content[0].id") { value(mockReducedCustomerDTO.id) }
+                    jsonPath("$.content[0].contactInfo.id") { value(mockReducedCustomerDTO.contactInfo.id) }
+                    jsonPath("$.content[0].contactInfo.name") { value(mockReducedCustomerDTO.contactInfo.name) }
+                    jsonPath("$.content[0].contactInfo.surname") { value(mockReducedCustomerDTO.contactInfo.surname) }
+                    jsonPath("$.content[0].contactInfo.category") { value(mockReducedCustomerDTO.contactInfo.category.name) }
+                    jsonPath("$.content[0].notes") { value(mockReducedCustomerDTO.notes) }
+                }
+            }
         }
 
         @Test

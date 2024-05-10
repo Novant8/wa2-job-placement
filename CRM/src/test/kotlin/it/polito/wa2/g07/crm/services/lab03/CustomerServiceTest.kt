@@ -5,10 +5,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import it.polito.wa2.g07.crm.dtos.lab02.*
-import it.polito.wa2.g07.crm.dtos.lab03.CreateCustomerDTO
-import it.polito.wa2.g07.crm.dtos.lab03.CustomerDTO
-import it.polito.wa2.g07.crm.dtos.lab03.toCustomerDto
-import it.polito.wa2.g07.crm.dtos.lab03.toReduceCustomerDTO
+import it.polito.wa2.g07.crm.dtos.lab03.*
 import it.polito.wa2.g07.crm.entities.lab02.*
 import it.polito.wa2.g07.crm.entities.lab03.Customer
 import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
@@ -308,6 +305,8 @@ class CustomerServiceTest {
             every {customerRepository.findAll(any(Pageable::class)) } returns pageImpl
             every {customerRepository.findById(any(Long::class))} returns Optional.empty()
             every { customerRepository.findById(mockCustomer.customerId) } returns Optional.of(mockCustomer)
+            every { customerRepository.findByContactIds(any(), any(Pageable::class)) } returns PageImpl(listOf())
+            every { customerRepository.findByContactIds(match { it.contains(mockCustomer.contactInfo.contactId) }, any(Pageable::class)) } returns PageImpl(listOf(mockCustomer))
         }
 
         @Test
@@ -332,10 +331,19 @@ class CustomerServiceTest {
 
         @Test
         fun getNonExistentCustomer() {
-
             assertThrows<EntityNotFoundException> {  service.getCustomerById(220L) }
+        }
 
+        @Test
+        fun getCustomersByContactIds() {
+            val result = service.getCustomersByContactIds(listOf(mockCustomer.contactInfo.contactId), PageRequest.of(0, 10))
+            assert(result.contains(mockCustomer.toReduceCustomerDTO_Basic()))
+        }
 
+        @Test
+        fun getCustomersByContactIds_nonexistent() {
+            val result = service.getCustomersByContactIds(listOf(mockCustomer.contactInfo.contactId + 1), PageRequest.of(0, 10))
+            assert(result.isEmpty)
         }
     }
 
