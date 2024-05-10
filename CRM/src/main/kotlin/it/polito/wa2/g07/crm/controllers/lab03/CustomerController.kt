@@ -1,11 +1,13 @@
 package it.polito.wa2.g07.crm.controllers.lab03
 
 
+import it.polito.wa2.g07.crm.dtos.lab02.ContactFilterDTO
 import it.polito.wa2.g07.crm.dtos.lab03.CreateCustomerDTO
 import it.polito.wa2.g07.crm.dtos.lab03.CustomerDTO
 import it.polito.wa2.g07.crm.dtos.lab03.ReducedCustomerDTO
 import it.polito.wa2.g07.crm.dtos.lab03.JobOfferCreateDTO
 import it.polito.wa2.g07.crm.dtos.lab03.JobOfferDTO
+import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.CustomerService
 
 import org.springframework.data.domain.Page
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Pageable
 @RestController
 @RequestMapping("API/customers")
 class CustomerController (  private val customerService: CustomerService,
+                            private val contactService: ContactService,
                             private val jobOfferService: JobOfferService
                         ){
     /* The web application must allow the creation of a new customer or
@@ -27,8 +30,13 @@ class CustomerController (  private val customerService: CustomerService,
   them.*/
 
     @GetMapping("", "/")
-    fun getCustomers(pageable: Pageable): Page<ReducedCustomerDTO> {
-        return customerService.getCustomers(pageable)
+    fun getCustomers(contactFilterDTO: ContactFilterDTO, pageable: Pageable): Page<ReducedCustomerDTO> {
+        if(contactFilterDTO.isEmpty()) {
+            return customerService.getCustomers(pageable)
+        } else {
+            val contactIds = contactService.getContacts(contactFilterDTO, pageable).map{ it.id }
+            return customerService.getCustomersByContactIds(contactIds.toList(), pageable)
+        }
     }
 
     @GetMapping("/{customerId}", "/{customerId}/")

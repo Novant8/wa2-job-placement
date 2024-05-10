@@ -8,24 +8,31 @@ import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
-import jakarta.transaction.Transactional
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CustomerServiceImpl(private val customerRepository: CustomerRepository,
                           private val contactRepository: ContactRepository):CustomerService {
+
     @Transactional
     override fun createCustomer(customer: CreateCustomerDTO): CustomerDTO {
         if (customer.contact.category?.uppercase()!= "CUSTOMER" ){
             throw InvalidParamsException("You must register a Customer user ")
         }
 
-       return customerRepository.save(customer.toEntity()).toCustomerDto()
+        return customerRepository.save(customer.toEntity()).toCustomerDto()
 
     }
-@Transactional
+
+    @Transactional(readOnly = true)
+    override fun getCustomersByContactIds(contactIds: Collection<Long>, pageable: Pageable): Page<ReducedCustomerDTO> {
+        return customerRepository.findByContactIds(contactIds, pageable).map { it.toReduceCustomerDTO_Basic() }
+    }
+
+    @Transactional
     override fun bindContactToCustomer(contactId: Long, notes: String?): CustomerDTO {
         val contactOpt = contactRepository.findById(contactId)
         if (!contactOpt.isPresent){
@@ -43,11 +50,12 @@ class CustomerServiceImpl(private val customerRepository: CustomerRepository,
         return customerRepository.save(customer).toCustomerDto()
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     override fun getCustomers(pageable: Pageable): Page<ReducedCustomerDTO> {
+
         return customerRepository.findAll(pageable).map { it.toReduceCustomerDTO() }
     }
-    @Transactional
+    @Transactional(readOnly = true)
     override fun getCustomerById(customerId: Long): CustomerDTO {
       val customerOpt = customerRepository.findById(customerId)
 
@@ -58,6 +66,7 @@ class CustomerServiceImpl(private val customerRepository: CustomerRepository,
         return customerOpt.get().toCustomerDto()
     }
 
+    @Transactional
     override fun postCustomerNotes(customerId: Long, notes: String?):CustomerDTO {
         val customerOpt = customerRepository.findById(customerId)
 

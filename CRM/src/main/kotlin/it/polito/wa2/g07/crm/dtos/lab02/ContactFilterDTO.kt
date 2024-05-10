@@ -12,6 +12,8 @@ data class ContactFilterDTO(
     val ssn: String? = null,
     val email: String? = null
 ) {
+    fun isEmpty() = fullName == null && category == null && address == null && telephone == null && ssn == null && email == null
+
     fun toSpecification(): Specification<Contact> {
         var spec = Specification.where<Contact>(null)
 
