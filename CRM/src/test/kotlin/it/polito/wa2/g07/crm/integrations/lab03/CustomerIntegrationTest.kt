@@ -508,7 +508,6 @@ class CustomerIntegrationTest: CrmApplicationTests() {
         @BeforeEach
         fun init(){
             customerRepository.deleteAll()
-            contactRepository.deleteAll()
             val customerDto = CreateCustomerDTO(
                 CreateContactDTO(
                     "Company",

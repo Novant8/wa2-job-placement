@@ -15,7 +15,7 @@ class Customer (
     @GeneratedValue
     var customerId: Long = 0L
 
-    @OneToMany (mappedBy = "customer")
+    @OneToMany (mappedBy = "customer", cascade = [ CascadeType.REMOVE ])
     var placementHistory: MutableSet<JobOffer> = mutableSetOf()
 
     fun addPlacement (j: JobOffer){
