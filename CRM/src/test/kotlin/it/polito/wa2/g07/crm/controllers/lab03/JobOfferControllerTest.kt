@@ -97,7 +97,7 @@ class JobOfferControllerTest(@Autowired val mockMvc: MockMvc) {
                     contentType = MediaType.APPLICATION_JSON
                     content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE))
                 }.andExpect {
-                    status { isCreated() }
+                    status { isOk() }
                     content {
                         jsonPath("$.id") { value(mockJobOffer.offerId) }
                         jsonPath("$.offerStatus") { value(OfferStatus.SELECTION_PHASE.toString()) }
@@ -115,7 +115,7 @@ class JobOfferControllerTest(@Autowired val mockMvc: MockMvc) {
                     contentType = MediaType.APPLICATION_JSON
                     content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL, mockProfessional.professionalId))
                 }.andExpect {
-                    status { isCreated() }
+                    status { isOk() }
                     content {
                         jsonPath("$.id") { value(mockJobOffer.offerId) }
                         jsonPath("$.offerStatus") { value(OfferStatus.CANDIDATE_PROPOSAL.toString()) }

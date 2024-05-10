@@ -277,7 +277,7 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
                     contentType = MediaType.APPLICATION_JSON
                     content = objectMapper.writeValueAsString(updateDTO)
                 }.andExpect {
-                    status { isCreated() }
+                    status { isOk() }
                     content {
                         jsonPath("$.id") { value(jobOffer.offerId) }
                         jsonPath("$.offerStatus") { value(updateDTO.status.toString()) }

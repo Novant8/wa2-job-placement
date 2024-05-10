@@ -24,7 +24,6 @@ class JobOfferController(private val jobOfferService: JobOfferService) {
             return jobOfferService.searchJobOfferById(idOffer)
         }
 
-        @ResponseStatus(HttpStatus.CREATED)
         @PostMapping("/{jobOfferId}")
         fun updateJobOfferStatus(
             @PathVariable jobOfferId: Long,
