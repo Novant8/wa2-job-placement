@@ -6,7 +6,10 @@ import it.polito.wa2.g07.crm.dtos.lab03.*
 import it.polito.wa2.g07.crm.entities.lab03.*
 import it.polito.wa2.g07.crm.repositories.lab03.*
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
+import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
@@ -19,15 +22,14 @@ import kotlin.jvm.optionals.getOrElse
 class JobOfferServiceImpl(
     private val jobOfferRepository: JobOfferRepository,
     private val customerRepository: CustomerRepository,
+    private val professionalRepository: ProfessionalRepository,
 ): JobOfferService {
 
     @Transactional
     override fun createJobOffer(customerId: Long, job: JobOfferCreateDTO): JobOfferDTO {
-
-
         val customer = customerRepository.findById(customerId).getOrElse { throw EntityNotFoundException("The customer does not exist") }
 
-        val jobOffer = JobOffer(
+        var jobOffer = JobOffer(
             requiredSkills = job.requiredSkills,
             duration= job.duration,
             notes = job.notes,
@@ -35,7 +37,10 @@ class JobOfferServiceImpl(
             description = job.description
             )
         customer.addPlacement(jobOffer)
-        return jobOfferRepository.save(jobOffer).toJobOfferDTO()
+
+        jobOffer = jobOfferRepository.save(jobOffer)
+        logger.info("Created Job Offer with ID #${jobOffer.offerId}")
+        return jobOffer.toJobOfferDTO()
     }
     @Transactional
     override fun searchJobOffer(filterDTO: JobOfferFilterDTO, pageable: Pageable): Page<JobOfferReducedDTO> {
@@ -54,4 +59,36 @@ class JobOfferServiceImpl(
         return job.value
     }
 
+    @Transactional
+    override fun updateJobOfferStatus(jobOfferId: Long, jobOfferUpdateDTO: JobOfferUpdateDTO): JobOfferDTO {
+        val jobOffer = jobOfferRepository.findById(jobOfferId).orElseThrow{ EntityNotFoundException("Job offer with ID $jobOfferId was not found.") }
+
+        if(!jobOffer.status.canUpdateTo(jobOfferUpdateDTO.status)) {
+            throw InvalidParamsException("Job offer #$jobOfferId cannot be updated to status ${jobOfferUpdateDTO.status}")
+        }
+
+        jobOffer.status = jobOfferUpdateDTO.status
+
+        /* Update professional if needed */
+        when(jobOfferUpdateDTO.status) {
+            OfferStatus.CANDIDATE_PROPOSAL -> {
+                if(jobOfferUpdateDTO.professionalId == null) {
+                    throw InvalidParamsException("A professional is required to update to status ${jobOfferUpdateDTO.status}")
+                }
+                jobOffer.professional = professionalRepository.findById(jobOfferUpdateDTO.professionalId).orElseThrow { EntityNotFoundException("Professional with ID ${jobOfferUpdateDTO.professionalId} was not found.") }
+            }
+            OfferStatus.SELECTION_PHASE -> {
+                jobOffer.professional = null
+            }
+            else -> { /* No need to update professional  */ }
+        }
+
+        val updatedJobOffer = jobOfferRepository.save(jobOffer)
+        logger.info("Updated status for Job Offer #${jobOffer.offerId} from ${jobOffer.status} to ${updatedJobOffer.status}.")
+        return jobOffer.toJobOfferDTO()
+    }
+
+    companion object{
+        val logger: Logger = LoggerFactory.getLogger(JobOfferServiceImpl::class.java)
+    }
 }

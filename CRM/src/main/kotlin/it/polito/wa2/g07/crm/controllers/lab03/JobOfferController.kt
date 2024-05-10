@@ -4,6 +4,7 @@ import it.polito.wa2.g07.crm.dtos.lab03.*
 import it.polito.wa2.g07.crm.services.lab03.JobOfferService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -23,11 +24,12 @@ class JobOfferController(private val jobOfferService: JobOfferService) {
             return jobOfferService.searchJobOfferById(idOffer)
         }
 
-
-        @PostMapping("/{joboffer_id}/")
-        fun updateJobOfferStatus(){
-            TODO("Not yet implemented")
-           // change the status of a specific Job offer. This endpoint must receive the target status and if necessary a note and reference to a professional
+        @PostMapping("/{jobOfferId}")
+        fun updateJobOfferStatus(
+            @PathVariable jobOfferId: Long,
+            @RequestBody jobOfferUpdateDTO: JobOfferUpdateDTO
+        ): JobOfferDTO {
+            return jobOfferService.updateJobOfferStatus(jobOfferId, jobOfferUpdateDTO)
         }
 
         @GetMapping("/{joboffer_id}/value")

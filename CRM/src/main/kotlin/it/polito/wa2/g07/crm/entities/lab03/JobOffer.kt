@@ -1,17 +1,40 @@
 package it.polito.wa2.g07.crm.entities.lab03
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
 enum class OfferStatus {
-    CREATED,
-    SELECTION_PHASE,
-    CANDIDATE_PROPOSAL,
-    CONSOLIDATED,
-    DONE,
-    ABORTED
+    CREATED {
+        override val compatibleStatuses: Collection<OfferStatus>
+            get() = setOf(SELECTION_PHASE, ABORTED)
+    },
+    SELECTION_PHASE {
+        override val compatibleStatuses: Collection<OfferStatus>
+            get() = setOf(CANDIDATE_PROPOSAL, ABORTED)
+    },
+    CANDIDATE_PROPOSAL {
+        override val compatibleStatuses: Collection<OfferStatus>
+            get() = setOf(CONSOLIDATED, SELECTION_PHASE, ABORTED)
+    },
+    CONSOLIDATED {
+        override val compatibleStatuses: Collection<OfferStatus>
+            get() = setOf(DONE, SELECTION_PHASE, ABORTED)
+    },
+    DONE {
+        override val compatibleStatuses: Collection<OfferStatus>
+            get() = setOf(SELECTION_PHASE)
+    },
+    ABORTED {
+        override val compatibleStatuses: Collection<OfferStatus>
+            get() = setOf()
+    };
+
+    protected abstract val compatibleStatuses: Collection<OfferStatus>
+    fun canUpdateTo(status: OfferStatus) = this.compatibleStatuses.contains(status)
 }
+
 @Entity
 class JobOffer(
 
@@ -27,7 +50,6 @@ class JobOffer(
 
     var notes: String? = null,
 ) {
-
     @ManyToOne
     lateinit var customer: Customer
 
