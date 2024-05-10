@@ -15,4 +15,6 @@ interface CustomerService {
     fun getCustomers(pageable: Pageable):Page<ReducedCustomerDTO>
 
     fun getCustomerById(customerId:Long): CustomerDTO
+
+    fun postCustomerNotes(customerId: Long,notes:String?):CustomerDTO
 }
