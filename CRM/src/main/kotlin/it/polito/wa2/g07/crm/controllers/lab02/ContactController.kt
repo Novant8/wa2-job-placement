@@ -20,17 +20,17 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.web.bind.annotation.*
 
-@Tag(name = "Contacts", description = "Create, search and manage contacts")
+@Tag(name = "Contacts", description = "Create, search and manage contact information")
 @RestController
 @RequestMapping("/API/contacts")
 class ContactController(private val contactService: ContactService,
                         private val customerService: CustomerService) {
 
-    @Operation(summary = "Adds a new contact")
+    @Operation(summary = "Create a new contact")
     @ApiResponses(value=[
         ApiResponse(
             responseCode = "201",
-            description = "The contact has been created"
+            description = "The contact has been successfully created"
         ),
         ApiResponse(
             responseCode = "422",
@@ -44,7 +44,7 @@ class ContactController(private val contactService: ContactService,
         return contactService.create(contact)
     }
 
-    @Operation(summary = "Creates a new Customer and associates an existing contact to it")
+    @Operation(summary = "Create a new Customer and associates an existing contact to it")
     @ApiResponses(value=[
         ApiResponse(
             responseCode = "201",
@@ -163,12 +163,9 @@ class ContactController(private val contactService: ContactService,
         return contactService.insertAddress(contactId, dwellingDTO)
     }
 
-    @Operation(summary = "Retrieves an existing contact given its ID")
+    @Operation(summary = "Retrieve an existing contact given its ID")
     @ApiResponses(value=[
-        ApiResponse(
-            responseCode = "200",
-            description = "The contact was found",
-        ),
+        ApiResponse(responseCode = "200"),
         ApiResponse(
             responseCode = "404",
             description = "The contact information was not found",
@@ -185,10 +182,7 @@ class ContactController(private val contactService: ContactService,
         description = "NOTE: when specifying multiple filters, the results will contain the contacts matching ALL of them."
     )
     @ApiResponses(value=[
-        ApiResponse(
-            responseCode = "200",
-            description = "The list of the matching contacts is provided"
-        ),
+        ApiResponse(responseCode = "200"),
         ApiResponse(
             responseCode = "400",
             description = "Something in the given filter is invalid",
@@ -203,7 +197,7 @@ class ContactController(private val contactService: ContactService,
         return contactService.getContacts(filterDTO, pageable)
     }
 
-    @Operation(summary = "Un-binds the given e-mail from the given contact")
+    @Operation(summary = "Un-bind an existing e-mail from the given contact")
     @ApiResponses(value=[
         ApiResponse(
             responseCode = "204",
@@ -221,7 +215,7 @@ class ContactController(private val contactService: ContactService,
         return contactService.deleteAddress(contactId, emailId, AddressType.EMAIL)
     }
 
-    @Operation(summary = "Un-binds the given phone number from the given contact")
+    @Operation(summary = "Un-bind an existing phone number from the given contact")
     @ApiResponses(value=[
         ApiResponse(
             responseCode = "204",
@@ -239,7 +233,7 @@ class ContactController(private val contactService: ContactService,
         return contactService.deleteAddress(contactId, telephoneId, AddressType.TELEPHONE)
     }
 
-    @Operation(summary = "Un-binds the given home/dwelling address from the given contact")
+    @Operation(summary = "Un-bind an existing home/dwelling address from the given contact")
     @ApiResponses(value=[
         ApiResponse(
             responseCode = "204",
@@ -257,7 +251,7 @@ class ContactController(private val contactService: ContactService,
         return contactService.deleteAddress(contactId, dwellingId, AddressType.DWELLING)
     }
 
-    @Operation(summary = "Updates the e-mail information of an existing contact")
+    @Operation(summary = "Update the e-mail information of an existing contact")
     @ApiResponses(value=[
         ApiResponse(
             responseCode = "200",
@@ -282,7 +276,7 @@ class ContactController(private val contactService: ContactService,
        return contactService.updateAddress(contactId, emailId, emailDTO)
     }
 
-    @Operation(summary = "Updates the phone number information of an existing contact")
+    @Operation(summary = "Update the phone number information of an existing contact")
     @ApiResponses(value=[
         ApiResponse(
             responseCode = "200",
@@ -308,7 +302,7 @@ class ContactController(private val contactService: ContactService,
         return  contactService.updateAddress(contactId, telephoneId, telephoneDTO)
     }
 
-    @Operation(summary = "Updates the home/dwelling address information of an existing contact")
+    @Operation(summary = "Update the home/dwelling address information of an existing contact")
     @ApiResponses(value=[
         ApiResponse(
             responseCode = "200",

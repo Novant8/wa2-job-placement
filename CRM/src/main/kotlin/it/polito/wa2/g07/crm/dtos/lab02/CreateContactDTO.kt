@@ -20,7 +20,7 @@ data class CreateContactDTO(
 
     @field:NotNull(message = "Category must not be null ")
     @field:NotBlank(message = "Category must not be blank ")
-    @field:Schema(allowableValues = ["CUSTOMER", "PROFESSIONAL", "UNKNOWN"])
+    @field:Schema(implementation = ContactCategory::class)
     val category: String?,
 
     // Can be null but not blank

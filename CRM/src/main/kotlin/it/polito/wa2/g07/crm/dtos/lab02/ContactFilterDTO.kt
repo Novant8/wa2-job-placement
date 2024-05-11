@@ -11,7 +11,7 @@ data class ContactFilterDTO(
     @field:Schema(description = "Filter by full name (name and surname)", example = "John Doe")
     val fullName: String? = null,
 
-    @field:Schema(description = "Filter by category", allowableValues = ["CUSTOMER", "PROFESSIONAL", "UNKNOWN"])
+    @field:Schema(description = "Filter by category", implementation = ContactCategory::class)
     val category: String? = null,
 
     @field:Schema(description = "Filter by home/dwelling address", example = "123 Main St.")
