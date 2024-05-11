@@ -1,5 +1,6 @@
 package it.polito.wa2.g07.crm.dtos.lab02
 
+import io.swagger.v3.oas.annotations.media.Schema
 import it.polito.wa2.g07.crm.entities.lab02.*
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
@@ -9,18 +10,22 @@ import jakarta.validation.constraints.Pattern
 data class CreateContactDTO(
     @field:NotNull(message = "Name must not be null ")
     @field:NotBlank (message = "Name must not be blank ")
+    @field:Schema(example = "John")
     val name: String?,
 
     @field:NotNull(message = "Surname must not be null ")
     @field:NotBlank(message = "Surname must not be blank ")
+    @field:Schema(example = "Doe")
     val surname: String?,
 
     @field:NotNull(message = "Category must not be null ")
     @field:NotBlank(message = "Category must not be blank ")
+    @field:Schema(allowableValues = ["CUSTOMER", "PROFESSIONAL", "UNKNOWN"])
     val category: String?,
 
     // Can be null but not blank
     @field:Pattern(regexp = "^(?!\\s*$).+", message = "must not be blank")
+    @field:Schema(example = "123456")
     val ssn : String?,
 
     @field:Valid
