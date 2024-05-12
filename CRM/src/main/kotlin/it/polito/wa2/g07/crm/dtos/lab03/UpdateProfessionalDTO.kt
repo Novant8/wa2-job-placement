@@ -2,11 +2,8 @@ package it.polito.wa2.g07.crm.dtos.lab03
 
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Schema
-import it.polito.wa2.g07.crm.dtos.lab02.CreateContactDTO
 
-data class CreateProfessionalDTO (
-    val contactInfo: CreateContactDTO,
-
+data class UpdateProfessionalDTO (
     @field:Schema(example = "New York")
     val location: String,
 
