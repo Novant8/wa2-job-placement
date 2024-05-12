@@ -2,6 +2,7 @@ package it.polito.wa2.g07.crm.controllers.lab02
 
 
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -40,7 +41,10 @@ class MessageController (private val messageService: MessageService
     @GetMapping("","/")
     fun getMessages(
         @RequestParam("filterBy", required = false)
-        @ArraySchema(schema = Schema(implementation = MessageStatus::class))
+        @Parameter(
+            description = "List of message statuses. Results will show all messages that are currently in any of the given statuses.",
+            array = ArraySchema(schema = Schema(implementation = MessageStatus::class))
+        )
         filterByStr: List<String>? = null,
 
         @ParameterObject pageable: Pageable
