@@ -30,10 +30,7 @@ class MessageController (private val messageService: MessageService
 
     @Operation(summary = "List all messages, optionally filtering by status, with pagination and sorting")
     @ApiResponses(value=[
-        ApiResponse(
-            responseCode = "200",
-            description = "The list of matching messages is provided"
-        ),
+        ApiResponse(responseCode = "200"),
         ApiResponse(
             responseCode = "400",
             description = "An invalid filter was provided",
