@@ -11,6 +11,7 @@ import it.polito.wa2.g07.crm.exceptions.DuplicateAddressException
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.lab02.ContactService
+import it.polito.wa2.g07.crm.services.lab03.CustomerService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -27,6 +28,9 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @MockkBean
     private lateinit var contactService: ContactService
+
+    @MockkBean
+    private lateinit var customerService: CustomerService
 
     private val mockEmailDTO = EmailResponseDTO(1L,"mario.rossi@example.org")
     private val mockTelephoneDTO = TelephoneResponseDTO(2L,"34242424242")

@@ -693,7 +693,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
                 content = """{"priority":-1}"""
                 contentType = MediaType.APPLICATION_JSON
             }.andExpect {
-                status { isBadRequest() }
+                status { isUnprocessableEntity() }
             }
             mockMvc.put("/API/messages/$msg1_id/priority") {
                 content = """{"priority":"A"}"""

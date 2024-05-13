@@ -1,32 +1,94 @@
 package it.polito.wa2.g07.crm.controllers.lab03
 
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
+import it.polito.wa2.g07.crm.dtos.lab03.*
+import it.polito.wa2.g07.crm.services.lab03.JobOfferService
+import org.springdoc.core.annotations.ParameterObject
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ProblemDetail
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
+@Tag(name = "5. Job Offers", description = "Search job offers and manage their status")
 @RestController
 @RequestMapping("/API/joboffers")
-class JobOfferController {
+class JobOfferController(private val jobOfferService: JobOfferService) {
 
+        @Operation(summary = "List all job offers that match the given filters, with paging and sorting")
+        @ApiResponses(value=[
+            ApiResponse(responseCode = "200"),
+            ApiResponse(
+                responseCode = "400",
+                description = "An invalid filter was provided",
+                content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+            )
+        ])
+        @GetMapping("", "/")
+        fun getJobsOffer(
+            filterDTO: JobOfferFilterDTO,
+            @ParameterObject pageable: Pageable) : Page<JobOfferReducedDTO>{
+            return jobOfferService.searchJobOffer(filterDTO,pageable)
 
-        @GetMapping("/getJobOffer")
-        fun getJobsOffer(){
-            TODO("Not yet implemented")
-            //using request parameters allow for filtering
-            //by customer, professional, and status.
         }
 
-
-        @PostMapping("/{joboffer_id}/")
-        fun updateJobOfferStatus(){
-            TODO("Not yet implemented")
-           // change the status of a specific Job offer. This endpoint must receive the target status and if necessary a note and reference to a professional
+        @Operation(summary = "Retrieve a specific job offer's information")
+        @ApiResponses(value=[
+            ApiResponse(responseCode = "200"),
+            ApiResponse(
+                responseCode = "404",
+                description = "The job offer was not found",
+                content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+            )
+        ])
+        @GetMapping("/{jobOfferId}")
+        fun getJobsOfferSpecific(@PathVariable("jobOfferId") idOffer:Long) : JobOfferDTO{
+            return jobOfferService.searchJobOfferById(idOffer)
         }
 
-        @GetMapping("/{joboffer_id}/value")
-        fun getJobOfferValid(){
-            TODO("Not yet implemented")
-            //retrieve the value of a specific Job offer. Pay attention that value is confirmed only if a job offer is  bound to a professional.
+        @Operation(summary = "Update the status of an existing job offer")
+        @ApiResponses(value=[
+            ApiResponse(
+                responseCode = "200",
+                description = "The job offer was successfully updated"
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Invalid job offer information was supplied",
+                content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "The job offer was not found",
+                content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+            )
+        ])
+        @PostMapping("/{jobOfferId}")
+        fun updateJobOfferStatus(
+            @PathVariable jobOfferId: Long,
+            @RequestBody jobOfferUpdateDTO: JobOfferUpdateDTO
+        ): JobOfferDTO {
+            return jobOfferService.updateJobOfferStatus(jobOfferId, jobOfferUpdateDTO)
+        }
+
+        @Operation(summary = "Retrieve the value of a single job offer")
+        @ApiResponses(value=[
+            ApiResponse(responseCode = "200"),
+            ApiResponse(
+                responseCode = "404",
+                description = "The job offer was not found",
+                content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+            )
+        ])
+        @GetMapping("/{jobOfferId}/value")
+        fun getJobOfferValid(@PathVariable("jobOfferId") idOffer:Long) : ValueDTO {
+                return ValueDTO(jobOfferService.getJobOfferValue(idOffer))
         }
 }

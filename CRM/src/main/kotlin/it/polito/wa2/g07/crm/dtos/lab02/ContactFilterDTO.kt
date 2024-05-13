@@ -1,17 +1,34 @@
 package it.polito.wa2.g07.crm.dtos.lab02
 
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Schema
 import it.polito.wa2.g07.crm.entities.lab02.*
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.jpa.domain.Specification
 
+@ParameterObject
 data class ContactFilterDTO(
+    @field:Parameter(description = "Filter by full name (name and surname)", example = "John Doe")
     val fullName: String? = null,
+
+    @field:Parameter(description = "Filter by category", schema = Schema(implementation = ContactCategory::class))
     val category: String? = null,
+
+    @field:Parameter(description = "Filter by home/dwelling address", example = "123 Main St.")
     val address: String? = null,
+
+    @field:Parameter(description = "Filter by telephone", example = "+01 0100 555-0199")
     val telephone: String? = null,
+
+    @field:Parameter(description = "Filter by SSN", example = "123456")
     val ssn: String? = null,
+
+    @field:Parameter(description = "Filter by e-mail address", example = "john.doe@example.com")
     val email: String? = null
 ) {
+    fun isEmpty() = fullName == null && category == null && address == null && telephone == null && ssn == null && email == null
+
     fun toSpecification(): Specification<Contact> {
         var spec = Specification.where<Contact>(null)
 

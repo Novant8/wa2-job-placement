@@ -1,5 +1,6 @@
 package it.polito.wa2.g07.crm.entities.lab03
 
+import it.polito.wa2.g07.crm.entities.lab03.JobOffer
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 
 import jakarta.persistence.ElementCollection
@@ -19,7 +20,7 @@ enum class EmploymentState{
 
 @Entity
 class Professional(
-    @OneToOne
+    @OneToOne(cascade = [ CascadeType.ALL ])
     var contactInfo: Contact,
 
     var location: String,
@@ -27,7 +28,7 @@ class Professional(
     @ElementCollection
     var skills : Set<String>,
 
-    var daily_rate: Double,
+    var dailyRate: Double,
 
     var employmentState: EmploymentState = EmploymentState.UNEMPLOYED,
 
@@ -38,7 +39,7 @@ class Professional(
     @GeneratedValue
     var professionalId: Long = 0L
 
-    @OneToMany(mappedBy = "professional")
+    @OneToMany(mappedBy = "professional",cascade = [ CascadeType.ALL ])
     val jobOffers : MutableSet<JobOffer> = mutableSetOf()
 
 }

@@ -2,47 +2,37 @@ package it.polito.wa2.g07.crm.dtos.lab03
 
 import it.polito.wa2.g07.crm.dtos.lab02.ReducedContactDTO
 import it.polito.wa2.g07.crm.dtos.lab02.toReducedContactDTO
-
+import it.polito.wa2.g07.crm.entities.lab03.Customer
 import it.polito.wa2.g07.crm.entities.lab03.JobOffer
 import it.polito.wa2.g07.crm.entities.lab03.OfferStatus
 import it.polito.wa2.g07.crm.entities.lab03.Professional
 
-data class JobOfferDTO (
+
+
+data class JobOfferReducedDTO (
     val id:Long?,
     val description : String,
     val customer: ReducedCustomerDTO,
-    val requiredSkills: MutableSet<String>,
-    val duration: Long,
     val offerStatus: OfferStatus,
-    val notes: String?,
     val professional: ProfessionalReducedDTO?,    //during the lifecycle of a joboffer professional can be empty
-    val value:Double?                   //when a professional is not present value cannot be computed
 )
 
 
-fun JobOffer.toJobOfferDTO(): JobOfferDTO {
+fun JobOffer.toJobOfferReducedDTO(): JobOfferReducedDTO {
     if (this.professional==null){
-        return JobOfferDTO(
+        return JobOfferReducedDTO(
             id = this.offerId,
             description = this.description,
-            customer = this.customer.toReduceCustomerDTO_Basic(),
-            requiredSkills = this.requiredSkills,
-            duration = this.duration,
-            notes = this.notes,
             professional = null,
-            value = this.value,
+            customer =  this.customer.toReduceCustomerDTO_Basic(),
             offerStatus = this.status
         )
     }
-    return JobOfferDTO(
+    return JobOfferReducedDTO(
         id = this.offerId,
         description = this.description,
-        customer = this.customer.toReduceCustomerDTO_Basic(),
-        requiredSkills = this.requiredSkills,
-        duration = this.duration,
-        notes = this.notes,
         professional = this.professional!!.toProfessionalReducedDTO_Basic(),
-        value = this.value,
+        customer = this.customer.toReduceCustomerDTO_Basic(),
         offerStatus = this.status
     )
 }

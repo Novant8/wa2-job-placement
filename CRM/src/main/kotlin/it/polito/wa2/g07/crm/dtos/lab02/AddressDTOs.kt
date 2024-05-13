@@ -1,6 +1,7 @@
 package it.polito.wa2.g07.crm.dtos.lab02
 
 import com.fasterxml.jackson.annotation.*
+import io.swagger.v3.oas.annotations.media.Schema
 import it.polito.wa2.g07.crm.entities.lab02.*
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
@@ -43,6 +44,7 @@ fun AddressResponseDTO.toAddressDTO(): AddressDTO {
 data class EmailDTO(
     @field:NotBlank(message = "Email must not be blank")
     @field:jakarta.validation.constraints.Email(message = "must be a valid email")
+    @field:Schema(example = "john.doe@example.com")
     val email: String
 ) : AddressDTO() {
     override val addressType: AddressType
@@ -61,6 +63,7 @@ data class TelephoneDTO(
         regexp = "(\\+[0-9]{1,3}\\s)?([0-9\\s-]+)",
         message = "must be a valid phone number"
     )
+    @field:Schema(example = "+01 0100 555-0199")
     val phoneNumber: String
 ) : AddressDTO() {
     override val addressType: AddressType
@@ -77,17 +80,21 @@ data class TelephoneDTO(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class DwellingDTO(
     @field:NotBlank(message = "Street must not be blank")
+    @field:Schema(example = "123 Main St.")
     val street: String,
 
     @field:NotBlank(message = "City must not be blank")
+    @field:Schema(example = "New York")
     val city: String,
 
     // Can be null but not blank
     @field:Pattern(regexp = "^(?!\\s*$).+", message = "District must not be blank")
+    @field:Schema(example = "NY")
     val district: String?,
 
     // Can be null but not blank
     @field:Pattern(regexp = "^(?!\\s*$).+", message = "Country must not be blank")
+    @field:Schema(example = "US")
     val country: String?
 ) : AddressDTO() {
     override val addressType: AddressType

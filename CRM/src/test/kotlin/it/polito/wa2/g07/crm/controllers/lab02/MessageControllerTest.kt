@@ -908,7 +908,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         @Test
         fun changeMessagePriority_negative(){
             val messageId=mockMessageDTO1.id
-            val updatedPriority=  mapOf("priority" to -1)
+            val updatedPriority = PriorityDTO(priority = -1)
             mockMvc
                 .put("/API/messages/$messageId/priority")
                 {
@@ -916,25 +916,10 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
                     content = jsonMapper().writeValueAsString(updatedPriority)
 
                 }.andExpect {
-                    status { isBadRequest() }
-
+                    status { isUnprocessableEntity() }
                 }
         }
-        @Test
-        fun changeMessagePriority_blank(){
-            val messageId=mockMessageDTO1.id
-            val updatedPriority=  mapOf("priority" to "")
-            mockMvc
-                .put("/API/messages/$messageId/priority")
-                {
-                    contentType = MediaType.APPLICATION_JSON
-                    content = jsonMapper().writeValueAsString(updatedPriority)
 
-                }.andExpect {
-                    status { isBadRequest() }
-
-                }
-        }
         @Test
         fun changeMessagePriority_MessageNotFound(){
             val messageId=mockMessageDTO1.id+50

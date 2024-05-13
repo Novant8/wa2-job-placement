@@ -5,8 +5,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import it.polito.wa2.g07.crm.dtos.lab02.*
-import it.polito.wa2.g07.crm.dtos.lab03.CreateCustomerDTO
-import it.polito.wa2.g07.crm.dtos.lab03.CustomerDTO
+import it.polito.wa2.g07.crm.dtos.lab03.*
 import it.polito.wa2.g07.crm.entities.lab02.*
 import it.polito.wa2.g07.crm.entities.lab03.Customer
 import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
@@ -15,6 +14,9 @@ import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import org.junit.jupiter.api.*
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import java.util.*
 
 class CustomerServiceTest {
@@ -290,6 +292,97 @@ class CustomerServiceTest {
             }
             verify(exactly = 0) { customerRepository.save(any(Customer::class)) }
             verify(exactly = 0) { customerRepository.delete(any(Customer::class)) }
+        }
+    }
+
+    @Nested
+    inner class GetCustomerTests{
+        private val pageImpl = PageImpl(listOf(mockCustomer))
+        private val pageReq = PageRequest.of(1, 10)
+
+        @BeforeEach
+        fun initMocks(){
+            every {customerRepository.findAll(any(Pageable::class)) } returns pageImpl
+            every {customerRepository.findById(any(Long::class))} returns Optional.empty()
+            every { customerRepository.findById(mockCustomer.customerId) } returns Optional.of(mockCustomer)
+            every { customerRepository.findByContactIds(any(), any(Pageable::class)) } returns PageImpl(listOf())
+            every { customerRepository.findByContactIds(match { it.contains(mockCustomer.contactInfo.contactId) }, any(Pageable::class)) } returns PageImpl(listOf(mockCustomer))
+        }
+
+        @Test
+        fun getCustomers() {
+
+            val result = service.getCustomers(pageReq)
+
+            val expectedResult = pageImpl.map { it.toReduceCustomerDTO() }
+            verify(exactly = 1) { customerRepository.findAll( pageReq) }
+            Assertions.assertEquals(result, expectedResult)
+        }
+
+        @Test
+        fun getCustomersById() {
+
+            val result = service.getCustomerById(mockCustomer.customerId)
+
+            val expectedResult = mockCustomer.toCustomerDto()
+            verify(exactly = 1) { customerRepository.findById( mockCustomer.customerId) }
+            Assertions.assertEquals(result, expectedResult)
+        }
+
+        @Test
+        fun getNonExistentCustomer() {
+            assertThrows<EntityNotFoundException> {  service.getCustomerById(220L) }
+        }
+
+        @Test
+        fun getCustomersByContactIds() {
+            val result = service.getCustomersByContactIds(listOf(mockCustomer.contactInfo.contactId), PageRequest.of(0, 10))
+            assert(result.contains(mockCustomer.toReduceCustomerDTO_Basic()))
+        }
+
+        @Test
+        fun getCustomersByContactIds_nonexistent() {
+            val result = service.getCustomersByContactIds(listOf(mockCustomer.contactInfo.contactId + 1), PageRequest.of(0, 10))
+            assert(result.isEmpty)
+        }
+    }
+
+    @Nested
+
+    inner class PutCustomers{
+        private val customerSlot = slot<Customer>()
+
+
+        @BeforeEach
+        fun initMocks(){
+            every { customerRepository.save(capture(customerSlot)) } answers {firstArg<Customer>()}
+            every {customerRepository.delete(any(Customer::class))} returns Unit
+            every {customerRepository.findById(any(Long::class))} returns Optional.empty()
+            every { customerRepository.findById(mockCustomer.customerId) } returns Optional.of(mockCustomer)
+        }
+
+        @Test
+        fun updateNotes(){
+            val notes = "Updated notes"
+
+            val result = service.postCustomerNotes(mockCustomer.customerId,notes)
+
+            val expected = CustomerDTO(
+                mockCustomer.customerId,
+                mockCustomer.contactInfo.toContactDto(),
+                notes
+            )
+
+            Assertions.assertEquals(result,expected)
+            verify (exactly = 1){ customerRepository.save(any(Customer::class)) }
+        }
+
+        @Test
+        fun updateUnknownCustomer(){
+            val notes = "Updated notes"
+
+            assertThrows<EntityNotFoundException> { service.postCustomerNotes(200L,notes) }
+            verify (exactly = 0){ customerRepository.save(any(Customer::class))  }
         }
     }
 }
