@@ -1,15 +1,27 @@
 package it.polito.wa2.g07.crm.dtos.lab03
 
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.ArraySchema
+import io.swagger.v3.oas.annotations.media.Schema
 import it.polito.wa2.g07.crm.entities.lab03.Customer
 import it.polito.wa2.g07.crm.entities.lab03.JobOffer
 import it.polito.wa2.g07.crm.entities.lab03.OfferStatus
 import it.polito.wa2.g07.crm.entities.lab03.Professional
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.jpa.domain.Specification
 
-
+@ParameterObject
 data class JobOfferFilterDTO(
+    @field:Parameter(description = "Filter by professional ID")
     val professionalId : Long ?,
+
+    @field:Parameter(description = "Filter by customer ID")
     val customerId: Long ?,
+
+    @field:Parameter(
+        description = "Filter by status. Results will contain all job offers that are currently in any of the given statuses.",
+        array = ArraySchema(schema = Schema(implementation = OfferStatus::class))
+    )
     val status: List<String>?
 
 ) {
