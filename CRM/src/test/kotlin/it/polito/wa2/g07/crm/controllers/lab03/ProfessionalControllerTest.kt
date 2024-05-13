@@ -6,17 +6,22 @@ import io.mockk.every
 import it.polito.wa2.g07.crm.controllers.lab02.ContactController
 import it.polito.wa2.g07.crm.dtos.lab02.*
 import it.polito.wa2.g07.crm.dtos.lab03.CreateProfessionalDTO
+import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalDTO
 import it.polito.wa2.g07.crm.dtos.lab03.toEntity
 import it.polito.wa2.g07.crm.dtos.lab03.toProfessionalDto
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
 import it.polito.wa2.g07.crm.entities.lab03.Professional
+import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
+import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.ProfessionalService
+import org.junit.Before
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.argThat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
@@ -163,6 +168,66 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                     }
                 }
         }
+    }
+
+    @Nested
+    inner class AssociateContact{
+        private val registeredContactIds = HashSet<Long>()
+        private val skills= setOf("PHP","Java","Angular")
+
+        @BeforeEach
+        fun initMocks(){
+            every { professionalService.bindContactToProfessional(any(Long::class),any(String::class),
+                skills,any(Double::class),any(EmploymentState::class),any(String::class)) } answers {
+                val contactId:Long=firstArg<Long>()
+
+
+
+                if(registeredContactIds.contains(contactId))
+                {
+                    throw  ContactAssociationException("Contact with id : ${mockContactDTO.id} is already associated to another Professional ")
+                }else if (contactId !=mockContactDTO.id){
+                    throw  EntityNotFoundException("Contact does not exists")
+                }
+
+
+
+                ProfessionalDTO(
+                    1L,
+                    ContactDTO(
+                        mockContactDTO.id,
+                        mockContactDTO.name,
+                        mockContactDTO.surname,
+                        mockContactDTO.category,
+                        listOf(mockContactDTO.addresses).flatten(),
+                        mockContactDTO.ssn
+                    ),
+                    "Torino",
+                    skills,
+                    100.0,
+                    EmploymentState.UNEMPLOYED,
+                    "TestNotes"
+
+                )
+
+            }
+        }
+
+        @Test
+        fun associateValidContact(){
+            val contactId = mockContactDTO.id
+            val values = mapOf("location" to "Torino","skills" to skills,"dailyRate" to 100.0,"EmploymentState" to EmploymentState.UNEMPLOYED, "notes" to "TestNotes")
+            mockMvc
+                .post("/API/contacts/$contactId/professionals")
+                {
+                    contentType= MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(values)
+                }.andExpect {
+                    status { isCreated() }
+                }
+        }
+
+
     }
 
 }

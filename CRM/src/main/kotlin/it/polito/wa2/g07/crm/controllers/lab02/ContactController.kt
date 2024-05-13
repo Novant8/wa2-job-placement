@@ -3,9 +3,12 @@ package it.polito.wa2.g07.crm.controllers.lab02
 import it.polito.wa2.g07.crm.dtos.lab02.*
 
 import it.polito.wa2.g07.crm.dtos.lab03.CustomerDTO
+import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalDTO
 import it.polito.wa2.g07.crm.entities.lab02.AddressType
+import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
 import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.CustomerService
+import it.polito.wa2.g07.crm.services.lab03.ProfessionalService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -15,7 +18,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/API/contacts")
-class ContactController(private val contactService: ContactService, private val customerService: CustomerService) {
+class ContactController(private val contactService: ContactService, private val customerService: CustomerService,private val professionalService: ProfessionalService) {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/","")
@@ -28,6 +31,15 @@ class ContactController(private val contactService: ContactService, private val 
     fun saveCustomer ( @PathVariable("contactId") contactId : Long, @RequestBody notes :Map<String, String>): CustomerDTO {
 
         return customerService.bindContactToCustomer(contactId,notes["notes"])
+
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{contactId}/professionals",)
+    fun saveProfessional ( @PathVariable("contactId") contactId : Long, @RequestBody location :Map<String, String>, skills :Map<String, Set<String>>,dailyRate :Map<String,Double>,employmentState :Map<String,EmploymentState>, notes: Map<String, String> ): ProfessionalDTO {
+
+        return professionalService.bindContactToProfessional (contactId,
+            location["location"]!!,skills["skills"]!!,dailyRate["dailyRate"]!!,employmentState["EmploymentState"]!!,notes["notes"])
 
     }
 
