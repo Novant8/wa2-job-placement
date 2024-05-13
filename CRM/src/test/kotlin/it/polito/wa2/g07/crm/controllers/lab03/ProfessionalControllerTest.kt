@@ -92,10 +92,76 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                     status { isCreated() }
                     content {
                         jsonPath("$.contactInfo.name"){value(createProfessionalDTO.contactInfo.name)}
+                        jsonPath("$.contactInfo.surname"){value(createProfessionalDTO.contactInfo.surname)}
+                        jsonPath("$.contactInfo.category"){value(createProfessionalDTO.contactInfo.category)}
+                        jsonPath("$.contactInfo.ssn"){value(createProfessionalDTO.contactInfo.ssn)}
+                        jsonPath("$.contactInfo.addresses[*].email"){value(mockEmailDTO.email)}
+                        jsonPath("$.contactInfo.addresses[*].phoneNumber"){value(mockTelephoneDTO.phoneNumber)}
+                        jsonPath("$.contactInfo.addresses[*].street"){value(mockDwellingDTO.street)}
+                        jsonPath("$.contactInfo.addresses[*].district"){value(mockDwellingDTO.district)}
+                        jsonPath("$.contactInfo.addresses[*].city"){value(mockDwellingDTO.city)}
+                        jsonPath("$.contactInfo.addresses[*].country"){value(mockDwellingDTO.country)}
+                        jsonPath("$.location"){value(createProfessionalDTO.location)}
+                        jsonPath("$.skills[0]"){value(createProfessionalDTO.skills.elementAt(1))}
+                        jsonPath("$.skills[1]"){value(createProfessionalDTO.skills.elementAt(0))}
+                        jsonPath("$.skills[2]"){value(createProfessionalDTO.skills.elementAt(2))}
+                        jsonPath("$.dailyRate"){value(createProfessionalDTO.dailyRate)}
+                        jsonPath("$.employmentState"){value(createProfessionalDTO.employmentState.toString())}
+                        jsonPath("$.notes"){value(createProfessionalDTO.notes)}
+
 
                     }
                 }
 
+        }
+        @Test
+        fun saveProfessional_noNotes(){
+            val createProfessionalDTO = CreateProfessionalDTO(
+                CreateContactDTO(
+                    "Professional1Name",
+                    "Professional1Surname",
+                    ContactCategory.PROFESSIONAL.name,
+                    "VRDLGU70A01L219G",
+                    listOf(mockEmailDTO,mockTelephoneDTO,mockDwellingDTO)
+                ),
+                "Torino",
+                setOf("PHP","Java","Angular"),
+                100.0,
+                EmploymentState.UNEMPLOYED,
+                null
+
+            )
+
+            mockMvc
+                .post("/API/professionals"){
+                    contentType = MediaType.APPLICATION_JSON
+                    content= jsonMapper().writeValueAsString(createProfessionalDTO)
+
+                }.andExpect {
+                    status { isCreated() }
+                    content {
+                        jsonPath("$.contactInfo.name") { value(createProfessionalDTO.contactInfo.name) }
+                        jsonPath("$.contactInfo.surname") { value(createProfessionalDTO.contactInfo.surname) }
+                        jsonPath("$.contactInfo.category") { value(createProfessionalDTO.contactInfo.category) }
+                        jsonPath("$.contactInfo.ssn") { value(createProfessionalDTO.contactInfo.ssn) }
+                        jsonPath("$.contactInfo.addresses[*].email") { value(mockEmailDTO.email) }
+                        jsonPath("$.contactInfo.addresses[*].phoneNumber") { value(mockTelephoneDTO.phoneNumber) }
+                        jsonPath("$.contactInfo.addresses[*].street") { value(mockDwellingDTO.street) }
+                        jsonPath("$.contactInfo.addresses[*].district") { value(mockDwellingDTO.district) }
+                        jsonPath("$.contactInfo.addresses[*].city") { value(mockDwellingDTO.city) }
+                        jsonPath("$.contactInfo.addresses[*].country") { value(mockDwellingDTO.country) }
+                        jsonPath("$.location") { value(createProfessionalDTO.location) }
+                        jsonPath("$.skills[0]") { value(createProfessionalDTO.skills.elementAt(1)) }
+                        jsonPath("$.skills[1]") { value(createProfessionalDTO.skills.elementAt(0)) }
+                        jsonPath("$.skills[2]") { value(createProfessionalDTO.skills.elementAt(2)) }
+                        jsonPath("$.dailyRate") { value(createProfessionalDTO.dailyRate) }
+                        jsonPath("$.employmentState") { value(createProfessionalDTO.employmentState.toString()) }
+                        jsonPath("$.notes") {
+                            value(null)
+
+                        }
+                    }
+                }
         }
     }
 
