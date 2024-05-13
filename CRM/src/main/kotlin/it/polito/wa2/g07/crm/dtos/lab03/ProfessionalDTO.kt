@@ -11,7 +11,7 @@ data class ProfessionalDTO(
     val contactInfo: ContactDTO,
     val location :String,
     val skills: Set<String>,
-    var daily_rate: Double,
+    var dailyRate: Double,
     var employmentState: EmploymentState,
     var notes: String?
 )
