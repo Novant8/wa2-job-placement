@@ -20,15 +20,22 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
 
     @Transactional
     override fun createProfessional(professional: CreateProfessionalDTO): ProfessionalDTO {
-        if (professional.contactInfo.category?.uppercase()!== "PROFESSIONAL"){
+          if (professional.contactInfo.category?.uppercase()!== "PROFESSIONAL"){
             throw InvalidParamsException(" You must register a Professional user")
         }
         return professionalRepository.save(professional.toEntity()).toProfessionalDto()
     }
 
     @Transactional
-    override fun bindContactToProfessional(contactID: Long, location:String, skills: Set<String>, dailyRate:Double, employmentState: EmploymentState, notes: String?): ProfessionalDTO {
-        val contact= contactRepository.findById(contactID)
+    override fun bindContactToProfessional(
+        contactID: Long,
+        location: String,
+        skills: Set<String>,
+        dailyRate: Double,
+        employmentState: EmploymentState,
+        notes: String?
+    ): ProfessionalDTO {
+         val contact= contactRepository.findById(contactID)
         if(!contact.isPresent) {
         throw EntityNotFoundException("Contact with Id: $contactID is not found")
         }
@@ -44,5 +51,7 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
         val professional= Professional(contactInfo = contactFound,location,skills,dailyRate,employmentState,notes )
         return professionalRepository.save(professional).toProfessionalDto()
     }
+
+
 
 }
