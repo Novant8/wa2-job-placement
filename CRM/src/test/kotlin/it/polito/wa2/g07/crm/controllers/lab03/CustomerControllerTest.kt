@@ -19,6 +19,7 @@ import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.CustomerService
 import it.polito.wa2.g07.crm.services.lab03.JobOfferService
+import it.polito.wa2.g07.crm.services.lab03.ProfessionalService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -46,6 +47,8 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @MockkBean
     private lateinit var jobOfferService: JobOfferService
+    @MockkBean
+    private lateinit var professionalService: ProfessionalService
 
 
     private val mockEmailDTO = EmailDTO("company.test@example.org")

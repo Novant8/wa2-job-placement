@@ -15,6 +15,7 @@ import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
 import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.CustomerService
 import it.polito.wa2.g07.crm.services.lab03.ProfessionalService
+
 import jakarta.validation.Valid
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Page
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "1. Contacts", description = "Create, search and manage contact information")
 @RestController
 @RequestMapping("/API/contacts")
-class ContactController(private val contactService: ContactService, private val customerService: CustomerService,private val professionalService: ProfessionalService) {
+class ContactController(private val contactService: ContactService, private val customerService: CustomerService, private val professionalService: ProfessionalService) {
 
     @Operation(summary = "Create a new contact")
     @ApiResponses(value=[
@@ -94,6 +95,7 @@ class ContactController(private val contactService: ContactService, private val 
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{contactId}/professionals",)
     fun saveProfessional ( @PathVariable("contactId") contactId : Long, @RequestBody location :Map<String, String>, skills :Map<String, Set<String>>,dailyRate :Map<String,Double>,employmentState :Map<String,EmploymentState>, notes: Map<String, String> ): ProfessionalDTO {
