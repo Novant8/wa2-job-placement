@@ -192,23 +192,26 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
     }
 
     @Nested
-    inner class AssociateContact{
+    inner class AssociateContact {
         private val registeredContactIds = HashSet<Long>()
-        private val skills= setOf("PHP","Java","Angular")
+        private val skills = setOf("PHP", "Java", "Angular")
 
         @BeforeEach
-        fun initMocks(){
-            every { professionalService.bindContactToProfessional(any(Long::class),any(String::class),
-                skills,any(Double::class),any(EmploymentState::class),any(String::class)) } answers {
-                val contactId:Long=firstArg<Long>()
+        fun initMocks() {
+            every {
+                professionalService.bindContactToProfessional(
+                    any(Long::class), any(String::class),
+                    skills, any(Double::class), any(EmploymentState::class), any(String::class)
+                )
+            } answers {
+                val contactId: Long = firstArg<Long>()
 
 
 
-                if(registeredContactIds.contains(contactId))
-                {
-                    throw  ContactAssociationException("Contact with id : ${mockContactDTO.id} is already associated to another Professional ")
-                }else if (contactId !=mockContactDTO.id){
-                    throw  EntityNotFoundException("Contact does not exists")
+                if (registeredContactIds.contains(contactId)) {
+                    throw ContactAssociationException("Contact with id : ${mockContactDTO.id} is already associated to another Professional ")
+                } else if (contactId != mockContactDTO.id) {
+                    throw EntityNotFoundException("Contact does not exists")
                 }
 
 
@@ -235,13 +238,19 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
-        fun associateValidContact(){
+        fun associateValidContact() {
             val contactId = mockContactDTO.id
-            val values = mapOf("location" to "Torino","skills" to skills,"dailyRate" to 100.0,"EmploymentState" to EmploymentState.UNEMPLOYED, "notes" to "TestNotes")
+            val values = mapOf(
+                "location" to "Torino",
+                "skills" to skills,
+                "dailyRate" to 100.0,
+                "EmploymentState" to EmploymentState.UNEMPLOYED,
+                "notes" to "TestNotes"
+            )
             mockMvc
                 .post("/API/contacts/$contactId/professionals")
                 {
-                    contentType= MediaType.APPLICATION_JSON
+                    contentType = MediaType.APPLICATION_JSON
                     content = jsonMapper().writeValueAsString(values)
                 }.andExpect {
                     status { isCreated() }
@@ -249,86 +258,93 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
 
-    lateinit var professionalService: ProfessionalService
+        //lateinit var professionalService: ProfessionalService
 
-    @Nested
-    inner class GetProfessionalTests {
+        @Nested
+        inner class GetProfessionalTests {
 
-        private val professional = Professional(
-            Contact(
-                "Luigi",
-                "Verdi",
-                ContactCategory.PROFESSIONAL
-            ),
-            "Torino",
-            mutableSetOf("Proficient in Kotlin", "Can work well in a team"),
-            0.0
-        )
+            private val professional = Professional(
+                Contact(
+                    "Luigi",
+                    "Verdi",
+                    ContactCategory.PROFESSIONAL
+                ),
+                "Torino",
+                mutableSetOf("Proficient in Kotlin", "Can work well in a team"),
+                0.0
+            )
 
-        private var pageImpl: PageImpl<ProfessionalReducedDTO>
+            private var pageImpl: PageImpl<ProfessionalReducedDTO>
 
-        init {
-            professional.professionalId = 1L
-            professional.contactInfo.contactId = 1L
-            this.pageImpl = PageImpl(listOf(professional.toProfessionalReducedDto()))
-        }
+            init {
+                professional.professionalId = 1L
+                professional.contactInfo.contactId = 1L
+                this.pageImpl = PageImpl(listOf(professional.toProfessionalReducedDto()))
+            }
 
-        @BeforeEach
-        fun initMocks() {
-            every { professionalService.searchProfessionals(any(ProfessionalFilterDTO::class), any(Pageable::class)) } returns pageImpl
-            every { professionalService.getProfessionalById(any(Long::class)) } throws EntityNotFoundException("Professional not found")
-            every { professionalService.getProfessionalById(professional.professionalId) } returns professional.toProfessionalDto()
-        }
+            @BeforeEach
+            fun initMocks() {
+                every {
+                    professionalService.searchProfessionals(
+                        any(ProfessionalFilterDTO::class),
+                        any(Pageable::class)
+                    )
+                } returns pageImpl
+                every { professionalService.getProfessionalById(any(Long::class)) } throws EntityNotFoundException("Professional not found")
+                every { professionalService.getProfessionalById(professional.professionalId) } returns professional.toProfessionalDto()
+            }
 
-        @Test
-        fun searchProfessionals_success() {
-            mockMvc
-                .get("/API/professionals")
-                .andExpect {
-                    status { isOk() }
-                    content {
-                        jsonPath("$.content[0].id") { value(professional.professionalId) }
-                        jsonPath("$.content[0].contactInfo.id") { value(professional.contactInfo.contactId) }
-                        jsonPath("$.content[0].contactInfo.name") { value(professional.contactInfo.name) }
-                        jsonPath("$.content[0].contactInfo.surname") { value(professional.contactInfo.surname) }
-                        jsonPath("$.content[0].contactInfo.category") { value(professional.contactInfo.category.toString()) }
-                        jsonPath("$.content[0].location") { value(professional.location) }
-                        jsonPath("$.content[0].skills") { value(containsInAnyOrder(*professional.skills.toTypedArray())) }
-                        jsonPath("$.content[0].dailyRate") { doesNotExist() }
-                        jsonPath("$.content[0].notes") { doesNotExist() }
+            @Test
+            fun searchProfessionals_success() {
+                mockMvc
+                    .get("/API/professionals")
+                    .andExpect {
+                        status { isOk() }
+                        content {
+                            jsonPath("$.content[0].id") { value(professional.professionalId) }
+                            jsonPath("$.content[0].contactInfo.id") { value(professional.contactInfo.contactId) }
+                            jsonPath("$.content[0].contactInfo.name") { value(professional.contactInfo.name) }
+                            jsonPath("$.content[0].contactInfo.surname") { value(professional.contactInfo.surname) }
+                            jsonPath("$.content[0].contactInfo.category") { value(professional.contactInfo.category.toString()) }
+                            jsonPath("$.content[0].location") { value(professional.location) }
+                            jsonPath("$.content[0].skills") { value(containsInAnyOrder(*professional.skills.toTypedArray())) }
+                            jsonPath("$.content[0].dailyRate") { doesNotExist() }
+                            jsonPath("$.content[0].notes") { doesNotExist() }
+                        }
                     }
-                }
-        }
+            }
 
-        @Test
-        fun getProfessionalById_found() {
-            mockMvc
-                .get("/API/professionals/${professional.professionalId}")
-                .andExpect {
-                    status { isOk() }
-                    content {
-                        jsonPath("$.id") { value(professional.professionalId) }
-                        jsonPath("$.contactInfo.id") { value(professional.contactInfo.contactId) }
-                        jsonPath("$.contactInfo.name") { value(professional.contactInfo.name) }
-                        jsonPath("$.contactInfo.surname") { value(professional.contactInfo.surname) }
-                        jsonPath("$.contactInfo.category") { value(professional.contactInfo.category.toString()) }
-                        jsonPath("$.location") { value(professional.location) }
-                        jsonPath("$.skills") { value(containsInAnyOrder(*professional.skills.toTypedArray())) }
-                        jsonPath("$.dailyRate") { value(professional.dailyRate) }
-                        jsonPath("$.notes") { value(professional.notes) }
+            @Test
+            fun getProfessionalById_found() {
+                mockMvc
+                    .get("/API/professionals/${professional.professionalId}")
+                    .andExpect {
+                        status { isOk() }
+                        content {
+                            jsonPath("$.id") { value(professional.professionalId) }
+                            jsonPath("$.contactInfo.id") { value(professional.contactInfo.contactId) }
+                            jsonPath("$.contactInfo.name") { value(professional.contactInfo.name) }
+                            jsonPath("$.contactInfo.surname") { value(professional.contactInfo.surname) }
+                            jsonPath("$.contactInfo.category") { value(professional.contactInfo.category.toString()) }
+                            jsonPath("$.location") { value(professional.location) }
+                            jsonPath("$.skills") { value(containsInAnyOrder(*professional.skills.toTypedArray())) }
+                            jsonPath("$.dailyRate") { value(professional.dailyRate) }
+                            jsonPath("$.notes") { value(professional.notes) }
+                        }
                     }
-                }
+            }
+
+            @Test
+            fun getProfessionalById_notFound() {
+                mockMvc
+                    .get("/API/professionals/${professional.professionalId + 1}")
+                    .andExpect {
+                        status { isNotFound() }
+                    }
+            }
+
         }
 
-        @Test
-        fun getProfessionalById_notFound() {
-            mockMvc
-                .get("/API/professionals/${professional.professionalId+1}")
-                .andExpect {
-                    status { isNotFound() }
-                }
-        }
 
     }
-
 }

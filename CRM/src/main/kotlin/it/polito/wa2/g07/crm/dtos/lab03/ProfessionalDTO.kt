@@ -29,8 +29,7 @@ fun Professional.toProfessionalDto() =
         this.contactInfo.toContactDto(),
         this.location,
         this.skills,
-        this.daily_rate,
+        this.dailyRate,
         this.employmentState,
-        this.skills.toSet(),
         this.notes
     )

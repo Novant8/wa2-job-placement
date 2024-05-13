@@ -9,6 +9,7 @@ import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 import it.polito.wa2.g07.crm.entities.lab03.Professional
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
+import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -23,8 +24,9 @@ import java.util.*
 class ProfessionalServiceTest {
 
     val professionalRepository = mockk<ProfessionalRepository>()
+    val contactRepository = mockk<ContactRepository>()
 
-    val service = ProfessionalServiceImpl(professionalRepository)
+    val service = ProfessionalServiceImpl(professionalRepository,contactRepository)
 
     @Nested
     inner class GetProfessionalTests {

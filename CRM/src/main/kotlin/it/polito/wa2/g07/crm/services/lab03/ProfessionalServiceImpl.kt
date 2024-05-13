@@ -11,7 +11,7 @@ import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 
-import jakarta.transaction.Transactional
+
 
 
 import it.polito.wa2.g07.crm.dtos.lab03.*
@@ -76,6 +76,6 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
     }
 
     /*override fun create(professional: CreateProfessionalDTO): ProfessionalDTO {
-        TODO("Not yet implemented")
+        //TODO("Not yet implemented")
     }*/
 }
