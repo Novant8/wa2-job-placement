@@ -23,7 +23,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.web.bind.annotation.*
 
-@Tag(name = "Messages", description = "Create, search, track and update the status of messages")
+@Tag(name = "2. Messages", description = "Create, search, track and update the status of messages")
 @RestController
 @RequestMapping("API/messages")
 class MessageController (private val messageService: MessageService

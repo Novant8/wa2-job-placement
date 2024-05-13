@@ -25,7 +25,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.http.ProblemDetail
 import org.springframework.web.bind.annotation.*
 
-@Tag(name = "Professionals", description = "Create, search and update professionals' information")
+@Tag(name = "4. Professionals", description = "Create, search and update professionals' information")
 @RestController
 @RequestMapping("/API/professionals")
 class ProfessionalController(

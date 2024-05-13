@@ -20,7 +20,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.web.bind.annotation.*
 
-@Tag(name = "Contacts", description = "Create, search and manage contact information")
+@Tag(name = "1. Contacts", description = "Create, search and manage contact information")
 @RestController
 @RequestMapping("/API/contacts")
 class ContactController(private val contactService: ContactService,

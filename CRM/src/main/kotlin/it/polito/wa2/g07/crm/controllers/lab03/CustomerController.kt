@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.data.domain.Pageable
 import org.springframework.http.ProblemDetail
 
-@Tag(name = "Customers", description = "Create, search and update customers")
+@Tag(name = "3. Customers", description = "Create, search and update customers")
 @RestController
 @RequestMapping("API/customers")
 class CustomerController (  private val customerService: CustomerService,

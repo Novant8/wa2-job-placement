@@ -17,7 +17,7 @@ import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-@Tag(name = "Job Offers", description = "Search job offers and manage their status")
+@Tag(name = "5. Job Offers", description = "Search job offers and manage their status")
 @RestController
 @RequestMapping("/API/joboffers")
 class JobOfferController(private val jobOfferService: JobOfferService) {
