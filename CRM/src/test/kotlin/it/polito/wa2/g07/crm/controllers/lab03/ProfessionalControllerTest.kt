@@ -256,9 +256,9 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                     status { isCreated() }
                 }
         }
+    }
 
 
-        //lateinit var professionalService: ProfessionalService
 
         @Nested
         inner class GetProfessionalTests {
@@ -346,5 +346,5 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
 
-    }
+
 }

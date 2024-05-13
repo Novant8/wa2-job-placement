@@ -97,7 +97,7 @@ class ContactController(private val contactService: ContactService, private val 
     ])
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/{contactId}/professionals",)
+    @PostMapping("/{contactId}/professionals")
     fun saveProfessional ( @PathVariable("contactId") contactId : Long, @RequestBody location :Map<String, String>, skills :Map<String, Set<String>>,dailyRate :Map<String,Double>,employmentState :Map<String,EmploymentState>, notes: Map<String, String> ): ProfessionalDTO {
 
         return professionalService.bindContactToProfessional (contactId,
