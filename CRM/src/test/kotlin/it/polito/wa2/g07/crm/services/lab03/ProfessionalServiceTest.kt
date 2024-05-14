@@ -2,16 +2,19 @@ package it.polito.wa2.g07.crm.services.lab03
 
 import io.mockk.every
 import io.mockk.mockk
-import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalFilterDTO
-import it.polito.wa2.g07.crm.dtos.lab03.toProfessionalDto
-import it.polito.wa2.g07.crm.dtos.lab03.toProfessionalReducedDto
+import io.mockk.slot
+import io.mockk.verify
+import it.polito.wa2.g07.crm.dtos.lab02.*
+import it.polito.wa2.g07.crm.dtos.lab03.*
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
 import it.polito.wa2.g07.crm.entities.lab03.Professional
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
+import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -51,6 +54,133 @@ class ProfessionalServiceTest {
     val contactRepository = mockk<ContactRepository>()
 
     val service = ProfessionalServiceImpl(professionalRepository,contactRepository)
+
+
+    @Nested
+    inner class CreateProfessionalTests{
+        private val professionalSlot = slot<Professional>()
+
+        @BeforeEach
+        fun initMocks(){
+            every { professionalRepository.save(capture(professionalSlot)) } answers {firstArg<Professional>()}
+            every {professionalRepository.delete(any(Professional::class))} returns Unit
+        }
+
+        @Test
+        fun createProfessional(){
+            val createProfessionalDTO= CreateProfessionalDTO(
+                CreateContactDTO(
+                    "Luigi",
+                    "Verdi",
+                    ContactCategory.PROFESSIONAL.name,
+                    null,
+                    listOf()
+                ),
+                "Torino",
+                setOf("mockSkill1","mockSkill2"),
+                100.0,
+                EmploymentState.UNEMPLOYED,
+                "mockNotes"
+            )
+
+            val result = service.createProfessional(createProfessionalDTO)
+
+            val expectedDTO = ProfessionalDTO(
+                0L,
+                ContactDTO(
+                    0L,
+                    createProfessionalDTO.contactInfo.name!!,
+                    createProfessionalDTO.contactInfo.surname!!,
+                    ContactCategory.PROFESSIONAL,
+                    listOf(),
+                    createProfessionalDTO.contactInfo.ssn
+                ),
+                "Torino",
+                setOf("mockSkill1","mockSkill2"),
+                100.0,
+                EmploymentState.UNEMPLOYED,
+                "mockNotes"
+            )
+            Assertions.assertEquals(result,expectedDTO)
+            verify { professionalRepository.save(any(Professional::class)) }
+            verify (exactly=0) {professionalRepository.delete(any(Professional::class))}
+        }
+
+        @Test
+        fun createProfessional_noNotes(){
+            val createProfessionalDTO= CreateProfessionalDTO(
+                CreateContactDTO(
+                    "Luigi",
+                    "Verdi",
+                    ContactCategory.PROFESSIONAL.name,
+                    null,
+                    listOf()
+                ),
+                "Torino",
+                setOf("mockSkill1","mockSkill2"),
+                100.0,
+                EmploymentState.UNEMPLOYED,
+                null
+            )
+
+            val result = service.createProfessional(createProfessionalDTO)
+
+            val expectedDTO = ProfessionalDTO(
+                0L,
+                ContactDTO(
+                    0L,
+                    createProfessionalDTO.contactInfo.name!!,
+                    createProfessionalDTO.contactInfo.surname!!,
+                    ContactCategory.PROFESSIONAL,
+                    listOf(),
+                    createProfessionalDTO.contactInfo.ssn
+                ),
+                "Torino",
+                setOf("mockSkill1","mockSkill2"),
+                100.0,
+                EmploymentState.UNEMPLOYED,
+                null
+            )
+            Assertions.assertEquals(result,expectedDTO)
+            verify { professionalRepository.save(any(Professional::class)) }
+            verify (exactly=0) {professionalRepository.delete(any(Professional::class))}
+        }
+
+        @Test
+        fun createProfessionalWrongCategory(){
+
+            val createProfessionalDTO= CreateProfessionalDTO(
+                CreateContactDTO(
+                    "Luigi",
+                    "Verdi",
+                    ContactCategory.CUSTOMER.name,
+                    null,
+                    listOf(
+                        EmailDTO("luigi.verdi@example.org"),
+                        TelephoneDTO("34798989898"),
+                        DwellingDTO("Via Roma, 19", "Torino", "TO", "IT")
+                    )
+                ),
+                "Torino",
+                setOf("mockSkill1","mockSkill2"),
+                100.0,
+                EmploymentState.UNEMPLOYED,
+                null
+            )
+            assertThrows<InvalidParamsException> {
+                service.createProfessional(createProfessionalDTO)
+            }
+            verify(exactly = 0) {professionalRepository.save(any(Professional::class))}
+            verify (exactly =0) {professionalRepository.delete(any(Professional::class))}
+
+        }
+
+    }
+
+    @Nested
+    inner class AssociateContactToProfessional(){
+        
+    }
 
     @Nested
     inner class GetProfessionalTests {
