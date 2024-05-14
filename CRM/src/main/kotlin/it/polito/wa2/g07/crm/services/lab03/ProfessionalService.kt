@@ -14,4 +14,6 @@ interface ProfessionalService {
     fun searchProfessionals(filterDTO: ProfessionalFilterDTO, pageable: Pageable): Page<ProfessionalReducedDTO>
     fun getProfessionalById(professionalId: Long): ProfessionalDTO
     //fun create(professional: CreateProfessionalDTO): ProfessionalDTO
+    fun postProfessionalNotes(professionalId:Long, notes: String?): ProfessionalDTO
+
 }

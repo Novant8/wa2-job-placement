@@ -60,6 +60,19 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
         return professionalRepository.save(professional).toProfessionalDto()
     }
 
+    @Transactional()
+    override fun postProfessionalNotes(professionalId: Long, notes: String?): ProfessionalDTO {
+        val professionalOpt= professionalRepository.findById(professionalId)
+        if (!professionalOpt.isPresent){
+            throw  EntityNotFoundException("Professionao with id : $professionalId is not present" )
+        }
+        val professional = professionalOpt.get()
+        professional.notes= notes
+
+        return professionalRepository.save(professional).toProfessionalDto()
+
+    }
+
 
 
     @Transactional(readOnly = true)

@@ -64,6 +64,7 @@ class ContactController(private val contactService: ContactService, private val 
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{contactId}/customers")
     fun saveCustomer (

@@ -7,6 +7,7 @@ import it.polito.wa2.g07.crm.dtos.lab03.toProfessionalDto
 import it.polito.wa2.g07.crm.dtos.lab03.toProfessionalReducedDto
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
+import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
 import it.polito.wa2.g07.crm.entities.lab03.Professional
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
@@ -22,6 +23,29 @@ import org.springframework.data.domain.Pageable
 import java.util.*
 
 class ProfessionalServiceTest {
+
+    private val mockContact: Contact= Contact(
+        "Mario",
+        "Rossi",
+        ContactCategory.PROFESSIONAL,
+        "RSSMRA70A01L219K"
+    )
+
+    private val mockContact2: Contact = Contact(
+        "Laura",
+        "Binchi",
+        ContactCategory.PROFESSIONAL,
+        "LLBB0088LL4657K"
+    )
+
+    private val mockProfessional: Professional= Professional(
+        mockContact,
+        "Torino",
+        setOf("mockSkill1","mockSkill2"),
+        100.0,
+        EmploymentState.UNEMPLOYED,
+        "mockNotes"
+    )
 
     val professionalRepository = mockk<ProfessionalRepository>()
     val contactRepository = mockk<ContactRepository>()

@@ -48,6 +48,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.put
 
 
 @WebMvcTest(ProfessionalController::class)
@@ -64,9 +65,9 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
     private val mockTelephoneDTO = TelephoneDTO("34242424242")
     private val mockDwellingDTO = DwellingDTO("Via Roma, 18", "Torino", "TO", "IT")
 
-    private val mockResponseEmailDTO = EmailResponseDTO(1L,"company.test@example.org")
-    private val mockResponseTelephoneDTO = TelephoneResponseDTO(2L,"34242424242")
-    private val mockResponseDwellingDTO = DwellingResponseDTO(3L,"Via Roma, 18", "Torino", "TO", "IT")
+    private val mockResponseEmailDTO = EmailResponseDTO(1L, "company.test@example.org")
+    private val mockResponseTelephoneDTO = TelephoneResponseDTO(2L, "34242424242")
+    private val mockResponseDwellingDTO = DwellingResponseDTO(3L, "Via Roma, 18", "Torino", "TO", "IT")
 
     private val mockContactDTO = ContactDTO(
         1L,
@@ -77,32 +78,42 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
         "RSSMRA70A01L219K"
     )
 
+    private val mockProfessionalDTO = ProfessionalDTO(
+        1L,
+        mockContactDTO,
+        "Torino",
+        setOf("Public Speaking", "Team working", "C Programming"),
+        100.0,
+        EmploymentState.UNEMPLOYED,
+        "TestNotes23"
+    )
+
     @Nested
-    inner class PostProfessional{
+    inner class PostProfessional {
         @BeforeEach
-        fun initMocks(){
+        fun initMocks() {
             every { professionalService.createProfessional(any(CreateProfessionalDTO::class)) } answers {
                 val professionalDTO = firstArg<CreateProfessionalDTO>()
-                if (professionalDTO.contactInfo.category != "PROFESSIONAL"){
+                if (professionalDTO.contactInfo.category != "PROFESSIONAL") {
                     throw InvalidParamsException("You must register a Professional user")
-                }else{
+                } else {
                     professionalDTO.toEntity().toProfessionalDto()
                 }
             }
         }
 
         @Test
-        fun saveProfessional(){
+        fun saveProfessional() {
             val createProfessionalDTO = CreateProfessionalDTO(
                 CreateContactDTO(
                     "Professional1Name",
                     "Professional1Surname",
                     ContactCategory.PROFESSIONAL.name,
                     "VRDLGU70A01L219G",
-                    listOf(mockEmailDTO,mockTelephoneDTO,mockDwellingDTO)
+                    listOf(mockEmailDTO, mockTelephoneDTO, mockDwellingDTO)
                 ),
                 "Torino",
-                setOf("PHP","Java","Angular"),
+                setOf("PHP", "Java", "Angular"),
                 100.0,
                 EmploymentState.UNEMPLOYED,
                 "notes test"
@@ -110,48 +121,49 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
             )
 
             mockMvc
-                .post("/API/professionals"){
+                .post("/API/professionals") {
                     contentType = MediaType.APPLICATION_JSON
-                    content= jsonMapper().writeValueAsString(createProfessionalDTO)
+                    content = jsonMapper().writeValueAsString(createProfessionalDTO)
 
                 }.andExpect {
                     status { isCreated() }
                     content {
-                        jsonPath("$.contactInfo.name"){value(createProfessionalDTO.contactInfo.name)}
-                        jsonPath("$.contactInfo.surname"){value(createProfessionalDTO.contactInfo.surname)}
-                        jsonPath("$.contactInfo.category"){value(createProfessionalDTO.contactInfo.category)}
-                        jsonPath("$.contactInfo.ssn"){value(createProfessionalDTO.contactInfo.ssn)}
-                        jsonPath("$.contactInfo.addresses[*].email"){value(mockEmailDTO.email)}
-                        jsonPath("$.contactInfo.addresses[*].phoneNumber"){value(mockTelephoneDTO.phoneNumber)}
-                        jsonPath("$.contactInfo.addresses[*].street"){value(mockDwellingDTO.street)}
-                        jsonPath("$.contactInfo.addresses[*].district"){value(mockDwellingDTO.district)}
-                        jsonPath("$.contactInfo.addresses[*].city"){value(mockDwellingDTO.city)}
-                        jsonPath("$.contactInfo.addresses[*].country"){value(mockDwellingDTO.country)}
-                        jsonPath("$.location"){value(createProfessionalDTO.location)}
-                        jsonPath("$.skills[0]"){value(createProfessionalDTO.skills.elementAt(1))}
-                        jsonPath("$.skills[1]"){value(createProfessionalDTO.skills.elementAt(0))}
-                        jsonPath("$.skills[2]"){value(createProfessionalDTO.skills.elementAt(2))}
-                        jsonPath("$.dailyRate"){value(createProfessionalDTO.dailyRate)}
-                        jsonPath("$.employmentState"){value(createProfessionalDTO.employmentState.toString())}
-                        jsonPath("$.notes"){value(createProfessionalDTO.notes)}
+                        jsonPath("$.contactInfo.name") { value(createProfessionalDTO.contactInfo.name) }
+                        jsonPath("$.contactInfo.surname") { value(createProfessionalDTO.contactInfo.surname) }
+                        jsonPath("$.contactInfo.category") { value(createProfessionalDTO.contactInfo.category) }
+                        jsonPath("$.contactInfo.ssn") { value(createProfessionalDTO.contactInfo.ssn) }
+                        jsonPath("$.contactInfo.addresses[*].email") { value(mockEmailDTO.email) }
+                        jsonPath("$.contactInfo.addresses[*].phoneNumber") { value(mockTelephoneDTO.phoneNumber) }
+                        jsonPath("$.contactInfo.addresses[*].street") { value(mockDwellingDTO.street) }
+                        jsonPath("$.contactInfo.addresses[*].district") { value(mockDwellingDTO.district) }
+                        jsonPath("$.contactInfo.addresses[*].city") { value(mockDwellingDTO.city) }
+                        jsonPath("$.contactInfo.addresses[*].country") { value(mockDwellingDTO.country) }
+                        jsonPath("$.location") { value(createProfessionalDTO.location) }
+                        jsonPath("$.skills[0]") { value(createProfessionalDTO.skills.elementAt(1)) }
+                        jsonPath("$.skills[1]") { value(createProfessionalDTO.skills.elementAt(0)) }
+                        jsonPath("$.skills[2]") { value(createProfessionalDTO.skills.elementAt(2)) }
+                        jsonPath("$.dailyRate") { value(createProfessionalDTO.dailyRate) }
+                        jsonPath("$.employmentState") { value(createProfessionalDTO.employmentState.toString()) }
+                        jsonPath("$.notes") { value(createProfessionalDTO.notes) }
 
 
                     }
                 }
 
         }
+
         @Test
-        fun saveProfessional_noNotes(){
+        fun saveProfessional_noNotes() {
             val createProfessionalDTO = CreateProfessionalDTO(
                 CreateContactDTO(
                     "Professional1Name",
                     "Professional1Surname",
                     ContactCategory.PROFESSIONAL.name,
                     "VRDLGU70A01L219G",
-                    listOf(mockEmailDTO,mockTelephoneDTO,mockDwellingDTO)
+                    listOf(mockEmailDTO, mockTelephoneDTO, mockDwellingDTO)
                 ),
                 "Torino",
-                setOf("PHP","Java","Angular"),
+                setOf("PHP", "Java", "Angular"),
                 100.0,
                 EmploymentState.UNEMPLOYED,
                 null
@@ -159,9 +171,9 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
             )
 
             mockMvc
-                .post("/API/professionals"){
+                .post("/API/professionals") {
                     contentType = MediaType.APPLICATION_JSON
-                    content= jsonMapper().writeValueAsString(createProfessionalDTO)
+                    content = jsonMapper().writeValueAsString(createProfessionalDTO)
 
                 }.andExpect {
                     status { isCreated() }
@@ -258,6 +270,54 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
         }
     }
 
+    @Nested
+    inner class PutProfessional() {
+        private val contactId = mockContactDTO.id
+
+        @BeforeEach
+        fun initMocks() {
+            every {
+                professionalService.postProfessionalNotes(
+                    any(Long::class),
+                    any(String::class)
+                )
+            } throws EntityNotFoundException("Professional not found")
+            every { professionalService.postProfessionalNotes(mockProfessionalDTO.id, any(String::class)) } answers {
+                val notes = secondArg<String>()
+                ProfessionalDTO(
+                    mockProfessionalDTO.id,
+                    mockProfessionalDTO.contactInfo,
+                    mockProfessionalDTO.location,
+                    mockProfessionalDTO.skills,
+                    mockProfessionalDTO.dailyRate,
+                    mockProfessionalDTO.employmentState,
+                    notes
+
+                )
+
+            }
+            every { professionalService.getProfessionalById(any(Long::class)) } throws EntityNotFoundException("Professional not found")
+            every { professionalService.getProfessionalById(mockProfessionalDTO.id) } answers { mockProfessionalDTO }
+
+        }
+
+        @Test
+        fun updateNotes() {
+            val updateNotes = mapOf("notes" to "TheNewNotes")
+            mockMvc.put("/API/professionals/$contactId/notes") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(updateNotes)
+
+            }.andExpect {
+                status { isOk() }
+                content {
+
+                    jsonPath("$.notes") { value(updateNotes["notes"]) }
+                }
+
+            }
+        }
+        }
 
 
         @Nested

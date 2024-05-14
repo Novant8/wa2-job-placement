@@ -64,7 +64,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
                                    @RequestBody notes: NotesDTO
                                     ): ProfessionalDTO?
     {
-        TODO()
+        return professionalService.postProfessionalNotes(professionalId, notes.notes)
     }
 
     @Operation(summary = "List all professionals that match the given filters, with paging and sorting")
