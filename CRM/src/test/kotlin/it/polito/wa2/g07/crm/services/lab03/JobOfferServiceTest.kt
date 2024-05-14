@@ -1,8 +1,10 @@
 package it.polito.wa2.g07.crm.services.lab03
 
 import io.mockk.*
+import it.polito.wa2.g07.crm.dtos.lab02.ContactFilterDTO
 
 import it.polito.wa2.g07.crm.dtos.lab02.ReducedContactDTO
+import it.polito.wa2.g07.crm.dtos.lab02.toReducedContactDTO
 import it.polito.wa2.g07.crm.dtos.lab03.*
 
 import it.polito.wa2.g07.crm.entities.lab02.Contact
@@ -20,6 +22,9 @@ import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import java.util.*
 
 class JobOfferServiceTest {
@@ -212,5 +217,113 @@ class JobOfferServiceTest {
             verify(exactly = 0) { jobOfferRepository.save(any(JobOffer::class)) }
         }
 
+
+
     }
+
+    @Nested
+    inner class GetJobOffers{
+        private val mockJobOffer = JobOffer(
+            requiredSkills = mutableSetOf("skill1", "skill2"),
+            30,
+            "This is a description"
+        )
+        private val mockJobOffer2 = JobOffer(
+            requiredSkills = mutableSetOf("skill4", "skill5"),
+            60,
+            "This is a description"
+        )
+
+        private val mockCustomer = Customer(
+            Contact(
+                "Mario",
+                "Rossi",
+                ContactCategory.CUSTOMER,
+                "RSSMRA70A01L219K"
+            ),
+            "mock Customer"
+        )
+
+        private val mockProfessional = Professional(
+            Contact(
+                "Mario",
+                "Rossi",
+                ContactCategory.CUSTOMER,
+                "RSSMRA70A01L219K"
+            ),
+            "Torino",
+            skills = mutableSetOf("skill1", "skill2"),
+            100.0
+        )
+
+        init {
+            mockCustomer.addPlacement(mockJobOffer)
+            mockCustomer.addPlacement(mockJobOffer2)
+            mockJobOffer.offerId = 1L
+            mockJobOffer.offerId = 2L
+        }
+        private val pageImpl = PageImpl(listOf(mockJobOffer))
+        private val pageReq = PageRequest.of(1, 10)
+        @BeforeEach
+        fun initMocks() {
+            every { jobOfferRepository.findAll( any(), any(Pageable::class)) } returns pageImpl
+            every { jobOfferRepository.findById(any(Long::class))} returns Optional.empty()
+            every { jobOfferRepository.findById(mockJobOffer.offerId)} returns Optional.of(mockJobOffer)
+            every { jobOfferRepository.findById(mockJobOffer2.offerId)} returns Optional.of(mockJobOffer2)
+        }
+
+        @Test
+        fun getJobOfferFiltered(){
+                val jobOfferFilterDTO = JobOfferFilterDTO()
+                val result = service.searchJobOffer(jobOfferFilterDTO, pageReq)
+
+                val expectedResult = pageImpl.map { it.toJobOfferReducedDTO() }
+                verify(exactly = 1) { jobOfferRepository.findAll(any(), pageReq) }
+                assertEquals(result, expectedResult)
+            }
+
+        @Test
+        fun getJobOfferById(){
+
+            val result = service.searchJobOfferById(mockJobOffer.offerId)
+            verify(exactly = 1) { jobOfferRepository.findById(mockJobOffer.offerId) }
+            assertEquals(result, mockJobOffer.toJobOfferDTO())
+
+
+
+        }
+        @Test
+        fun getJobOfferByIdNotFound(){
+            assertThrows<EntityNotFoundException> {
+                service.searchJobOfferById(5)
+            }
+            verify { jobOfferRepository.findById(mockJobOffer.offerId) wasNot called }
+
+        }
+
+        @Test
+        fun getJobOfferValueValid(){
+            val result = service.getJobOfferValue(mockJobOffer.offerId)
+            verify(exactly = 1) { jobOfferRepository.findById(mockJobOffer.offerId) }
+            assertEquals(result, mockJobOffer.value)
+        }
+        @Test
+        fun getJobOfferValueInvalid(){
+            assertThrows<EntityNotFoundException> {
+                service.getJobOfferValue(5)
+            }
+            verify { jobOfferRepository.findById(mockJobOffer.offerId) wasNot called }
+        }
+        @Test
+        fun getJobOfferValueNull(){
+            val result = service.getJobOfferValue(mockJobOffer2.offerId)
+            verify(exactly = 1) { jobOfferRepository.findById(mockJobOffer2.offerId) }
+            assertEquals(result, mockJobOffer2.value)
+            assertEquals(result, null)
+        }
+
+
+}
+
+
 }

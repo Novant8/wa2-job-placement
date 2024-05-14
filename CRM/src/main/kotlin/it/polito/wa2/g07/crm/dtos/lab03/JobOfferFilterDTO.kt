@@ -13,16 +13,16 @@ import org.springframework.data.jpa.domain.Specification
 @ParameterObject
 data class JobOfferFilterDTO(
     @field:Parameter(description = "Filter by professional ID")
-    val professionalId : Long ?,
+    val professionalId : Long ? = null,
 
     @field:Parameter(description = "Filter by customer ID")
-    val customerId: Long ?,
+    val customerId: Long ? = null,
 
     @field:Parameter(
         description = "Filter by status. Results will contain all job offers that are currently in any of the given statuses.",
         array = ArraySchema(schema = Schema(implementation = OfferStatus::class))
     )
-    val status: List<String>?
+    val status: List<String>? = null
 
 ) {
     fun toSpecification(): Specification<JobOffer> {
