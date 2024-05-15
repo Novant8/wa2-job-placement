@@ -28,8 +28,10 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
 
     @Transactional
     override fun createProfessional(professional: CreateProfessionalDTO): ProfessionalDTO {
-          if (professional.contactInfo.category?.uppercase()!== "PROFESSIONAL"){
-            throw InvalidParamsException(" You must register a Professional user")
+
+
+          if (professional.contactInfo.category?.uppercase()!= "PROFESSIONAL"){
+            throw InvalidParamsException(" You must register a Professional user ")
         }
         return professionalRepository.save(professional.toEntity()).toProfessionalDto()
     }
