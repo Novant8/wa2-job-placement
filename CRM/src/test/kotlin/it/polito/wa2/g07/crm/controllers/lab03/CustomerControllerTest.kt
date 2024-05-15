@@ -10,6 +10,7 @@ import it.polito.wa2.g07.crm.dtos.lab03.*
 
 
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
+import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
 
 import it.polito.wa2.g07.crm.entities.lab03.OfferStatus
 import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
@@ -19,6 +20,7 @@ import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.CustomerService
 import it.polito.wa2.g07.crm.services.lab03.JobOfferService
+import it.polito.wa2.g07.crm.services.lab03.ProfessionalService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -47,6 +49,8 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
     @MockkBean
     private lateinit var jobOfferService: JobOfferService
 
+    @MockkBean
+    private lateinit var professionalService: ProfessionalService
 
     private val mockEmailDTO = EmailDTO("company.test@example.org")
     private val mockTelephoneDTO = TelephoneDTO("34242424242")
@@ -221,9 +225,14 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
     inner class AssociateContact{
 
         private val usedContactIds = HashSet<Long>()
+        private val contactDTO= ContactDTO(
+            2L,"Mario","Rossi",ContactCategory.PROFESSIONAL,listOf(EmailResponseDTO(10L,"A.A@GM")) ,ssn = "d"
+
+        )
+
         @BeforeEach
         fun initMocks(){
-           every { customerService.bindContactToCustomer(any(Long::class), any(String::class)) } answers {
+            every { customerService.bindContactToCustomer(any(Long::class), any(String::class)) } answers {
                val contactId:Long = firstArg<Long>()
 
                if (usedContactIds.contains(contactId)){
@@ -245,7 +254,20 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
                     secondArg<String>()
                 )
             }
-             //every { customerService.bindContactToCustomer(any(Long::class),any(String::class)) } throws EntityNotFoundException("Contact does not exist")
+            every { professionalService.bindContactToProfessional(any(Long::class), any(CreateProfessionalReducedDTO::class)) } answers {
+                val contactId:Long = firstArg<Long>()
+
+                if (usedContactIds.contains(contactId)){
+                    throw ContactAssociationException("Contact with id : ${mockContactDTO.id} is already associated to another Customer ")
+                }else if (contactId != mockContactDTO.id){
+                    throw EntityNotFoundException("Contact does not exist")
+                }
+                ProfessionalDTO(
+                    2L,
+                        contactDTO, "TO", setOf("Ita"),EmploymentState.UNEMPLOYED,20.0,null
+
+                )
+            }
 
         }
 
@@ -254,7 +276,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
             val notes = mapOf("notes" to "New User")
             val contactId = mockContactDTO.id
             mockMvc
-                .post("/API/contacts/$contactId/customers"){
+                .post("/API/contacts/$contactId/customer"){
                     contentType= MediaType.APPLICATION_JSON
                     content = jsonMapper().writeValueAsString(notes)
                 }.andExpect {
@@ -274,13 +296,33 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
                     }
                 }
         }
-
+        @Test
+        fun associateValidContactProfessional(){
+            val createProfessionalReducedDTO = CreateProfessionalReducedDTO(  "TO", setOf("Ita"),20.0,null)
+            val contactId = mockContactDTO.id
+            mockMvc
+                .post("/API/contacts/$contactId/professional"){
+                    contentType= MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(createProfessionalReducedDTO)
+                }.andExpect {
+                    status { isCreated() }
+                    content {
+                        jsonPath("$.contactInfo.name"){value(contactDTO.name)}
+                        jsonPath("$.contactInfo.surname"){value(contactDTO.surname)}
+                        jsonPath("$.contactInfo.category"){value(contactDTO.category.name)}
+                        jsonPath("$.contactInfo.ssn"){value(contactDTO.ssn)}
+                        jsonPath("$.contactInfo.addresses[*].email"){value("A.A@GM")}
+                        jsonPath("$.location"){value("TO")}
+                        jsonPath("$.notes"){value(null)}
+                    }
+                }
+        }
         @Test
         fun associateUnknownContact(){
             val notes = mapOf("notes" to "New User")
 
             mockMvc
-                .post("/API/contacts/20/customers"){
+                .post("/API/contacts/20/customer"){
                     contentType= MediaType.APPLICATION_JSON
                     content = jsonMapper().writeValueAsString(notes)
                 }.andExpect {
@@ -288,14 +330,54 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
 
                 }
         }
+        @Test
+        fun associateUnknownContactProfessional(){
+            val createProfessionalReducedDTO = CreateProfessionalReducedDTO(  "TO", setOf("Ita"),20.0,null)
 
+
+            mockMvc
+                .post("/API/contacts/20/professional"){
+                    contentType= MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(createProfessionalReducedDTO)
+                }.andExpect {
+                    status { isNotFound() }
+
+                }
+        }
+        @Test
+        fun associateAlreadyConnectedContactProfessional(){
+            val createProfessionalReducedDTO = CreateProfessionalReducedDTO(  "TO", setOf("Ita"),20.0,null)
+
+
+            val contactId = mockContactDTO.id
+            mockMvc
+                .post("/API/contacts/$contactId/professional"){
+                    contentType= MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(createProfessionalReducedDTO)
+                }.andExpect {
+                    status { isCreated() }
+
+                }
+
+            usedContactIds.add(contactId)
+
+            mockMvc
+                .post("/API/contacts/$contactId/professional"){
+                    contentType= MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(createProfessionalReducedDTO)
+                }.andExpect {
+                    status { isConflict() }
+
+                }
+        }
         @Test
         fun associateAlreadyConnectedContact(){
             val notes = mapOf("notes" to "New User")
             val notes2 = mapOf("notes" to "New User2")
+
             val contactId = mockContactDTO.id
             mockMvc
-                .post("/API/contacts/$contactId/customers"){
+                .post("/API/contacts/$contactId/customer"){
                     contentType= MediaType.APPLICATION_JSON
                     content = jsonMapper().writeValueAsString(notes)
                 }.andExpect {
@@ -306,7 +388,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
             usedContactIds.add(contactId)
 
             mockMvc
-                .post("/API/contacts/$contactId/customers"){
+                .post("/API/contacts/$contactId/customer"){
                     contentType= MediaType.APPLICATION_JSON
                     content = jsonMapper().writeValueAsString(notes2)
                 }.andExpect {

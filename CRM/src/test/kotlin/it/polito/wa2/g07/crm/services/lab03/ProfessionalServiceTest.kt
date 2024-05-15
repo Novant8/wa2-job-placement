@@ -2,19 +2,21 @@ package it.polito.wa2.g07.crm.services.lab03
 
 import io.mockk.every
 import io.mockk.mockk
-import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalFilterDTO
-import it.polito.wa2.g07.crm.dtos.lab03.toProfessionalDto
-import it.polito.wa2.g07.crm.dtos.lab03.toProfessionalReducedDto
-import it.polito.wa2.g07.crm.entities.lab02.Contact
-import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
+import io.mockk.slot
+import io.mockk.verify
+import it.polito.wa2.g07.crm.dtos.lab02.*
+import it.polito.wa2.g07.crm.dtos.lab03.*
+import it.polito.wa2.g07.crm.entities.lab02.*
+import it.polito.wa2.g07.crm.entities.lab03.Customer
+import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
 import it.polito.wa2.g07.crm.entities.lab03.Professional
+import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
+import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
+import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -23,8 +25,9 @@ import java.util.*
 class ProfessionalServiceTest {
 
     val professionalRepository = mockk<ProfessionalRepository>()
+    val contactRepository = mockk<ContactRepository>()
+    val service = ProfessionalServiceImpl(professionalRepository, contactRepository )
 
-    val service = ProfessionalServiceImpl(professionalRepository)
 
     @Nested
     inner class GetProfessionalTests {
@@ -76,4 +79,164 @@ class ProfessionalServiceTest {
 
     }
 
+
+
+    @Nested
+    inner class AssociateContactToProfessional(){
+        private val customerSlot = slot<Customer>()
+        private val contactSlot = slot<Contact>()
+        private val professionalSlot = slot<Professional>()
+        private val usedContactIds = HashSet<Long>()
+
+        private val mockContact: Contact = Contact(
+            "Mario",
+            "Rossi",
+            ContactCategory.CUSTOMER,
+            "RSSMRA70A01L219K"
+        )
+
+        private val mockContact2: Contact = Contact(
+            "Laura",
+            "Binchi",
+            ContactCategory.PROFESSIONAL,
+            "LLBB0088LL4657K"
+        )
+
+        private val mockProfessional:Professional = Professional(
+            mockContact2,
+            "TO", setOf("Ita"),20.0,EmploymentState.UNEMPLOYED,null
+        )
+
+        private val mockMail = Email("mario.rossi@example.org")
+        private val mockTelephone = Telephone("34242424242")
+        private val mockDwelling = Dwelling("Via Roma, 18", "Torino", "TO", "IT")
+
+        fun initMockContact() {
+            mockMail.id = 1L
+            mockMail.email = "mario.rossi@example.org"
+            mockMail.contacts.add(mockContact)
+
+            mockTelephone.id = 2L
+            mockTelephone.number = "34242424242"
+            mockTelephone.contacts.add(mockContact)
+
+            mockDwelling.id = 3L
+            mockDwelling.street = "Via Roma, 18"
+            mockDwelling.city = "Torino"
+            mockDwelling.district = "TO"
+            mockDwelling.country = "IT"
+            mockDwelling.contacts.add(mockContact)
+
+            mockContact.addresses = mutableSetOf(
+                mockMail,
+                mockTelephone,
+                mockDwelling
+            )
+            mockContact2.addresses = mutableSetOf(
+                mockMail,
+                mockTelephone,
+                mockDwelling
+            )
+
+            mockContact.contactId = 1L
+            mockProfessional.professionalId= 4L
+            mockContact2.contactId=5L
+        }
+
+        init {
+            initMockContact()
+        }
+
+
+        @BeforeEach
+        fun initMocks(){
+            every { professionalRepository.save(capture(professionalSlot)) } answers {firstArg<Professional>()}
+            every { contactRepository.findById(any(Long::class)) } returns Optional.empty()
+            every {contactRepository.findById(mockContact.contactId)} returns Optional.of(mockContact)
+            every {contactRepository.findById(mockContact2.contactId)} returns Optional.of(mockContact2)
+            every {professionalRepository.findByContactInfo(any(Contact::class))} answers {
+                val contact:Contact = firstArg<Contact>()
+                if (usedContactIds.contains(contact.contactId)){
+                    Optional.of(mockProfessional)
+                }else {
+                    Optional.empty()
+                }
+            }
+        }
+
+        @Test
+        fun associateValidContact(){
+            val createProfessionalReducedDTO = CreateProfessionalReducedDTO(  "TO", setOf("Ita"),20.0,null)
+
+            val result = service.bindContactToProfessional(mockContact2.contactId,createProfessionalReducedDTO)
+
+            val expectedAddresses = listOf(
+                EmailResponseDTO(mockMail.id,mockMail.email),
+                TelephoneResponseDTO(mockTelephone.id,mockTelephone.number),
+                DwellingResponseDTO(mockDwelling.id,mockDwelling.street,mockDwelling.city,mockDwelling.district, mockDwelling.country)
+            )
+            val expectedDTO = ProfessionalDTO(
+                0L,
+                ContactDTO(
+                    mockContact2.contactId,
+                    mockContact2.name,
+                    mockContact2.surname,
+                    mockContact2.category,
+                    expectedAddresses,
+                    mockContact2.ssn
+                ),
+                "TO", setOf("Ita"),EmploymentState.UNEMPLOYED,20.0,null
+            )
+
+            Assertions.assertEquals( expectedDTO,result)
+            verify { professionalRepository.save((any(Professional::class))) }
+
+        }
+
+        @Test
+        fun associateUnknownContact(){
+            val createProfessionalReducedDTO = CreateProfessionalReducedDTO(  "TO", setOf("Ita"),20.0,null)
+
+            assertThrows<EntityNotFoundException> {
+                service.bindContactToProfessional(20L,createProfessionalReducedDTO)
+            }
+            verify(exactly = 0) { professionalRepository.save(any(Professional::class)) }
+        }
+
+        @Test
+        fun associateAlreadyConnectedContact(){
+            val createProfessionalReducedDTO = CreateProfessionalReducedDTO(  "TO", setOf("Ita"),20.0,null)
+
+            val result = service.bindContactToProfessional(mockContact2.contactId,createProfessionalReducedDTO)
+
+            val expectedAddresses = listOf(
+                EmailResponseDTO(mockMail.id,mockMail.email),
+                TelephoneResponseDTO(mockTelephone.id,mockTelephone.number),
+                DwellingResponseDTO(mockDwelling.id,mockDwelling.street,mockDwelling.city,mockDwelling.district, mockDwelling.country)
+            )
+
+            verify { professionalRepository.save((any(Professional::class))) }
+
+
+            usedContactIds.add(mockContact2.contactId)
+
+            assertThrows<ContactAssociationException> {
+                service.bindContactToProfessional(mockContact2.contactId,createProfessionalReducedDTO)
+
+            }
+            //verify(exactly = 0) { customerRepository.save(any(Customer::class)) }
+            //verify(exactly = 0) { customerRepository.delete(any(Customer::class)) }
+        }
+
+        @Test
+        fun associateProfessionalContact(){
+            val createProfessionalReducedDTO = CreateProfessionalReducedDTO(  "TO", setOf("Ita"),20.0,null)
+
+            assertThrows<InvalidParamsException> {
+                service.bindContactToProfessional(mockContact.contactId,createProfessionalReducedDTO)
+            }
+            verify(exactly = 0) { professionalRepository.save(any(Professional::class)) }
+
+        }
+    }
 }

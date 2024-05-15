@@ -263,7 +263,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                  }
             """.trimIndent()
 
-            mockMvc.perform(post("/API/contacts/$contactId1/customers").contentType(MediaType.APPLICATION_JSON).content(body))
+            mockMvc.perform(post("/API/contacts/$contactId1/customer").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isCreated)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("contactInfo.name").value("Company"))
@@ -287,7 +287,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                  }
             """.trimIndent()
 
-            mockMvc.perform(post("/API/contacts/20/customers").contentType(MediaType.APPLICATION_JSON).content(body))
+            mockMvc.perform(post("/API/contacts/20/customer").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isNotFound)
         }
         @Test
@@ -304,10 +304,10 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                  }
             """.trimIndent()
 
-            mockMvc.perform(post("/API/contacts/$contactId1/customers").contentType(MediaType.APPLICATION_JSON).content(body))
+            mockMvc.perform(post("/API/contacts/$contactId1/customer").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isCreated)
 
-            mockMvc.perform(post("/API/contacts/$contactId1/customers").contentType(MediaType.APPLICATION_JSON).content(body2))
+            mockMvc.perform(post("/API/contacts/$contactId1/customer").contentType(MediaType.APPLICATION_JSON).content(body2))
                 .andExpect(status().isConflict)
         }
         @Test
@@ -319,7 +319,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
             """.trimIndent()
 
 
-            mockMvc.perform(post("/API/contacts/$contactId2/customers").contentType(MediaType.APPLICATION_JSON).content(body))
+            mockMvc.perform(post("/API/contacts/$contactId2/customer").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isBadRequest)
 
 

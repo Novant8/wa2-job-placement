@@ -9,9 +9,11 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import it.polito.wa2.g07.crm.dtos.lab02.*
 
 import it.polito.wa2.g07.crm.dtos.lab03.CustomerDTO
+import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalDTO
 import it.polito.wa2.g07.crm.entities.lab02.AddressType
 import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.CustomerService
+import it.polito.wa2.g07.crm.services.lab03.ProfessionalService
 import jakarta.validation.Valid
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Page
@@ -24,7 +26,9 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/API/contacts")
 class ContactController(private val contactService: ContactService,
-                        private val customerService: CustomerService) {
+                        private val customerService: CustomerService,
+                        private val professionalService: ProfessionalService
+                        ) {
 
     @Operation(summary = "Create a new contact")
     @ApiResponses(value=[
@@ -44,15 +48,15 @@ class ContactController(private val contactService: ContactService,
         return contactService.create(contact)
     }
 
-    @Operation(summary = "Create a new Customer and associates an existing contact to it")
+    @Operation(summary = "Create a new Professional and associates an existing contact to it")
     @ApiResponses(value=[
         ApiResponse(
             responseCode = "201",
-            description = "The customer was successfully created",
+            description = "The professional was successfully created",
         ),
         ApiResponse(
             responseCode = "400",
-            description = "The contact information is not valid for a customer",
+            description = "The contact information is not valid for a professional",
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         ),
         ApiResponse(
@@ -62,13 +66,25 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/{contactId}/customers")
+    @PostMapping("/{contactId}/customer")
     fun saveCustomer (
         @PathVariable("contactId") contactId : Long,
         @RequestBody notesDTO: NotesDTO
-    ): CustomerDTO {
+    ):  CustomerDTO{
         return customerService.bindContactToCustomer(contactId,notesDTO.notes)
     }
+
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{contactId}/professional")
+    fun saveProfessional (
+        @PathVariable("contactId") contactId : Long,
+        @RequestBody createProfessionalReducedDTO: CreateProfessionalReducedDTO
+    ): ProfessionalDTO {
+        return professionalService.bindContactToProfessional(contactId,createProfessionalReducedDTO)
+
+    }
+
 
     @Operation(summary = "Associate a new or existing e-mail address to the given contact")
     @ApiResponses(value=[

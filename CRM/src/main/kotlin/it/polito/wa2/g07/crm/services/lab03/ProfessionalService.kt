@@ -1,5 +1,6 @@
 package it.polito.wa2.g07.crm.services.lab03
 
+import it.polito.wa2.g07.crm.dtos.lab02.CreateProfessionalReducedDTO
 import it.polito.wa2.g07.crm.dtos.lab03.CreateProfessionalDTO
 import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalFilterDTO
 import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalReducedDTO
@@ -11,4 +12,5 @@ interface ProfessionalService {
     fun searchProfessionals(filterDTO: ProfessionalFilterDTO, pageable: Pageable): Page<ProfessionalReducedDTO>
     fun getProfessionalById(professionalId: Long): ProfessionalDTO
     fun create(professional: CreateProfessionalDTO): ProfessionalDTO
+    fun bindContactToProfessional(contactId: Long, createProfessionalReducedDTO: CreateProfessionalReducedDTO): ProfessionalDTO
 }
