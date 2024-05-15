@@ -7,6 +7,8 @@ import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 import it.polito.wa2.g07.crm.entities.lab03.JobOffer
 import it.polito.wa2.g07.crm.entities.lab03.Professional
+import it.polito.wa2.g07.crm.repositories.lab02.AddressRepository
+import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -14,8 +16,12 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK) //just to remove IDE error on mockMvc
@@ -32,6 +38,169 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
 
     @Autowired
     lateinit var objectMapper: ObjectMapper
+
+    @Autowired
+    lateinit var contactRepository: ContactRepository
+
+    @Autowired
+    lateinit var addressRepository: AddressRepository
+
+    @Nested
+    inner class PostProfessionalTest{
+        @BeforeEach
+        fun init(){
+            professionalRepository.deleteAll()
+        }
+
+        @Test
+        fun postProfessional(){
+            val professional="""
+                  {
+                    "contactInfo": {
+                        "name":"Professional1Name",
+                        "surname":"Professional1Surname",
+                        "category":"PROFESSIONAL",
+                        "ssn":"VRDLGU70A01L219G",
+                        "addresses": [{
+                                "email":"company.test@example.org"
+                            },
+                            {
+                                "phoneNumber":"34242424242"
+                            },
+                            {
+                                "street":"Via Roma, 18",
+                                "city":"Torino",
+                                "district":"TO","country":"IT"
+                             }
+                             ]
+                        },
+                  "location":"Torino",
+                  "skills":["PHP","Java","Angular"],
+                  "dailyRate":100.0,
+                  "employmentState":"UNEMPLOYED",
+                  "notes":"notes test"}
+            """.trimIndent()
+            mockMvc.perform(post("/API/professionals").contentType(MediaType.APPLICATION_JSON).content(professional))
+                .andExpect((status().isCreated))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.contactInfo.name").value("Professional1Name"))
+                .andExpect(jsonPath("$.contactInfo.surname").value("Professional1Surname"))
+                .andExpect(jsonPath("$.contactInfo.category").value("PROFESSIONAL"))
+                .andExpect(jsonPath("$.contactInfo.ssn").value("VRDLGU70A01L219G"))
+                .andExpect(jsonPath("$.contactInfo.addresses[*].email").value("company.test@example.org"))
+                .andExpect(jsonPath("$.contactInfo.addresses[*].phoneNumber").value("34242424242"))
+                .andExpect(jsonPath("$.contactInfo.addresses[*].street").value("Via Roma, 18"))
+                .andExpect( jsonPath("$.contactInfo.addresses[*].district").value("TO"))
+                .andExpect(jsonPath("$.contactInfo.addresses[*].city").value("Torino"))
+                .andExpect(jsonPath("$.contactInfo.addresses[*].country").value("IT"))
+                .andExpect(jsonPath("$.location").value("Torino"))
+                .andExpect(jsonPath("$.skills[0]").value("Java"))
+                .andExpect(jsonPath("$.skills[1]").value("PHP"))
+                .andExpect(jsonPath("$.skills[2]").value("Angular"))
+                .andExpect(jsonPath("$.dailyRate").value(100.0))
+                .andExpect(jsonPath("$.employmentState").value("UNEMPLOYED"))
+                .andExpect(jsonPath("$.notes").value("notes test"))
+
+
+        }
+
+        @Test
+        fun postProfessional_noNotes(){
+            val professional="""
+                  {
+                    "contactInfo": {
+                        "name":"Professional1Name",
+                        "surname":"Professional1Surname",
+                        "category":"PROFESSIONAL",
+                        "ssn":"VRDLGU70A01L219G",
+                        "addresses": [{
+                                "email":"company.test@example.org"
+                            },
+                            {
+                                "phoneNumber":"34242424242"
+                            },
+                            {
+                                "street":"Via Roma, 18",
+                                "city":"Torino",
+                                "district":"TO","country":"IT"
+                             }
+                             ]
+                        },
+                  "location":"Torino",
+                  "skills":["PHP","Java","Angular"],
+                  "dailyRate":100.0,
+                  "employmentState":"UNEMPLOYED"
+                 }
+            """.trimIndent()
+            mockMvc.perform(post("/API/professionals").contentType(MediaType.APPLICATION_JSON).content(professional))
+                .andExpect((status().isCreated))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.contactInfo.name").value("Professional1Name"))
+                .andExpect(jsonPath("$.contactInfo.surname").value("Professional1Surname"))
+                .andExpect(jsonPath("$.contactInfo.category").value("PROFESSIONAL"))
+                .andExpect(jsonPath("$.contactInfo.ssn").value("VRDLGU70A01L219G"))
+                .andExpect(jsonPath("$.contactInfo.addresses[*].email").value("company.test@example.org"))
+                .andExpect(jsonPath("$.contactInfo.addresses[*].phoneNumber").value("34242424242"))
+                .andExpect(jsonPath("$.contactInfo.addresses[*].street").value("Via Roma, 18"))
+                .andExpect( jsonPath("$.contactInfo.addresses[*].district").value("TO"))
+                .andExpect(jsonPath("$.contactInfo.addresses[*].city").value("Torino"))
+                .andExpect(jsonPath("$.contactInfo.addresses[*].country").value("IT"))
+                .andExpect(jsonPath("$.location").value("Torino"))
+                .andExpect(jsonPath("$.skills[0]").value("Java"))
+                .andExpect(jsonPath("$.skills[1]").value("PHP"))
+                .andExpect(jsonPath("$.skills[2]").value("Angular"))
+                .andExpect(jsonPath("$.dailyRate").value(100.0))
+                .andExpect(jsonPath("$.employmentState").value("UNEMPLOYED"))
+
+
+
+        }
+
+        @Test
+        fun postCustomer(){
+            val professional="""
+                  {
+                    "contactInfo": {
+                        "name":"Professional1Name",
+                        "surname":"Professional1Surname",
+                        "category":"CUSTOMER",
+                        "ssn":"VRDLGU70A01L219G",
+                        "addresses": [{
+                                "email":"company.test@example.org"
+                            },
+                            {
+                                "phoneNumber":"34242424242"
+                            },
+                            {
+                                "street":"Via Roma, 18",
+                                "city":"Torino",
+                                "district":"TO","country":"IT"
+                             }
+                             ]
+                        },
+                  "location":"Torino",
+                  "skills":["PHP","Java","Angular"],
+                  "dailyRate":100.0,
+                  "employmentState":"UNEMPLOYED",
+                  "notes":"notes test"}
+            """.trimIndent()
+            mockMvc.perform(post("/API/professionals").contentType(MediaType.APPLICATION_JSON).content(professional))
+                .andExpect((status().isBadRequest))
+
+
+
+        }
+
+        
+
+
+
+
+
+
+
+
+    }
 
     @Nested
     inner class GetProfessionalTest {
