@@ -4,8 +4,10 @@ import io.mockk.*
 import it.polito.wa2.g07.crm.dtos.lab02.*
 import it.polito.wa2.g07.crm.dtos.lab03.*
 import it.polito.wa2.g07.crm.entities.lab02.*
+import it.polito.wa2.g07.crm.entities.lab03.Customer
 import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
 import it.polito.wa2.g07.crm.entities.lab03.Professional
+import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
@@ -34,7 +36,7 @@ class ProfessionalServiceTest {
     private val mockContact2: Contact = Contact(
         "Laura",
         "Binchi",
-        ContactCategory.PROFESSIONAL,
+        ContactCategory.CUSTOMER,
         "LLBB0088LL4657K"
     )
 
@@ -261,7 +263,63 @@ class ProfessionalServiceTest {
             verify (exactly = 0) {professionalRepository.delete(any(Professional::class))}
 
         }
+        @Test
+        fun associateUnknownContact(){
+            assertThrows<EntityNotFoundException> {
+                service.bindContactToProfessional(50L,"Torino", setOf("mock1","mock2"),100.0,EmploymentState.UNEMPLOYED,"Test Notes")
+            }
+            verify(exactly = 0) {professionalRepository.save(any(Professional::class))}
+            verify(exactly = 0) {professionalRepository.delete(any(Professional::class))}
+        }
+        @Test
+        fun associateAlreadyConnectedContact(){
+            val result = service.bindContactToProfessional(mockContact.contactId,"Torino", setOf("mock1","mock2"),100.0,EmploymentState.UNEMPLOYED,"Test Notes")
+
+            val expectedAddresses = listOf(
+                EmailResponseDTO(mockMail.id,mockMail.email),
+                TelephoneResponseDTO(mockTelephone.id,mockTelephone.number),
+                DwellingResponseDTO(mockDwelling.id,mockDwelling.street,mockDwelling.city,mockDwelling.district, mockDwelling.country)
+            )
+
+            val expectedDTO = ProfessionalDTO (
+                0L,
+                ContactDTO(
+                    mockContact.contactId,
+                    mockContact.name,
+                    mockContact.surname,
+                    mockContact.category,
+                    expectedAddresses,
+                    mockContact.ssn
+                ),
+                "Torino",
+                setOf("mock1","mock2"),
+                100.0,EmploymentState.UNEMPLOYED,
+                "Test Notes"
+
+            )
+            Assertions.assertEquals(result,expectedDTO)
+            verify {professionalRepository.save((any(Professional::class)))}
+            verify (exactly = 0) {professionalRepository.delete(any(Professional::class))}
+
+            usedContactIds.add(mockContact.contactId)
+
+            assertThrows<ContactAssociationException> {
+                service.bindContactToProfessional(mockContact.contactId,"Torino", setOf("mock1","mock2"),100.0,EmploymentState.UNEMPLOYED,"Test Notes")
+            }
+
+        }
+
+        @Test
+        fun associateCustomerContact(){
+
+            assertThrows<InvalidParamsException> {
+                service.bindContactToProfessional(mockContact2.contactId,"Torino", setOf("mock1","mock2"),100.0,EmploymentState.UNEMPLOYED,"Test Notes")
+            }
+            verify(exactly = 0) { professionalRepository.save(any(Professional::class)) }
+            verify(exactly = 0) { professionalRepository.delete(any(Professional::class)) }
+        }
     }
+
 
     @Nested
     inner class GetProfessionalTests {
