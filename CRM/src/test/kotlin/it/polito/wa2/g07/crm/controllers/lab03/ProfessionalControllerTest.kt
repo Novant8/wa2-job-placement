@@ -3,7 +3,6 @@ package it.polito.wa2.g07.crm.controllers.lab03
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 
 
-import it.polito.wa2.g07.crm.controllers.lab02.ContactController
 import it.polito.wa2.g07.crm.dtos.lab02.*
 import it.polito.wa2.g07.crm.dtos.lab03.CreateProfessionalDTO
 import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalDTO
@@ -16,12 +15,6 @@ import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
 
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.lab02.ContactService
-
-import org.junit.Before
-
-
-
-import org.mockito.ArgumentMatchers.argThat
 
 
 import org.springframework.http.MediaType
@@ -205,7 +198,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Nested
     inner class AssociateContact {
-        private val registeredContactIds = HashSet<Long>()
+        private val usedContactIds = HashSet<Long>()
         private val skills = setOf("PHP", "Java", "Angular")
 
         @BeforeEach
@@ -220,7 +213,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
 
 
 
-                if (registeredContactIds.contains(contactId)) {
+                if (usedContactIds.contains(contactId)) {
                     throw ContactAssociationException("Contact with id : ${mockContactDTO.id} is already associated to another Professional ")
                 } else if (contactId != mockContactDTO.id) {
                     throw EntityNotFoundException("Contact does not exists")
@@ -267,6 +260,42 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                 }.andExpect {
                     status { isCreated() }
                 }
+        }
+
+        @Test
+        fun associateAlreadyConnectedContact(){
+            val contactId = mockContactDTO.id
+            val values = mapOf(
+                "location" to "Torino",
+                "skills" to skills,
+                "dailyRate" to 100.0,
+                "EmploymentState" to EmploymentState.UNEMPLOYED,
+                "notes" to "TestNotes"
+            )
+            val values2 = mapOf(
+                "location" to "Milano",
+                "skills" to skills,
+                "dailyRate" to 200.0,
+                "EmploymentState" to EmploymentState.UNEMPLOYED,
+                "notes" to "TestNotes2"
+            )
+            mockMvc.post("/API/contacts/$contactId/professionals"){
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(values)
+            }.andExpect {
+                status { isCreated() }
+            }
+
+            usedContactIds.add(contactId)
+
+            mockMvc.post("/API/contacts/$contactId/professionals"){
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(values2)
+            }.andExpect {
+                status { isConflict() }
+            }
+
+
         }
     }
 
