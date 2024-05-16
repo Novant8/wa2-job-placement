@@ -66,7 +66,7 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
     override fun postProfessionalNotes(professionalId: Long, notes: String?): ProfessionalDTO {
         val professionalOpt= professionalRepository.findById(professionalId)
         if (!professionalOpt.isPresent){
-            throw  EntityNotFoundException("Professionao with id : $professionalId is not present" )
+            throw  EntityNotFoundException("Professional with id : $professionalId is not present" )
         }
         val professional = professionalOpt.get()
         professional.notes= notes
@@ -74,6 +74,62 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
         return professionalRepository.save(professional).toProfessionalDto()
 
     }
+
+    @Transactional()
+    override fun postProfessionalLocation(professionalId: Long, location: String): ProfessionalDTO {
+
+        val professionalOpt= professionalRepository.findById(professionalId)
+        if (!professionalOpt.isPresent){
+            throw  EntityNotFoundException("Professional with id : $professionalId is not present" )
+        }
+        val professional = professionalOpt.get()
+        professional.location= location
+
+
+        return professionalRepository.save(professional).toProfessionalDto()
+
+    }
+
+    @Transactional()
+    override fun postProfessionalSkills(professionalId: Long, skills: Set<String>): ProfessionalDTO {
+        val professionalOpt= professionalRepository.findById(professionalId)
+        if (!professionalOpt.isPresent){
+            throw  EntityNotFoundException("Professional with id : $professionalId is not present" )
+        }
+        val professional = professionalOpt.get()
+        professional.skills= skills
+
+
+        return professionalRepository.save(professional).toProfessionalDto()
+    }
+
+    @Transactional
+    override fun postProfessionalEmploymentState(professionalId: Long, employmentState: EmploymentState): ProfessionalDTO {
+        val professionalOpt= professionalRepository.findById(professionalId)
+        if (!professionalOpt.isPresent){
+            throw  EntityNotFoundException("Professional with id : $professionalId is not present" )
+        }
+        val professional = professionalOpt.get()
+        professional.employmentState= employmentState
+
+
+        return professionalRepository.save(professional).toProfessionalDto()
+    }
+
+    @Transactional
+    override fun postProfessionalDailyRate(professionalId: Long, dailyRate: Double): ProfessionalDTO {
+        val professionalOpt= professionalRepository.findById(professionalId)
+        if (!professionalOpt.isPresent){
+            throw  EntityNotFoundException("Professional with id : $professionalId is not present" )
+        }
+        val professional = professionalOpt.get()
+        professional.dailyRate= dailyRate
+
+
+        return professionalRepository.save(professional).toProfessionalDto()
+    }
+
+
 
 
 
