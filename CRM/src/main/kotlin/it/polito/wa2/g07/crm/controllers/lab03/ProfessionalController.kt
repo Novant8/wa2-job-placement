@@ -85,7 +85,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
                                    @RequestBody skills :Map<String, Set<String>>
     ): ProfessionalDTO?
     {
-        return professionalService.postProfessionalSkills(professionalId, skills["location"]!!)
+        return professionalService.postProfessionalSkills(professionalId, skills["skills"]!!)
     }
 
     @PutMapping("{professionalId}/employmentState")
