@@ -8,9 +8,13 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import it.polito.wa2.g07.crm.dtos.lab02.DwellingDTO
+import it.polito.wa2.g07.crm.dtos.lab02.EmailDTO
 import it.polito.wa2.g07.crm.dtos.lab02.NotesDTO
+import it.polito.wa2.g07.crm.dtos.lab02.TelephoneDTO
 import it.polito.wa2.g07.crm.dtos.lab03.*
-import it.polito.wa2.g07.crm.entities.lab03.Professional
+import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
+import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.ProfessionalService
 import jakarta.validation.Valid
 import org.springdoc.core.annotations.ParameterObject
@@ -30,7 +34,7 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "4. Professionals", description = "Create, search and update professionals' information")
 @RestController
 @RequestMapping("/API/professionals")
-class ProfessionalController (private val professionalService: ProfessionalService) {
+class ProfessionalController (private val professionalService: ProfessionalService,private val contactService: ContactService) {
 
     @Operation(summary = "Create a new professional")
     @ApiResponses(value=[
@@ -59,6 +63,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    //Modify Professional notes
     @PutMapping("{professionalId}/notes")
     fun updateProfessionalNotes(@PathVariable professionalId:Long,
                                    @RequestBody notes: NotesDTO
@@ -66,6 +71,80 @@ class ProfessionalController (private val professionalService: ProfessionalServi
     {
         return professionalService.postProfessionalNotes(professionalId, notes.notes)
     }
+    //Modify professional location
+    @PutMapping("{professionalId}/location")
+    fun updateProfessionalLocation(@PathVariable professionalId:Long,
+                                @RequestBody location :Map<String, String>
+    ): ProfessionalDTO?
+    {
+        return professionalService.postProfessionalLocation(professionalId, location["location"]!!)
+    }
+
+    @PutMapping("{professionalId}/skills")
+    fun updateProfessionalSkills(@PathVariable professionalId:Long,
+                                   @RequestBody skills :Map<String, Set<String>>
+    ): ProfessionalDTO?
+    {
+        return professionalService.postProfessionalSkills(professionalId, skills["location"]!!)
+    }
+
+    @PutMapping("{professionalId}/employmentState")
+    fun updateProfessionalEmploymentState(@PathVariable professionalId:Long,
+                                 @RequestBody employmentState :Map<String, EmploymentState>
+    ): ProfessionalDTO?
+    {
+        return professionalService.postProfessionalEmploymentState(professionalId, employmentState["employmentState"]!!)
+    }
+
+    @PutMapping("{professionalId}/dailyRate")
+    fun updateProfessionalDailyRate(@PathVariable professionalId:Long,
+                                          @RequestBody dailyRate :Map<String, Double>
+    ): ProfessionalDTO?
+    {
+        return professionalService.postProfessionalDailyRate(professionalId, dailyRate["dailyRate"]!!)
+    }
+
+    @PutMapping("/{professionalId}/email/{emailId}","/{professionalId}/email/{emailId}")
+    fun editProfessionalEmail(@PathVariable("professionalId") professionalId :Long, @PathVariable("emailId") emailId : Long,
+                              @Valid @RequestBody emailDTO: EmailDTO
+    ): ProfessionalDTO{
+        val professional = professionalService.getProfessionalById(professionalId)
+        val contactId =  professional.contactInfo.id
+        val contactDTO= contactService.updateAddress(contactId,emailId,emailDTO)
+
+        return ProfessionalDTO(professional.id, contactDTO,professional.location,professional.skills,professional.dailyRate,professional.employmentState,professional.notes)
+
+    }
+
+    @PutMapping("/{professionalId}/telephone/{telephoneId}","/{professionalId}/telephone/{telephoneId}")
+    fun editProfessionalTelephone(@PathVariable("professionalId") professionalId :Long, @PathVariable("telephoneId") telephoneId : Long,
+                              @Valid @RequestBody telephoneDTO: TelephoneDTO
+    ): ProfessionalDTO{
+        val professional = professionalService.getProfessionalById(professionalId)
+        val contactId =  professional.contactInfo.id
+        val contactDTO= contactService.updateAddress(contactId,telephoneId,telephoneDTO)
+
+        return ProfessionalDTO(professional.id, contactDTO,professional.location,professional.skills,professional.dailyRate,professional.employmentState,professional.notes)
+
+    }
+
+    @PutMapping("/{professionalId}/dwelling/{dwellingId}","/{professionalId}/dwelling/{dwellingId}")
+    fun editProfessionalDwelling(@PathVariable("professionalId") professionalId :Long, @PathVariable("dwellingId") dwellingId : Long,
+                                  @Valid @RequestBody dwellingDTO: DwellingDTO
+    ): ProfessionalDTO{
+        val professional = professionalService.getProfessionalById(professionalId)
+        val contactId =  professional.contactInfo.id
+        val contactDTO= contactService.updateAddress(contactId,dwellingId,dwellingDTO)
+
+        return ProfessionalDTO(professional.id, contactDTO,professional.location,professional.skills,professional.dailyRate,professional.employmentState,professional.notes)
+
+    }
+
+
+
+
+
+
 
     @Operation(summary = "List all professionals that match the given filters, with paging and sorting")
     @ApiResponses(value=[
