@@ -16,6 +16,7 @@ import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
+import org.junit.Before
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -540,7 +541,140 @@ class ProfessionalServiceTest {
 
     @Nested
     inner class PutProfessional{
-        
+        private val professionalSlot= slot<Professional>()
+
+        @BeforeEach
+        fun initMocks(){
+            every{professionalRepository.save(capture(professionalSlot))} answers {firstArg<Professional>()}
+            every {professionalRepository.delete(any(Professional::class))} returns Unit
+            every {professionalRepository.findById(any(Long::class))} returns Optional.empty()
+            every { professionalRepository.findById(mockProfessional.professionalId)} returns Optional.of(mockProfessional)
+        }
+
+        @Test
+        fun updateNotes () {
+            val notes = " The new notes"
+            val result = service.postProfessionalNotes(mockProfessional.professionalId, notes)
+            val expectedDTO = ProfessionalDTO(
+                mockProfessional.professionalId,
+                mockProfessional.contactInfo.toContactDto(),
+                mockProfessional.location,
+                mockProfessional.skills,
+                mockProfessional.dailyRate,
+                mockProfessional.employmentState,
+                notes
+            )
+            Assertions.assertEquals(result,expectedDTO)
+            verify(exactly =1) {professionalRepository.save(any(Professional::class))}
+        }
+
+        @Test
+        fun updateNotes_UnknownCustomer(){
+            val notes = "Updated notes"
+
+            assertThrows<EntityNotFoundException> { service.postProfessionalNotes(200L,notes) }
+            verify (exactly = 0){ professionalRepository.save(any(Professional::class))  }
+        }
+
+        @Test
+        fun updateLocation () {
+            val location = " The new location"
+            val result = service.postProfessionalLocation(mockProfessional.professionalId, location)
+            val expectedDTO = ProfessionalDTO(
+                mockProfessional.professionalId,
+                mockProfessional.contactInfo.toContactDto(),
+                location,
+                mockProfessional.skills,
+                mockProfessional.dailyRate,
+                mockProfessional.employmentState,
+                mockProfessional.notes
+            )
+            Assertions.assertEquals(result,expectedDTO)
+            verify(exactly =1) {professionalRepository.save(any(Professional::class))}
+        }
+
+        @Test
+        fun updatelocation_UnknownCustomer(){
+            val location = "Updated location"
+
+            assertThrows<EntityNotFoundException> { service.postProfessionalLocation(200L,location) }
+            verify (exactly = 0){ professionalRepository.save(any(Professional::class))  }
+        }
+
+        @Test
+        fun updateSkills () {
+            val skills = setOf(" The new skill1","The new skill2")
+            val result = service.postProfessionalSkills(mockProfessional.professionalId, skills)
+            val expectedDTO = ProfessionalDTO(
+                mockProfessional.professionalId,
+                mockProfessional.contactInfo.toContactDto(),
+                mockProfessional.location,
+                skills,
+                mockProfessional.dailyRate,
+                mockProfessional.employmentState,
+                mockProfessional.notes
+            )
+            Assertions.assertEquals(result,expectedDTO)
+            verify(exactly =1) {professionalRepository.save(any(Professional::class))}
+        }
+
+        @Test
+        fun updateskills_UnknownCustomer(){
+            val skills = setOf(" The new skill1","The new skill2")
+
+            assertThrows<EntityNotFoundException> { service.postProfessionalSkills(200L,skills) }
+            verify (exactly = 0){ professionalRepository.save(any(Professional::class))  }
+        }
+
+        @Test
+        fun updateDailyRate () {
+            val dailyRate = 800.0
+            val result = service.postProfessionalDailyRate(mockProfessional.professionalId, dailyRate)
+            val expectedDTO = ProfessionalDTO(
+                mockProfessional.professionalId,
+                mockProfessional.contactInfo.toContactDto(),
+                mockProfessional.location,
+                mockProfessional.skills,
+                dailyRate,
+                mockProfessional.employmentState,
+                mockProfessional.notes
+            )
+            Assertions.assertEquals(result,expectedDTO)
+            verify(exactly =1) {professionalRepository.save(any(Professional::class))}
+        }
+
+        @Test
+        fun updateDailyRate_UnknownCustomer(){
+            val dailyRate = 800.0
+
+            assertThrows<EntityNotFoundException> { service.postProfessionalDailyRate(200L,dailyRate) }
+            verify (exactly = 0){ professionalRepository.save(any(Professional::class))  }
+        }
+        @Test
+        fun updateEmploymentState () {
+            val employmentState = EmploymentState.EMPLOYED
+            val result = service.postProfessionalEmploymentState(mockProfessional.professionalId, employmentState)
+            val expectedDTO = ProfessionalDTO(
+                mockProfessional.professionalId,
+                mockProfessional.contactInfo.toContactDto(),
+                mockProfessional.location,
+                mockProfessional.skills,
+                mockProfessional.dailyRate,
+                employmentState,
+                mockProfessional.notes
+            )
+            Assertions.assertEquals(result,expectedDTO)
+            verify(exactly =1) {professionalRepository.save(any(Professional::class))}
+        }
+
+        @Test
+        fun updateEmploymentState_UnknownCustomer(){
+            val employmentState = EmploymentState.EMPLOYED
+
+            assertThrows<EntityNotFoundException> { service.postProfessionalEmploymentState(200L, employmentState ) }
+            verify (exactly = 0){ professionalRepository.save(any(Professional::class))  }
+        }
+
     }
 
 }
