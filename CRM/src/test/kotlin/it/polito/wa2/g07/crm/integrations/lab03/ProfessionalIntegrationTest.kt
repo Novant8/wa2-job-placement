@@ -2,6 +2,7 @@ package it.polito.wa2.g07.crm.integrations.lab03
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import it.polito.wa2.g07.crm.CrmApplicationTests
+import it.polito.wa2.g07.crm.dtos.lab02.*
 import it.polito.wa2.g07.crm.dtos.lab03.toProfessionalDto
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
@@ -156,6 +157,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
 
         }
 
+
         @Test
         fun postCustomer(){
             val professional="""
@@ -188,6 +190,65 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
                 .andExpect((status().isBadRequest))
 
 
+
+        }
+
+
+        @Nested
+        inner class PostAssociateContactToProfessional(){
+            private var contactId1= 0L
+            private var contactId2=0L
+
+            @BeforeEach
+            fun init(){
+                professionalRepository.deleteAll()
+                contactRepository.deleteAll()
+                val contactDto1= CreateContactDTO(
+                    "Professional",
+                    "Test",
+                    "professional",
+                    "12345678",
+                    listOf(
+                        TelephoneDTO("12345667889"),
+                        EmailDTO("professional.test@email.com"),
+                        DwellingDTO("123 Main St", "City", "District","Country")
+
+                    )
+                )
+
+                val contactDto2 = CreateContactDTO(
+                    "Professional2",
+                    "Test2",
+                    "customer",
+                    "EEEEA23456",
+                listOf( TelephoneDTO("00223345"),
+                    EmailDTO("different.professional@email.com"),
+                    DwellingDTO("Street2", "City2", "District2","Country2"
+                    )
+                )
+                )
+                contactId1 = contactRepository.save(contactDto1.toEntity()).contactId
+                contactId2= contactRepository.save(contactDto2.toEntity()).contactId
+
+
+
+            }
+
+            @Test
+            fun associateContact(){
+                val body= """
+                    {
+                    "location":"Torino",
+                    "skills":["PHP","Java","Angular"],
+                    "dailyRate":100.0,
+                    "employmentState":"UNEMPLOYED",
+                    "notes":"notes test"}
+                    }
+                """.trimIndent()
+                mockMvc.perform(post("/API/contacts/$contactId1/professionals").contentType(MediaType.APPLICATION_JSON).content(body))
+                    .andExpect(status().isCreated)
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            }
 
         }
 

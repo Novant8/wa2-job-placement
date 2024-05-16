@@ -311,6 +311,12 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                     any(String::class)
                 )
             } throws EntityNotFoundException("Professional not found")
+            every {
+                professionalService.postProfessionalLocation(
+                    any(Long::class),
+                    any(String::class)
+                )
+            } throws EntityNotFoundException("Professional not found")
             every { professionalService.postProfessionalNotes(mockProfessionalDTO.id, any(String::class)) } answers {
                 val notes = secondArg<String>()
                 ProfessionalDTO(
@@ -321,6 +327,20 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                     mockProfessionalDTO.dailyRate,
                     mockProfessionalDTO.employmentState,
                     notes
+
+                )
+
+            }
+            every { professionalService.postProfessionalLocation(mockProfessionalDTO.id, any(String::class)) } answers {
+                val location = secondArg<String>()
+                ProfessionalDTO(
+                    mockProfessionalDTO.id,
+                    mockProfessionalDTO.contactInfo,
+                    location,
+                    mockProfessionalDTO.skills,
+                    mockProfessionalDTO.dailyRate,
+                    mockProfessionalDTO.employmentState,
+                    mockProfessionalDTO.notes
 
                 )
 
@@ -346,6 +366,25 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
 
             }
         }
+
+
+        @Test
+        fun updateLocation() {
+            val updateLocation = mapOf("location" to "New Location")
+            mockMvc.put("/API/professionals/$contactId/location") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(updateLocation)
+
+            }.andExpect {
+                status { isOk() }
+                content {
+
+                    jsonPath("$.location") { value(updateLocation["location"]) }
+                }
+
+            }
+        }
+
         }
 
 
