@@ -7,6 +7,7 @@ import it.polito.wa2.g07.crm.dtos.lab03.CreateCustomerDTO
 import it.polito.wa2.g07.crm.dtos.lab03.toEntity
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
+import it.polito.wa2.g07.crm.entities.lab02.Email
 import it.polito.wa2.g07.crm.entities.lab03.Customer
 import it.polito.wa2.g07.crm.repositories.lab02.AddressRepository
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
@@ -53,9 +54,24 @@ class CustomerIntegrationTest: CrmApplicationTests() {
 
     @Nested
     inner class PostCustomerTest{
+
+        var contact = Contact(
+            "Existing",
+            "Contact",
+            ContactCategory.CUSTOMER
+        )
+
+        init {
+            contact.addresses = mutableSetOf(
+                Email("existing.mail@example.org")
+            )
+        }
+
         @BeforeEach
         fun init(){
             customerRepository.deleteAll()
+            contactRepository.deleteAll()
+            contact = contactRepository.save(contact)
         }
         @Test
         fun postCustomer (){
@@ -143,6 +159,29 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                 .andExpect(jsonPath("contactInfo.addresses[*].country").value("Country"))
 
         }
+
+        @Test
+        fun postCustomerWithExistingContact(){
+            val customer = """
+                  {
+                        "contact": {
+                                "name": "Existing",
+                                "surname": "Contact",
+                                "category": "CUSTOMER",
+                                "addresses": [
+                                    { "email": "existing.mail@example.org" }
+                                ]
+                        }
+                  }
+            """.trimIndent()
+
+            mockMvc.perform(post("/API/customers").contentType(MediaType.APPLICATION_JSON).content(customer))
+                .andExpect(status().isCreated)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("contactInfo.addresses[*].id").value(contact.addresses.first().id.toInt()))
+                .andExpect(jsonPath("contactInfo.addresses[*].email").value("existing.mail@example.org"))
+        }
+
         @Test
         fun postProfessional (){
             val customer = """
@@ -224,7 +263,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                  }
             """.trimIndent()
 
-            mockMvc.perform(post("/API/contacts/$contactId1/customers").contentType(MediaType.APPLICATION_JSON).content(body))
+            mockMvc.perform(post("/API/contacts/$contactId1/customer").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isCreated)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("contactInfo.name").value("Company"))
@@ -248,7 +287,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                  }
             """.trimIndent()
 
-            mockMvc.perform(post("/API/contacts/20/customers").contentType(MediaType.APPLICATION_JSON).content(body))
+            mockMvc.perform(post("/API/contacts/20/customer").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isNotFound)
         }
         @Test
@@ -265,10 +304,10 @@ class CustomerIntegrationTest: CrmApplicationTests() {
                  }
             """.trimIndent()
 
-            mockMvc.perform(post("/API/contacts/$contactId1/customers").contentType(MediaType.APPLICATION_JSON).content(body))
+            mockMvc.perform(post("/API/contacts/$contactId1/customer").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isCreated)
 
-            mockMvc.perform(post("/API/contacts/$contactId1/customers").contentType(MediaType.APPLICATION_JSON).content(body2))
+            mockMvc.perform(post("/API/contacts/$contactId1/customer").contentType(MediaType.APPLICATION_JSON).content(body2))
                 .andExpect(status().isConflict)
         }
         @Test
@@ -280,7 +319,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
             """.trimIndent()
 
 
-            mockMvc.perform(post("/API/contacts/$contactId2/customers").contentType(MediaType.APPLICATION_JSON).content(body))
+            mockMvc.perform(post("/API/contacts/$contactId2/customer").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isBadRequest)
 
 

@@ -9,9 +9,9 @@ import org.springframework.data.domain.Pageable
 
 interface CustomerService {
 
-    fun createCustomer (customer : CreateCustomerDTO):CustomerDTO
+    fun createCustomer(customerDTO: CreateCustomerDTO):CustomerDTO
 
-    fun bindContactToCustomer(contactId: Long, notes : String? ) : CustomerDTO
+    fun bindContactToCustomer(contactId: Long, notes : String?) : CustomerDTO
 
     fun getCustomers(pageable: Pageable):Page<ReducedCustomerDTO>
     fun getCustomersByContactIds(contactIds: Collection<Long>, pageable: Pageable): Page<ReducedCustomerDTO>

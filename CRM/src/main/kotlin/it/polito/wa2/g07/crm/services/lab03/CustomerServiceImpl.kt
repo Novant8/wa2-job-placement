@@ -8,6 +8,7 @@ import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
+import it.polito.wa2.g07.crm.services.lab02.ContactService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -15,16 +16,20 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CustomerServiceImpl(private val customerRepository: CustomerRepository,
-                          private val contactRepository: ContactRepository):CustomerService {
+                          private val contactRepository: ContactRepository,
+                          private val contactService: ContactService):CustomerService {
 
     @Transactional
-    override fun createCustomer(customer: CreateCustomerDTO): CustomerDTO {
-        if (customer.contact.category?.uppercase()!= "CUSTOMER" ){
+    override fun createCustomer(customerDTO: CreateCustomerDTO): CustomerDTO {
+        if (customerDTO.contact.category?.uppercase()!= "CUSTOMER" ){
             throw InvalidParamsException("You must register a Customer user ")
         }
 
-        return customerRepository.save(customer.toEntity()).toCustomerDto()
+        val contactId = contactService.create(customerDTO.contact).id
+        val contact = contactRepository.findById(contactId).get()
 
+        val customer = Customer(contact, customerDTO.notes)
+        return customerRepository.save(customer).toCustomerDto()
     }
 
     @Transactional(readOnly = true)
