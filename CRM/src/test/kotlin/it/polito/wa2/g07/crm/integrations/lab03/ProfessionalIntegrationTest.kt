@@ -571,6 +571,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
         @BeforeEach
         fun init() {
             professionalRepository.deleteAll()
+            contactRepository.deleteAll()
             val professionalDTO = CreateProfessionalDTO(
                 CreateContactDTO(
                     "Professional",
@@ -612,13 +613,11 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
 
         @Test
         fun putProfessionalLocation() {
-            val body = """
-                 {
-                    "location": "New Location" 
-                 }
-            """.trimIndent()
+
+            val body :Map<String,String> = mapOf("location" to "New Location" )
             mockMvc.perform(
-                put("/API/professionals/$professionalId/location").contentType(MediaType.APPLICATION_JSON).content(body)
+                put("/API/professionals/$professionalId/location").contentType(MediaType.APPLICATION_JSON).content(
+                    jsonMapper().writeValueAsString(body))
             )
                 .andExpect((status().isOk))
         }

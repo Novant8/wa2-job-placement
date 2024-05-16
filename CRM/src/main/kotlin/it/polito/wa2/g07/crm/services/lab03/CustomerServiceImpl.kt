@@ -9,6 +9,9 @@ import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.services.lab02.ContactService
+import it.polito.wa2.g07.crm.services.lab02.ContactServiceImpl
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -29,6 +32,7 @@ class CustomerServiceImpl(private val customerRepository: CustomerRepository,
         val contact = contactRepository.findById(contactId).get()
 
         val customer = Customer(contact, customerDTO.notes)
+        logger.info("New Customer Created ")
         return customerRepository.save(customer).toCustomerDto()
     }
 
@@ -51,7 +55,7 @@ class CustomerServiceImpl(private val customerRepository: CustomerRepository,
             throw InvalidParamsException("You must register a Customer user ")
         }
         val customer = Customer(contactInfo = contact, notes)
-
+        logger.info("Associated contact ${contactId} to a new Customer ")
         return customerRepository.save(customer).toCustomerDto()
     }
 
@@ -81,7 +85,10 @@ class CustomerServiceImpl(private val customerRepository: CustomerRepository,
 
         val customer = customerOpt.get()
         customer.notes= notes
-
+        logger.info("Updated customer's notes with id ${customerId} ")
         return customerRepository.save(customer).toCustomerDto()
+    }
+    companion object{
+        val logger: Logger = LoggerFactory.getLogger(ContactServiceImpl::class.java)
     }
 }

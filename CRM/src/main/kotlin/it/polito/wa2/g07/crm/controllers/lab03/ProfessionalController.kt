@@ -75,9 +75,10 @@ class ProfessionalController (private val professionalService: ProfessionalServi
     @PutMapping("{professionalId}/location")
     fun updateProfessionalLocation(@PathVariable professionalId:Long,
                                 @RequestBody location :Map<String, String>
-    ): ProfessionalDTO?
+    ): ProfessionalDTO
     {
         return professionalService.postProfessionalLocation(professionalId, location["location"]!!)
+
     }
 
     @PutMapping("{professionalId}/skills")
@@ -128,7 +129,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
 
     }
 
-    @PutMapping("/{professionalId}/dwelling/{dwellingId}","/{professionalId}/dwelling/{dwellingId}")
+    @PutMapping("/{professionalId}/address/{dwellingId}","/{professionalId}/address/{dwellingId}")
     fun editProfessionalDwelling(@PathVariable("professionalId") professionalId :Long, @PathVariable("dwellingId") dwellingId : Long,
                                   @Valid @RequestBody dwellingDTO: DwellingDTO
     ): ProfessionalDTO{

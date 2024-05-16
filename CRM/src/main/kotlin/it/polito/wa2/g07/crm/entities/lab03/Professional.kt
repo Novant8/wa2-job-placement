@@ -25,7 +25,7 @@ class Professional(
 
     var location: String,
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     var skills : Set<String>,
 
     var dailyRate: Double,

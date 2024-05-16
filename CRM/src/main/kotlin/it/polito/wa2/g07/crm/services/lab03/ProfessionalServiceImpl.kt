@@ -22,6 +22,9 @@ import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 
 
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
+import it.polito.wa2.g07.crm.services.lab02.ContactServiceImpl
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -38,6 +41,7 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
           if (professional.contactInfo.category?.uppercase()!= "PROFESSIONAL"){
             throw InvalidParamsException(" You must register a Professional user ")
         }
+        logger.info("Created New Professional")
         return professionalRepository.save(professional.toEntity()).toProfessionalDto()
     }
 /* 
@@ -75,7 +79,7 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
         }
         val professional = professionalOpt.get()
         professional.notes= notes
-
+        logger.info("Updated Professional's notes with id ${professionalId}}")
         return professionalRepository.save(professional).toProfessionalDto()
 
     }
@@ -90,8 +94,10 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
         val professional = professionalOpt.get()
         professional.location= location
 
+        val professionalDto:ProfessionalDTO = professionalRepository.save(professional).toProfessionalDto()
+        logger.info(" Update Professional's Location with id ${professionalId}")
 
-        return professionalRepository.save(professional).toProfessionalDto()
+        return  professionalDto
 
     }
 
@@ -104,8 +110,9 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
         val professional = professionalOpt.get()
         professional.skills= skills
 
-
+        logger.info("Updated Professional's skills with id ${professionalId}}")
         return professionalRepository.save(professional).toProfessionalDto()
+
     }
 
     @Transactional
@@ -117,7 +124,7 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
         val professional = professionalOpt.get()
         professional.employmentState= employmentState
 
-
+        logger.info("Updated Professional's employment state with id ${professionalId}}")
         return professionalRepository.save(professional).toProfessionalDto()
     }
 
@@ -130,7 +137,7 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
         val professional = professionalOpt.get()
         professional.dailyRate= dailyRate
 
-
+        logger.info("Updated Professional's daily rate with id ${professionalId}}")
         return professionalRepository.save(professional).toProfessionalDto()
     }
 
@@ -175,6 +182,9 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
             )
 
         return professionalRepository.save(professional).toProfessionalDto()
+    }
+    companion object{
+        val logger: Logger = LoggerFactory.getLogger(ContactServiceImpl::class.java)
     }
 
 }
