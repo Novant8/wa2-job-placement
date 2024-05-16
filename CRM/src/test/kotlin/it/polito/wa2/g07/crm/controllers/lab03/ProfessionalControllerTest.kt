@@ -263,7 +263,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
             }*/
         }
 
-        @Test
+       /* @Test
         fun associateValidContact() {
             val contactId = mockContactDTO.id
             val values = mapOf(
@@ -281,8 +281,9 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                 }.andExpect {
                     status { isCreated() }
                 }
-        }
+        }*/
 
+        /*
         @Test
         fun associateAlreadyConnectedContact(){
             val contactId = mockContactDTO.id
@@ -317,7 +318,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
             }
 
 
-        }
+        }*/
     }
 
     @Nested

@@ -1,11 +1,15 @@
 package it.polito.wa2.g07.crm.integrations.lab03
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jsonMapper
 import it.polito.wa2.g07.crm.CrmApplicationTests
 import it.polito.wa2.g07.crm.dtos.lab02.*
+import it.polito.wa2.g07.crm.dtos.lab03.CreateProfessionalDTO
+import it.polito.wa2.g07.crm.dtos.lab03.toEntity
 import it.polito.wa2.g07.crm.dtos.lab03.toProfessionalDto
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
+import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
 import it.polito.wa2.g07.crm.entities.lab03.JobOffer
 import it.polito.wa2.g07.crm.entities.lab03.Professional
 import it.polito.wa2.g07.crm.repositories.lab02.AddressRepository
@@ -34,12 +38,16 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
 
     @Autowired
     lateinit var mockMvc: MockMvc
+
     @Autowired
     lateinit var contactRepository: ContactRepository
+
     @Autowired
     lateinit var customerRepository: CustomerRepository
+
     @Autowired
     lateinit var professionalRepository: ProfessionalRepository
+
     @Autowired
     lateinit var jobOfferRepository: ProfessionalRepository
 
@@ -47,20 +55,19 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
     lateinit var objectMapper: ObjectMapper
 
 
-
     @Autowired
     lateinit var addressRepository: AddressRepository
 
     @Nested
-    inner class PostProfessionalTest{
+    inner class PostProfessionalTest {
         @BeforeEach
-        fun init(){
+        fun init() {
             professionalRepository.deleteAll()
         }
 
         @Test
-        fun postProfessional(){
-            val professional="""
+        fun postProfessional() {
+            val professional = """
                   {
                     "contactInfo": {
                         "name":"Professional1Name",
@@ -96,7 +103,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
                 .andExpect(jsonPath("$.contactInfo.addresses[*].email").value("company.test@example.org"))
                 .andExpect(jsonPath("$.contactInfo.addresses[*].phoneNumber").value("34242424242"))
                 .andExpect(jsonPath("$.contactInfo.addresses[*].street").value("Via Roma, 18"))
-                .andExpect( jsonPath("$.contactInfo.addresses[*].district").value("TO"))
+                .andExpect(jsonPath("$.contactInfo.addresses[*].district").value("TO"))
                 .andExpect(jsonPath("$.contactInfo.addresses[*].city").value("Torino"))
                 .andExpect(jsonPath("$.contactInfo.addresses[*].country").value("IT"))
                 .andExpect(jsonPath("$.location").value("Torino"))
@@ -111,8 +118,8 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
         }
 
         @Test
-        fun postProfessional_noNotes(){
-            val professional="""
+        fun postProfessional_noNotes() {
+            val professional = """
                   {
                     "contactInfo": {
                         "name":"Professional1Name",
@@ -148,7 +155,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
                 .andExpect(jsonPath("$.contactInfo.addresses[*].email").value("company.test@example.org"))
                 .andExpect(jsonPath("$.contactInfo.addresses[*].phoneNumber").value("34242424242"))
                 .andExpect(jsonPath("$.contactInfo.addresses[*].street").value("Via Roma, 18"))
-                .andExpect( jsonPath("$.contactInfo.addresses[*].district").value("TO"))
+                .andExpect(jsonPath("$.contactInfo.addresses[*].district").value("TO"))
                 .andExpect(jsonPath("$.contactInfo.addresses[*].city").value("Torino"))
                 .andExpect(jsonPath("$.contactInfo.addresses[*].country").value("IT"))
                 .andExpect(jsonPath("$.location").value("Torino"))
@@ -159,13 +166,12 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
                 .andExpect(jsonPath("$.employmentState").value("UNEMPLOYED"))
 
 
-
         }
 
 
         @Test
-        fun postCustomer(){
-            val professional="""
+        fun postCustomer() {
+            val professional = """
                   {
                     "contactInfo": {
                         "name":"Professional1Name",
@@ -195,20 +201,19 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
                 .andExpect((status().isBadRequest))
 
 
-
         }
 
 
         @Nested
-        inner class PostAssociateContactToProfessional(){
-            private var contactId1= 0L
-            private var contactId2=0L
+        inner class PostAssociateContactToProfessional() {
+            private var contactId1 = 0L
+            private var contactId2 = 0L
 
             @BeforeEach
-            fun init(){
+            fun init() {
                 professionalRepository.deleteAll()
                 contactRepository.deleteAll()
-                val contactDto1= CreateContactDTO(
+                val contactDto1 = CreateContactDTO(
                     "Professional",
                     "Test",
                     "professional",
@@ -216,7 +221,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
                     listOf(
                         TelephoneDTO("12345667889"),
                         EmailDTO("professional.test@email.com"),
-                        DwellingDTO("123 Main St", "City", "District","Country")
+                        DwellingDTO("123 Main St", "City", "District", "Country")
 
                     )
                 )
@@ -226,19 +231,20 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
                     "Test2",
                     "customer",
                     "EEEEA23456",
-                listOf( TelephoneDTO("00223345"),
-                    EmailDTO("different.professional@email.com"),
-                    DwellingDTO("Street2", "City2", "District2","Country2"
+                    listOf(
+                        TelephoneDTO("00223345"),
+                        EmailDTO("different.professional@email.com"),
+                        DwellingDTO(
+                            "Street2", "City2", "District2", "Country2"
+                        )
                     )
                 )
-                )
                 contactId1 = contactRepository.save(contactDto1.toEntity()).contactId
-                contactId2= contactRepository.save(contactDto2.toEntity()).contactId
-
+                contactId2 = contactRepository.save(contactDto2.toEntity()).contactId
 
 
             }
-/*
+            /*
             @Test
             fun associateContact(){
                 val body= """
@@ -256,14 +262,6 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
             }*/
 
         }
-
-        
-
-
-
-
-
-
 
 
     }
@@ -333,7 +331,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
             val validFilters = listOf("Torino", "torino", "TORINO")
 
             // Match
-            for(filter in validFilters) {
+            for (filter in validFilters) {
                 mockMvc
                     .get("/API/professionals") {
                         queryParam("location", filter)
@@ -358,7 +356,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
             val validFilters = listOf("unemployed", "Unemployed", "UNEMPLOYED")
 
             // Match
-            for(filter in validFilters) {
+            for (filter in validFilters) {
                 mockMvc
                     .get("/API/professionals") {
                         queryParam("employmentState", filter)
@@ -417,7 +415,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
         @Test
         fun getProfessionalById_doesNotExist() {
             mockMvc
-                .get("/API/professionals/${professional.professionalId+1}")
+                .get("/API/professionals/${professional.professionalId + 1}")
                 .andExpect {
                     status { isNotFound() }
                 }
@@ -426,13 +424,13 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
     }
 
     @Nested
-    inner class Post_AssociateContactToCustomer(){
+    inner class Post_AssociateContactToCustomer() {
         private var contactId1 = 0L
         private var contactId2 = 0L
 
 
         @BeforeEach
-        fun init(){
+        fun init() {
 
             professionalRepository.deleteAll()
             customerRepository.deleteAll()
@@ -445,7 +443,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
                 listOf(
                     TelephoneDTO("12345667889"),
                     EmailDTO("company.test@email.com"),
-                    DwellingDTO("123 Main St", "City", "District","Country")
+                    DwellingDTO("123 Main St", "City", "District", "Country")
                 )
             )
 
@@ -457,15 +455,15 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
                 listOf(
                     TelephoneDTO("00223345"),
                     EmailDTO("different.company@email.com"),
-                    DwellingDTO("Street2", "City2", "District2","Country2")
+                    DwellingDTO("Street2", "City2", "District2", "Country2")
                 )
             )
             contactId1 = contactRepository.save(contactDto1.toEntity()).contactId
-            contactId2= contactRepository.save(contactDto2.toEntity()).contactId
+            contactId2 = contactRepository.save(contactDto2.toEntity()).contactId
         }
 
         @Test
-        fun associateContact(){
+        fun associateContact() {
             val body = """
                  {
                     "notes": "New professional associated" ,
@@ -475,7 +473,9 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
                  }
             """.trimIndent()
 
-            mockMvc.perform(post("/API/contacts/$contactId1/professional").contentType(MediaType.APPLICATION_JSON).content(body))
+            mockMvc.perform(
+                post("/API/contacts/$contactId1/professional").contentType(MediaType.APPLICATION_JSON).content(body)
+            )
                 .andExpect(status().isCreated)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("contactInfo.name").value("Mario"))
@@ -496,7 +496,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
         }
 
         @Test
-        fun associateContactWithInvalidId(){
+        fun associateContactWithInvalidId() {
             val body = """
                   {
                     "notes": "New professional associated" ,
@@ -509,8 +509,9 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
             mockMvc.perform(post("/API/contacts/20/professional").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isNotFound)
         }
+
         @Test
-        fun associateAlreadyConnectedContact(){
+        fun associateAlreadyConnectedContact() {
             val body = """
                     {
                     "notes": "New professional associated" ,
@@ -529,14 +530,19 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
                  }
             """.trimIndent()
 
-            mockMvc.perform(post("/API/contacts/$contactId1/professional").contentType(MediaType.APPLICATION_JSON).content(body))
+            mockMvc.perform(
+                post("/API/contacts/$contactId1/professional").contentType(MediaType.APPLICATION_JSON).content(body)
+            )
                 .andExpect(status().isCreated)
 
-            mockMvc.perform(post("/API/contacts/$contactId1/professional").contentType(MediaType.APPLICATION_JSON).content(body2))
+            mockMvc.perform(
+                post("/API/contacts/$contactId1/professional").contentType(MediaType.APPLICATION_JSON).content(body2)
+            )
                 .andExpect(status().isConflict)
         }
+
         @Test
-        fun associateProfessionalContact(){
+        fun associateProfessionalContact() {
             val body = """
                     {
                     "notes": "New professional associated" ,
@@ -547,8 +553,218 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
             """.trimIndent()
 
 
-            mockMvc.perform(post("/API/contacts/$contactId2/professional").contentType(MediaType.APPLICATION_JSON).content(body))
+            mockMvc.perform(
+                post("/API/contacts/$contactId2/professional").contentType(MediaType.APPLICATION_JSON).content(body)
+            )
                 .andExpect(status().isBadRequest)
+        }
+
+    }
+
+    @Nested
+    inner class PutProfessional() {
+        private var professionalId = 0L
+        private var emailId = 0L
+        private var telephoneId = 0L
+        private var dwellingId = 0L
+
+        @BeforeEach
+        fun init() {
+            professionalRepository.deleteAll()
+            val professionalDTO = CreateProfessionalDTO(
+                CreateContactDTO(
+                    "Professional",
+                    "Test",
+                    "PROFESSIONAL",
+                    "12345678",
+                    listOf(
+                        TelephoneDTO("12345667889"),
+                        EmailDTO("professional.test@email.com"),
+                        DwellingDTO("123 Main St", "City", "District", "Country")
+                    )
+                ),
+                "Torino",
+                setOf("mockSkill1", "mockSkill2"),
+                200.0,
+                EmploymentState.UNEMPLOYED,
+                "Test Notes"
+            )
+            professionalId = professionalRepository.save(professionalDTO.toEntity()).professionalId
+            emailId = addressRepository.findMailAddressByMail("professional.test@email.com").get().id
+            telephoneId = addressRepository.findTelephoneAddressByTelephoneNumber("12345667889").get().id
+            dwellingId =
+                addressRepository.findDwellingAddressByStreet("123 Main St", "City", "District", "Country").get().id
+
+        }
+
+        @Test
+        fun putProfessionalNotes() {
+            val body = """
+                 {
+                    "notes": "Updated Customer Notes" 
+                 }
+            """.trimIndent()
+            mockMvc.perform(
+                put("/API/professionals/$professionalId/notes").contentType(MediaType.APPLICATION_JSON).content(body)
+            )
+                .andExpect((status().isOk))
+        }
+
+        @Test
+        fun putProfessionalLocation() {
+            val body = """
+                 {
+                    "location": "New Location" 
+                 }
+            """.trimIndent()
+            mockMvc.perform(
+                put("/API/professionals/$professionalId/location").contentType(MediaType.APPLICATION_JSON).content(body)
+            )
+                .andExpect((status().isOk))
+        }
+
+        @Test
+        fun putProfessionalDailyRate() {
+            val body = """
+                 {
+                    "dailyRate": 100.0 
+                 }
+            """.trimIndent()
+            mockMvc.perform(
+                put("/API/professionals/$professionalId/dailyRate").contentType(MediaType.APPLICATION_JSON).content(body)
+            )
+                .andExpect((status().isOk))
+        }
+        @Test
+        fun putProfessionalSkills() {
+            val body = """
+                 {
+                    "skills": ["new1","new2"]
+                 }
+            """.trimIndent()
+            mockMvc.perform(
+                put("/API/professionals/$professionalId/skills").contentType(MediaType.APPLICATION_JSON).content(body)
+            )
+                .andExpect((status().isOk))
+        }
+
+        @Test
+        fun putProfessionalEmploymentState() {
+            val body = """
+                 {
+                    "employmentState": "EMPLOYED"
+                 }
+            """.trimIndent()
+            mockMvc.perform(
+                put("/API/professionals/$professionalId/employmentState").contentType(MediaType.APPLICATION_JSON).content(body)
+            )
+                .andExpect((status().isOk))
+        }
+
+        @Test
+        fun putProfessionalEmail() {
+            val email = EmailDTO("updated.mail@example.org")
+            mockMvc.perform(
+                put("/API/professionals/$professionalId/email/$emailId").content(
+                    jsonMapper().writeValueAsString(
+                        email
+                    )
+                ).contentType(MediaType.APPLICATION_JSON)
+            )
+                .andExpect(status().isOk)
+        }
+
+        @Test
+        fun putCustomerTelephone() {
+            val telephone = TelephoneDTO("35796565890")
+
+            mockMvc.perform(
+                put("/API/professionals/$professionalId/telephone/$telephoneId").content(
+                    jsonMapper().writeValueAsString(
+                        telephone
+                    )
+                ).contentType(MediaType.APPLICATION_JSON)
+            )
+                .andExpect(status().isOk)
+
+        }
+
+        @Test
+        fun putCustomerDwelling() {
+            val dwelling = DwellingDTO("Via Garibaldi, 42", "Torino", "TO", "IT")
+
+            mockMvc.perform(
+                put("/API/professionals/$professionalId/address/$dwellingId").content(
+                    jsonMapper().writeValueAsString(
+                        dwelling
+                    )
+                ).contentType(MediaType.APPLICATION_JSON)
+            )
+                .andExpect(status().isOk)
+
+        }
+
+        @Test
+        fun putAddressNotAssociatedWithTheUser(){
+            val email = "{\"email\":\"new.email@email.com\"}"
+
+            mockMvc.perform(put("/API/professionals/$professionalId/email/20").contentType(MediaType.APPLICATION_JSON).content(email))
+                .andExpect(status().isNotFound)
+        }
+
+        @Test
+        fun putAddressFromDifferentTypes(){
+
+            val phoneNumber = "{\"phoneNumber\":\"123456\"}"
+
+            //we call the Put email endpoint, but we are passing a Telephone number
+            mockMvc.perform(put("/API/professionals/$professionalId/email/$telephoneId").contentType(MediaType.APPLICATION_JSON).content(phoneNumber))
+                .andExpect(status().isBadRequest)
+        }
+
+
+        @Test
+        fun putEmptyEmail(){
+
+            val email = "{\"email\":\"\"}"
+            mockMvc.perform(put("/API/professionals/$professionalId/email/$emailId").contentType(MediaType.APPLICATION_JSON).content(email))
+                .andExpect(status().isUnprocessableEntity)
+        }
+
+        @Test
+        fun putEmptyTelephone(){
+
+            val telephone = "{\"phoneNumber\":\"\"}"
+            mockMvc.perform(put("/API/professionals/$professionalId/telephone/$telephoneId").contentType(MediaType.APPLICATION_JSON).content(telephone))
+                .andExpect(status().isUnprocessableEntity)
+        }
+
+        @Test
+        fun putEmptyDwelling(){
+
+            val dwelling = """
+                {
+                        "street":"", 
+                        "city":"", 
+                        "district":"", 
+                        "country":""
+                    }
+            """.trimIndent()
+            mockMvc.perform(put("/API/professionals/$professionalId/address/$dwellingId").contentType(MediaType.APPLICATION_JSON).content(dwelling))
+                .andExpect(status().isUnprocessableEntity)
+        }
+
+        @Test
+        fun putUnknownCustomer(){
+            val body = """
+                 {
+                    "notes": "Updated Customer Notes" 
+                 }
+            """.trimIndent()
+
+            mockMvc.perform(put("/API/professionals/202/notes").content(body).contentType(MediaType.APPLICATION_JSON))
+                .andExpect( status().isNotFound)
+
         }
 
     }
