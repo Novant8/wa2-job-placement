@@ -29,6 +29,7 @@ import it.polito.wa2.g07.crm.dtos.lab03.toProfessionalReducedDto
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 import it.polito.wa2.g07.crm.entities.lab03.Professional
+import it.polito.wa2.g07.crm.exceptions.DuplicateAddressException
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.services.lab03.ProfessionalService
 import org.hamcrest.Matchers.containsInAnyOrder
@@ -42,6 +43,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.put
+import kotlin.reflect.KClass
 
 
 @WebMvcTest(ProfessionalController::class)
@@ -211,15 +213,11 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
             } answers {
                 val contactId: Long = firstArg<Long>()
 
-
-
                 if (usedContactIds.contains(contactId)) {
                     throw ContactAssociationException("Contact with id : ${mockContactDTO.id} is already associated to another Professional ")
                 } else if (contactId != mockContactDTO.id) {
                     throw EntityNotFoundException("Contact does not exists")
                 }
-
-
 
                 ProfessionalDTO(
                     1L,
@@ -317,6 +315,25 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                     any(String::class)
                 )
             } throws EntityNotFoundException("Professional not found")
+            every {
+                professionalService.postProfessionalSkills(
+                    any(Long::class),
+                    any()
+                )
+            } throws EntityNotFoundException("Professional not found")
+            every {
+                professionalService.postProfessionalDailyRate(
+                    any(Long::class),
+                    any(Double::class)
+                )
+            } throws EntityNotFoundException("Professional not found")
+            every {
+                professionalService.postProfessionalEmploymentState(
+                    any(Long::class),
+                    any(EmploymentState::class)
+                )
+            } throws EntityNotFoundException("Professional not found")
+
             every { professionalService.postProfessionalNotes(mockProfessionalDTO.id, any(String::class)) } answers {
                 val notes = secondArg<String>()
                 ProfessionalDTO(
@@ -344,6 +361,66 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
 
                 )
 
+            }
+            every { professionalService.postProfessionalDailyRate(mockProfessionalDTO.id, any(Double::class)) } answers {
+                val dailyRate = secondArg<Double>()
+                ProfessionalDTO(
+                    mockProfessionalDTO.id,
+                    mockProfessionalDTO.contactInfo,
+                    mockProfessionalDTO.location,
+                    mockProfessionalDTO.skills,
+                    dailyRate,
+                    mockProfessionalDTO.employmentState,
+                    mockProfessionalDTO.notes
+
+                )
+
+            }
+            every { professionalService.postProfessionalEmploymentState(mockProfessionalDTO.id, any(EmploymentState::class)) } answers {
+                val employmentState = secondArg<EmploymentState>()
+                ProfessionalDTO(
+                    mockProfessionalDTO.id,
+                    mockProfessionalDTO.contactInfo,
+                    mockProfessionalDTO.location,
+                    mockProfessionalDTO.skills,
+                    mockProfessionalDTO.dailyRate,
+                    employmentState,
+                    mockProfessionalDTO.notes
+
+                )
+
+            }
+            every { professionalService.postProfessionalSkills(mockProfessionalDTO.id, any()) } answers {
+                val skills = secondArg<Set<String>>()
+                ProfessionalDTO(
+                    mockProfessionalDTO.id,
+                    mockProfessionalDTO.contactInfo,
+                    mockProfessionalDTO.location,
+                    skills,
+                    mockProfessionalDTO.dailyRate,
+                    mockProfessionalDTO.employmentState,
+                    mockProfessionalDTO.notes
+
+                )
+
+            }
+            every { contactService.updateAddress(any(Long::class), any(Long::class), any(AddressDTO::class)) } throws EntityNotFoundException("Contact not found")
+            every { contactService.updateAddress(mockContactDTO.id, any(Long::class), any(AddressDTO::class)) } throws EntityNotFoundException("Address not found")
+            for (addressResponseDTO in listOf(mockResponseEmailDTO, mockResponseTelephoneDTO, mockResponseDwellingDTO)) {
+                every { contactService.updateAddress(mockContactDTO.id, addressResponseDTO.id, any(AddressDTO::class)) } answers {
+                    val addressDTO = thirdArg<AddressDTO>()
+                    if (addressDTO.addressType != addressResponseDTO.toAddressDTO().addressType)
+                        throw InvalidParamsException("Mismatching address types")
+                    ContactDTO(
+                        mockContactDTO.id,
+                        mockContactDTO.name,
+                        mockContactDTO.surname,
+                        mockContactDTO.category,
+                        mockContactDTO.addresses.map { if (it.id == addressResponseDTO.id) addressDTO.toEntity().toAddressResponseDTO() else it },
+                        mockContactDTO.ssn
+                    )
+                }
+                every { contactService.updateAddress(mockContactDTO.id, addressResponseDTO.id, addressResponseDTO.toAddressDTO()) } throws DuplicateAddressException("Address already associated")
             }
             every { professionalService.getProfessionalById(any(Long::class)) } throws EntityNotFoundException("Professional not found")
             every { professionalService.getProfessionalById(mockProfessionalDTO.id) } answers { mockProfessionalDTO }
@@ -380,6 +457,23 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                 content {
 
                     jsonPath("$.location") { value(updateLocation["location"]) }
+                }
+
+            }
+        }
+
+        @Test
+        fun updateDailyRate() {
+            val updateDailyRate = mapOf("dailyRate" to 600.0)
+            mockMvc.put("/API/professionals/$contactId/dailyRate") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(updateDailyRate)
+
+            }.andExpect {
+                status { isOk() }
+                content {
+
+                    jsonPath("$.dailyRate") { value(updateDailyRate["dailyRate"]) }
                 }
 
             }
