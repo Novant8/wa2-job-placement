@@ -83,6 +83,29 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
         "TestNotes23"
     )
 
+    private val invalidEmailDTOs = listOf(
+        EmailDTO(""),
+        EmailDTO(" "),
+        EmailDTO("invalid")
+    )
+
+    private val invalidTelephoneDTOs = listOf(
+        TelephoneDTO(""),
+        TelephoneDTO(" "),
+        TelephoneDTO("invalid")
+    )
+
+    private val invalidDwellingDTOs = listOf(
+        DwellingDTO("", "Torino", "TO", "IT"),
+        DwellingDTO(" ", "Torino", "TO", "IT"),
+        DwellingDTO("Via Garibaldi, 42", "", "TO", "IT"),
+        DwellingDTO("Via Garibaldi, 42", " ", "TO", "IT"),
+        DwellingDTO("Via Garibaldi, 42", "Torino", "", "IT"),
+        DwellingDTO("Via Garibaldi, 42", "Torino", " ", "IT"),
+        DwellingDTO("Via Garibaldi, 42", "Torino", "TO", ""),
+        DwellingDTO("Via Garibaldi, 42", "Torino", "TO", " ")
+    )
+
     @Nested
     inner class PostProfessional {
         @BeforeEach
@@ -444,6 +467,20 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
             }
         }
 
+        @Test
+        fun updateNotes_UnknownProfessional() {
+            val updateNotes = mapOf("notes" to "TheNewNotes")
+            mockMvc.put("/API/professionals/800/notes") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(updateNotes)
+
+            }.andExpect {
+                status { isNotFound() }
+
+
+            }
+        }
+
 
         @Test
         fun updateLocation() {
@@ -458,6 +495,20 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
 
                     jsonPath("$.location") { value(updateLocation["location"]) }
                 }
+
+            }
+        }
+
+        @Test
+        fun updateLocation_UnknownProfessional() {
+            val updateLocation = mapOf("location" to "New Location")
+            mockMvc.put("/API/professionals/800/location") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(updateLocation)
+
+            }.andExpect {
+                status { isNotFound() }
+
 
             }
         }
@@ -479,7 +530,253 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
             }
         }
 
+        @Test
+        fun updateDailyRate_UnknownProfessional() {
+            val updateDailyRate = mapOf("dailyRate" to 600.0)
+            mockMvc.put("/API/professionals/800/dailyRate") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(updateDailyRate)
+
+            }.andExpect {
+                status { isNotFound() }
+
+            }
         }
+
+        @Test
+        fun updateSkills() {
+            val updateSkills = mapOf("skills" to setOf("skillUpdate1","skillUpdate2"))
+            mockMvc.put("/API/professionals/$contactId/skills") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(updateSkills)
+
+            }.andExpect {
+                status { isOk() }
+                content {
+
+                    jsonPath("$.skills[0]") { value(updateSkills["skills"]?.elementAt(0)) }
+                    jsonPath("$.skills[1]") { value(updateSkills["skills"]?.elementAt(1)) }
+                }
+
+            }
+        }
+
+        @Test
+        fun updateSkills_UnknownProfessional() {
+            val updateSkills = mapOf("skills" to setOf("skillUpdate1","skillUpdate2"))
+            mockMvc.put("/API/professionals/800/skills") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(updateSkills)
+
+            }.andExpect {
+                status { isNotFound() }
+
+
+            }
+        }
+
+
+        @Test
+        fun updateEmploymentState_UnknownProfessional() {
+            val updateEmploymentState = mapOf("employmentState" to EmploymentState.EMPLOYED)
+            mockMvc.put("/API/professionals/800/employmentState") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(updateEmploymentState)
+
+            }.andExpect {
+                status { isNotFound() }
+
+            }
+        }
+
+        @Test
+        fun updateEmploymentState() {
+            val updateEmploymentState = mapOf("employmentState" to EmploymentState.EMPLOYED)
+            mockMvc.put("/API/professionals/$contactId/employmentState") {
+                contentType = MediaType.APPLICATION_JSON
+                content = jsonMapper().writeValueAsString(updateEmploymentState)
+
+            }.andExpect {
+                status { isOk() }
+                content {
+
+                    jsonPath("$.employmentState") { value(updateEmploymentState["employmentState"].toString()) }
+                }
+
+            }
+        }
+
+        @Test
+        fun updateMail_success() {
+            val professionalId = mockProfessionalDTO.id
+            val addressId = mockResponseEmailDTO.id
+            val updatedEmailDTO = EmailDTO("updated.mail@example.org")
+            mockMvc
+                .put("/API/professionals/$professionalId/email/$addressId") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(updatedEmailDTO)
+                }.andExpect {
+                    status { isOk() }
+                    content {
+                        jsonPath("$.contactInfo.addresses[*].email") { value(updatedEmailDTO.email) }
+                        jsonPath("$.contactInfo.addresses[?(@.email == \"${mockEmailDTO.email}\")]") { doesNotExist() }
+                    }
+                }
+        }
+
+        @Test
+        fun updateMail_invalidMail() {
+            for (emailDTO in invalidEmailDTOs) {
+                val professionalId = mockProfessionalDTO.id
+                val addressId = mockResponseEmailDTO.id
+                mockMvc
+                    .put("/API/professionals/$professionalId/email/$addressId") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper().writeValueAsString(emailDTO)
+                    }.andExpect {
+                        status { isUnprocessableEntity() }
+                    }
+            }
+        }
+
+        @Test
+        fun updateMail_contactNotFound() {
+            val professionalId = mockProfessionalDTO.id+20
+            val addressId = mockResponseEmailDTO.id
+            val updatedEmailDTO = EmailDTO("updated.mail@example.org")
+            mockMvc
+                .put("/API/professionals/$professionalId/email/$addressId") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(updatedEmailDTO)
+                }.andExpect {
+                    status { isNotFound() }
+
+                }
+        }
+
+        @Test
+        fun updateMail_addressNotFound() {
+            val professionalId = mockProfessionalDTO.id+20
+            val addressId = 70L
+            val updatedEmailDTO = EmailDTO("updated.mail@example.org")
+            mockMvc
+                .put("/API/professionals/$professionalId/email/$addressId") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(updatedEmailDTO)
+                }.andExpect {
+                    status { isNotFound() }
+
+                }
+        }
+
+        @Test
+        fun updateMail_invalidAddressType() {
+            val professionalId = mockProfessionalDTO.id
+            val addressId = mockResponseTelephoneDTO.id
+            val updatedEmailDTO = EmailDTO("updated.mail@example.org")
+            mockMvc
+                .put("/API/professionals/$professionalId/email/$addressId") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(updatedEmailDTO)
+                }.andExpect {
+                    status { isBadRequest() }
+
+                }
+        }
+
+        @Test
+        fun updateMail_duplicateMail() {
+            val professionalId = mockProfessionalDTO.id
+            val addressId = mockResponseEmailDTO.id
+
+            mockMvc
+                .put("/API/professionals/$professionalId/email/$addressId") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(mockEmailDTO)
+                }.andExpect {
+                    status { isConflict() }
+
+                }
+        }
+
+        @Test
+        fun updateTelephone_success() {
+            val professionalId = mockProfessionalDTO.id
+            val addressId = mockResponseTelephoneDTO.id
+            val updatedTelephoneDTO = TelephoneDTO("34298989898")
+            mockMvc
+                .put("/API/professionals/$professionalId/telephone/$addressId") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = jsonMapper().writeValueAsString(updatedTelephoneDTO)
+                }.andExpect {
+                    status { isOk() }
+                    content {
+                        jsonPath("$.contactInfo.addresses[*].phoneNumber") { value(updatedTelephoneDTO.phoneNumber) }
+                        jsonPath("$.contactInfo.addresses[?(@.phoneNumber == \"${mockTelephoneDTO.phoneNumber}\")]") { doesNotExist() }
+                    }
+                }
+        }
+
+        @Test
+        fun updateTelephone_invalidTelephone() {
+            for (telephoneDTO in invalidTelephoneDTOs) {
+                val professionalId = mockProfessionalDTO.id
+                val addressId = mockResponseTelephoneDTO.id
+                mockMvc
+                    .put("/API/professionals/$professionalId/telephone/$addressId") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper().writeValueAsString(telephoneDTO)
+                    }.andExpect {
+                        status { isUnprocessableEntity() }
+                    }
+            }
+        }
+
+        @Test
+        fun updateDwelling_success() {
+            val professionalId = mockProfessionalDTO.id
+            val addressId = mockResponseDwellingDTO.id
+            val validDwellingDTOs = listOf(
+                DwellingDTO("Via Garibaldi, 42", "Torino", "TO", "IT"),
+                DwellingDTO("Via Garibaldi, 42", "Torino", "TO", null),
+                DwellingDTO("Via Garibaldi, 42", "Torino", null, null)
+            )
+            for (dwellingDTO in validDwellingDTOs) {
+                mockMvc
+                    .put("/API/professionals/$professionalId/address/$addressId") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper().writeValueAsString(dwellingDTO)
+                    }.andExpect {
+                        status { isOk() }
+                        content {
+                            jsonPath("$.contactInfo.addresses[*].street") { value(dwellingDTO.street) }
+                            jsonPath("$.contactInfo.addresses[?(@.street == \"${mockDwellingDTO.street}\")]") { doesNotExist() }
+                        }
+                    }
+            }
+        }
+
+        @Test
+        fun updateDwelling_invalidDwelling() {
+            for (dwellingDTO in invalidDwellingDTOs) {
+                val professionalId = mockProfessionalDTO.id
+                val addressId = mockResponseDwellingDTO.id
+                mockMvc
+                    .put("/API/professionals/$professionalId/address/$addressId") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = jsonMapper().writeValueAsString(dwellingDTO)
+                    }.andExpect {
+                        status { isUnprocessableEntity() }
+                    }
+            }
+        }
+
+
+
+        }
+
+
+
 
 
         @Nested
