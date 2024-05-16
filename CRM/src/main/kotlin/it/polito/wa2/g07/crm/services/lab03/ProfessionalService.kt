@@ -15,5 +15,9 @@ interface ProfessionalService {
     fun getProfessionalById(professionalId: Long): ProfessionalDTO
     //fun create(professional: CreateProfessionalDTO): ProfessionalDTO
     fun postProfessionalNotes(professionalId:Long, notes: String?): ProfessionalDTO
+    fun postProfessionalLocation(professionalId:Long, location :String): ProfessionalDTO
+    fun postProfessionalDailyRate(professionalId:Long, dailyRate :Double): ProfessionalDTO
+    fun postProfessionalSkills(professionalId:Long, skills: Set<String> ): ProfessionalDTO
+    fun postProfessionalEmploymentState(professionalId:Long, employmentState: EmploymentState ): ProfessionalDTO
 
 }
