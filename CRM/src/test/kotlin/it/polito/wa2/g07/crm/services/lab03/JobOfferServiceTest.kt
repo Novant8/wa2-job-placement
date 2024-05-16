@@ -9,10 +9,7 @@ import it.polito.wa2.g07.crm.dtos.lab03.*
 
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
-import it.polito.wa2.g07.crm.entities.lab03.Customer
-import it.polito.wa2.g07.crm.entities.lab03.JobOffer
-import it.polito.wa2.g07.crm.entities.lab03.OfferStatus
-import it.polito.wa2.g07.crm.entities.lab03.Professional
+import it.polito.wa2.g07.crm.entities.lab03.*
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 
@@ -144,6 +141,7 @@ class JobOfferServiceTest {
 
         @BeforeEach
         fun resetJobOfferStatus() {
+            mockProfessional.employmentState = EmploymentState.UNEMPLOYED
             mockJobOffer.status = OfferStatus.CREATED
             mockJobOffer.professional = null
         }
@@ -167,13 +165,38 @@ class JobOfferServiceTest {
         }
 
         @Test
+        fun updateJobOfferStatus_validStatus_employProfessional() {
+            mockJobOffer.status = OfferStatus.CANDIDATE_PROPOSAL
+            mockJobOffer.professional = mockProfessional
+            val result = service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateDTO(OfferStatus.CONSOLIDATED, mockProfessional.professionalId))
+
+            assertEquals(result, mockJobOffer.toJobOfferDTO())
+            assertEquals(mockProfessional.employmentState, EmploymentState.EMPLOYED)
+            verify { jobOfferRepository.save(any(JobOffer::class)) }
+        }
+
+        @Test
         fun updateJobOfferStatus_removeProfessional() {
             mockJobOffer.status = OfferStatus.CONSOLIDATED
             mockJobOffer.professional = mockProfessional
 
             val result = service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE))
+            assertEquals(mockProfessional.employmentState, EmploymentState.UNEMPLOYED)
             assertNull(result.professional)
             verify { jobOfferRepository.save(any(JobOffer::class)) }
+        }
+
+        @Test
+        fun updateJobOfferStatus_unemployProfessional() {
+            for (status in arrayOf(OfferStatus.DONE, OfferStatus.ABORTED)) {
+                mockJobOffer.status = OfferStatus.CONSOLIDATED
+                mockProfessional.employmentState = EmploymentState.EMPLOYED
+                mockJobOffer.professional = mockProfessional
+
+                service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateDTO(status))
+                assertEquals(mockProfessional.employmentState, EmploymentState.UNEMPLOYED)
+                verify { jobOfferRepository.save(any(JobOffer::class)) }
+            }
         }
 
         @Test
@@ -217,7 +240,17 @@ class JobOfferServiceTest {
             verify(exactly = 0) { jobOfferRepository.save(any(JobOffer::class)) }
         }
 
+        @Test
+        fun updateJobOfferStatus_professionalNotAvailable() {
+            mockJobOffer.status = OfferStatus.CANDIDATE_PROPOSAL
+            mockProfessional.employmentState = EmploymentState.EMPLOYED
 
+            assertThrows<InvalidParamsException> {
+                service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateDTO(OfferStatus.CONSOLIDATED, mockProfessional.professionalId))
+            }
+
+            verify(exactly = 0) { jobOfferRepository.save(any(JobOffer::class)) }
+        }
 
     }
 

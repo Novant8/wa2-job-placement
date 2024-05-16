@@ -77,7 +77,17 @@ class JobOfferServiceImpl(
                 }
                 jobOffer.professional = professionalRepository.findById(jobOfferUpdateDTO.professionalId).orElseThrow { EntityNotFoundException("Professional with ID ${jobOfferUpdateDTO.professionalId} was not found.") }
             }
+            OfferStatus.CONSOLIDATED -> {
+                if(jobOffer.professional?.employmentState != EmploymentState.UNEMPLOYED) {
+                    throw InvalidParamsException("The given professional is not available for work.")
+                }
+                jobOffer.professional?.employmentState = EmploymentState.EMPLOYED
+            }
+            OfferStatus.DONE, OfferStatus.ABORTED -> {
+                jobOffer.professional?.employmentState = EmploymentState.UNEMPLOYED
+            }
             OfferStatus.SELECTION_PHASE -> {
+                jobOffer.professional?.employmentState = EmploymentState.UNEMPLOYED
                 jobOffer.professional = null
             }
             else -> { /* No need to update professional  */ }

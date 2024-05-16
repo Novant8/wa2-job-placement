@@ -11,6 +11,7 @@ import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.repositories.lab03.JobOfferRepository
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -292,6 +293,12 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
                         }
                     }
                 }
+
+            val professionalDb = professionalRepository.findById(professional.professionalId).get()
+            assertEquals(
+                professionalDb.employmentState,
+                if(updateDTO.status == OfferStatus.CONSOLIDATED) EmploymentState.EMPLOYED else EmploymentState.UNEMPLOYED
+            )
         }
 
         @Test
@@ -382,6 +389,22 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
                 .post("/API/joboffers/${jobOffer.offerId}") {
                     contentType = MediaType.APPLICATION_JSON
                     content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL))
+                }.andExpect {
+                    status { isBadRequest() }
+                }
+        }
+
+        @Test
+        fun updateJobOfferStatus_professionalNotAvailable() {
+            updateStatus(JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE))
+            updateStatus(JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL, professional.professionalId))
+
+            professional.employmentState = EmploymentState.EMPLOYED
+            professional = professionalRepository.save(professional)
+            mockMvc
+                .post("/API/joboffers/${jobOffer.offerId}") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.CONSOLIDATED))
                 }.andExpect {
                     status { isBadRequest() }
                 }
