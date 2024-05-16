@@ -102,7 +102,7 @@ class ContactController(private val contactService: ContactService, private val 
     fun saveProfessional ( @PathVariable("contactId") contactId : Long, @RequestBody location :Map<String, String>, skills :Map<String, Set<String>>,dailyRate :Map<String,Double>,employmentState :Map<String,EmploymentState>, notes: Map<String, String> ): ProfessionalDTO {
 
         return professionalService.bindContactToProfessional (contactId,
-            location["location"]!!,skills["skills"]!!,dailyRate["dailyRate"]!!,employmentState["EmploymentState"]!!,notes["notes"])
+            location["location"]!!,skills["skills"]!!,dailyRate["dailyRate"]!!,employmentState["employmentState"]!!,notes["notes"])
 
     }
 
