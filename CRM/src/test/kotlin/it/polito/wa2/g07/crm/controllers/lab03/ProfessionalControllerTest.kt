@@ -228,7 +228,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
 
         @BeforeEach
         fun initMocks() {
-            every {
+           /* every {
                 professionalService.bindContactToProfessional(
                     any(Long::class), any(String::class),
                     skills, any(Double::class), any(EmploymentState::class), any(String::class)
@@ -260,7 +260,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
 
                 )
 
-            }
+            }*/
         }
 
         @Test

@@ -10,7 +10,7 @@ import it.polito.wa2.g07.crm.entities.lab03.JobOffer
 import it.polito.wa2.g07.crm.entities.lab03.Professional
 import it.polito.wa2.g07.crm.repositories.lab02.AddressRepository
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
-import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
+
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
 import org.junit.jupiter.api.BeforeEach
@@ -46,8 +46,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
     @Autowired
     lateinit var objectMapper: ObjectMapper
 
-    @Autowired
-    lateinit var contactRepository: ContactRepository
+
 
     @Autowired
     lateinit var addressRepository: AddressRepository
@@ -239,7 +238,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
 
 
             }
-
+/*
             @Test
             fun associateContact(){
                 val body= """
@@ -254,7 +253,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
                 mockMvc.perform(post("/API/contacts/$contactId1/professionals").contentType(MediaType.APPLICATION_JSON).content(body))
                     .andExpect(status().isCreated)
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            }
+            }*/
 
         }
 

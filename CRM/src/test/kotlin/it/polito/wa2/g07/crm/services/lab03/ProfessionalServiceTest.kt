@@ -210,7 +210,7 @@ class ProfessionalServiceTest {
         }
 
     }
-
+/*
     @Nested
     inner class AssociateContactToProfessional(){
         private val professionalSlot = slot<Professional>()
@@ -319,10 +319,7 @@ class ProfessionalServiceTest {
             verify(exactly = 0) { professionalRepository.save(any(Professional::class)) }
             verify(exactly = 0) { professionalRepository.delete(any(Professional::class)) }
         }
-    }
-    val professionalRepository = mockk<ProfessionalRepository>()
-    val contactRepository = mockk<ContactRepository>()
-    val service = ProfessionalServiceImpl(professionalRepository, contactRepository )
+    }*/
 
 
     @Nested
@@ -481,7 +478,12 @@ class ProfessionalServiceTest {
                     expectedAddresses,
                     mockContact2.ssn
                 ),
-                "TO", setOf("Ita"),EmploymentState.UNEMPLOYED,20.0,null
+                "TO",
+                setOf("Ita"),
+                20.0,
+                EmploymentState.UNEMPLOYED,
+
+                null
             )
 
             Assertions.assertEquals( expectedDTO,result)

@@ -16,13 +16,11 @@ import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 
 import it.polito.wa2.g07.crm.dtos.lab02.CreateProfessionalReducedDTO
 import it.polito.wa2.g07.crm.dtos.lab03.*
-import it.polito.wa2.g07.crm.entities.lab03.Customer
-import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
-import it.polito.wa2.g07.crm.entities.lab03.Professional
-import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
+
+
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
-import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
-import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
+
+
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -153,9 +151,7 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
             .orElseThrow { EntityNotFoundException("Professional with ID $professionalId not found.") }
     }
 
-    override fun create(professional: CreateProfessionalDTO): ProfessionalDTO {
-        TODO("Not yet implemented")
-    }
+
 
     @Transactional
     override fun bindContactToProfessional(contactId: Long, create: CreateProfessionalReducedDTO): ProfessionalDTO {

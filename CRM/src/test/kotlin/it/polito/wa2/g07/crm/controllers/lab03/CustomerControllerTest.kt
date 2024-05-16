@@ -48,8 +48,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @MockkBean
     private lateinit var jobOfferService: JobOfferService
-    @MockkBean
-    private lateinit var professionalService: ProfessionalService
+
 
     @MockkBean
     private lateinit var professionalService: ProfessionalService
@@ -266,7 +265,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
                 }
                 ProfessionalDTO(
                     2L,
-                        contactDTO, "TO", setOf("Ita"),EmploymentState.UNEMPLOYED,20.0,null
+                        contactDTO, "TO", setOf("Ita"),20.0,EmploymentState.UNEMPLOYED,null
 
                 )
             }
