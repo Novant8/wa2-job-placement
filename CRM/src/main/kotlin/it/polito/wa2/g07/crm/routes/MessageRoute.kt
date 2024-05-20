@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component
 @Component
 class MessageRoute : RouteBuilder() {
     override fun configure() {
-        TODO("Not yet implemented")
+        from("direct:messages")
+            .log("Funziono parte 2")
     }
 }
