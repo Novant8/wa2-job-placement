@@ -12,15 +12,15 @@ class EmailServiceImpl : EmailService {
     @Autowired
     private lateinit var producerTemplate: ProducerTemplate
     
-    //@Value("\${spring.mail.username}")
+    @Value("\${gmail.username}")
     private lateinit var from: String
 
     override fun sendEmail(sendEmailDTO: SendEmailDTO) {
-       /* val headers = mapOf(
+        val headers = mapOf(
             "From" to from,
             "To" to sendEmailDTO.to,
             "Subject" to sendEmailDTO.subject
         )
-        producerTemplate.sendBodyAndHeaders("seda:sendEmail", sendEmailDTO.body, headers)*/
+        producerTemplate.sendBodyAndHeaders("seda:sendEmail", sendEmailDTO.body, headers)
     }
 }

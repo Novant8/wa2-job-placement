@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("API/emails")
+@RequestMapping("/API/emails")
 class EmailController(private val emailService: EmailService) {
 
     @Operation(summary = "Send an e-mail")
