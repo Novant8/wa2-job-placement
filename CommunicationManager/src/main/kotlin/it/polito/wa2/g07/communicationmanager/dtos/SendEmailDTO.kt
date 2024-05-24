@@ -1,4 +1,4 @@
-package it.polito.wa2.g07.communicationmanager
+package it.polito.wa2.g07.communicationmanager.dtos
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank

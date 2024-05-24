@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import it.polito.wa2.g07.communicationmanager.SendEmailDTO
+import it.polito.wa2.g07.communicationmanager.dtos.SendEmailDTO
 import it.polito.wa2.g07.communicationmanager.services.EmailService
 import jakarta.validation.Valid
 import org.springframework.http.ProblemDetail

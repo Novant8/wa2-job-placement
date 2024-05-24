@@ -1,6 +1,6 @@
 package it.polito.wa2.g07.communicationmanager.services
 
-import it.polito.wa2.g07.communicationmanager.SendEmailDTO
+import it.polito.wa2.g07.communicationmanager.dtos.SendEmailDTO
 import org.apache.camel.ProducerTemplate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value

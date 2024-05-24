@@ -29,6 +29,7 @@ class GmailSendRoute : RouteBuilder() {
                 val message = Message().setRaw(emailRawEncoded)
                 it.getIn().setHeader("CamelGoogleMail.content", message)
             }
+            .log("Sending e-mail to \${headers.To}")
             .setBody(simple(null))
             .removeHeaders("From|To|Subject")
             .to("google-mail:messages/send?userId=me")

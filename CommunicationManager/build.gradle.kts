@@ -29,7 +29,7 @@ dependencies {
     implementation("org.apache.camel.springboot:camel-google-mail-starter:4.5.0")
     implementation("org.apache.camel:camel-google-mail:4.5.0")
     implementation("org.apache.camel:camel-http:4.5.0")
-    implementation("org.apache.camel:camel-http")
+    implementation("org.apache.camel:camel-jackson:4.5.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
     runtimeOnly("org.postgresql:postgresql")
