@@ -5,24 +5,38 @@ import it.polito.wa2.g07.communicationmanager.dtos.EmailDTO
 import it.polito.wa2.g07.communicationmanager.dtos.MessageCreateDTO
 import org.apache.camel.EndpointInject
 import org.apache.camel.Exchange
+import org.apache.camel.Message
 import org.springframework.stereotype.Component
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.component.google.mail.GoogleMailEndpoint
 import org.apache.camel.component.http.HttpMethods
 import org.apache.http.entity.ContentType
+import org.springframework.boot.logging.LogLevel
 import java.util.*
+import java.util.logging.Logger
 
 @Component
 class GmailRoute(): RouteBuilder() {
+
     @EndpointInject("google-mail:messages/get")
     lateinit var ep: GoogleMailEndpoint
 
+
     override fun configure() {
-        from("google-mail-stream:0?markAsRead=true&scopes=https://mail.google.com2")
+
+        from("google-mail-stream:0?markAsRead=true&scopes=https://mail.google.com")
+            .routeId("RetriveMail")
             .process {
+                val log: Logger = Logger.getLogger("u")
+                log.info("it.getIn()->" + it.getIn())
                 val id = it.getIn().getHeader("CamelGoogleMailId").toString()
+                log.info(id)
                 val message = ep.client.users().messages().get("me", id).execute()
-                val subject = message.payload.headers.
+                log.info(ep.client.users().messages().get("me", id).userId)
+                log.info(ep.client.users().messages().get("me", id).uriTemplate)
+
+                print(message.toString())
+               val subject = message.payload.headers.
                 find{it.name.equals("subject",true)}?.get("value")?.toString() ?: ""
                 val from = message.payload.headers.
                 find{it.name.equals("from",true)}?.get("value")?.toString() ?: ""
