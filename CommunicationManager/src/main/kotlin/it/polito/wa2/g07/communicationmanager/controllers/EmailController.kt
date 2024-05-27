@@ -8,10 +8,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import it.polito.wa2.g07.communicationmanager.dtos.SendEmailDTO
 import it.polito.wa2.g07.communicationmanager.services.EmailService
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -30,6 +32,7 @@ class EmailController(private val emailService: EmailService) {
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("", "/")
     fun sendEmail(@Valid @RequestBody sendEmailDTO: SendEmailDTO) {
         emailService.sendEmail(sendEmailDTO)
