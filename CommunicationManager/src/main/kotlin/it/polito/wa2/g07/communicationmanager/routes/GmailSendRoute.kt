@@ -1,12 +1,19 @@
 package it.polito.wa2.g07.communicationmanager.routes
 
 import com.google.api.services.gmail.model.*
+
+import org.apache.camel.RoutesBuilder
 import org.apache.camel.builder.RouteBuilder
+
+
 import org.springframework.stereotype.Component
 import java.util.*
 
+
 @Component
 class GmailSendRoute : RouteBuilder() {
+    //Spring context fixtures
+
 
     override fun configure() {
         from("seda:sendEmail")

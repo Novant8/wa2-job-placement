@@ -6,17 +6,20 @@ import it.polito.wa2.g07.communicationmanager.dtos.MessageCreateDTO
 import org.apache.camel.EndpointInject
 import org.apache.camel.Exchange
 import org.apache.camel.Message
-import org.springframework.stereotype.Component
+
+
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.component.google.mail.GoogleMailEndpoint
 import org.apache.camel.component.http.HttpMethods
+
 import org.apache.http.entity.ContentType
 import org.springframework.boot.logging.LogLevel
+import org.springframework.stereotype.Component
 import java.util.*
 import java.util.logging.Logger
 
 @Component
-class GmailRoute(): RouteBuilder() {
+public class GmailRoute(): RouteBuilder() {
 
     @EndpointInject("google-mail:messages/get")
     lateinit var ep: GoogleMailEndpoint
@@ -35,7 +38,7 @@ class GmailRoute(): RouteBuilder() {
                 log.info(ep.client.users().messages().get("me", id).userId)
                 log.info(ep.client.users().messages().get("me", id).uriTemplate)
 
-                print(message.toString())
+
                val subject = message.payload.headers.
                 find{it.name.equals("subject",true)}?.get("value")?.toString() ?: ""
                 val from = message.payload.headers.
@@ -56,6 +59,7 @@ class GmailRoute(): RouteBuilder() {
                 )
 
                 it.getIn().body = messageCreateDTO
+                log.info(messageCreateDTO.toString())
             }
             .log("Received e-mail from \${body.sender.email}")
             .marshal().json()
