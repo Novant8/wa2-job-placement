@@ -2,7 +2,6 @@ package it.polito.wa2.g07.communicationmanager.routes
 
 import com.google.api.services.gmail.model.*
 
-import org.apache.camel.RoutesBuilder
 import org.apache.camel.builder.RouteBuilder
 
 

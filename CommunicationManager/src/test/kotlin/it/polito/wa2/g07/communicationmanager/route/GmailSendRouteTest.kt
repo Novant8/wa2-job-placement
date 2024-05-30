@@ -8,12 +8,13 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import com.google.api.services.gmail.model.Message
+import org.springframework.beans.factory.annotation.Value
 import java.util.*
 
 
 @SpringBootTest
 @CamelSpringBootTest
-@MockEndpointsAndSkip("google-mail*")
+@MockEndpointsAndSkip("google-mail:messages/send")
 internal class GmailSendRouteTest {
     @Autowired
     private lateinit var template: ProducerTemplate
@@ -21,15 +22,18 @@ internal class GmailSendRouteTest {
     @EndpointInject("mock:google-mail:messages/send")
     private lateinit var mock: MockEndpoint
 
+    @Value("\${gmail.username}")
+    private lateinit var from: String
+
     @Test
     @Throws(InterruptedException::class)
     fun sendEmail_success() {
         val headers = mapOf(
-            "From" to  "sender@example.org",
+            "From" to from,
             "To" to "receiver@example.org",
             "Subject" to "This is a subject"
         )
-        val body = "This is the body"
+        val body = "This is a body"
         template.sendBodyAndHeaders("seda:sendEmail", body, headers)
 
         val expectedRaw = """
