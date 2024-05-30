@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 
 
@@ -34,6 +35,8 @@ internal class GmailReceiveRouteTest {
     @Autowired
     private lateinit var context: CamelContext
 
+    @Value("\${comm-manager.crm-url}")
+    private lateinit var crmUrl: String
 
     @Test
     fun receivedEmail_success(){
@@ -67,7 +70,7 @@ internal class GmailReceiveRouteTest {
             context, "RetriveMail"
         ) { a: AdviceWithRouteBuilder ->
             a.replaceFromWith("direct:RetriveMail")
-            a.weaveByToUri("http://localhost:8080/API/messages").replace().to("mock:foo")
+            a.weaveByToUri(crmUrl).replace().to("mock:foo")
             a.weaveAddLast().log("Message sent to endpoint: \${body}") // Log finale della rotta
 
         }

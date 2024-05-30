@@ -6,7 +6,6 @@ import it.polito.wa2.g07.communicationmanager.dtos.MessageCreateDTO
 import org.apache.camel.EndpointInject
 import org.apache.camel.Exchange
 import org.apache.camel.LoggingLevel
-import org.apache.camel.Message
 
 
 import org.apache.camel.builder.RouteBuilder
@@ -14,17 +13,19 @@ import org.apache.camel.component.google.mail.GoogleMailEndpoint
 import org.apache.camel.component.http.HttpMethods
 
 import org.apache.http.entity.ContentType
-import org.springframework.boot.logging.LogLevel
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.logging.Logger
 
 @Component
-public class GmailRoute(): RouteBuilder() {
+class GmailRoute: RouteBuilder() {
 
     @EndpointInject("google-mail:messages/get")
     lateinit var ep: GoogleMailEndpoint
 
+    @Value("\${comm-manager.crm-url}")
+    private lateinit var crmUrl: String
 
     override fun configure() {
 
@@ -67,6 +68,6 @@ public class GmailRoute(): RouteBuilder() {
             .marshal().json()
             .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.POST))
             .setHeader(Exchange.CONTENT_TYPE, constant(ContentType.APPLICATION_JSON))
-            .to("http://localhost:8080/API/messages")
+            .to(crmUrl)
     }
 }
