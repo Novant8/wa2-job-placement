@@ -67,6 +67,7 @@ class GmailRoute: RouteBuilder() {
                 it.getIn().body = messageCreateDTO
                 log.info(messageCreateDTO.toString())
             }
+            .filter{ (it.getIn().body as MessageCreateDTO).sender.email != "mailer-daemon@googlemail.com" }
             .log("Received e-mail from \${body.sender.email}")
             .marshal().json()
             .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.POST))

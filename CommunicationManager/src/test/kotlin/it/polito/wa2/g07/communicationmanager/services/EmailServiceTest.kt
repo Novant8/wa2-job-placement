@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 @CamelSpringBootTest
 @UseAdviceWith
-@MockEndpointsAndSkip("seda:sendEmail")
+@MockEndpointsAndSkip("seda:sendEmail|google-mail*")
 class EmailServiceTest {
 
     @EndpointInject("mock:seda:sendEmail")
