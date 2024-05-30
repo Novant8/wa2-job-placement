@@ -20,6 +20,9 @@ import java.util.logging.Logger
 
 @Component
 class GmailRoute: RouteBuilder() {
+    companion object {
+        val BODY_NOT_FOUND: String = Base64.getEncoder().encodeToString("<body not found>".toByteArray())
+    }
 
     @EndpointInject("google-mail:messages/get")
     lateinit var ep: GoogleMailEndpoint
@@ -51,8 +54,8 @@ class GmailRoute: RouteBuilder() {
                 } else {
                     from
                 }
-                // val body = StringUtils.newStringUtf8(Base64.decodeBase64(message.payload.parts[0].body.data))
-                val bodyB64 = message.payload.body?.data ?: message.payload.parts[0]?.body?.data
+
+                val bodyB64 = message.payload.body?.data ?: message.payload.parts.find{ it.body?.data != null }?.body?.data ?: BODY_NOT_FOUND
                 val body = StringUtils.newStringUtf8(Base64.getDecoder().decode(bodyB64))
 
                 val messageCreateDTO = MessageCreateDTO(
