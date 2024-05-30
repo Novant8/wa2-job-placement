@@ -14,7 +14,7 @@ import java.util.*
 
 @SpringBootTest
 @CamelSpringBootTest
-@MockEndpointsAndSkip("google-mail:messages/send")
+@MockEndpointsAndSkip("google-mail*")
 internal class GmailSendRouteTest {
     @Autowired
     private lateinit var template: ProducerTemplate
