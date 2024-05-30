@@ -1,28 +1,28 @@
 package it.polito.wa2.g07.communicationmanager.route
 
 
+import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import org.apache.camel.*
 import org.apache.camel.builder.AdviceWith
 import org.apache.camel.builder.AdviceWithRouteBuilder
-import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.component.mock.MockEndpoint
 import org.apache.camel.test.spring.junit5.CamelSpringBootTest
 import org.apache.camel.test.spring.junit5.MockEndpoints
 import org.apache.camel.test.spring.junit5.MockEndpointsAndSkip
-import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.apache.camel.test.spring.junit5.UseAdviceWith
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Test
+
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
 
 
 @SpringBootTest
 @CamelSpringBootTest
 @MockEndpoints
 @UseAdviceWith
-//@MockEndpointsAndSkip("mock:http://localhost:8080/API/messages")
+@MockEndpointsAndSkip("mail")
 internal class GmailReceiveRouteTest {
 
     @Autowired
@@ -36,7 +36,6 @@ internal class GmailReceiveRouteTest {
 
 
     @Test
-    @Throws(InterruptedException::class)
     fun receivedEmail_success(){
         val emailId = "18f96c7a0d3a8c5a"
         val testHeaders = mapOf(
@@ -63,16 +62,15 @@ internal class GmailReceiveRouteTest {
 //            }
 //        }
 
-       AdviceWith.adviceWith(
+
+        AdviceWith.adviceWith(
             context, "RetriveMail"
         ) { a: AdviceWithRouteBuilder ->
             a.replaceFromWith("direct:RetriveMail")
             a.weaveByToUri("http://localhost:8080/API/messages").replace().to("mock:foo")
-
             a.weaveAddLast().log("Message sent to endpoint: \${body}") // Log finale della rotta
 
         }
-
         // Assicurati che la route sia avviata
         context.start()
         assertEquals(ServiceStatus.Started, context.getStatus());
@@ -91,11 +89,40 @@ internal class GmailReceiveRouteTest {
             }
         """.trimIndent())
 
-        //send mock email id to the route
+
 
         MockEndpoint.assertIsSatisfied(context)
 
-//        mock.setResultWaitTime(30000)
+
+    }
+
+    @Test
+    fun receivedEmail_insuccess(){
+        val emailId = "INVALID_ID"
+        val testHeaders = mapOf(
+            "CamelGoogleMailId" to emailId
+        )
+
+
+        AdviceWith.adviceWith(
+            context, "RetriveMail"
+        ) { a: AdviceWithRouteBuilder ->
+            a.replaceFromWith("direct:RetriveMail")
+          //  a.weaveByToUri("http://localhost:8080/API/messages").replace().to("mock:foo")
+            a.weaveAddLast().log("Message sent to endpoint: \${body}") // Log finale della rotta
+            a.weaveAddLast().to("mock:foo")
+        }
+        // Assicurati che la route sia avviata
+        context.start()
+        assertEquals(ServiceStatus.Started, context.getStatus());
+
+        assertThrows(CamelExecutionException::class.java) {
+            template.sendBodyAndHeaders("direct:RetriveMail",null , testHeaders)
+        }
+
+
+
+
 
     }
 }

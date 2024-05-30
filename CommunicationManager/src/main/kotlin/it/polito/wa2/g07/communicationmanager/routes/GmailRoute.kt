@@ -5,6 +5,7 @@ import it.polito.wa2.g07.communicationmanager.dtos.EmailDTO
 import it.polito.wa2.g07.communicationmanager.dtos.MessageCreateDTO
 import org.apache.camel.EndpointInject
 import org.apache.camel.Exchange
+import org.apache.camel.LoggingLevel
 import org.apache.camel.Message
 
 
@@ -30,6 +31,7 @@ public class GmailRoute(): RouteBuilder() {
         from("google-mail-stream:0?markAsRead=true&scopes=https://mail.google.com")
             .routeId("RetriveMail")
             .process {
+                ep.runLoggingLevel=LoggingLevel.DEBUG
                 val log: Logger = Logger.getLogger("u")
                 log.info("it.getIn()->" + it.getIn())
                 val id = it.getIn().getHeader("CamelGoogleMailId").toString()
