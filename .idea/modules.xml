@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/document_store.main.iml" filepath="$PROJECT_DIR$/.idea/modules/document_store.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/lab1-g07.iml" filepath="$PROJECT_DIR$/.idea/lab1-g07.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CRM/CRM.iml" filepath="$PROJECT_DIR$/CRM/CRM.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/CRM.main.iml" filepath="$PROJECT_DIR$/.idea/modules/CRM.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/lab2-g07.iml" filepath="$PROJECT_DIR$/.idea/lab2-g07.iml" />
     </modules>
   </component>
 </project>

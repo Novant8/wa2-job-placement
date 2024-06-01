@@ -4,10 +4,19 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/document_store" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/CRM" />
+        <option name="gradleJvm" value="temurin-17" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/document_store" />
+            <option value="$PROJECT_DIR$/CRM" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/CommunicationManager" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/CommunicationManager" />
           </set>
         </option>
       </GradleProjectSettings>
