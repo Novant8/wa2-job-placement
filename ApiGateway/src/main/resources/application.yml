@@ -25,7 +25,7 @@ spring:
           crmclient:
             provider: keycloak
             client-id: crmclient
-            client-secret: xlTwRSUtHWtc5XY5VlNrJt4uoBOosFGw
+            client-secret: dOQVIYfE26xG2UiGSOYzud5tk3YRyNoA
             scope:
               - openid
               - offline_access

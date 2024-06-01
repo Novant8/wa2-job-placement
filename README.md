@@ -2,3 +2,11 @@
 
 # README Files
 Separate READMEs are available inside each project's folder
+
+# Users
+
+| **User**       | **Password**       | **Role** |
+|----------------|--------------------|----------|
+| mario.rossi    | mario.rossi.g07    | manager  |
+| luigi.verdi    | luigi.verdi.g07    | operator |
+| matteo.bianchi | matteo.bianchi.g07 | guest    |
