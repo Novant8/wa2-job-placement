@@ -1,0 +1,23 @@
+auth:
+  issuer: http://localhost:9090/realms/CRM
+spring:
+  application:
+    name: document_store
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    open-in-view: true
+  docker:
+    compose:
+      file: ./DocumentStore/compose.yaml
+  mvc:
+    problemdetails:
+      enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${auth.issuer}
+server:
+  port: 8081

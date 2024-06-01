@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: crm_gateway
+  docker:
+    compose:
+      file: ./ApiGateway/compose.yaml
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: document-store
+            uri: http://localhost:8081
+            predicates:
+              - Path=/document-store/**
+            filters:
+              - StripPrefix=1
+              - TokenRelay
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:9090/realms/CRM
+        registration:
+          crmclient:
+            provider: keycloak
+            client-id: crmclient
+            client-secret: xlTwRSUtHWtc5XY5VlNrJt4uoBOosFGw
+            scope:
+              - openid
+              - offline_access
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8080/login/oauth2/code/crmclient
