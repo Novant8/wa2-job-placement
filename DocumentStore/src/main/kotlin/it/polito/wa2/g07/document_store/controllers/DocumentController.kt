@@ -10,12 +10,15 @@ import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 
 @RestController
 @RequestMapping("/API/documents")
+@EnableMethodSecurity(prePostEnabled = true)
 class DocumentController(private val documentService: DocumentService) {
 
     @GetMapping("/", "")
@@ -41,6 +44,7 @@ class DocumentController(private val documentService: DocumentService) {
     }
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/","",consumes = ["multipart/form-data"])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     fun saveDocument(@RequestParam("document") document: MultipartFile): DocumentMetadataDTO {
 
         if(document.originalFilename === null || document.originalFilename!!.isEmpty()) {
@@ -51,6 +55,7 @@ class DocumentController(private val documentService: DocumentService) {
     }
 
     @PutMapping("/{metadataId}","/{metadataId}/")
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     fun putDocuments(@PathVariable("metadataId") metadataId: Long,
                      @RequestParam("document") document: MultipartFile) : DocumentMetadataDTO {
 
@@ -69,6 +74,7 @@ class DocumentController(private val documentService: DocumentService) {
 
     @DeleteMapping("/{metadataId}","/{metadataId}/")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     fun deleteDocument(@PathVariable("metadataId") metadataId: Long){
        documentService.deleteDocument(metadataId)
 
