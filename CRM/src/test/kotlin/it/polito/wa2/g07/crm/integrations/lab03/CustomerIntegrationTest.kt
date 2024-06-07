@@ -23,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest
 
 
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
@@ -33,7 +34,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK) //just to remove IDE error on mockMvc
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class CustomerIntegrationTest: CrmApplicationTests() {
 
     @Autowired
@@ -53,6 +54,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
 
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PostCustomerTest{
 
         var contact = Contact(
@@ -219,6 +221,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class Post_AssociateContactToCustomer(){
         private var contactId1 = 0L
         private var contactId2 = 0L
@@ -438,6 +441,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class Post_JobOffer {
         private var customerID_1 = 0L
 
@@ -564,7 +568,8 @@ class CustomerIntegrationTest: CrmApplicationTests() {
     }
 
     @Nested
-    inner class PutCustomer(){
+    @WithMockUser(roles = [ "operator" ])
+    inner class PutCustomer {
 
         private var customerId = 0L
 

@@ -25,11 +25,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -38,6 +40,7 @@ import org.springframework.test.web.servlet.put
 
 
 @WebMvcTest(CustomerController::class,ContactController::class)
+@AutoConfigureMockMvc(addFilters = false)
 class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @MockkBean
@@ -113,6 +116,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
     )
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PostCustomer{
 
         @BeforeEach
@@ -223,6 +227,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class AssociateContact{
 
         private val usedContactIds = HashSet<Long>()
@@ -491,6 +496,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
         }
     }
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class CreateJobOffer {
         private var customerID_1 = 0L
         private var mockJobOffer = JobOfferDTO(0L,
@@ -567,7 +573,8 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
     }
 
     @Nested
-    inner class PutCustomer(){
+    @WithMockUser(roles = [ "operator" ])
+    inner class PutCustomer {
         private val contactId = mockContactDTO.id
 
         @BeforeEach

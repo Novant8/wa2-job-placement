@@ -17,14 +17,17 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.*
 
 @WebMvcTest(ContactController::class)
+@AutoConfigureMockMvc(addFilters = false)
 class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @MockkBean
@@ -119,6 +122,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PostContactTests {
 
         @BeforeEach
@@ -547,6 +551,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PutContactTests {
 
         @BeforeEach
@@ -844,6 +849,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class DeleteContactTests {
 
         @BeforeEach

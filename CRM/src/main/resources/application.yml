@@ -1,0 +1,35 @@
+auth:
+  issuer: http://localhost:9090/realms/CRM
+spring:
+  application:
+    name: CRM
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  docker:
+    compose:
+      file: ./CRM/compose.yaml
+  mvc:
+    problemdetails:
+      enabled: true
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${auth.issuer}
+springdoc:
+  swagger-ui:
+    tags-sorter: alpha
+  default-produces-media-type: application/json
+server:
+  port: 8082
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG

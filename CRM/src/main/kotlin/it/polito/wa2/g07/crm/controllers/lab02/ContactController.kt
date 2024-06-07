@@ -22,10 +22,13 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "1. Contacts", description = "Create, search and manage contact information")
 @RestController
+@EnableMethodSecurity(prePostEnabled = true)
 @RequestMapping("/API/contacts")
 class ContactController(private val contactService: ContactService,
                         private val customerService: CustomerService,
@@ -45,6 +48,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PostMapping("/","")
     fun saveContact (@Valid @RequestBody contact: CreateContactDTO): ContactDTO {
         return contactService.create(contact)
@@ -67,8 +71,8 @@ class ContactController(private val contactService: ContactService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
-
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PostMapping("/{contactId}/customer")
     fun saveCustomer (
         @PathVariable("contactId") contactId : Long,
@@ -79,6 +83,7 @@ class ContactController(private val contactService: ContactService,
 
 
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PostMapping("/{contactId}/professional")
     fun saveProfessional (
         @PathVariable("contactId") contactId : Long,
@@ -121,6 +126,7 @@ class ContactController(private val contactService: ContactService,
     }*/
 
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PostMapping("/{contactId}/email")
     fun addEmail (
         @PathVariable("contactId") contactId : Long,
@@ -152,6 +158,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PostMapping("/{contactId}/telephone")
     fun addTelephone (
         @PathVariable("contactId") contactId : Long,
@@ -183,6 +190,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PostMapping("/{contactId}/address")
     fun addDwelling (
         @PathVariable("contactId") contactId : Long,
@@ -238,6 +246,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @DeleteMapping("/{contactId}/email/{emailId}")
     fun deleteEmail (@PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long) {
         return contactService.deleteAddress(contactId, emailId, AddressType.EMAIL)
@@ -256,6 +265,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @DeleteMapping("/{contactId}/telephone/{telephoneId}")
     fun deleteTelephone (@PathVariable("contactId") contactId: Long, @PathVariable("telephoneId") telephoneId: Long) {
         return contactService.deleteAddress(contactId, telephoneId, AddressType.TELEPHONE)
@@ -274,6 +284,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @DeleteMapping("/{contactId}/address/{dwellingId}")
     fun deleteDwelling (@PathVariable("contactId") contactId: Long, @PathVariable("dwellingId") dwellingId: Long) {
         return contactService.deleteAddress(contactId, dwellingId, AddressType.DWELLING)
@@ -296,6 +307,7 @@ class ContactController(private val contactService: ContactService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("/{contactId}/email/{emailId}")
     fun updateEmail (
         @PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long,
@@ -321,6 +333,7 @@ class ContactController(private val contactService: ContactService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("/{contactId}/telephone/{telephoneId}")
     fun updateTelephone (
         @PathVariable("contactId") contactId: Long,
@@ -347,6 +360,7 @@ class ContactController(private val contactService: ContactService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("/{contactId}/address/{dwellingId}")
     fun updateDwelling (
         @PathVariable("contactId") contactId: Long,

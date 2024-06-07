@@ -18,13 +18,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK) //just to remove IDE error on mockMvc
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class ContactIntegrationTest:CrmApplicationTests() {
     @Autowired
      lateinit var mockMvc: MockMvc
@@ -270,6 +271,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PostContactTest{
 
         @Test
@@ -327,6 +329,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PostContactEmail{
 
         private var contactId: Long = 0
@@ -376,6 +379,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     open inner class DeleteContactEmail {
 
         private var contact1Id = 0L
@@ -454,6 +458,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PutContact {
 
         private var contactId = 0L

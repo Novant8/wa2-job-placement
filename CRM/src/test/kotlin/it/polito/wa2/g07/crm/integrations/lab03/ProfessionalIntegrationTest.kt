@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -33,7 +34,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK) //just to remove IDE error on mockMvc
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class ProfessionalIntegrationTest: CrmApplicationTests() {
 
     @Autowired
@@ -59,6 +60,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
     lateinit var addressRepository: AddressRepository
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PostProfessionalTest {
         @BeforeEach
         fun init() {
@@ -424,6 +426,7 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class Post_AssociateContactToCustomer() {
         private var contactId1 = 0L
         private var contactId2 = 0L
@@ -562,7 +565,8 @@ class ProfessionalIntegrationTest: CrmApplicationTests() {
     }
 
     @Nested
-    inner class PutProfessional() {
+    @WithMockUser(roles = [ "operator" ])
+    inner class PutProfessional {
         private var professionalId = 0L
         private var emailId = 0L
         private var telephoneId = 0L

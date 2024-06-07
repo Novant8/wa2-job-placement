@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.PageRequest
 
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -32,8 +33,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 import java.time.LocalDateTime
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK) //just to remove IDE error on mockMvc
-@AutoConfigureMockMvc
-
+@AutoConfigureMockMvc(addFilters = false)
 class MessageIntegrationTest:CrmApplicationTests() {
     @Autowired
     lateinit var mockMvc: MockMvc
@@ -223,6 +223,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
 
 
         @Nested
+        @WithMockUser(roles = [ "operator" ])
         inner class PostMessage {
             @Test
             fun createMessageTelephone() {
@@ -657,6 +658,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class Priority{
         @Test
         fun getPriority() {
@@ -712,6 +714,7 @@ class MessageIntegrationTest:CrmApplicationTests() {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class MessageHistory {
         @Test
         fun checkEventWhenGetMessageId() {

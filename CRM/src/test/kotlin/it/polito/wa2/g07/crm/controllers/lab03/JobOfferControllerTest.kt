@@ -20,11 +20,13 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -32,6 +34,7 @@ import java.util.*
 import javax.swing.text.html.Option
 
 @WebMvcTest(JobOfferController::class)
+@AutoConfigureMockMvc(addFilters = false)
 class JobOfferControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @MockkBean
@@ -41,6 +44,7 @@ class JobOfferControllerTest(@Autowired val mockMvc: MockMvc) {
     private lateinit var objectMapper: ObjectMapper
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class UpdateJobOfferTests {
 
         private val mockJobOffer = JobOffer(

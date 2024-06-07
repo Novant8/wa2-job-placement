@@ -37,16 +37,18 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.put
-import kotlin.reflect.KClass
 
 
 @WebMvcTest(ProfessionalController::class)
+@AutoConfigureMockMvc(addFilters = false)
 class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @MockkBean
@@ -107,6 +109,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
     )
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PostProfessional {
         @BeforeEach
         fun initMocks() {
@@ -222,6 +225,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class AssociateContact {
         private val usedContactIds = HashSet<Long>()
         private val skills = setOf("PHP", "Java", "Angular")
@@ -322,7 +326,8 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
     }
 
     @Nested
-    inner class PutProfessional() {
+    @WithMockUser(roles = [ "operator" ])
+    inner class PutProfessional {
         private val contactId = mockContactDTO.id
 
         @BeforeEach

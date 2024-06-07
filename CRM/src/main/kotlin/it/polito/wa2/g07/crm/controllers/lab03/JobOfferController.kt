@@ -15,10 +15,13 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "5. Job Offers", description = "Search job offers and manage their status")
 @RestController
+@EnableMethodSecurity(prePostEnabled = true)
 @RequestMapping("/API/joboffers")
 class JobOfferController(private val jobOfferService: JobOfferService) {
 
@@ -70,6 +73,7 @@ class JobOfferController(private val jobOfferService: JobOfferService) {
                 content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
             )
         ])
+        @PreAuthorize("hasAnyRole('operator', 'manager')")
         @PostMapping("/{jobOfferId}")
         fun updateJobOfferStatus(
             @PathVariable jobOfferId: Long,

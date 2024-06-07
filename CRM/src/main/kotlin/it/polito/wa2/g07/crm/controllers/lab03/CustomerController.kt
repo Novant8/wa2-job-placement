@@ -25,9 +25,12 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.data.domain.Pageable
 import org.springframework.http.ProblemDetail
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 
 @Tag(name = "3. Customers", description = "Create, search and update customers")
 @RestController
+@EnableMethodSecurity(prePostEnabled = true)
 @RequestMapping("API/customers")
 class CustomerController (  private val customerService: CustomerService,
                             private val contactService: ContactService,
@@ -87,6 +90,7 @@ class CustomerController (  private val customerService: CustomerService,
         )
     ])
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PostMapping("", "/")
     fun createCustomer(@RequestBody @Valid customer:CreateCustomerDTO):CustomerDTO {
        return customerService.createCustomer(customer)
@@ -101,6 +105,7 @@ class CustomerController (  private val customerService: CustomerService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("/{customerId}/notes", "/{customerId}/notes/")
     fun editCustomerNotes(
         @PathVariable("customerId") customerId: Long,
@@ -123,6 +128,7 @@ class CustomerController (  private val customerService: CustomerService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("/{customerId}/email/{emailId}", "/{customerId}/email/{emailId}/")
     fun editCustomerEmail(@PathVariable("customerId") customerId: Long, @PathVariable("emailId") emailId : Long,
                           @Valid @RequestBody emailDTO: EmailDTO
@@ -148,6 +154,7 @@ class CustomerController (  private val customerService: CustomerService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("/{customerId}/telephone/{telephoneId}", "/{customerId}/telephone/{telephoneId}/")
     fun editCustomerTelephone(@PathVariable("customerId") customerId: Long, @PathVariable("telephoneId") telephoneId : Long,
                           @Valid @RequestBody telephoneDTO: TelephoneDTO
@@ -173,6 +180,7 @@ class CustomerController (  private val customerService: CustomerService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("/{customerId}/address/{dwellingId}", "/{customerId}/address/{dwellingId}/")
     fun editCustomerDwelling(@PathVariable("customerId") customerId: Long, @PathVariable("dwellingId") dwellingId : Long,
                               @Valid @RequestBody dwellingDTO: DwellingDTO
@@ -201,6 +209,7 @@ class CustomerController (  private val customerService: CustomerService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PostMapping("/{customerId}/job-offers", "/{customerId}/job-offers/")
     fun createJobOffer( @PathVariable("customerId") customerId: Long,
                         @RequestBody @Valid jobDTO: JobOfferCreateDTO): JobOfferDTO {

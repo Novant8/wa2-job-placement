@@ -28,10 +28,13 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.data.domain.Pageable
 import org.springframework.http.ProblemDetail
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "4. Professionals", description = "Create, search and update professionals' information")
 @RestController
+@EnableMethodSecurity(prePostEnabled = true)
 @RequestMapping("/API/professionals")
 class ProfessionalController (private val professionalService: ProfessionalService,private val contactService: ContactService) {
 
@@ -48,6 +51,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
         )
     ])
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PostMapping("/","")
     fun createProfessional(@Valid @RequestBody professional: CreateProfessionalDTO) : ProfessionalDTO{
         return  professionalService.createProfessional(professional)
@@ -62,6 +66,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("{professionalId}/notes")
     fun updateProfessionalNotes(@PathVariable professionalId:Long,
                                    @RequestBody notes: NotesDTO
@@ -79,6 +84,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("{professionalId}/location")
     fun updateProfessionalLocation(
         @PathVariable professionalId:Long,
@@ -97,6 +103,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("{professionalId}/skills")
     fun updateProfessionalSkills(
         @PathVariable professionalId:Long,
@@ -115,6 +122,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("{professionalId}/employmentState")
     fun updateProfessionalEmploymentState(
         @PathVariable professionalId:Long,
@@ -133,6 +141,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("{professionalId}/dailyRate")
     fun updateProfessionalDailyRate(@PathVariable professionalId:Long,
                                           @RequestBody dailyRateDTO: DailyRateDTO
@@ -150,6 +159,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("/{professionalId}/email/{emailId}","/{professionalId}/email/{emailId}")
     fun editProfessionalEmail(@PathVariable("professionalId") professionalId :Long, @PathVariable("emailId") emailId : Long,
                               @Valid @RequestBody emailDTO: EmailDTO
@@ -171,6 +181,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("/{professionalId}/telephone/{telephoneId}","/{professionalId}/telephone/{telephoneId}")
     fun editProfessionalTelephone(@PathVariable("professionalId") professionalId :Long, @PathVariable("telephoneId") telephoneId : Long,
                               @Valid @RequestBody telephoneDTO: TelephoneDTO
@@ -192,6 +203,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("/{professionalId}/address/{dwellingId}","/{professionalId}/address/{dwellingId}")
     fun editProfessionalDwelling(@PathVariable("professionalId") professionalId :Long, @PathVariable("dwellingId") dwellingId : Long,
                                   @Valid @RequestBody dwellingDTO: DwellingDTO

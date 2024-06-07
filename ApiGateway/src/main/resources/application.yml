@@ -17,6 +17,13 @@ spring:
             filters:
               - StripPrefix=1
               - TokenRelay
+          - id: crm
+            uri: http://localhost:8082
+            predicates:
+              - Path=/crm/**
+            filters:
+              - StripPrefix=1
+              - TokenRelay
           - id : ui
             uri : http://localhost:5173
             predicates:

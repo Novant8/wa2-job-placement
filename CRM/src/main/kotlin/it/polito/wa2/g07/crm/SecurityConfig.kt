@@ -1,4 +1,4 @@
-package it.polito.wa2.g07.document_store
+package it.polito.wa2.g07.crm
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

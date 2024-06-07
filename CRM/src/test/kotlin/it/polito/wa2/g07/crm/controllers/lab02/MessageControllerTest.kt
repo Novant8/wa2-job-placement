@@ -16,15 +16,18 @@ import org.springframework.test.web.servlet.MockMvc
 import java.time.LocalDateTime
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.test.web.servlet.get
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 
 
 @WebMvcTest(MessageController::class)
+@AutoConfigureMockMvc(addFilters = false)
 class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
 
     @MockkBean
@@ -294,6 +297,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PostMessageTests {
         @Nested
         inner class PostMessageTestEmail {
@@ -485,6 +489,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         }
     }
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PostMessageTestTelephone {
         @BeforeEach
         fun initMocks() {
@@ -673,6 +678,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
         }
     }
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PostMessageTestDwelling {
         @BeforeEach
         fun initMocks() {
@@ -867,6 +873,7 @@ class MessageControllerTest (@Autowired val mockMvc: MockMvc) {
 
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PutMessageTests {
         @BeforeEach
         fun initMocks(){

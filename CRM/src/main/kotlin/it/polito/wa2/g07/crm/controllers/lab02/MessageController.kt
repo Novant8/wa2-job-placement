@@ -21,10 +21,13 @@ import org.springframework.data.domain.Pageable
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "2. Messages", description = "Create, search, track and update the status of messages")
 @RestController
+@EnableMethodSecurity(prePostEnabled = true)
 @RequestMapping("API/messages")
 class MessageController (private val messageService: MessageService
                         ) {
@@ -77,6 +80,7 @@ class MessageController (private val messageService: MessageService
     ])
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("","/")
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     fun createNewMessage(@RequestBody @Valid  msg: MessageCreateDTO): MessageDTO? {
        // sender, channel, subject, body
         val channel = try {
@@ -109,6 +113,7 @@ class MessageController (private val messageService: MessageService
     ])
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{id_message}","/{id_message}/")
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     fun updateMessageState(@PathVariable("id_message") idMessage: Long,
                             @RequestBody   event: MessageEventDTO
     ): MessageEventDTO?{
@@ -158,6 +163,7 @@ class MessageController (private val messageService: MessageService
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PutMapping("/{messageId}/priority","/{messageId}/priority/")
     fun modifyMessagePriority(
         @PathVariable("messageId") messageId: Long,
