@@ -7,6 +7,8 @@ spring:
   cloud:
     gateway:
       mvc:
+        http-client:
+          type: autodetect
         routes:
           - id: document-store
             uri: http://localhost:8081
@@ -15,6 +17,16 @@ spring:
             filters:
               - StripPrefix=1
               - TokenRelay
+          - id : ui
+            uri : http://localhost:5173
+            predicates:
+              - Path=/ui/**
+          - id: home
+            uri: http://localhost:8080
+            predicates:
+              - Path=/
+            filters:
+              - RedirectTo=301,http://localhost:8080/ui
   security:
     oauth2:
       client:
