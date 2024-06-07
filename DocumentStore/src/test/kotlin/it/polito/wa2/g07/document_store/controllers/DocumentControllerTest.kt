@@ -12,17 +12,20 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpHeaders
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.time.LocalDateTime
 
 @WebMvcTest
+@AutoConfigureMockMvc(addFilters = false)
 class DocumentControllerTest(@Autowired var mockMvc: MockMvc) {
 
     @MockkBean
@@ -97,6 +100,7 @@ class DocumentControllerTest(@Autowired var mockMvc: MockMvc) {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PostDocumentTest {
 
         private val newDocument = MockMultipartFile("document", "filename.txt", "text/plain", "some xml".toByteArray())
@@ -142,6 +146,7 @@ class DocumentControllerTest(@Autowired var mockMvc: MockMvc) {
     }
 
     @Nested
+    @WithMockUser(roles = [ "operator" ])
     inner class PutDocumentTest {
 
         private val newDocument = MockMultipartFile("document", "filename.txt", "text/plain", "some xml".toByteArray())
@@ -221,6 +226,7 @@ class DocumentControllerTest(@Autowired var mockMvc: MockMvc) {
     }
 
     @Nested
+    @WithMockUser(roles = [ "manager" ])
     inner class DeleteDocumentTest {
         @BeforeEach
         fun initMocks() {
