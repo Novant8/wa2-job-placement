@@ -33,7 +33,9 @@ class TestController {
         val principal :OidcUser? = authentication?.principal as? OidcUser
         val name = principal?.givenName ?:""
         val surname = principal?.familyName ?: ""
-        val role = principal?.authorities ?: ""
+        val role = principal?.userInfo?.claims?.values?.elementAtOrNull(1)
+        val email = principal?.email ?: ""
+
         return mapOf(
             "name" to name,
             "surname" to surname,
@@ -41,7 +43,8 @@ class TestController {
             "logoutUrl" to "/logout",
             "principal" to principal,
             "xsrfToken" to xsrf,
-            "role" to role
+            "role" to role,
+            "email" to email
         )
     }
 
