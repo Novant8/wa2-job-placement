@@ -4,7 +4,7 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.apache.logging.log4j.util.Supplier
+
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -20,6 +20,7 @@ import org.springframework.security.web.csrf.DefaultCsrfToken
 import org.springframework.util.StringUtils
 import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
+import java.util.function.Supplier
 
 @Configuration
 class SecurityConfig(val crr: ClientRegistrationRepository) {
@@ -42,7 +43,7 @@ class SecurityConfig(val crr: ClientRegistrationRepository) {
                 it.csrfTokenRequestHandler(SpaCsrfTokenRequestHandler())
             }
             .cors { it.disable() }
-           // .addFilterAfter(CsrfCookieFilter(),BasicAuthenticationFilter::class.java)
+            .addFilterAfter(CsrfCookieFilter(),BasicAuthenticationFilter::class.java)
             .build()
     }
 }
@@ -51,14 +52,14 @@ class SpaCsrfTokenRequestHandler : CsrfTokenRequestAttributeHandler(){
     private val delegate:CsrfTokenRequestHandler = CsrfTokenRequestAttributeHandler()
 
     override fun handle(
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-        t: java.util.function.Supplier<CsrfToken>
+        req: HttpServletRequest,
+        res: HttpServletResponse,
+        t: Supplier<CsrfToken>
     ) {
-        delegate.handle(request, response, t)
+        delegate.handle(req, res, t)
     }
 
-    override fun resolveCsrfTokenValue(request: HttpServletRequest, csrfToken: CsrfToken): String {
+    override fun resolveCsrfTokenValue(request: HttpServletRequest, csrfToken: CsrfToken): String? {
         val d = csrfToken as DefaultCsrfToken
 
         return if(StringUtils.hasText(request.getHeader(csrfToken.headerName) )){
@@ -76,8 +77,8 @@ class CsrfCookieFilter: OncePerRequestFilter(){
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val csrfToken = request.getAttribute("_csfr") as CsrfToken
-        //render the token value to a cookie by cousing the deferred token to be load
+        val csrfToken = request.getAttribute("_csrf") as CsrfToken
+        //render the token value to a cookie by causing the deferred token to be load
         csrfToken.token
         filterChain.doFilter(request,response)
     }

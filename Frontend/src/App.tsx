@@ -12,7 +12,8 @@ export interface MeInterface{
     logoutUrl: string,
     principal : any |null,
     xsrfToken:string,
-    role: any | null
+    role: any | null,
+    email : string
 }
 function App() {
 
@@ -55,26 +56,32 @@ function App() {
 
                 {me && me.principal==null && me.loginUrl &&
                     <Nav>
-                         <Nav.Item> <Button className="mx-1" type={"submit"} variant={"info"} onClick={()=> window.location.href=me?.loginUrl}><CiLogin size={30}/> Login </Button> </Nav.Item>
+                         <Nav.Item> <Button className="mx-1"  variant={"info"} onClick={()=> window.location.href=me?.loginUrl}><CiLogin size={30}/> Login </Button> </Nav.Item>
                     </Nav>
                 }
 
             </Navbar>
 
 
-            <Card style={{ width: '18rem' }}>
+            <Card style={{ width: '23rem' }}>
                 <Card.Body>
                     {me && me.principal != null ? <Card.Title><CiUser  size={30}/>{me?.name} {me?.surname}</Card.Title>
                     : <Card.Title><CiUser  size={30}/>Anonymous User</Card.Title>}
-                    {me && me.principal != null &&
+                    {me && me.principal != null ?
+                        <>
+                        <Card.Text>
+                            Role: {me?.role.crmclient.roles}
+                        </Card.Text>
+                        <Card.Text>
+                            Email: {me?.email}
+                        </Card.Text>
+                        </>
+                        :
                     <Card.Text>
-                        Role: {me?.xsrfToken }
+                      Login to display User's information
                     </Card.Text>
                     }
-                    <Card.Text>
-                        Some quick example text to build on the card title and make up the
-                        bulk of the card's content.
-                    </Card.Text>
+
 
                 </Card.Body>
 
