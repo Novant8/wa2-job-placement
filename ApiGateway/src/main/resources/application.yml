@@ -24,6 +24,13 @@ spring:
             filters:
               - StripPrefix=1
               - TokenRelay
+          - id : CommunicationManager
+            uri: http://localhost:8083
+            predicates:
+              - Path=/CommunicationManager/**
+            filters:
+              - StripPrefix=1
+              - TokenRelay
           - id : ui
             uri : http://localhost:5173
             predicates:

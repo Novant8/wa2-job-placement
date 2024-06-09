@@ -1,7 +1,7 @@
 auth:
   issuer: http://localhost:9090/realms/CRM
 comm-manager:
-  crm-url: http://localhost:8080/API/messages
+  crm-url: http://localhost:8082/API/messages
 spring:
   application:
     name: CommunicationManager
