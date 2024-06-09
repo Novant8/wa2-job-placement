@@ -1,0 +1,50 @@
+auth:
+  issuer: http://localhost:9090/realms/CRM
+comm-manager:
+  crm-url: http://localhost:8080/API/messages
+spring:
+  application:
+    name: CommunicationManager
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  mvc:
+    problemdetails:
+      enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${auth.issuer}
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+
+gmail-account:
+  application_name: webapp2-2024
+
+gmail:
+  client-id: 314430035121-rn507dgme9vaa9i15hrhdo5u7tsths9g.apps.googleusercontent.com
+  client-secret: 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
+  refresh-token: 1//049ZcWMZqIOUmCgYIARAAGAQSNwF-L9IrJDAMuRsj5a3wP5sKKcEzVUFURNEyS0wf7s8CuqNuwDTNqmRp_hay1ejuFyjUHm-Svhs
+  username: webapp2.2024.g07@gmail.com
+
+camel:
+  component:
+    google-mail-stream:
+      application-name: ${gmail-account.application_name}
+      client-id: ${gmail.client-id}
+      client-secret: ${gmail.client-secret}
+      refresh-token: ${gmail.refresh-token}
+    google-mail:
+      application-name: ${gmail-account.application_name}
+      client-id: ${gmail.client-id}
+      client-secret: ${gmail.client-secret}
+      refresh-token: ${gmail.refresh-token}
+
+server:
+  port: 8083
