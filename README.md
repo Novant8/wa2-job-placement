@@ -3,6 +3,14 @@
 # README Files
 Separate READMEs are available inside each project's folder
 
+# URL Paths
+
+Assuming all services are started, including the frontend:
+* The **frontend** can be accessed at `http://localhost:8080`
+* The **DocumentStore**'s APIs can be called through `http://localhost:8080/document-store/API/...`
+* The **CRM**'s APIs can be called through `http://localhost:8080/crm/API/...`
+* The **CommunicationsManager**'s APIs can be called through `http://localhost:8080/communication-manager/API/...`
+
 # Users
 
 | **User**       | **Password**       | **Role** |

@@ -27,7 +27,7 @@ spring:
           - id : CommunicationManager
             uri: http://localhost:8083
             predicates:
-              - Path=/CommunicationManager/**
+              - Path=/communication-manager/**
             filters:
               - StripPrefix=1
               - TokenRelay
