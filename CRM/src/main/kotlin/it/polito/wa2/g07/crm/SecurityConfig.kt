@@ -40,7 +40,7 @@ class SecurityConfig {
     fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         return httpSecurity
             .authorizeHttpRequests {
-                it.anyRequest().authenticated()
+                it.anyRequest().permitAll()
             }
             .oauth2ResourceServer {
                 it.jwt { it.jwtAuthenticationConverter(jwtAuthenticationConverter()) }

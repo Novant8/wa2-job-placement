@@ -73,7 +73,7 @@ class JobOfferController(private val jobOfferService: JobOfferService) {
                 content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
             )
         ])
-        @PreAuthorize("hasAnyRole('operator', 'manager')")
+        //@PreAuthorize("hasAnyRole('operator', 'manager')")
         @PostMapping("/{jobOfferId}")
         fun updateJobOfferStatus(
             @PathVariable jobOfferId: Long,

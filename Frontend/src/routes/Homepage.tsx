@@ -20,6 +20,7 @@ export default function Homepage() {
                         <Card.Text>
                             Email: {me?.email}
                         </Card.Text>
+
                     </>
                     :
                     <Card.Text>

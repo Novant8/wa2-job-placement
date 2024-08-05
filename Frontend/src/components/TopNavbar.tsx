@@ -1,15 +1,17 @@
 import {Button, Nav, Navbar} from "react-bootstrap";
 import {CiLogin, CiLogout, CiUser} from "react-icons/ci";
 import {useAuth} from "../contexts/auth.tsx";
+import {useNavigate} from "react-router-dom";
 
 export default function TopNavbar() {
     const { me } = useAuth();
+    const navigate = useNavigate();
 
     return (
         <Navbar expand="lg" bg="primary" fixed="top">
-            <Navbar.Brand href="#home" className="text-white">TEMPORARY JOB PLACEMENT - 07</Navbar.Brand>
+            <Navbar.Brand onClick={()=>navigate('/')} className="text-white">TEMPORARY JOB PLACEMENT - 07</Navbar.Brand>
             <Nav className="me-auto">
-                <Nav.Link href="#home">CRM</Nav.Link>
+                <Nav.Link onClick={()=>navigate('/crm')}>CRM</Nav.Link>
                 <Nav.Link href="#features">Document Store</Nav.Link>
                 <Nav.Link href="#pricing">Send Email</Nav.Link >
             </Nav>
