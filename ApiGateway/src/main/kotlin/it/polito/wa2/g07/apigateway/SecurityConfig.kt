@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.logout.LogoutHandler
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository
 import org.springframework.security.web.csrf.CsrfToken
@@ -21,23 +22,45 @@ import org.springframework.util.StringUtils
 import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
 import java.util.function.Supplier
+import jakarta.servlet.http.Cookie
+
+import org.springframework.security.core.Authentication
+
+
+class CustomLogoutHandler(private val cookieName: String) : LogoutHandler {
+    override fun logout(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        authentication: Authentication?
+    ) {
+        // Remove the cookie by setting its max age to 0
+        val cookie = Cookie(cookieName, null)
+        cookie.path = "/"
+        cookie.maxAge = 0
+        response.addCookie(cookie)
+    }
+}
 
 @Configuration
 class SecurityConfig(val crr: ClientRegistrationRepository) {
 
     fun oidcLogoutSuccessHandler() = OidcClientInitiatedLogoutSuccessHandler(crr)
-        .also { it.setPostLogoutRedirectUri("http://localhost:8080/") }
+        .also {
+
+            it.setPostLogoutRedirectUri("http://localhost:8080/") }
 
     @Bean
     fun securityFilterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         return httpSecurity
             .authorizeHttpRequests {
-                it.requestMatchers("/ui/**", "/", "/me","/logout").permitAll()
-                it.anyRequest().authenticated()
+                it.anyRequest().permitAll()
             }
-            .oauth2Login {  }
+            .oauth2Login { }
             .formLogin { it.disable() }
-            .logout { it.logoutSuccessHandler(oidcLogoutSuccessHandler()) }
+            .logout {
+                it.logoutSuccessHandler(oidcLogoutSuccessHandler())
+                it.addLogoutHandler(CustomLogoutHandler("grafana_session"))
+            }
             .csrf {
                 it.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 it.csrfTokenRequestHandler(SpaCsrfTokenRequestHandler())

@@ -6,6 +6,8 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: password
+      PROXY_ADDRESS_FORWARDING: true
+      KEYCLOAK_FRONTEND_URL: http://localhost:9090
     volumes:
       - ./keycloak:/opt/keycloak/data/import
     restart: always

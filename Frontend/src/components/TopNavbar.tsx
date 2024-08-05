@@ -2,6 +2,8 @@ import {Button, Nav, Navbar} from "react-bootstrap";
 import {CiLogin, CiLogout, CiUser} from "react-icons/ci";
 import {useAuth} from "../contexts/auth.tsx";
 
+
+
 export default function TopNavbar() {
     const { me } = useAuth();
 
@@ -12,6 +14,7 @@ export default function TopNavbar() {
                 <Nav.Link href="#home">CRM</Nav.Link>
                 <Nav.Link href="#features">Document Store</Nav.Link>
                 <Nav.Link href="#pricing">Send Email</Nav.Link >
+                <Nav.Link href="/grafana">Dashboard</Nav.Link >
             </Nav>
             {me?.principal &&
                 <Nav>

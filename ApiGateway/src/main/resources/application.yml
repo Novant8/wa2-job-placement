@@ -35,16 +35,21 @@ spring:
             uri : http://localhost:5173
             predicates:
               - Path=/ui/**
-          - id: grafana
-            uri: http://localhost:3000
-            predicates:
-              - Path=/grafana/**
           - id: home
             uri: http://localhost:8080
             predicates:
               - Path=/
             filters:
               - RedirectTo=301,http://localhost:8080/ui
+
+          - id: grafana
+            uri: http://localhost:8080
+            predicates:
+             - Path=/grafana/**
+            filters:
+             - RedirectTo=301,http://localhost:3000/
+
+
 
 
   security:
@@ -60,6 +65,5 @@ spring:
             client-secret: dOQVIYfE26xG2UiGSOYzud5tk3YRyNoA
             scope:
               - openid
-              - offline_access
             authorization-grant-type: authorization_code
             redirect-uri: http://localhost:8080/login/oauth2/code/crmclient
