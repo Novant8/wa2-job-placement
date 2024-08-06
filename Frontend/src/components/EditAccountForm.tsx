@@ -2,9 +2,9 @@ import {Alert, Button, Col, Dropdown, DropdownButton, Form, Row, Spinner} from "
 import {useEffect, useState} from "react";
 import {useAuth} from "../contexts/auth.tsx";
 import EditableField from "./EditableField.tsx";
-import {getCSRFCookie} from "../helpers/csrf.ts";
 import EditableFieldGroup from "./EditableFieldGroup.tsx";
-import {Contact, ContactCategory, Customer, Professional, UserSkill} from "../types/contact-customer-professional.ts";
+import {Contact, ContactCategory} from "../types/contact.ts"
+import {Professional, UserSkill} from "../types/professional.ts";
 import {
     Address,
     EmailAddress,
@@ -13,9 +13,10 @@ import {
     AddressType,
     isEmailAddress,
     isPhoneAddress,
-    isDwellingAddress, getAddressType
+    isDwellingAddress
 } from "../types/address.ts";
-import {ErrorResponseBody, UnprocessableEntityResponseBody} from "../types/api-error.ts";
+import * as API from "../../API.tsx";
+import {ApiError} from "../../API.tsx";
 
 type ProfessionalUserInfo =
     Contact
@@ -109,29 +110,15 @@ export default function EditAccountForm() {
         switch(registeredRole) {
             case "professional":
                 request =
-                    fetch("/crm/API/professionals/user/me")
-                        .then(async res => {
-                            if(res.ok) {
-                                const { contactInfo, ...professional } = await res.json() as Professional;
-                                setUserInfo({ ...contactInfo, professional });
-                            } else {
-                                const errorBody = await res.json() as ErrorResponseBody;
-                                throw new Error(`Server responded with: ${errorBody.title}`)
-                            }
+                    API.getProfessionalFromCurrentUser()
+                        .then(({ contactInfo, ...professional }) => {
+                            setUserInfo({ ...contactInfo, professional });
                         })
                 break;
             default:
                 request =
-                    fetch("/crm/API/contacts/user/me")
-                        .then(async res => {
-                            if(res.ok) {
-                                const contact = await res.json() as Contact;
-                                setUserInfo({ ...contact });
-                            } else {
-                                const errorBody = await res.json() as ErrorResponseBody;
-                                throw new Error(`Server responded with '${errorBody.title}'`)
-                            }
-                        })
+                    API.getContactFromCurrentUser()
+                        .then(contact => setUserInfo(contact))
                 break;
         }
         request
@@ -170,32 +157,18 @@ export default function EditAccountForm() {
         setLoadingSubmit({ ...loadingSubmit });
 
         const professionalInfo = userInfo as ProfessionalUserInfo
-        fetch(`/crm/API/professionals/${professionalInfo.professional.id}/skills`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "X-XSRF-TOKEN": getCSRFCookie()!
-            },
-            body: JSON.stringify({ skills })
-        })
-        .then(async res => {
-            if(res.ok) {
-                const { contactInfo, ...professional } = await res.json() as Professional;
-                setUserInfo({ ...contactInfo, professional })
-            } else {
-                const errorBody = await res.json() as ErrorResponseBody;
-                errors.professional.skills[index] = errorBody.title;
+        API.updateProfessionalSkills(professionalInfo.professional.id, skills)
+            .then(({ contactInfo, ...professional }) => {
+                setUserInfo({ ...contactInfo, professional });
+            })
+            .catch((err: ApiError) => {
+                errors.professional.skills[index] = err.message;
                 setErrors({ ...errors });
-            }
-        })
-        .catch(err => {
-            errors.professional.skills[index] = err.message;
-            setErrors({ ...errors })
-        })
-        .finally(() => {
-            loadingSubmit.professional.skills[index] = false;
-            setLoadingSubmit({ ...loadingSubmit });
-        })
+            })
+            .finally(() => {
+                loadingSubmit.professional.skills[index] = false;
+                setLoadingSubmit({ ...loadingSubmit });
+            });
     }
 
     function addUserSkill() {
@@ -234,72 +207,42 @@ export default function EditAccountForm() {
         updateUserSkills(updatedSkills, index);
     }
 
-    function updateUserCategory(category: ContactCategory) {
+    async function updateUserCategory(category: ContactCategory) {
         if(category == "UNKNOWN") return;
         setLoadingSubmit({ ...loadingSubmit, category: true })
-
-        let body: any;
-        if (category === "PROFESSIONAL") {
-            body = { location: "", skills: [], dailyRate: 0 };
-        } else {
-            body = {};
-        }
-
-        fetch(`/crm/API/contacts/${userInfo.id}/${category.toLowerCase()}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-XSRF-TOKEN": getCSRFCookie()!,
-            },
-            body: JSON.stringify(body)
-        })
-        .then(async res => {
-            if (res.ok) {
+        try {
+            if (category === "PROFESSIONAL") {
+                const {contactInfo, ...professional} = await API.bindContactToProfessional(userInfo.id, {
+                    location: "",
+                    skills: [],
+                    dailyRate: 0
+                });
                 await refreshToken();
-                if(category === "CUSTOMER") {
-                    const { contactInfo } = await res.json() as Customer;
-                    setUserInfo(contactInfo)
-                } else {
-                    const { contactInfo, ...professional } = await res.json() as Professional;
-                    setUserInfo({ ...contactInfo, professional });
-                }
+                setUserInfo({...contactInfo, professional});
             } else {
-                const errorBody = await res.json() as ErrorResponseBody;
-                setErrors({ ...errors, category: `Server responded with message ${errorBody.title}.` });
+                const {contactInfo} = await API.bindContactToCustomer(userInfo.id);
+                setUserInfo(contactInfo);
             }
-        })
-        .catch(err => setErrors({ ...errors, category: err.message }))
-        .finally(() => setLoadingSubmit({ ...loadingSubmit, category: false }))
+        } catch (err: any) {
+            if(err instanceof ApiError)
+                setErrors({ ...errors, category: err.message });
+        }
+        setLoadingSubmit({ ...loadingSubmit, category: false });
     }
 
     function updateContactField(field: SingleUpdatableField, value: string) {
         setErrors({ ...errors, [field]: "" });
         setLoadingSubmit({ ...loadingSubmit, [field]: true });
-        fetch(`/crm/API/contacts/${userInfo.id}/${field}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "X-XSRF-TOKEN": getCSRFCookie()!
-            },
-            body: JSON.stringify({ [field]: value })
-        })
-        .then(async res => {
-            if(res.ok) {
-                if(["name", "surname"].includes(field)) {
-                    await refreshToken();
-                }
-                const contact = await res.json() as Contact;
-                setUserInfo({ ...userInfo, ...contact });
-            } else if(res.status === 422) {
-                const errorBody = await res.json() as UnprocessableEntityResponseBody;
-                setErrors({ ...errors, ...errorBody.fieldErrors })
-            } else {
-                const errorBody = await res.json() as ErrorResponseBody;
-                setErrors({ ...errors, [field]: `Server responded with message '${errorBody.title}'` })
-            }
-        })
-        .catch(err => setErrors({ ...errors, [field]: err.message }))
-        .finally(() => setLoadingSubmit({ ...loadingSubmit, [field]: false }))
+        API.updateContactField(userInfo.id, field, value)
+            .then(contact => setUserInfo({ ...userInfo, ...contact }))
+            .then(() => ["name", "surname"].includes(field) ? refreshToken() : Promise.resolve())
+            .catch((err: Error) => {
+                if(err instanceof ApiError && err.fieldErrors)
+                    setErrors({ ...errors, ...err.fieldErrors });
+                else
+                    setErrors({ ...errors, [field]: err.message })
+            })
+            .finally(() => setLoadingSubmit({ ...loadingSubmit, [field]: false }))
     }
 
     function addressIsEmpty(address: Address): boolean {
@@ -319,60 +262,52 @@ export default function EditAccountForm() {
         }
     }
 
-    function addAddress(addressType: AddressType, address: Address): Promise<Response> {
-        const { id, ...addressData } = address;
-        return fetch(`/crm/API/contacts/${userInfo.id}/${addressType.toLowerCase()}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-XSRF-TOKEN": getCSRFCookie()!
-            },
-            body: JSON.stringify(addressData)
-        })
-    }
-
-    function editAddress(addressType: AddressType, address: Address): Promise<Response> {
-        const { id, ...addressData } = address;
-        return fetch(`/crm/API/contacts/${userInfo.id}/${addressType.toLowerCase()}/${id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "X-XSRF-TOKEN": getCSRFCookie()!
-            },
-            body: JSON.stringify(addressData)
-        })
-    }
-
-    function addOrEditAddress(index: number, address: Address) {
-        errors.addresses[index] = Object.fromEntries(Object.keys(address).map(field => [field, ""])) as unknown as AddressErrors;
+    async function addOrEditAddress(index: number, address: Address) {
+        errors.addresses[index] = Object.fromEntries(Object.keys(address).map(field => [field, ""])) as AddressErrors;
         setErrors({...errors });
         loadingSubmit.addresses[index] = true;
         setLoadingSubmit({ ...loadingSubmit });
 
-        let addressType: AddressType = getAddressType(address)!
-        let addressId = userInfo.addresses[index].id
-        let request = addressId ? editAddress(addressType, { ...address, id: addressId }) : addAddress(addressType, address);
-        request
-            .then(async res => {
-                if(res.ok) {
-                    const oldAddress = userInfo.addresses[index]
-                    if(isEmailAddress(oldAddress) && oldAddress.email == me?.email) {
-                        await refreshToken();
-                    }
-                    const contact = await res.json() as Contact;
-                    setUserInfo({ ...userInfo, ...contact });
-                } else if(res.status === 422) {
-                    const errorBody = await res.json() as UnprocessableEntityResponseBody;
-                    errors.addresses[index] = { ...errors.addresses[index], ...errorBody.fieldErrors }
-                    setErrors({ ...errors })
-                } else {
-                    const errorBody = await res.json() as ErrorResponseBody;
-                    errors.addresses[index] = Object.fromEntries(Object.keys(address).map(field => [field, `Server responded with message '${errorBody.title}'`])) as unknown as AddressErrors;
-                    setErrors({ ...errors })
-                }
+        try {
+            const oldAddress = userInfo.addresses[index];
+            const addressId = oldAddress.id;
+
+            let contact;
+            if(addressId) {
+                contact = await API.editContactAddress(userInfo.id, {...address, id: addressId})
+                if(isEmailAddress(oldAddress) && oldAddress.email == me?.email)
+                    await refreshToken();
+            } else {
+                contact = await API.addAddressToContact(userInfo.id, address);
+            }
+            setUserInfo({ ...userInfo, ...contact });
+        } catch(err) {
+            if(err instanceof ApiError) {
+                if(err.fieldErrors)
+                    errors.addresses[index] = { ...errors.addresses[index], ...err.fieldErrors };
+                else
+                    errors.addresses[index] = Object.fromEntries(Object.keys(address).map(field => [field, err.message])) as AddressErrors;
+                setErrors({ ...errors });
+            }
+        }
+        loadingSubmit.addresses[index] = false;
+        setLoadingSubmit({ ...loadingSubmit });
+    }
+
+    function removeAddress(index: number) {
+        const address = userInfo.addresses[index];
+        loadingSubmit.addresses[index] = true;
+        setLoadingSubmit({ ...loadingSubmit });
+        errors.addresses[index] = Object.fromEntries(Object.keys(address).map(field => [field, ""])) as AddressErrors;
+        setErrors({ ...errors });
+
+        API.removeAddressFromContact(userInfo.id, address)
+            .then(() => {
+                userInfo.addresses.splice(index, 1);
+                setUserInfo({ ...userInfo, addresses: userInfo.addresses });
             })
-            .catch(err => {
-                errors.addresses[index] = Object.fromEntries(Object.keys(address).map(field => [field, err.message])) as unknown as AddressErrors;
+            .catch((err: ApiError) => {
+                errors.addresses[index] = Object.fromEntries(Object.keys(address).map(field => [field, err.message])) as AddressErrors;
                 setErrors({ ...errors })
             })
             .finally(() => {
@@ -381,73 +316,16 @@ export default function EditAccountForm() {
             })
     }
 
-    function removeAddress(index: number) {
-        const address = userInfo.addresses[index];
-
-        loadingSubmit.addresses[index] = true;
-        setLoadingSubmit({ ...loadingSubmit });
-        errors.addresses[index] = Object.fromEntries(Object.keys(address).map(field => [field, ""])) as unknown as AddressErrors;
-        setErrors({ ...errors });
-
-        const addressType = getAddressType(address)!;
-        fetch(`/crm/API/contacts/${userInfo.id}/${addressType.toLowerCase()}/${address.id}`, {
-            method: "DELETE",
-            headers: {
-                "X-XSRF-TOKEN": getCSRFCookie()!
-            }
-        })
-        .then(async res => {
-            if(res.ok) {
-                userInfo.addresses.splice(index, 1);
-                setUserInfo({ ...userInfo, addresses: userInfo.addresses });
-            } else {
-                const errorBody = await res.json() as ErrorResponseBody;
-                errors.addresses[index] = Object.fromEntries(Object.keys(address).map(field => [field, `Server responded with message '${errorBody.title}'`])) as unknown as AddressErrors;
-                setErrors({ ...errors });
-            }
-        })
-        .catch(err => {
-            errors.addresses[index] = Object.fromEntries(Object.keys(address).map(field => [field, err.message])) as unknown as AddressErrors;
-            setErrors({ ...errors })
-        })
-        .finally(() => {
-            loadingSubmit.addresses[index] = false;
-            setLoadingSubmit({ ...loadingSubmit });
-        })
-    }
-
     function updateDailyRate(dailyRate: number) {
         if(!isProfessional(userInfo)) return;
-        fetch(`/crm/API/professionals/${userInfo.professional.id}/dailyRate`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "X-XSRF-TOKEN": getCSRFCookie()!
-            },
-            body: JSON.stringify({ dailyRate })
-        })
-        .then(async res => {
-            if(res.ok) {
-                const { contactInfo, ...professional } = await res.json() as Professional;
+        API.updateProfessionalDailyRate(userInfo.professional.id, dailyRate)
+            .then(({ contactInfo, ...professional }) => {
                 setUserInfo({ ...contactInfo, professional });
-            } else if (res.status === 422) {
-                const errorBody = await res.json() as UnprocessableEntityResponseBody;
-                errors.professional.dailyRate = errorBody.fieldErrors.dailyRate;
-                setErrors({ ...errors })
-            } else {
-                const errorBody = await res.json() as ErrorResponseBody;
-                errors.professional.dailyRate = `Server responded with message '${errorBody.title}'`;
+            })
+            .catch((err: ApiError) => {
+                errors.professional.dailyRate = err.fieldErrors?.dailyRate || err.message;
                 setErrors({ ...errors });
-            }
-        })
-        .catch(err => {
-            errors.professional.dailyRate = err.message;
-            setErrors({ ...errors })
-        })
-        .finally(() => {
-            loadingSubmit.professional.dailyRate = false;
-            setLoadingSubmit({ ...loadingSubmit })
-        })
+            });
     }
 
     function firstUpper(str: string) {
