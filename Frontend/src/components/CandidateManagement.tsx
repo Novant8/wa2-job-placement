@@ -1,8 +1,8 @@
 import /*React,*/ {useEffect, useState} from "react";
 import API from "../../API.tsx";
 import {useAuth} from "../contexts/auth.tsx";
-import {Accordion, Container} from "react-bootstrap";
-
+import {Accordion, Container,InputGroup,Form} from "react-bootstrap";
+import * as Icon from 'react-bootstrap-icons';
 
 export type ProfessionalAccordionProps = {
     prof: {
@@ -71,21 +71,44 @@ export  default  function CandidateManagement(){
                     "location":"Milano",
                     "skills": ["Proficient in Java","Can work well in a team","Agile"],
                     "employmentState":"EMPLOYED"
+                },
+                {
+                    "id":3,
+                    "contactInfo":{"id":3,"name":"Giovanni","surname":"Mariani","category":"PROFESSIONAL"},
+                    "location":"Bologna",
+                    "skills": ["Proficient in Python","Can work well in a team","Agile","Mobile Application"],
+                    "employmentState":"UNEMPLOYED"
                 }
+
             ],
         "pageable":"INSTANCE","totalPages":1,
-        "totalElements":2,
+        "totalElements":3,
         "last":true,
-        "size":2,
+        "size":3,
         "number":0,
         "sort":{"empty":true,"sorted":false,"unsorted":true},
-        "numberOfElements":2,
+        "numberOfElements":3,
         "first":true,
         "empty":false})
 
     const {me} = useAuth()
     //console.log(me);
     const [professional, setProfessional]=useState({});
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const handleSearchChange = (event) => {
+        setSearchTerm(event.target.value);
+    };
+
+
+    const filteredCandidates = candidates.content.filter(candidate => {
+        const nameMatch = candidate.contactInfo.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const surnameMatch = candidate.contactInfo.surname.toLowerCase().includes(searchTerm.toLowerCase());
+        const locationMatch = candidate.location.toLowerCase().includes(searchTerm.toLowerCase());
+        const skillsMatch = candidate.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
+        return nameMatch || surnameMatch || locationMatch || skillsMatch;
+    });
+
     useEffect(() => {
         const token = me?.xsrfToken
         API.getProfessionals(token).then((prof=>{
@@ -96,18 +119,33 @@ export  default  function CandidateManagement(){
         })
     }, []);
 
+    //TODO: remove this useEffect
     useEffect(() => {
         console.log(professional);
-        console.log(candidates.content);
+        //console.log(candidates.content);
     }, [professional]);
     return (
         <>
             <h1>Candidate Management</h1>
             <Container>
+                <InputGroup className="mb-3">
+                    <InputGroup.Text id="basic-addon1"><Icon.Search/></InputGroup.Text>
+                    <Form.Control
+                        placeholder="Search Professional"
+                        aria-label="Search Professional"
+                        aria-describedby="basic-addon1"
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                    />
+                </InputGroup>
                 <Accordion>
-                    {candidates && candidates.content.map((e)=>
-                    <ProfessionalAccordion key={e.id} prof={e}/>
+                    {/*candidates && candidates.content.map((e) =>
+                            <ProfessionalAccordion key={e.id} prof={e}/>*/
+                        /*professional && professional.content?.map((e)=>
+                            <ProfessionalAccordion key={e.id} prof={e}/>*/
 
+                        candidates && filteredCandidates.map((e) =>
+                        <ProfessionalAccordion key={e.id} prof={e}/>
                     )}
 
                 </Accordion>
