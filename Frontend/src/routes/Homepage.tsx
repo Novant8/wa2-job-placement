@@ -1,6 +1,7 @@
 import {Card} from "react-bootstrap";
 import {CiUser} from "react-icons/ci";
 import {useAuth} from "../contexts/auth.tsx";
+import './Homepage.css'
 
 export default function Homepage() {
     const { me } = useAuth()
@@ -15,7 +16,7 @@ export default function Homepage() {
                 {me?.principal != null ?
                     <>
                         <Card.Text>
-                            Role: {me?.role.crmclient.roles}
+                            Roles: {me?.roles?.join(", ")}
                         </Card.Text>
                         <Card.Text>
                             Email: {me?.email}

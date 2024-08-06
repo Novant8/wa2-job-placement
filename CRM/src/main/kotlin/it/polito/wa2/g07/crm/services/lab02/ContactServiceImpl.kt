@@ -9,10 +9,13 @@ import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.AddressRepository
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
+import it.polito.wa2.g07.crm.services.project.KeycloakUserService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.security.core.Authentication
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.jvm.optionals.getOrDefault
@@ -20,7 +23,8 @@ import kotlin.jvm.optionals.getOrDefault
 @Service
 class ContactServiceImpl(
     private val contactRepository: ContactRepository,
-    private val addressRepository: AddressRepository
+    private val addressRepository: AddressRepository,
+    private val keycloakUserService: KeycloakUserService
 ) : ContactService {
     @Transactional
     override fun create(contact: CreateContactDTO): ContactDTO {
@@ -64,6 +68,17 @@ class ContactServiceImpl(
 
         if (!contactOpt.isPresent){
             throw EntityNotFoundException("Contact not found with ID: $contactId")
+        }
+        val contact = contactOpt.get()
+        return contact.toContactDto()
+    }
+
+    @Transactional(readOnly = true)
+    override fun getContactByUserId(userId: String): ContactDTO {
+        val contactOpt = contactRepository.findByUserId(userId)
+
+        if (!contactOpt.isPresent){
+            throw EntityNotFoundException("Contact not found associated with user ID: $userId")
         }
         val contact = contactOpt.get()
         return contact.toContactDto()
@@ -125,15 +140,70 @@ class ContactServiceImpl(
     }
 
     @Transactional
-    override fun updateAddress(contactId: Long, addressId: Long, addressDTO: AddressDTO): ContactDTO {
+    override fun updateAddress(
+        contactId: Long,
+        addressId: Long,
+        addressDTO: AddressDTO,
+        authentication: Authentication?
+    ): ContactDTO {
         val contact = contactRepository.findById(contactId).orElseThrow { EntityNotFoundException("Contact not found with ID : $contactId") }
         val address = addressRepository.findById(addressId).orElseThrow{ EntityNotFoundException("Address with ID $addressId is not present") }
         if(address == addressDTO) {
             throw DuplicateAddressException("The given address is already associated with the contact #$contactId")
         }
 
+        val oldEmailDTOs = contact.addresses.filterIsInstance<Email>().map { it.toAddressResponseDTO() as EmailResponseDTO }
+
         deleteAddress(contact, address, addressDTO.addressType)
-        return insertAddress(contact, addressDTO)
+        val contactDTO = insertAddress(contact, addressDTO)
+
+        // Change IAM user mail
+        if(authentication != null && contact.userId != null && addressDTO is EmailDTO) {
+            val jwtToken = authentication.principal as Jwt
+            val userEmail = jwtToken.claims["email"]
+            val userEmailAddress = oldEmailDTOs.find { it.email == userEmail }
+            if (userEmailAddress?.id == addressId) {
+                keycloakUserService.changeUserEmail(contact.userId!!, addressDTO.email)
+            }
+        }
+
+        return contactDTO
+    }
+
+    @Transactional
+    override fun updateAddress(contactId: Long, addressId: Long, addressDTO: AddressDTO): ContactDTO {
+        return updateAddress(contactId, addressId, addressDTO, null)
+    }
+
+    @Transactional
+    override fun updateName(contactId: Long, nameDTO: NameDTO): ContactDTO {
+        val contact = contactRepository.findById(contactId).orElseThrow { EntityNotFoundException("Contact not found with ID : $contactId") }
+
+        if(contact.userId != null) {
+            keycloakUserService.changeUserName(contact.userId!!, nameDTO.name)
+        }
+
+        contact.name = nameDTO.name
+        return contactRepository.save(contact).toContactDto()
+    }
+
+    @Transactional
+    override fun updateSurname(contactId: Long, surnameDTO: SurnameDTO): ContactDTO {
+        val contact = contactRepository.findById(contactId).orElseThrow { EntityNotFoundException("Contact not found with ID : $contactId") }
+
+        if(contact.userId != null) {
+            keycloakUserService.changeUserSurname(contact.userId!!, surnameDTO.surname)
+        }
+
+        contact.surname = surnameDTO.surname
+        return contactRepository.save(contact).toContactDto()
+    }
+
+    @Transactional
+    override fun updateSSN(contactId: Long, ssnDTO: SsnDTO): ContactDTO {
+        val contact = contactRepository.findById(contactId).orElseThrow { EntityNotFoundException("Contact not found with ID : $contactId") }
+        contact.ssn = ssnDTO.ssn
+        return contactRepository.save(contact).toContactDto()
     }
 
     companion object{

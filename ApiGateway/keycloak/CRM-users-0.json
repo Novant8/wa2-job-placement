@@ -78,5 +78,22 @@
     },
     "notBefore" : 0,
     "groups" : [ ]
+  }, {
+    "id" : "174c62a5-ff29-4f53-bacd-42f3224b5923",
+    "username" : "service-account-crmclient",
+    "emailVerified" : false,
+    "createdTimestamp" : 1722724287530,
+    "enabled" : true,
+    "totp" : false,
+    "serviceAccountClientId" : "crmclient",
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-crm" ],
+    "clientRoles" : {
+      "realm-management" : [ "view-users", "manage-users", "view-clients", "view-realm" ]
+    },
+    "notBefore" : 0,
+    "groups" : [ ]
   } ]
 }

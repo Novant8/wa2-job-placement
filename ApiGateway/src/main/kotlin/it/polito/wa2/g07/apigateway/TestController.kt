@@ -31,19 +31,21 @@ class TestController {
         authentication: Authentication?
     ):Map<String,Any?>{
         val principal :OidcUser? = authentication?.principal as? OidcUser
+        val userId = principal?.subject?.toString() ?: ""
         val name = principal?.givenName ?:""
         val surname = principal?.familyName ?: ""
-        val role = principal?.userInfo?.claims?.values?.elementAtOrNull(1)
+        val roles = SecurityConfig.getRolesFromAuthentication(authentication) ?: listOf()
         val email = principal?.email ?: ""
 
         return mapOf(
+            "userId" to userId,
             "name" to name,
             "surname" to surname,
             "loginUrl" to "/oauth2/authorization/crmclient",
             "logoutUrl" to "/logout",
             "principal" to principal,
             "xsrfToken" to xsrf,
-            "role" to role,
+            "roles" to roles,
             "email" to email
         )
     }
