@@ -31,7 +31,34 @@ async function addJobOffer(job: JobOfferCreateDTO, token: string | undefined):Pr
     })
 }
 
+
+async function getProfessionals(token: string | undefined):Promise<any> {
+    return new Promise((resolve, reject)=>{
+        fetch(url+ '/crm/API/professionals',{
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': `${token}`
+            },
+        }).then((response)=>{
+            if (response.ok){
+                response.json()
+                    .then((prof)=>resolve(prof))
+                    .catch(() => { reject({ error: "Cannot parse server response." }) });
+            }else{
+                response.json()
+                    .then((message) => { reject(message); })
+                    .catch(() => { reject({ error: "Cannot parse server response." }) });
+            }
+        }).catch(() => { reject({ error: "Cannot communicate with the server." }) })
+    })
+}
+
+
+
+
 const API = {
-    addJobOffer
+    addJobOffer,
+    getProfessionals
 };
 export default API;

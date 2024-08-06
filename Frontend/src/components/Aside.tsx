@@ -2,7 +2,8 @@ import {ListGroup} from "react-bootstrap";
 
 enum SelectedItem {
     ViewJobOffers = 'ViewJobOffers',
-    CreateJobOffer = 'CreateJobOffer'
+    CreateJobOffer = 'CreateJobOffer',
+    CandidateManagement = 'CandidateManagement'
 }
 interface AsideProps {
     onSelect: (item: SelectedItem) => void;
@@ -19,6 +20,10 @@ export default function  Aside ({ onSelect }:AsideProps)  {
                 <ListGroup.Item action onClick={() => onSelect(SelectedItem.CreateJobOffer)}>
                     Create Job Offer
                 </ListGroup.Item>
+                <ListGroup.Item action onClick={() => onSelect(SelectedItem.CandidateManagement)}>
+                    Candidate Management
+                </ListGroup.Item>
+
             </ListGroup>
         </div>
     );

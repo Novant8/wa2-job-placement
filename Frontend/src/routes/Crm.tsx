@@ -4,7 +4,8 @@ import Aside from "../components/Aside.tsx";
 import AsideContent from "../components/AsideContent.tsx";
 enum SelectedItem {
     ViewJobOffers = 'ViewJobOffers',
-    CreateJobOffer = 'CreateJobOffer'
+    CreateJobOffer = 'CreateJobOffer',
+    CandidateManagement = 'CandidateManagement'
 }
 
 export default function Crm(){
