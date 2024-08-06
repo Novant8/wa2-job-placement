@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="keycloak-spi-kafka1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/keycloak-spi-kafka/target/keycloak-spi-kafka.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

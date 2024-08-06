@@ -16,6 +16,7 @@ import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 
 import it.polito.wa2.g07.crm.dtos.lab02.CreateProfessionalReducedDTO
 import it.polito.wa2.g07.crm.dtos.lab03.*
+import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 
 
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
@@ -23,16 +24,22 @@ import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
 import it.polito.wa2.g07.crm.services.lab02.ContactServiceImpl
+import it.polito.wa2.g07.crm.services.project.KeycloakUserService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 
 @Service
-class ProfessionalServiceImpl (private val professionalRepository: ProfessionalRepository,private val contactRepository: ContactRepository) : ProfessionalService {
+class ProfessionalServiceImpl (
+    private val professionalRepository: ProfessionalRepository,
+    private val contactRepository: ContactRepository,
+    private val keycloakUserService: KeycloakUserService
+) : ProfessionalService {
 
     @Transactional
     override fun createProfessional(professional: CreateProfessionalDTO): ProfessionalDTO {
@@ -158,30 +165,45 @@ class ProfessionalServiceImpl (private val professionalRepository: ProfessionalR
             .orElseThrow { EntityNotFoundException("Professional with ID $professionalId not found.") }
     }
 
-
+    @Transactional(readOnly = true)
+    override fun getProfessionalFromUserId(userId: String): ProfessionalDTO {
+        return professionalRepository
+            .findByUserId(userId)
+            .map { it.toProfessionalDto() }
+            .orElseThrow { EntityNotFoundException("Professional is not associated with user $userId.") }
+    }
 
     @Transactional
-    override fun bindContactToProfessional(contactId: Long, create: CreateProfessionalReducedDTO): ProfessionalDTO {
+    override fun bindContactToProfessional(contactId: Long, createProfessionalReducedDTO: CreateProfessionalReducedDTO): ProfessionalDTO {
         val contactOpt = contactRepository.findById(contactId)
         if (!contactOpt.isPresent){
             throw EntityNotFoundException("Contact with Id :$contactId is not found")
         }
 
-        val contact = contactOpt.get()
+        var contact = contactOpt.get()
         if (professionalRepository.findByContactInfo(contact).isPresent){
             throw ContactAssociationException("Contact with id : $contactId is already associated to another Professional ")
-        }else if(contact.category.name.uppercase() != "PROFESSIONAL"){
-            throw InvalidParamsException("You must register a professional user ")
+        } else if(contact.category === ContactCategory.UNKNOWN) {
+            contact.category = ContactCategory.PROFESSIONAL
+            contact = contactRepository.save(contact)
+        } else if (contact.category === ContactCategory.CUSTOMER) {
+            throw InvalidParamsException("Cannot register a Customer profile as a Professional.")
         }
         val professional = Professional(contactInfo = contact,
-                dailyRate = create.dailyRate,
-                location = create.location,
-                skills = create.skills,
+                dailyRate = createProfessionalReducedDTO.dailyRate,
+                location = createProfessionalReducedDTO.location,
+                skills = createProfessionalReducedDTO.skills,
                 employmentState = EmploymentState.UNEMPLOYED,
-                notes = create.notes,
+                notes = createProfessionalReducedDTO.notes,
             )
 
-        return professionalRepository.save(professional).toProfessionalDto()
+        val professionalDTO = professionalRepository.save(professional).toProfessionalDto()
+
+        if(contact.userId != null) {
+            keycloakUserService.setUserAsProfessional(contact.userId!!)
+        }
+
+        return professionalDTO
     }
     companion object{
         val logger: Logger = LoggerFactory.getLogger(ContactServiceImpl::class.java)

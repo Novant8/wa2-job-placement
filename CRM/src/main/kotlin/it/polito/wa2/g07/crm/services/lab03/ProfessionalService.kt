@@ -8,12 +8,14 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalDTO
 import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
+import org.springframework.security.core.Authentication
 
 interface ProfessionalService {
     fun createProfessional(professional: CreateProfessionalDTO): ProfessionalDTO
     //fun bindContactToProfessional(contactID: Long,location:String,skills: Set<String>, dailyRate:Double,employmentState: EmploymentState, notes: String?): ProfessionalDTO
     fun searchProfessionals(filterDTO: ProfessionalFilterDTO, pageable: Pageable): Page<ProfessionalReducedDTO>
     fun getProfessionalById(professionalId: Long): ProfessionalDTO
+    fun getProfessionalFromUserId(userId: String): ProfessionalDTO
     //fun create(professional: CreateProfessionalDTO): ProfessionalDTO
     fun postProfessionalNotes(professionalId:Long, notes: String?): ProfessionalDTO
     fun postProfessionalLocation(professionalId:Long, location :String): ProfessionalDTO

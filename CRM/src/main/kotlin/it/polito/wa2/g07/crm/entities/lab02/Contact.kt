@@ -15,7 +15,10 @@ class Contact(
     var name: String,
     var surname: String,
     var category : ContactCategory,
-    var ssn: String? = null
+    var ssn: String? = null,
+
+    @Column(unique = true)
+    var userId: String? = null
 ) {
 
     @Id

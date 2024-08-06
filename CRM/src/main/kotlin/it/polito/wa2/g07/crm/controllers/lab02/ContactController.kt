@@ -11,7 +11,6 @@ import it.polito.wa2.g07.crm.dtos.lab02.*
 import it.polito.wa2.g07.crm.dtos.lab03.CustomerDTO
 import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalDTO
 import it.polito.wa2.g07.crm.entities.lab02.AddressType
-import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
 import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.CustomerService
 import it.polito.wa2.g07.crm.services.lab03.ProfessionalService
@@ -24,6 +23,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "1. Contacts", description = "Create, search and manage contact information")
@@ -54,7 +54,7 @@ class ContactController(private val contactService: ContactService,
         return contactService.create(contact)
     }
 
-    @Operation(summary = "Create a new Professional and associates an existing contact to it")
+    @Operation(summary = "Create a new Customer and associate an existing contact to it")
     @ApiResponses(value=[
         ApiResponse(
             responseCode = "201",
@@ -72,7 +72,8 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
     @PostMapping("/{contactId}/customer")
     fun saveCustomer (
         @PathVariable("contactId") contactId : Long,
@@ -81,16 +82,32 @@ class ContactController(private val contactService: ContactService,
         return customerService.bindContactToCustomer(contactId,notesDTO.notes)
     }
 
-
+    @Operation(summary = "Create a new Professional and associate an existing contact to it")
+    @ApiResponses(value=[
+        ApiResponse(
+            responseCode = "201",
+            description = "The professional was successfully created",
+        ),
+        ApiResponse(
+            responseCode = "400",
+            description = "The contact information is not valid for a professional",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        ),
+        ApiResponse(
+            responseCode = "404",
+            description = "The contact information was not found",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
     @PostMapping("/{contactId}/professional")
     fun saveProfessional (
         @PathVariable("contactId") contactId : Long,
         @RequestBody createProfessionalReducedDTO: CreateProfessionalReducedDTO
     ): ProfessionalDTO {
         return professionalService.bindContactToProfessional(contactId,createProfessionalReducedDTO)
-
     }
 
 
@@ -116,17 +133,9 @@ class ContactController(private val contactService: ContactService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
-
-   /* @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/{contactId}/professionals")
-    fun saveProfessional ( @PathVariable("contactId") contactId : Long, @RequestBody location :Map<String, String>, skills :Map<String, Set<String>>,dailyRate :Map<String,Double>,employmentState :Map<String,EmploymentState>, notes: Map<String, String> ): ProfessionalDTO {
-
-        return professionalService.bindContactToProfessional (contactId, createProfessionalReducedDTO = )
-
-    }*/
-
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
     @PostMapping("/{contactId}/email")
     fun addEmail (
         @PathVariable("contactId") contactId : Long,
@@ -158,7 +167,8 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
     @PostMapping("/{contactId}/telephone")
     fun addTelephone (
         @PathVariable("contactId") contactId : Long,
@@ -168,7 +178,7 @@ class ContactController(private val contactService: ContactService,
     }
 
     @Operation(summary = "Associate a new or existing home/dwelling address to the given contact")
-    @ApiResponses(value=[
+     @ApiResponses(value=[
         ApiResponse(
             responseCode = "201",
             description = "The address was correctly associated",
@@ -190,7 +200,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
     @PostMapping("/{contactId}/address")
     fun addDwelling (
         @PathVariable("contactId") contactId : Long,
@@ -211,6 +221,20 @@ class ContactController(private val contactService: ContactService,
     @GetMapping("/{contactId}")
     fun getContactById (@PathVariable("contactId") contactId: Long): ContactDTO {
         return contactService.getContactById(contactId)
+    }
+
+    @Operation(summary = "Retrieve the existing contact associated with the current user")
+    @ApiResponses(value=[
+        ApiResponse(responseCode = "200"),
+        ApiResponse(
+            responseCode = "404",
+            description = "The contact information was not found",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+    @GetMapping("/user/me")
+    fun getContactByUserId(authentication: Authentication): ContactDTO {
+        return contactService.getContactByUserId(authentication.name)
     }
 
     @Operation(
@@ -246,7 +270,8 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
     @DeleteMapping("/{contactId}/email/{emailId}")
     fun deleteEmail (@PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long) {
         return contactService.deleteAddress(contactId, emailId, AddressType.EMAIL)
@@ -265,7 +290,8 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
     @DeleteMapping("/{contactId}/telephone/{telephoneId}")
     fun deleteTelephone (@PathVariable("contactId") contactId: Long, @PathVariable("telephoneId") telephoneId: Long) {
         return contactService.deleteAddress(contactId, telephoneId, AddressType.TELEPHONE)
@@ -284,7 +310,8 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
     @DeleteMapping("/{contactId}/address/{dwellingId}")
     fun deleteDwelling (@PathVariable("contactId") contactId: Long, @PathVariable("dwellingId") dwellingId: Long) {
         return contactService.deleteAddress(contactId, dwellingId, AddressType.DWELLING)
@@ -307,13 +334,15 @@ class ContactController(private val contactService: ContactService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
     @PutMapping("/{contactId}/email/{emailId}")
     fun updateEmail (
         @PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long,
-        @Valid @RequestBody emailDTO: EmailDTO
+        @Valid @RequestBody emailDTO: EmailDTO,
+        authentication: Authentication
     ): ContactDTO {
-       return contactService.updateAddress(contactId, emailId, emailDTO)
+       return contactService.updateAddress(contactId, emailId, emailDTO, authentication)
     }
 
     @Operation(summary = "Update the phone number information of an existing contact")
@@ -333,7 +362,8 @@ class ContactController(private val contactService: ContactService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
     @PutMapping("/{contactId}/telephone/{telephoneId}")
     fun updateTelephone (
         @PathVariable("contactId") contactId: Long,
@@ -360,7 +390,8 @@ class ContactController(private val contactService: ContactService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
     @PutMapping("/{contactId}/address/{dwellingId}")
     fun updateDwelling (
         @PathVariable("contactId") contactId: Long,
@@ -370,6 +401,85 @@ class ContactController(private val contactService: ContactService,
         return contactService.updateAddress(contactId, dwellingId, dwellingDTO)
     }
 
+    @Operation(summary = "Update the name of the contact")
+    @ApiResponses(value=[
+        ApiResponse(
+            responseCode = "200",
+            description = "The contact's name was successfully updated"
+        ),
+        ApiResponse(
+            responseCode = "404",
+            description = "The contact/address information was not found",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        ),
+        ApiResponse(
+            responseCode = "422",
+            description = "Invalid contact data was supplied. Additional property `fieldErrors` shows for each wrong field its reason.",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PutMapping("/{contactId}/name")
+    fun updateName(
+        @PathVariable("contactId") contactId: Long,
+        @Valid @RequestBody nameDTO: NameDTO
+    ): ContactDTO {
+        return contactService.updateName(contactId, nameDTO)
+    }
 
+    @Operation(summary = "Update the surname of the contact")
+    @ApiResponses(value=[
+        ApiResponse(
+            responseCode = "200",
+            description = "The contact's surname was successfully updated"
+        ),
+        ApiResponse(
+            responseCode = "404",
+            description = "The contact/address information was not found",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        ),
+        ApiResponse(
+            responseCode = "422",
+            description = "Invalid contact data was supplied. Additional property `fieldErrors` shows for each wrong field its reason.",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PutMapping("/{contactId}/surname")
+    fun updateSurname(
+        @PathVariable("contactId") contactId: Long,
+        @Valid @RequestBody surnameDTO: SurnameDTO
+    ): ContactDTO {
+        return contactService.updateSurname(contactId, surnameDTO)
+    }
+
+    @Operation(summary = "Update the SSN of the contact")
+    @ApiResponses(value=[
+        ApiResponse(
+            responseCode = "200",
+            description = "The contact's SSN was successfully updated"
+        ),
+        ApiResponse(
+            responseCode = "404",
+            description = "The contact/address information was not found",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        ),
+        ApiResponse(
+            responseCode = "422",
+            description = "Invalid contact data was supplied. Additional property `fieldErrors` shows for each wrong field its reason.",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PutMapping("/{contactId}/ssn")
+    fun updateSsn(
+        @PathVariable("contactId") contactId: Long,
+        @Valid @RequestBody ssnDTO: SsnDTO
+    ): ContactDTO {
+        return contactService.updateSSN(contactId, ssnDTO)
+    }
 
 }

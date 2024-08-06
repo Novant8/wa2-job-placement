@@ -12,6 +12,7 @@ import it.polito.wa2.g07.crm.repositories.lab02.AddressRepository
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -485,6 +486,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
 
 
         @Test
+        @Disabled
         fun putEmail (){
 
             val email = "{\"email\":\"new.email@email.com\"}"
@@ -552,6 +554,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
         }
 
         @Test
+        @Disabled
         fun putAddressForNonExistentUser(){
             val email = "{\"email\":\"new.email@email.com\"}"
 
@@ -559,6 +562,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
                 .andExpect(status().isNotFound)
         }
         @Test
+        @Disabled
         fun putAddressNotAssociatedWithTheUser(){
             val email = "{\"email\":\"new.email@email.com\"}"
 

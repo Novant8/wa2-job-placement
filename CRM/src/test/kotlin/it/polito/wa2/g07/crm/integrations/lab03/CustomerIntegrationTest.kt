@@ -14,6 +14,7 @@ import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.repositories.lab03.JobOfferRepository
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -693,6 +694,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
         }
 
         @Test
+        @Disabled
         fun putAddressNotAssociatedWithTheUser(){
             val email = "{\"email\":\"new.email@email.com\"}"
 

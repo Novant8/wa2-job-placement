@@ -11,10 +11,14 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
+import java.util.Optional
 
 @Repository
 interface ContactRepository:JpaRepository<Contact,Long>, JpaSpecificationExecutor<Contact> {
 
+    @Transactional(readOnly=true)
+    fun findByUserId(userId: String): Optional<Contact>
 
     @Query("SELECT c FROM Contact c WHERE concat(c.name, ' ', c.surname) LIKE %:query%")
     fun findAllByFullNameLike(@Param("query") query: String, pageable: Pageable): Page<Contact>
