@@ -4,6 +4,9 @@ import {useAuth} from "../contexts/auth.tsx";
 import {Accordion, Container,InputGroup,Form} from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
 
+
+//TODO: modify the filter system in order to use the API and not the filtering on the frontend
+
 export type ProfessionalAccordionProps = {
     prof: {
 
