@@ -14,12 +14,15 @@ export default function  Aside ({ onSelect }:AsideProps)  {
         <div>
             <h2>CRM</h2>
             <ListGroup>
+
                 <ListGroup.Item className="my-3" action onClick={() => onSelect(SelectedItem.ViewJobOffers)}>
                     View Job Offers
                 </ListGroup.Item>
+
                 <ListGroup.Item action onClick={() => onSelect(SelectedItem.CreateJobOffer)}>
                     Create Job Offer
                 </ListGroup.Item>
+
                 <ListGroup.Item action onClick={() => onSelect(SelectedItem.CandidateManagement)}>
                     Candidate Management
                 </ListGroup.Item>
