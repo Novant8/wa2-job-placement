@@ -54,7 +54,7 @@ function ProfessionalAccordion(props: ProfessionalAccordionProps) {
                     }
                     </div>
                     <div>
-                        Employment State:{props.prof.employedState}
+                        Employment State:{props.prof.employmentState}
                     </div>
                     {props.prof.notes?
                     <div>Notes: {props.prof.notes}</div>

@@ -8,7 +8,7 @@ export interface Professional {
     location: string;
     skills: UserSkill[];
     dailyRate: number;
-    employedState: EmploymentState;
+    employmentState: EmploymentState;
     notes?: string;
 }
 export type CreateProfessionalReduced = Pick<Professional, "location" | "dailyRate" | "skills" | "notes">
