@@ -316,9 +316,9 @@ export default function EditAccountForm() {
             })
     }
 
-    function updateDailyRate(dailyRate: number) {
+    function updateProfessionalField(field: "dailyRate" | "location", value: number | string) {
         if(!isProfessional(userInfo)) return;
-        API.updateProfessionalDailyRate(userInfo.professional.id, dailyRate)
+        API.updateProfessionalField(userInfo.professional.id, field, value)
             .then(({ contactInfo, ...professional }) => {
                 setUserInfo({ ...contactInfo, professional });
             })
@@ -456,12 +456,20 @@ export default function EditAccountForm() {
                     <h3>Employment</h3>
                     <hr/>
                     <EditableField
+                        type="text"
+                        name="location"
+                        label="Location"
+                        initValue={userInfo.professional.location}
+                        loading={loadingSubmit.professional.location}
+                        onEdit={(name, value) => updateProfessionalField(name, value)}
+                    />
+                    <EditableField
                         type="number"
                         name="dailyRate"
                         label="Daily Rate"
                         initValue={userInfo.professional.dailyRate}
                         loading={loadingSubmit.professional.dailyRate}
-                        onEdit={(_, value) => updateDailyRate(value)}
+                        onEdit={(name, value) => updateProfessionalField(name, value)}
                     />
                 </>
             }
