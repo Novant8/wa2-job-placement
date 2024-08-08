@@ -8,6 +8,7 @@ import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.AddressRepository
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
+import it.polito.wa2.g07.crm.services.project.KeycloakUserService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -61,7 +62,8 @@ class ContactServiceTest {
 
     private val contactRepository = mockk<ContactRepository>()
     private val addressRepository = mockk<AddressRepository>()
-    private val service = ContactServiceImpl(contactRepository, addressRepository)
+    private val keycloakUserService = mockk<KeycloakUserService>()
+    private val service = ContactServiceImpl(contactRepository, addressRepository, keycloakUserService)
 
     @Nested
     inner class GetContactTests {
@@ -312,6 +314,9 @@ class ContactServiceTest {
 
         @BeforeEach
         fun initMocks() {
+            every { keycloakUserService.changeUserName(any(String::class), any(String::class)) } returns Unit
+            every { keycloakUserService.changeUserSurname(any(String::class), any(String::class)) } returns Unit
+            every { keycloakUserService.changeUserSurname(any(String::class), any(String::class)) } returns Unit
             every { contactRepository.save(any(Contact::class)) } answers { firstArg<Contact>() }
             every { addressRepository.save(any(Address::class)) } answers { firstArg<Address>() }
             every { contactRepository.findById(any(Long::class)) } returns Optional.empty()

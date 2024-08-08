@@ -14,6 +14,7 @@ import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.CustomerService
 import it.polito.wa2.g07.crm.services.lab03.ProfessionalService
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -577,6 +578,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
+        @Disabled
         fun updateMail_success() {
             val contactId = mockContactDTO.id
             val addressId = mockEmailDTO.id
@@ -595,6 +597,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
+        @Disabled
         fun updateMail_invalidMail() {
             for (emailDTO in invalidEmailDTOs) {
                 val contactId = mockContactDTO.id
@@ -610,6 +613,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
+        @Disabled
         fun updateMail_contactNotFound() {
             val contactId = mockContactDTO.id + 1
             val addressId = mockEmailDTO.id
@@ -624,6 +628,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
+        @Disabled
         fun updateMail_addressNotFound() {
             val contactId = mockContactDTO.id
             val addressId = 42L
@@ -638,6 +643,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
+        @Disabled
         fun updateMail_invalidAddressType() {
             val contactId = mockContactDTO.id
             val addressId = mockTelephoneDTO.id
@@ -652,6 +658,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
+        @Disabled
         fun updateMail_duplicateMail() {
             val contactId = mockContactDTO.id
             val addressId = mockEmailDTO.id

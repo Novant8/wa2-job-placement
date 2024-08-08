@@ -1,5 +1,5 @@
 import CreateJobOffer from "./CreateJobOffer.tsx";
-
+//import ViewCustomerJobOffer from "./ViewCustomerJobOffer.tsx";
 enum SelectedItem {
     ViewJobOffers = 'ViewJobOffers',
     CreateJobOffer = 'CreateJobOffer'

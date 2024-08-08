@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import {Form, Button, Row, Col} from 'react-bootstrap';
-import API from "../../API.tsx";
+import * as API from "../../API.tsx";
 import {useAuth} from "../contexts/auth.tsx";
 
 export default function CreateJobOffer(){
+    const [ loadingForm, setLoadingForm ] = useState(true);
     const [description, setDescription] = useState('');
     const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
     const [duration, setDuration] = useState<number | ''>('');
     const [notes, setNotes] = useState('');
-    const { me } = useAuth()
+    const { me, refreshToken } = useAuth();
     const handleSkillChange = (index: number, value: string) => {
         const newSkills = [...requiredSkills];
         newSkills[index] = value;
@@ -32,8 +33,8 @@ export default function CreateJobOffer(){
             duration: typeof duration === 'number' ? duration : parseInt(duration),
             notes: notes || null,
         };
-        const token = me?.xsrfToken
-        API.addJobOffer(jobOffer,token).then((id =>{
+
+        API.addJobOffer(jobOffer,me?.userId).then((id =>{
             console.log('Job Offer Created:', id);
         })).catch((err)=>{
             console.log(err)

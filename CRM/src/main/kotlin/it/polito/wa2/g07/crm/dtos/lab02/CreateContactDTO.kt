@@ -24,12 +24,17 @@ data class CreateContactDTO(
     val category: String?,
 
     // Can be null but not blank
-    @field:Pattern(regexp = "^(?!\\s*$).+", message = "must not be blank")
+    @field:Pattern(regexp = "^(?!\\s*$).+", message = "SSN must not be blank")
     @field:Schema(example = "123456")
     val ssn : String?,
 
     @field:Valid
-    val addresses: List<AddressDTO> = listOf()
+    val addresses: List<AddressDTO> = listOf(),
+
+    // Can be null but not blank
+    @field:Pattern(regexp = "^(?!\\s*$).+", message = "User ID must not be blank")
+    @field:Schema(description = "ID of the user registered in the IAM platform.", example = "123-abc")
+    val userId: String? = null
 )
 
 fun CreateContactDTO.toEntity(): Contact {
@@ -41,7 +46,8 @@ fun CreateContactDTO.toEntity(): Contact {
             } catch (e: IllegalArgumentException) {
                 ContactCategory.UNKNOWN
             },
-            this.ssn
+            this.ssn,
+            this.userId
     )
 
     this.addresses.forEach { addressDTO ->
@@ -49,7 +55,6 @@ fun CreateContactDTO.toEntity(): Contact {
             is EmailDTO -> Email(addressDTO.email)
             is TelephoneDTO -> Telephone(addressDTO.phoneNumber)
             is DwellingDTO -> Dwelling(addressDTO.street, addressDTO.city, addressDTO.district, addressDTO.country)
-            else -> {throw  IllegalArgumentException()}
         }
         contact.addAddress(address)
     }

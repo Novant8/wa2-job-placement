@@ -16,6 +16,7 @@ import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
+import it.polito.wa2.g07.crm.services.project.KeycloakUserService
 import org.junit.Before
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.*
@@ -89,8 +90,9 @@ class ProfessionalServiceTest {
     }
     val professionalRepository = mockk<ProfessionalRepository>()
     val contactRepository = mockk<ContactRepository>()
+    val keycloakUserService = mockk<KeycloakUserService>()
 
-    val service = ProfessionalServiceImpl(professionalRepository,contactRepository)
+    val service = ProfessionalServiceImpl(professionalRepository,contactRepository,keycloakUserService)
     @Nested
     inner class CreateProfessionalTests{
         private val professionalSlot = slot<Professional>()
@@ -444,6 +446,7 @@ class ProfessionalServiceTest {
 
         @BeforeEach
         fun initMocks(){
+            every { keycloakUserService.setUserAsProfessional(any(String::class)) } returns Unit
             every { professionalRepository.save(capture(professionalSlot)) } answers {firstArg<Professional>()}
             every { contactRepository.findById(any(Long::class)) } returns Optional.empty()
             every {contactRepository.findById(mockContact.contactId)} returns Optional.of(mockContact)

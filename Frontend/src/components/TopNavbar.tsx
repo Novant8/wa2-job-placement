@@ -27,7 +27,7 @@ export default function TopNavbar() {
 
             {me?.principal==null && me?.loginUrl &&
                 <Nav>
-                    <Nav.Item> <Button className="mx-1"  variant={"info"} onClick={()=> window.location.href=me?.loginUrl}><CiLogin size={24}/> Login </Button> </Nav.Item>
+                    <Nav.Item> <Button className="mx-1"  variant={"info"} onClick={()=> window.location.href=me?.loginUrl}><CiLogin size={24}/> Login/Register </Button> </Nav.Item>
                 </Nav>
             }
         </Navbar>

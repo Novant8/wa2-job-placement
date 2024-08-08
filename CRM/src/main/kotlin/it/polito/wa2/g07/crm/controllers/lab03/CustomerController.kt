@@ -209,7 +209,7 @@ class CustomerController (  private val customerService: CustomerService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
-    //@PreAuthorize("hasAnyRole('operator', 'manager')")
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PostMapping("/{customerId}/job-offers", "/{customerId}/job-offers/")
     fun createJobOffer( @PathVariable("customerId") customerId: Long,
                         @RequestBody @Valid jobDTO: JobOfferCreateDTO): JobOfferDTO {
