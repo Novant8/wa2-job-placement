@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import {Form, Button, Row, Col} from 'react-bootstrap';
+import React, {useEffect, useState} from 'react';
+import {Form, Button, Row, Col, Spinner, Alert} from 'react-bootstrap';
 import * as API from "../../API.tsx";
 import {useAuth} from "../contexts/auth.tsx";
+import {Customer} from "../types/customer.ts";
+import {Contact, ContactCategory} from "../types/contact.ts";
 
 export default function CreateJobOffer(){
     const [ loadingForm, setLoadingForm ] = useState(true);
@@ -9,7 +11,48 @@ export default function CreateJobOffer(){
     const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
     const [duration, setDuration] = useState<number | ''>('');
     const [notes, setNotes] = useState('');
-    const { me, refreshToken } = useAuth();
+    const { me } = useAuth();
+    const [ formError, setFormError ] = useState("");
+
+    const [ userInfo, setUserInfo ] = useState<Customer>({
+        id: 0,
+        contactInfo: {
+            id: 0 ,
+            name: "",
+            surname: "",
+            ssn: "",
+            category: "UNKNOWN",
+            addresses: []
+        }
+
+    });
+
+    useEffect(() => {
+        if(!me || userInfo.id > 0) return;
+
+        const registeredRole = me.roles.find(role => ["customer", "professional"].includes(role));
+        if(registeredRole)
+            updateInfoField("category", registeredRole.toUpperCase() as ContactCategory);
+
+        setLoadingForm(true);
+        API.getCustomerFromCurrentUser()
+        .then((customer)=>{
+            setUserInfo(customer)
+        })
+        .catch(err => setFormError(err.message))
+        .finally(() => setLoadingForm(false));
+    }, [ me, userInfo.id ])
+
+    function updateInfoField<K extends keyof Contact>(field: K, value: Contact[K]) {
+        setUserInfo({
+            ...userInfo,
+            contactInfo: {
+                ...userInfo.contactInfo,
+                [field]: value
+            }
+        });
+    }
+
     const handleSkillChange = (index: number, value: string) => {
         const newSkills = [...requiredSkills];
         newSkills[index] = value;
@@ -34,13 +77,21 @@ export default function CreateJobOffer(){
             notes: notes || null,
         };
 
-        API.addJobOffer(jobOffer,me?.userId).then((id =>{
+        API.addJobOffer(jobOffer,userInfo.id).then((id =>{
             console.log('Job Offer Created:', id);
         })).catch((err)=>{
             console.log(err)
         })
 
     };
+
+    if(loadingForm) {
+        return <Spinner />
+    }
+
+    if(formError) {
+        return <Alert variant="danger"><strong>Error:</strong> {formError}</Alert>
+    }
 
     return (
         <div className="mx-auto">

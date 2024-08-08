@@ -71,6 +71,12 @@ class CustomerServiceImpl(private val customerRepository: CustomerRepository,
 
         return customerDTO
     }
+    @Transactional
+    override fun getCustomerFromUserId(userId: String): CustomerDTO {
+       return customerRepository.findByUserId(userId)
+           .map { it.toCustomerDto() }
+           .orElseThrow { EntityNotFoundException("Customer is not associated with user $userId.") }
+    }
 
     @Transactional(readOnly = true)
     override fun getCustomers(pageable: Pageable): Page<ReducedCustomerDTO> {

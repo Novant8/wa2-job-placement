@@ -1,3 +1,4 @@
+import {JobOfferResponse} from "./src/types/JobOffer.ts";
 
 interface JobOfferCreateDTO {
     description: string;
@@ -102,7 +103,7 @@ async function customFetch(input: RequestInfo | URL, init?: RequestInit): Promis
         throw new ApiError(message);
     }
 }
-export function addJobOffer(job: JobOfferCreateDTO, customerId: string | undefined): Promise<number>{
+export function addJobOffer(job: JobOfferCreateDTO, customerId: number): Promise<number>{
     return customFetch(`/crm/API/customers/${customerId}/job-offers`, {
         method: 'POST',
         headers: {
@@ -112,8 +113,15 @@ export function addJobOffer(job: JobOfferCreateDTO, customerId: string | undefin
     })
 }
 
+export function getCustomerJobOffer(customerId: number): Promise<JobOfferResponse>{
+    return customFetch(`/crm/API/joboffers?customerId=${customerId}`)
+}
+
 export function getProfessionalFromCurrentUser(): Promise<Professional> {
     return customFetch("/crm/API/professionals/user/me");
+}
+export function getCustomerFromCurrentUser(): Promise<Customer> {
+    return customFetch("/crm/API/customers/user/me");
 }
 
 export function getContactFromCurrentUser(): Promise<Contact> {

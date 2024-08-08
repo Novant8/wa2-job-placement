@@ -18,10 +18,7 @@ import org.springframework.security.web.SecurityFilterChain
 @EnableWebSecurity
 class SecurityConfig {
     private val logger: Logger = LoggerFactory.getLogger(SecurityConfig::class.java)
-    @Bean
-    fun jwtDecoder(): JwtDecoder {
-        return JwtDecoders.fromIssuerLocation("http://localhost:9090/realms/CRM")
-    }
+
     @Bean
     fun jwtAuthenticationConverter() : JwtAuthenticationConverter {
         val converter = JwtAuthenticationConverter()
@@ -56,9 +53,9 @@ class SecurityConfig {
             .authorizeHttpRequests {
                 it.anyRequest().permitAll()
             }
-//            .oauth2ResourceServer {
-//                it.jwt { it.jwtAuthenticationConverter(jwtAuthenticationConverter()) }
-//            }
+            .oauth2ResourceServer {
+                it.jwt { it.jwtAuthenticationConverter(jwtAuthenticationConverter()) }
+            }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .csrf { it.disable() }
             .cors { it.disable() }
