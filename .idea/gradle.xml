@@ -36,6 +36,14 @@
           </set>
         </option>
       </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/Monitoring" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/Monitoring" />
+          </set>
+        </option>
+      </GradleProjectSettings>
     </option>
   </component>
 </project>

@@ -67,3 +67,6 @@ spring:
               - openid
             authorization-grant-type: authorization_code
             redirect-uri: http://localhost:8080/login/oauth2/code/crmclient
+
+management.endpoints.web.exposure.include: '*'
+management.endpoint.health.show.details: always
