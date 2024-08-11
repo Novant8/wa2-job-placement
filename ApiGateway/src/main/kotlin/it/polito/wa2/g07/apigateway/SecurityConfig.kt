@@ -53,13 +53,17 @@ class SecurityConfig(val crr: ClientRegistrationRepository) {
     fun securityFilterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         return httpSecurity
             .authorizeHttpRequests {
-                it.anyRequest().permitAll()
+                //it.anyRequest().permitAll()
+                it.requestMatchers("/ui/**", "/", "/me","/logout").permitAll()
+                it.anyRequest().authenticated()
             }
             .oauth2Login { }
             .formLogin { it.disable() }
             .logout {
-                it.logoutSuccessHandler(oidcLogoutSuccessHandler())
                 it.addLogoutHandler(CustomLogoutHandler("grafana_session"))
+                it.addLogoutHandler(CustomLogoutHandler("grafana_session_expiry"))
+                it.logoutSuccessHandler(oidcLogoutSuccessHandler())
+
             }
             .csrf {
                 it.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
