@@ -2,22 +2,22 @@ import {ChangeEvent, FormEvent, useEffect, useState} from "react";
 import {Form, FormControlProps, InputGroup, Spinner} from "react-bootstrap";
 import {MdCheck, MdClose, MdDelete, MdEdit} from "react-icons/md";
 
-export interface EditableFieldProps<T extends FormControlProps["value"]> {
-    name: string;
+export interface EditableFieldProps<N extends string, V extends FormControlProps["value"]> {
+    name: N;
     type?: string;
     label?: string;
-    initValue: T;
+    initValue: V;
     initEdit?: boolean;
     showDelete?: boolean;
     loading: boolean;
     error?: string;
-    validate?: (value: T) => boolean;
-    onEdit?: (name: string, value: T) => void;
+    validate?: (value: V) => boolean;
+    onEdit?: (name: N, value: V) => void;
     onDelete?: (name: string) => void;
     onCancel?: (name: string) => void;
 }
 
-export default function EditableField<T extends FormControlProps["value"]>({ name, type, label, initValue, initEdit, showDelete, loading, error: initError, validate, onEdit, onDelete, onCancel }: EditableFieldProps<T>) {
+export default function EditableField<N extends string, T extends FormControlProps["value"]>({ name, type, label, initValue, initEdit, showDelete, loading, error: initError, validate, onEdit, onDelete, onCancel }: EditableFieldProps<N,T>) {
     const [ value, setValue ] = useState(initValue)
     const [ editing, setEditing ]   = useState(!!initEdit)
     const [ error, setError ] = useState(initError || "")

@@ -123,7 +123,7 @@ async function customFetch(input: RequestInfo | URL, init?: RequestInit): Promis
         const errorBody = await res.json() as UnprocessableEntityResponseBody;
         throw new ApiError(`Server responded with: ${errorBody.title}`, errorBody.fieldErrors);
     } else {
-        const errorBody = await res.json();
+        const errorBody = await res.json() as ErrorResponseBody;
         const message = `Server responded with: ${isErrorResponseBody(errorBody) ? errorBody.title : "Generic error"}`;
         throw new ApiError(message);
     }
@@ -205,12 +205,12 @@ export function removeAddressFromContact(contactId: number, address: Address): P
     })
 }
 
-export function updateProfessionalDailyRate(professionalId: number, dailyRate: number): Promise<Professional> {
-    return customFetch(`/crm/API/professionals/${professionalId}/dailyRate`, {
+export function updateProfessionalField(professionalId: number, field: "dailyRate" | "location", value: number | string): Promise<Professional> {
+    return customFetch(`/crm/API/professionals/${professionalId}/${field}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ dailyRate })
+        body: JSON.stringify({ [field]: value })
     })
 }
