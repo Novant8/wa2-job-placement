@@ -10,3 +10,10 @@ export interface Contact {
     ssn?: string;
     addresses: Address[];
 }
+
+export interface ReducedContact {
+    id : number;
+    name : string;
+    surname: string;
+    category : ContactCategory;
+}

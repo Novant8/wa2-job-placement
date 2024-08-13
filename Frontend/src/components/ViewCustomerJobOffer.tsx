@@ -1,20 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Card, Container, Row, Spinner } from 'react-bootstrap';
+import {Button, Card, Container, Row, Spinner} from 'react-bootstrap';
 import * as API from "../../API.tsx";
 import {useAuth} from "../contexts/auth.tsx";
 import {Customer} from "../types/customer.ts";
 import {Contact, ContactCategory} from "../types/contact.ts";
 import {Pageable} from "../types/Pageable.ts";
-import {JobOffer} from "../types/JobOffer.ts";
+import {ReducedJobOffer} from "../types/JobOffer.ts";
+import {useNavigate} from "react-router-dom";
 
 
 export default function ViewCustomerJobOffer (){
-    const [jobOffers, setJobOffers] = useState<JobOffer[]>([]);
+    const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
     const [pageable, setPageable] = useState<Pageable | null>(null);
     const [totalPages, setTotalPages] = useState <number | null >(null)
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const { me } = useAuth();
+    const navigate = useNavigate();
 
     const [ userInfo, setUserInfo ] = useState<Customer>({
         id: 0,
@@ -49,7 +51,7 @@ export default function ViewCustomerJobOffer (){
         API.getCustomerFromCurrentUser()
             .then((customer)=>{
                 setUserInfo(customer)
-                API.getCustomerJobOffer(customer.id).
+                API.getCustomerJobOffers(customer.id).
                 then((data)=>{
                     setJobOffers(data.content);
                     setPageable(data.pageable);
@@ -91,6 +93,10 @@ export default function ViewCustomerJobOffer (){
                                     <strong>Status:</strong> {offer.offerStatus}&nbsp;
                                     <strong>Professional:</strong> {offer.professional ? offer.professional : 'N/A'}
                                 </Card.Text>
+
+                                <Button variant="primary" onClick={()=>navigate(`jobOffer/${offer.id}`)}>
+                                    View
+                                </Button>
                             </Card.Body>
                         </Card>
                     </Row>

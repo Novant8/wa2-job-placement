@@ -5,6 +5,7 @@ import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import Homepage from "./routes/Homepage.tsx";
 import Crm from "./routes/Crm.tsx";
 import EditAccount from "./routes/EditAccount.tsx";
+import ViewJobOfferDetails from "./routes/ViewJobOfferDetails.tsx";
 
 const router = createBrowserRouter([
     {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
             {
                 path: "/edit-account",
                 element: <EditAccount />
+            },
+            {
+                path: "/crm/jobOffer/:jobOfferId",
+                element: <ViewJobOfferDetails />
             }
         ]
     }
