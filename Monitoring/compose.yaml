@@ -1,0 +1,23 @@
+services:
+  prometheus:
+    image: 'prom/prometheus'
+    ports:
+      - '9095:9090'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config/datasources.yml:/etc/grafana/provisioning/datasources/prometheus.yml
+      - ./config/custom_dashboard.yml:/etc/grafana/provisioning/dashboards/custom_dashboard.yml
+      - ./config/grafana.ini:/etc/grafana/grafana.ini
+
+      - ./config/dashboards.json:/var/lib/grafana/dashboards/d1.json
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
