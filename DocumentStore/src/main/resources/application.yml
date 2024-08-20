@@ -21,3 +21,6 @@ spring:
           issuer-uri: ${auth.issuer}
 server:
   port: 8081
+
+management.endpoints.web.exposure.include: '*'
+management.endpoint.health.show.details: always

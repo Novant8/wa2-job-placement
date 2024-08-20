@@ -39,12 +39,13 @@ class SecurityConfig {
 
 
     @Bean
-    fun filterChain(httpSecurity: HttpSecurity):SecurityFilterChain{
+    fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         return httpSecurity
-            .authorizeHttpRequests{
+            .authorizeHttpRequests {
+                it.requestMatchers("/actuator/**").permitAll()
                 it.anyRequest().authenticated()
             }
-            .oauth2ResourceServer{
+            .oauth2ResourceServer {
                 it.jwt { it.jwtAuthenticationConverter(jwtAuthenticationConverter()) }
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
@@ -52,7 +53,6 @@ class SecurityConfig {
             .cors { it.disable() }
             .build()
     }
-
 }
 
 
