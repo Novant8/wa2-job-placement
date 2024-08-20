@@ -1,0 +1,146 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 4,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<h1 style=\"text-align: center;\">Welcome to Grafana Dashboard For Temporary Job Placement - G07</h1>\n",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.1.4",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 0,
+        "y": 2
+      },
+      "id": 2,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "[![Go to another page](https://placehold.co/500x200/3d71d9/white?text=Go+to+\\n+Temporary+Job+Application+\\n+G07)](http://localhost:8080)",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.1.4",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 5,
+        "y": 2
+      },
+      "id": 4,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "\n<h3 style=\"text-align: center;\"> Warning</h3>\n\n<p style=\"text-align: center;\">\nAccording to your account category you should be able to see a list of available dashboard. \n <br>ONLY MANAGERS CAN ACCESS THE DASHBOARDS.</p>",
+        "mode": "html"
+      },
+      "pluginVersion": "11.1.4",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "Here a list of available dashboard that you can access:",
+      "gridPos": {
+        "h": 7,
+        "w": 7,
+        "x": 17,
+        "y": 2
+      },
+      "id": 3,
+      "options": {
+        "includeVars": false,
+        "keepTime": false,
+        "maxItems": 10,
+        "query": "",
+        "showFolderNames": true,
+        "showHeadings": true,
+        "showRecentlyViewed": false,
+        "showSearch": true,
+        "showStarred": false,
+        "tags": []
+      },
+      "pluginVersion": "11.1.4",
+      "title": "Dashboard Available",
+      "transparent": true,
+      "type": "dashlist"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Homepage",
+  "uid": "adv6igvinmtxcdfdsg",
+  "version": 13,
+  "weekStart": ""
+}

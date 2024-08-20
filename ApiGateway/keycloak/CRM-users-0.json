@@ -48,7 +48,7 @@
     "requiredActions" : [ ],
     "realmRoles" : [ "default-roles-crm" ],
     "clientRoles" : {
-      "crmclient" : [ "manager" ]
+      "crmclient" : [ "manager","grafana" ]
     },
     "notBefore" : 0,
     "groups" : [ ]

@@ -6,22 +6,26 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./config/web.yml:/etc/prometheus/web.yml
+      - ./config_prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./config_prometheus/web.yml:/etc/prometheus/web.yml
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --web.config.file=/etc/prometheus/web.yml
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    user: "$UID:$GID"
     ports:
       - "3000:3000"
     volumes:
-      - ./config/datasources.yml:/etc/grafana/provisioning/datasources/prometheus.yml
-      - ./config/custom_dashboard.yml:/etc/grafana/provisioning/dashboards/custom_dashboard.yml
-      - ./config/grafana.ini:/etc/grafana/grafana.ini
+      #provisioning
+      - ./config_grafana/datasources.yml:/etc/grafana/provisioning/datasources/prometheus.yml
+      - ./config_grafana/custom_dashboard.yml:/etc/grafana/provisioning/dashboards/custom_dashboard.yml
+      #grafana config file
+      - ./config_grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./config_grafana/grafana/:/var/lib/grafana/:rw
 
-      - ./config/dashboards.json:/var/lib/grafana/dashboards/d1.json
 
     extra_hosts:
       - "host.docker.internal:host-gateway"
