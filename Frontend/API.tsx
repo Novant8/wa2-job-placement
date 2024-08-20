@@ -1,3 +1,5 @@
+import {ProfessionalFilter} from "./src/types/professionalFilter.ts";
+
 const url :string = "http://localhost:8080"
 interface JobOfferCreateDTO {
     description: string;
@@ -31,7 +33,7 @@ async function addJobOffer(job: JobOfferCreateDTO, token: string | undefined):Pr
     })
 }
 
-
+/*
 async function getProfessionals(token: string | undefined):Promise<any> {
     return new Promise((resolve, reject)=>{
         fetch(url+ '/crm/API/professionals',{
@@ -52,6 +54,56 @@ async function getProfessionals(token: string | undefined):Promise<any> {
             }
         }).catch(() => { reject({ error: "Cannot communicate with the server." }) })
     })
+}*/
+
+async function getProfessionals(token: string | undefined, filterDTO?: ProfessionalFilter): Promise<any> {
+    return new Promise((resolve, reject) => {
+
+        let endpoint = url + '/crm/API/professionals';
+
+
+        if (filterDTO) {
+            const params = new URLSearchParams();
+
+            if (filterDTO.skills && filterDTO.skills.length > 0) {
+                params.append('skills', filterDTO.skills.join(','));
+            }
+
+            if (filterDTO.location) {
+                params.append('location', filterDTO.location);
+            }
+
+            if (filterDTO.employmentState) {
+                params.append('employmentState', filterDTO.employmentState);
+            }
+
+
+
+
+            const queryString = params.toString();
+            if (queryString) {
+                endpoint += '?' + queryString;
+            }
+        }
+
+        fetch(endpoint, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': `${token}`
+            },
+        }).then((response) => {
+            if (response.ok) {
+                response.json()
+                    .then((prof) => resolve(prof))
+                    .catch(() => { reject({ error: "Cannot parse server response." }) });
+            } else {
+                response.json()
+                    .then((message) => { reject(message); })
+                    .catch(() => { reject({ error: "Cannot parse server response." }) });
+            }
+        }).catch(() => { reject({ error: "Cannot communicate with the server." }) })
+    });
 }
 
 

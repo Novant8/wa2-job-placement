@@ -5,19 +5,10 @@ import {Accordion, Container,InputGroup,Form} from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
 import {Professional} from "../types/professional.ts";
 
-//TODO: modify the filter system in order to use the API and not the filtering on the frontend
+
 
 export type ProfessionalAccordionProps = {
-    prof: Professional/*{
-
-        "id":number,
-        "contactInfo":
-            {"id":number,"name":string,"surname":string,"category":string},
-        "location":string,
-        "skills": string[],
-        "employmentState":string,
-        notes? :string
-    }*/
+    prof: Professional
 
 };
 
@@ -116,24 +107,18 @@ export  default  function CandidateManagement(){
         "empty":false})*/
 
     const {me} = useAuth()
-    //console.log(me);
+
     const [professional, setProfessional]=useState({});
-    const [searchTerm, setSearchTerm] = useState("");
-
-    const handleSearchChange = (event:any) => {
-        setSearchTerm(event.target.value);
-    };
 
 
-    /*const filteredCandidates = candidates.content.filter(candidate => {
-        const nameMatch = candidate.contactInfo.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const surnameMatch = candidate.contactInfo.surname.toLowerCase().includes(searchTerm.toLowerCase());
-        const locationMatch = candidate.location.toLowerCase().includes(searchTerm.toLowerCase());
-        const skillsMatch = candidate.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
-        return nameMatch || surnameMatch || locationMatch || skillsMatch;
-    });*/
+    const [location, setLocation] = useState("");
+    const [skills, setSkills] = useState("");
+    const [employmentState, setEmploymentState] = useState("");
 
-    useEffect(() => {
+
+
+
+    /*useEffect(() => {
         const token = me?.xsrfToken
         API.getProfessionals(token).then((prof=>{
             //console.log(prof);
@@ -141,7 +126,24 @@ export  default  function CandidateManagement(){
         })).catch((err)=>{
             console.log(err)
         })
-    }, []);
+    }, []);*/
+
+ // TODO: Allow to filter with multiple skills
+    useEffect(() => {
+        const token = me?.xsrfToken;
+
+        const filterDTO = {
+            location: location,
+            skills: skills ? skills.split(',').map(s => s.trim()) : [],
+            employmentState: employmentState
+        };
+
+        API.getProfessionals(token, filterDTO).then((prof => {
+            setProfessional(prof);
+        })).catch((err) => {
+            console.log(err);
+        });
+    }, [location, skills, employmentState]);
 
     //TODO: remove this useEffect
     useEffect(() => {
@@ -153,15 +155,42 @@ export  default  function CandidateManagement(){
             <h1>Candidate Management</h1>
             <Container>
                 <InputGroup className="mb-3">
-                    <InputGroup.Text id="basic-addon1"><Icon.Search/></InputGroup.Text>
+                    <InputGroup.Text id="basic-addon1"><Icon.Geo/> Location</InputGroup.Text>
                     <Form.Control
-                        placeholder="Search Professional"
+                        placeholder="Search Location"
                         aria-label="Search Professional"
                         aria-describedby="basic-addon1"
-                        value={searchTerm}
-                        onChange={handleSearchChange}
+                        value={location}
+                        name="location"
+                        onChange={(e)=> setLocation(e.target.value)}
                     />
                 </InputGroup>
+
+                <InputGroup className="mb-3">
+                    <InputGroup.Text id="basic-addon1"><Icon.ListColumnsReverse/> Skills</InputGroup.Text>
+                    <Form.Control
+                        placeholder="Search Skills"
+                        aria-label="Search Professional"
+                        aria-describedby="basic-addon1"
+                        value={skills}
+                        name="skills"
+                        onChange={(e)=> setSkills(e.target.value)}
+                    />
+            </InputGroup>
+
+                <InputGroup className="mb-3">
+                    <Form.Select
+                        aria-label="Search Employment State"
+                        value={employmentState}
+                        name="employment"
+                        onChange={(e) => setEmploymentState(e.target.value)}
+                    >
+                        <option value="">Select Employment State</option> {/* Opzione di default */}
+                        <option value="UNEMPLOYED">UNEMPLOYED</option>
+                        <option value="EMPLOYED">EMPLOYED</option>
+                    </Form.Select>
+        </InputGroup>
+
                 <Accordion>
                     {/*candidates && candidates.content.map((e) =>
                             <ProfessionalAccordion key={e.id} prof={e}/>*/
