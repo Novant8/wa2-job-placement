@@ -4,7 +4,9 @@ import {useAuth} from "../contexts/auth.tsx";
 import {Accordion, Container,InputGroup,Form} from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
 import {Professional} from "../types/professional.ts";
-
+import TagsInput from 'react-tagsinput';
+import 'react-tagsinput/react-tagsinput.css';
+import "../styles/CandidateManagement.css"
 
 
 export type ProfessionalAccordionProps = {
@@ -112,7 +114,8 @@ export  default  function CandidateManagement(){
 
 
     const [location, setLocation] = useState("");
-    const [skills, setSkills] = useState("");
+    //const [skills, setSkills] = useState("");
+    const [skills, setSkills] = useState<string[]>([]); // Array di skill
     const [employmentState, setEmploymentState] = useState("");
 
 
@@ -134,7 +137,7 @@ export  default  function CandidateManagement(){
 
         const filterDTO = {
             location: location,
-            skills: skills ? skills.split(',').map(s => s.trim()) : [],
+            skills: skills,
             employmentState: employmentState
         };
 
@@ -150,6 +153,7 @@ export  default  function CandidateManagement(){
         console.log(professional);
         //console.log(candidates.content);
     }, [professional]);
+    //TODO:   improve the style of add skills tagsinput
     return (
         <>
             <h1>Candidate Management</h1>
@@ -166,17 +170,19 @@ export  default  function CandidateManagement(){
                     />
                 </InputGroup>
 
+
                 <InputGroup className="mb-3">
                     <InputGroup.Text id="basic-addon1"><Icon.ListColumnsReverse/> Skills</InputGroup.Text>
-                    <Form.Control
-                        placeholder="Search Skills"
-                        aria-label="Search Professional"
-                        aria-describedby="basic-addon1"
-                        value={skills}
-                        name="skills"
-                        onChange={(e)=> setSkills(e.target.value)}
-                    />
-            </InputGroup>
+
+                    <div style={{flex: 1}}>
+                        <TagsInput
+                            value={skills}
+                            onChange={(tags: any) => setSkills(tags)}
+                            inputProps={{placeholder: "Add a skill"}}
+                            className="tags-input"
+                        />
+                    </div>
+                </InputGroup>
 
                 <InputGroup className="mb-3">
                     <Form.Select
