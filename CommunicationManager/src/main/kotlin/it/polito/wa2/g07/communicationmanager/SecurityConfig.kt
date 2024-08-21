@@ -10,16 +10,16 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.SecurityFilterChain
 
 
-@Configuration
+@org.springframework.context.annotation.Configuration
 @EnableWebSecurity
 class SecurityConfig {
+
     @Bean
-    fun jwtAuthenticationConverter(): JwtAuthenticationConverter{
+    fun jwtAuthenticationConverter() : JwtAuthenticationConverter {
         val converter = JwtAuthenticationConverter()
-        converter.setJwtGrantedAuthoritiesConverter{
-            jwt ->
-            val  resourceAccess = jwt.claims["resource_access"]
-            if (resourceAccess !is Map<*,*>) {
+        converter.setJwtGrantedAuthoritiesConverter{ jwt ->
+            val resourceAccess = jwt.claims["resource_access"]
+            if(resourceAccess !is Map<*, *>) {
                 error("resource_access is not a map")
             }
             val crmClient = resourceAccess["crmclient"]
@@ -31,12 +31,11 @@ class SecurityConfig {
                 error("roles is not a collection")
             }
             roles
-                .map { "ROLE$it"  }
-                .map {SimpleGrantedAuthority(it)}
+                .map { "ROLE_$it" }
+                .map { SimpleGrantedAuthority(it) }
         }
         return converter
     }
-
 
     @Bean
     fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
@@ -54,9 +53,6 @@ class SecurityConfig {
             .build()
     }
 }
-
-
-
 
 
 
