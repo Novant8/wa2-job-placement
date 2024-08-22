@@ -18,7 +18,7 @@ export default function TopNavbar() {
             {me?.principal &&
                 <Nav>
                     <form method={"post"} action={me.logoutUrl} style={{ display: "flex",flexDirection:"row"}}>
-                        <Nav.Item className="text-white"  style={{marginRight:"0.5em", marginTop: "10px"}}> <CiUser  size={24}/> Welcome <b> {me?.name}</b> </Nav.Item>
+                        <Nav.Link onClick={()=>navigate('/edit-account')} className="text-white"  style={{marginRight:"0.5em", marginTop: "10px"}}> <CiUser  size={24}/> Welcome <b> {me?.name}</b> </Nav.Link>
                         <input type={"hidden"} name={"_csrf"} value={me.xsrfToken}/>
                         <Nav.Item> <Button className="mx-1" type={"submit"} variant={"info"}><CiLogout size={24}/> Logout </Button> </Nav.Item>
                     </form>

@@ -30,7 +30,7 @@ function ProfessionalAccordion(props: ProfessionalAccordionProps) {
                             SSN: {props.prof.contactInfo.ssn}
                         </div>
                     :""}
-                    {/*TODO: mostrare gli addresses della contact info*/}
+                    {/*TODO: mostrare gli addresses della contact info ???*/}
                     <div>
                         Location: {props.prof.location}
                     </div>

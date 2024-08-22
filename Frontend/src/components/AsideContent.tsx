@@ -1,9 +1,11 @@
 import CreateJobOffer from "./CreateJobOffer.tsx";
 import CandidateManagement from "./CandidateManagement.tsx";
+import CustomerRelationshipManagement from "./CustomerRelationshipManagement.tsx";
 enum SelectedItem {
     ViewJobOffers = 'ViewJobOffers',
     CreateJobOffer = 'CreateJobOffer',
-    CandidateManagement = 'CandidateManagement'
+    CandidateManagement = 'CandidateManagement',
+    CustomerRelationshipManagement= 'Customer Relationship Management'
 }
 interface AsideContentProps {
     selectedItem: SelectedItem | null;
@@ -15,6 +17,7 @@ export default function AsideContent({selectedItem}: AsideContentProps){
         <div>
             {selectedItem === SelectedItem.CreateJobOffer && <CreateJobOffer />}
             {selectedItem === SelectedItem.CandidateManagement && <CandidateManagement />}
+            {selectedItem === SelectedItem.CustomerRelationshipManagement && <CustomerRelationshipManagement/>}
             {!selectedItem && <p>Please select an option from the aside.</p>}
         </div>
     )
