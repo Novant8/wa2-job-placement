@@ -153,7 +153,7 @@ export  default  function CandidateManagement(){
         console.log(professional);
         //console.log(candidates.content);
     }, [professional]);
-    //TODO:   improve the style of add skills tagsinput
+   
     return (
         <>
             <h1>Candidate Management</h1>
@@ -197,17 +197,20 @@ export  default  function CandidateManagement(){
                     </Form.Select>
         </InputGroup>
 
-                <Accordion>
-                    {/*candidates && candidates.content.map((e) =>
+                {professional?.content?.length>0 ?
+                    <Accordion>
+                        {/*candidates && candidates.content.map((e) =>
                             <ProfessionalAccordion key={e.id} prof={e}/>*/
-                        professional && professional.content?.map((e)=>
-                            <ProfessionalAccordion key={e.id} prof={e}/>
+                            professional && professional.content?.map((e)=>
+                                    <ProfessionalAccordion key={e.id} prof={e}/>
 
-                       /* candidates && filteredCandidates.map((e) =>
-                        <ProfessionalAccordion key={e.id} prof={e}/>*/
-                    )}
+                                /* candidates && filteredCandidates.map((e) =>
+                                 <ProfessionalAccordion key={e.id} prof={e}/>*/
+                            )}
 
-                </Accordion>
+                    </Accordion>
+                    : <div>There no candidates matching the filters</div>}
+
             </Container>
 
         </>
