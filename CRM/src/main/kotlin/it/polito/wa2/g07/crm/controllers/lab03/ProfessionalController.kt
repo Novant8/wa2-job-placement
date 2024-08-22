@@ -85,7 +85,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalRepository.findById(#professionalId).orElse(null)?.contactInfo?.userId == authentication.name")
     @PutMapping("{professionalId}/location")
     fun updateProfessionalLocation(
         @PathVariable professionalId:Long,

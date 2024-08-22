@@ -131,7 +131,7 @@ export  default  function CandidateManagement(){
         })
     }, []);*/
 
- // TODO: Allow to filter with multiple skills
+
     useEffect(() => {
         const token = me?.xsrfToken;
 
@@ -153,7 +153,7 @@ export  default  function CandidateManagement(){
         console.log(professional);
         //console.log(candidates.content);
     }, [professional]);
-   
+
     return (
         <>
             <h1>Candidate Management</h1>
