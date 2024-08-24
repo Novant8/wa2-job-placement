@@ -56,6 +56,29 @@ async function getProfessionals(token: string | undefined):Promise<any> {
     })
 }*/
 
+
+async function getCustomers(token: string | undefined):Promise<any> {
+    return new Promise((resolve, reject)=>{
+        fetch(url+ '/crm/API/customers',{
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': `${token}`
+            },
+        }).then((response)=>{
+            if (response.ok){
+                response.json()
+                    .then((prof)=>resolve(prof))
+                    .catch(() => { reject({ error: "Cannot parse server response." }) });
+            }else{
+                response.json()
+                    .then((message) => { reject(message); })
+                    .catch(() => { reject({ error: "Cannot parse server response." }) });
+            }
+        }).catch(() => { reject({ error: "Cannot communicate with the server." }) })
+    })
+}
+
 async function getProfessionals(token: string | undefined, filterDTO?: ProfessionalFilter): Promise<any> {
     return new Promise((resolve, reject) => {
 
@@ -111,7 +134,8 @@ async function getProfessionals(token: string | undefined, filterDTO?: Professio
 
 const API = {
     addJobOffer,
-    getProfessionals
+    getProfessionals,
+    getCustomers
 };
 export default API;
 import {
