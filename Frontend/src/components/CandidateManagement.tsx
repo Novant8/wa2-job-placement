@@ -121,7 +121,7 @@ export  default  function CandidateManagement(){
 
 
 
-    /*useEffect(() => {
+    useEffect(() => {
         const token = me?.xsrfToken
         API.getProfessionals(token).then((prof=>{
             //console.log(prof);
@@ -129,7 +129,7 @@ export  default  function CandidateManagement(){
         })).catch((err)=>{
             console.log(err)
         })
-    }, []);*/
+    }, []);
 
 
     useEffect(() => {
@@ -151,6 +151,7 @@ export  default  function CandidateManagement(){
     //TODO: remove this useEffect
     useEffect(() => {
         console.log(professional);
+        console.log(me);
         //console.log(candidates.content);
     }, [professional]);
 
