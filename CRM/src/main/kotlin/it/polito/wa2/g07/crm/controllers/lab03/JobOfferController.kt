@@ -11,10 +11,7 @@ import it.polito.wa2.g07.crm.services.lab03.JobOfferService
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.ProblemDetail
-import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.web.bind.annotation.*
@@ -77,9 +74,31 @@ class JobOfferController(private val jobOfferService: JobOfferService) {
         @PostMapping("/{jobOfferId}")
         fun updateJobOfferStatus(
             @PathVariable jobOfferId: Long,
-            @RequestBody jobOfferUpdateDTO: JobOfferUpdateDTO
+            @RequestBody jobOfferUpdateStatusDTO: JobOfferUpdateStatusDTO
         ): JobOfferDTO {
-            return jobOfferService.updateJobOfferStatus(jobOfferId, jobOfferUpdateDTO)
+            return jobOfferService.updateJobOfferStatus(jobOfferId, jobOfferUpdateStatusDTO)
+        }
+
+        @Operation(summary = "Edit the information of a given jobOffer")
+        @ApiResponses(value=[
+            ApiResponse(
+                responseCode = "200",
+                description = "The job offer was successfully updated"),
+            ApiResponse(
+                responseCode = "400",
+                description = "Invalid job offer information was supplied",
+                content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "The job offer was not found",
+                content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+            )
+        ])
+        @PreAuthorize("hasAnyRole('operator', 'manager', 'customer')")
+        @PutMapping("/{jobOfferId}")
+        fun editJobOffer(@PathVariable ("jobOfferId") jobOfferId:Long, @RequestBody jobOfferUpdateDTO: JobOfferUpdateDTO): JobOfferDTO{
+            return jobOfferService.updateJobOffer(jobOfferId, jobOfferUpdateDTO)
         }
 
         @Operation(summary = "Retrieve the value of a single job offer")

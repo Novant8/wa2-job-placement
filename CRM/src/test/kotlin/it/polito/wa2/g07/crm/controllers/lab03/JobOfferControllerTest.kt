@@ -14,24 +14,19 @@ import it.polito.wa2.g07.crm.entities.lab03.Professional
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.lab03.JobOfferService
-import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
-import java.util.*
-import javax.swing.text.html.Option
 
 @WebMvcTest(JobOfferController::class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -82,11 +77,11 @@ class JobOfferControllerTest(@Autowired val mockMvc: MockMvc) {
 
         @BeforeEach
         fun initMocks() {
-            every { jobOfferService.updateJobOfferStatus(any(Long::class), any(JobOfferUpdateDTO::class)) } throws EntityNotFoundException("Job offer not found")
-            every { jobOfferService.updateJobOfferStatus(mockJobOffer.offerId, any(JobOfferUpdateDTO::class)) } answers {
-                val jobOfferUpdateDTO = secondArg<JobOfferUpdateDTO>()
-                mockJobOffer.status = jobOfferUpdateDTO.status
-                if(jobOfferUpdateDTO.status == OfferStatus.CANDIDATE_PROPOSAL) {
+            every { jobOfferService.updateJobOfferStatus(any(Long::class), any(JobOfferUpdateStatusDTO::class)) } throws EntityNotFoundException("Job offer not found")
+            every { jobOfferService.updateJobOfferStatus(mockJobOffer.offerId, any(JobOfferUpdateStatusDTO::class)) } answers {
+                val jobOfferUpdateStatusDTO = secondArg<JobOfferUpdateStatusDTO>()
+                mockJobOffer.status = jobOfferUpdateStatusDTO.status
+                if(jobOfferUpdateStatusDTO.status == OfferStatus.CANDIDATE_PROPOSAL) {
                     mockJobOffer.professional = mockProfessional
                 }
                 mockJobOffer.toJobOfferDTO()
@@ -107,7 +102,7 @@ class JobOfferControllerTest(@Autowired val mockMvc: MockMvc) {
             mockMvc
                 .post("/API/joboffers/${mockJobOffer.offerId}") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE))
+                    content = objectMapper.writeValueAsString(JobOfferUpdateStatusDTO(OfferStatus.SELECTION_PHASE))
                 }.andExpect {
                     status { isOk() }
                     content {
@@ -125,7 +120,7 @@ class JobOfferControllerTest(@Autowired val mockMvc: MockMvc) {
             mockMvc
                 .post("/API/joboffers/${mockJobOffer.offerId}") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL, mockProfessional.professionalId))
+                    content = objectMapper.writeValueAsString(JobOfferUpdateStatusDTO(OfferStatus.CANDIDATE_PROPOSAL, mockProfessional.professionalId))
                 }.andExpect {
                     status { isOk() }
                     content {
@@ -142,7 +137,7 @@ class JobOfferControllerTest(@Autowired val mockMvc: MockMvc) {
             mockMvc
                 .post("/API/joboffers/${mockJobOffer.offerId}") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.DONE))
+                    content = objectMapper.writeValueAsString(JobOfferUpdateStatusDTO(OfferStatus.DONE))
                 }.andExpect {
                     status { isBadRequest() }
                 }
@@ -162,7 +157,7 @@ class JobOfferControllerTest(@Autowired val mockMvc: MockMvc) {
             mockMvc
                 .post("/API/joboffers/${mockJobOffer.offerId + 1}") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.DONE))
+                    content = objectMapper.writeValueAsString(JobOfferUpdateStatusDTO(OfferStatus.DONE))
                 }.andExpect {
                     status { isNotFound() }
                 }
@@ -175,7 +170,7 @@ class JobOfferControllerTest(@Autowired val mockMvc: MockMvc) {
             mockMvc
                 .post("/API/joboffers/${mockJobOffer.offerId}") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL))
+                    content = objectMapper.writeValueAsString(JobOfferUpdateStatusDTO(OfferStatus.CANDIDATE_PROPOSAL))
                 }.andExpect {
                     status { isBadRequest() }
                 }
@@ -188,7 +183,7 @@ class JobOfferControllerTest(@Autowired val mockMvc: MockMvc) {
             mockMvc
                 .post("/API/joboffers/${mockJobOffer.offerId}") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL, mockProfessional.professionalId + 1))
+                    content = objectMapper.writeValueAsString(JobOfferUpdateStatusDTO(OfferStatus.CANDIDATE_PROPOSAL, mockProfessional.professionalId + 1))
                 }.andExpect {
                     status { isNotFound() }
                 }

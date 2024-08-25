@@ -60,22 +60,22 @@ class JobOfferServiceImpl(
     }
 
     @Transactional
-    override fun updateJobOfferStatus(jobOfferId: Long, jobOfferUpdateDTO: JobOfferUpdateDTO): JobOfferDTO {
+    override fun updateJobOfferStatus(jobOfferId: Long, jobOfferUpdateStatusDTO: JobOfferUpdateStatusDTO): JobOfferDTO {
         val jobOffer = jobOfferRepository.findById(jobOfferId).orElseThrow{ EntityNotFoundException("Job offer with ID $jobOfferId was not found.") }
 
-        if(!jobOffer.status.canUpdateTo(jobOfferUpdateDTO.status)) {
-            throw InvalidParamsException("Job offer #$jobOfferId cannot be updated to status ${jobOfferUpdateDTO.status}")
+        if(!jobOffer.status.canUpdateTo(jobOfferUpdateStatusDTO.status)) {
+            throw InvalidParamsException("Job offer #$jobOfferId cannot be updated to status ${jobOfferUpdateStatusDTO.status}")
         }
 
-        jobOffer.status = jobOfferUpdateDTO.status
+        jobOffer.status = jobOfferUpdateStatusDTO.status
 
         /* Update professional if needed */
-        when(jobOfferUpdateDTO.status) {
+        when(jobOfferUpdateStatusDTO.status) {
             OfferStatus.CANDIDATE_PROPOSAL -> {
-                if(jobOfferUpdateDTO.professionalId == null) {
-                    throw InvalidParamsException("A professional is required to update to status ${jobOfferUpdateDTO.status}")
+                if(jobOfferUpdateStatusDTO.professionalId == null) {
+                    throw InvalidParamsException("A professional is required to update to status ${jobOfferUpdateStatusDTO.status}")
                 }
-                jobOffer.professional = professionalRepository.findById(jobOfferUpdateDTO.professionalId).orElseThrow { EntityNotFoundException("Professional with ID ${jobOfferUpdateDTO.professionalId} was not found.") }
+                jobOffer.professional = professionalRepository.findById(jobOfferUpdateStatusDTO.professionalId).orElseThrow { EntityNotFoundException("Professional with ID ${jobOfferUpdateStatusDTO.professionalId} was not found.") }
             }
             OfferStatus.CONSOLIDATED -> {
                 if(jobOffer.professional?.employmentState != EmploymentState.UNEMPLOYED) {
@@ -96,6 +96,16 @@ class JobOfferServiceImpl(
         val updatedJobOffer = jobOfferRepository.save(jobOffer)
         logger.info("Updated status for Job Offer #${jobOffer.offerId} from ${jobOffer.status} to ${updatedJobOffer.status}.")
         return jobOffer.toJobOfferDTO()
+    }
+
+    override fun updateJobOffer(jobOfferId: Long, jobOfferUpdateDTO: JobOfferUpdateDTO): JobOfferDTO {
+        val jobOffer = jobOfferRepository.findById(jobOfferId).orElseThrow{ EntityNotFoundException("Job offer with ID $jobOfferId was not found.") }
+        jobOffer.duration = jobOfferUpdateDTO.duration
+        jobOffer.requiredSkills= jobOfferUpdateDTO.requiredSkills
+        jobOffer.notes= jobOfferUpdateDTO.notes
+        jobOffer.description = jobOfferUpdateDTO.description
+
+        return jobOfferRepository.save(jobOffer).toJobOfferDTO()
     }
 
     companion object{

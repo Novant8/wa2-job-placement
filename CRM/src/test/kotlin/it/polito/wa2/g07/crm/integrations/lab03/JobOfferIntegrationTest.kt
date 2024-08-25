@@ -2,8 +2,7 @@ package it.polito.wa2.g07.crm.integrations.lab03
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import it.polito.wa2.g07.crm.CrmApplicationTests
-import it.polito.wa2.g07.crm.dtos.lab03.JobOfferFilterDTO
-import it.polito.wa2.g07.crm.dtos.lab03.JobOfferUpdateDTO
+import it.polito.wa2.g07.crm.dtos.lab03.JobOfferUpdateStatusDTO
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 import it.polito.wa2.g07.crm.entities.lab03.*
@@ -274,7 +273,7 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
             professional = professionalRepository.save(professional)
         }
 
-        private fun updateStatus(updateDTO: JobOfferUpdateDTO) {
+        private fun updateStatus(updateDTO: JobOfferUpdateStatusDTO) {
             mockMvc
                 .post("/API/joboffers/${jobOffer.offerId}") {
                     contentType = MediaType.APPLICATION_JSON
@@ -306,10 +305,10 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
         @Test
         fun updateJobOfferStatus_completeCycle() {
             val updateDTOs = listOf(
-                JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE),
-                JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL, professional.professionalId),
-                JobOfferUpdateDTO(OfferStatus.CONSOLIDATED),
-                JobOfferUpdateDTO(OfferStatus.DONE)
+                JobOfferUpdateStatusDTO(OfferStatus.SELECTION_PHASE),
+                JobOfferUpdateStatusDTO(OfferStatus.CANDIDATE_PROPOSAL, professional.professionalId),
+                JobOfferUpdateStatusDTO(OfferStatus.CONSOLIDATED),
+                JobOfferUpdateStatusDTO(OfferStatus.DONE)
             )
 
             for(updateDTO in updateDTOs) {
@@ -320,9 +319,9 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
         @Test
         fun updateJobOfferStatus_midwayAbort() {
             val updateDTOs = listOf(
-                JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE),
-                JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL, professional.professionalId),
-                JobOfferUpdateDTO(OfferStatus.ABORTED)
+                JobOfferUpdateStatusDTO(OfferStatus.SELECTION_PHASE),
+                JobOfferUpdateStatusDTO(OfferStatus.CANDIDATE_PROPOSAL, professional.professionalId),
+                JobOfferUpdateStatusDTO(OfferStatus.ABORTED)
             )
 
             for(updateDTO in updateDTOs) {
@@ -333,14 +332,14 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
         @Test
         fun updateJobOfferStatus_twoCycles() {
             val updateDTOs = listOf(
-                JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE),
-                JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL, professional.professionalId),
-                JobOfferUpdateDTO(OfferStatus.CONSOLIDATED),
-                JobOfferUpdateDTO(OfferStatus.DONE),
-                JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE),
-                JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL, professional.professionalId),
-                JobOfferUpdateDTO(OfferStatus.CONSOLIDATED),
-                JobOfferUpdateDTO(OfferStatus.DONE),
+                JobOfferUpdateStatusDTO(OfferStatus.SELECTION_PHASE),
+                JobOfferUpdateStatusDTO(OfferStatus.CANDIDATE_PROPOSAL, professional.professionalId),
+                JobOfferUpdateStatusDTO(OfferStatus.CONSOLIDATED),
+                JobOfferUpdateStatusDTO(OfferStatus.DONE),
+                JobOfferUpdateStatusDTO(OfferStatus.SELECTION_PHASE),
+                JobOfferUpdateStatusDTO(OfferStatus.CANDIDATE_PROPOSAL, professional.professionalId),
+                JobOfferUpdateStatusDTO(OfferStatus.CONSOLIDATED),
+                JobOfferUpdateStatusDTO(OfferStatus.DONE),
             )
 
             for(updateDTO in updateDTOs) {
@@ -353,7 +352,7 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
             mockMvc
                 .post("/API/joboffers/${jobOffer.offerId}") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.DONE))
+                    content = objectMapper.writeValueAsString(JobOfferUpdateStatusDTO(OfferStatus.DONE))
                 }.andExpect {
                     status { isBadRequest() }
                 }
@@ -364,7 +363,7 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
             mockMvc
                 .post("/API/joboffers/${jobOffer.offerId + 1}") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE))
+                    content = objectMapper.writeValueAsString(JobOfferUpdateStatusDTO(OfferStatus.SELECTION_PHASE))
                 }.andExpect {
                     status { isNotFound() }
                 }
@@ -372,12 +371,12 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
 
         @Test
         fun updateJobOfferStatus_professionalNotFound() {
-            updateStatus(JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE))
+            updateStatus(JobOfferUpdateStatusDTO(OfferStatus.SELECTION_PHASE))
 
             mockMvc
                 .post("/API/joboffers/${jobOffer.offerId}") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL, professional.professionalId + 1))
+                    content = objectMapper.writeValueAsString(JobOfferUpdateStatusDTO(OfferStatus.CANDIDATE_PROPOSAL, professional.professionalId + 1))
                 }.andExpect {
                     status { isNotFound() }
                 }
@@ -385,12 +384,12 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
 
         @Test
         fun updateJobOfferStatus_professionalNotGiven() {
-            updateStatus(JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE))
+            updateStatus(JobOfferUpdateStatusDTO(OfferStatus.SELECTION_PHASE))
 
             mockMvc
                 .post("/API/joboffers/${jobOffer.offerId}") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL))
+                    content = objectMapper.writeValueAsString(JobOfferUpdateStatusDTO(OfferStatus.CANDIDATE_PROPOSAL))
                 }.andExpect {
                     status { isBadRequest() }
                 }
@@ -398,15 +397,15 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
 
         @Test
         fun updateJobOfferStatus_professionalNotAvailable() {
-            updateStatus(JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE))
-            updateStatus(JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL, professional.professionalId))
+            updateStatus(JobOfferUpdateStatusDTO(OfferStatus.SELECTION_PHASE))
+            updateStatus(JobOfferUpdateStatusDTO(OfferStatus.CANDIDATE_PROPOSAL, professional.professionalId))
 
             professional.employmentState = EmploymentState.EMPLOYED
             professional = professionalRepository.save(professional)
             mockMvc
                 .post("/API/joboffers/${jobOffer.offerId}") {
                     contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(JobOfferUpdateDTO(OfferStatus.CONSOLIDATED))
+                    content = objectMapper.writeValueAsString(JobOfferUpdateStatusDTO(OfferStatus.CONSOLIDATED))
                 }.andExpect {
                     status { isBadRequest() }
                 }

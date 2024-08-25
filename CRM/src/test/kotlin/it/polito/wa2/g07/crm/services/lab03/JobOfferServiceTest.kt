@@ -1,10 +1,8 @@
 package it.polito.wa2.g07.crm.services.lab03
 
 import io.mockk.*
-import it.polito.wa2.g07.crm.dtos.lab02.ContactFilterDTO
 
 import it.polito.wa2.g07.crm.dtos.lab02.ReducedContactDTO
-import it.polito.wa2.g07.crm.dtos.lab02.toReducedContactDTO
 import it.polito.wa2.g07.crm.dtos.lab03.*
 
 import it.polito.wa2.g07.crm.entities.lab02.Contact
@@ -148,7 +146,7 @@ class JobOfferServiceTest {
 
         @Test
         fun updateJobOfferStatus_validStatus_noProfessional() {
-            val result = service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE))
+            val result = service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateStatusDTO(OfferStatus.SELECTION_PHASE))
 
             assertEquals(result, mockJobOffer.toJobOfferDTO())
             verify { jobOfferRepository.save(any(JobOffer::class)) }
@@ -157,7 +155,7 @@ class JobOfferServiceTest {
         @Test
         fun updateJobOfferStatus_validStatus_withProfessional() {
             mockJobOffer.status = OfferStatus.SELECTION_PHASE
-            val result = service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL, mockProfessional.professionalId))
+            val result = service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateStatusDTO(OfferStatus.CANDIDATE_PROPOSAL, mockProfessional.professionalId))
 
             assertEquals(result, mockJobOffer.toJobOfferDTO())
             assertEquals(result.professional, mockProfessional.toProfessionalReducedDTO_Basic())
@@ -168,7 +166,7 @@ class JobOfferServiceTest {
         fun updateJobOfferStatus_validStatus_employProfessional() {
             mockJobOffer.status = OfferStatus.CANDIDATE_PROPOSAL
             mockJobOffer.professional = mockProfessional
-            val result = service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateDTO(OfferStatus.CONSOLIDATED, mockProfessional.professionalId))
+            val result = service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateStatusDTO(OfferStatus.CONSOLIDATED, mockProfessional.professionalId))
 
             assertEquals(result, mockJobOffer.toJobOfferDTO())
             assertEquals(mockProfessional.employmentState, EmploymentState.EMPLOYED)
@@ -180,7 +178,7 @@ class JobOfferServiceTest {
             mockJobOffer.status = OfferStatus.CONSOLIDATED
             mockJobOffer.professional = mockProfessional
 
-            val result = service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE))
+            val result = service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateStatusDTO(OfferStatus.SELECTION_PHASE))
             assertEquals(mockProfessional.employmentState, EmploymentState.UNEMPLOYED)
             assertNull(result.professional)
             verify { jobOfferRepository.save(any(JobOffer::class)) }
@@ -193,7 +191,7 @@ class JobOfferServiceTest {
                 mockProfessional.employmentState = EmploymentState.EMPLOYED
                 mockJobOffer.professional = mockProfessional
 
-                service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateDTO(status))
+                service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateStatusDTO(status))
                 assertEquals(mockProfessional.employmentState, EmploymentState.UNEMPLOYED)
                 verify { jobOfferRepository.save(any(JobOffer::class)) }
             }
@@ -202,7 +200,7 @@ class JobOfferServiceTest {
         @Test
         fun updateJobOfferStatus_invalidStatus() {
             assertThrows<InvalidParamsException> {
-                service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateDTO(OfferStatus.DONE))
+                service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateStatusDTO(OfferStatus.DONE))
             }
 
             verify(exactly = 0) { jobOfferRepository.save(any(JobOffer::class)) }
@@ -211,7 +209,7 @@ class JobOfferServiceTest {
         @Test
         fun updateJobOfferStatus_offerNotFound() {
             assertThrows<EntityNotFoundException> {
-                service.updateJobOfferStatus(mockJobOffer.offerId + 1, JobOfferUpdateDTO(OfferStatus.SELECTION_PHASE))
+                service.updateJobOfferStatus(mockJobOffer.offerId + 1, JobOfferUpdateStatusDTO(OfferStatus.SELECTION_PHASE))
             }
 
             verify(exactly = 0) { jobOfferRepository.save(any(JobOffer::class)) }
@@ -222,7 +220,7 @@ class JobOfferServiceTest {
             mockJobOffer.status = OfferStatus.SELECTION_PHASE
 
             assertThrows<InvalidParamsException> {
-                service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL))
+                service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateStatusDTO(OfferStatus.CANDIDATE_PROPOSAL))
             }
 
             verify(exactly = 0) { jobOfferRepository.save(any(JobOffer::class)) }
@@ -234,7 +232,7 @@ class JobOfferServiceTest {
             mockJobOffer.status = OfferStatus.SELECTION_PHASE
 
             assertThrows<EntityNotFoundException> {
-                service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateDTO(OfferStatus.CANDIDATE_PROPOSAL, mockProfessional.professionalId + 1))
+                service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateStatusDTO(OfferStatus.CANDIDATE_PROPOSAL, mockProfessional.professionalId + 1))
             }
 
             verify(exactly = 0) { jobOfferRepository.save(any(JobOffer::class)) }
@@ -246,7 +244,7 @@ class JobOfferServiceTest {
             mockProfessional.employmentState = EmploymentState.EMPLOYED
 
             assertThrows<InvalidParamsException> {
-                service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateDTO(OfferStatus.CONSOLIDATED, mockProfessional.professionalId))
+                service.updateJobOfferStatus(mockJobOffer.offerId, JobOfferUpdateStatusDTO(OfferStatus.CONSOLIDATED, mockProfessional.professionalId))
             }
 
             verify(exactly = 0) { jobOfferRepository.save(any(JobOffer::class)) }

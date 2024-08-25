@@ -7,10 +7,11 @@ interface JobOfferCreateDTO {
     duration: number;
     notes: string |null;
 }
+/*
 async function addJobOffer(job: JobOfferCreateDTO, token: string | undefined):Promise<number> {
     return new Promise((resolve, reject)=>{
         //TODO: change fixed customer id
-        fetch(url+ '/crm/API/customers/1/job-offers',{
+        fetch(url+ '/crm/API/customers/1/job-offers',{f
             method: 'POST',
 
             headers: {
@@ -31,7 +32,7 @@ async function addJobOffer(job: JobOfferCreateDTO, token: string | undefined):Pr
             }
         }).catch(() => { reject({ error: "Cannot communicate with the server." }) })
     })
-}
+}*/
 
 /*
 async function getProfessionals(token: string | undefined):Promise<any> {
@@ -138,6 +139,7 @@ const API = {
     getCustomers
 };
 export default API;
+import {JobOffer, JobOfferCreate, JobOfferResponse} from "./src/types/JobOffer.ts";
 import {
     CreateProfessionalReduced,
     Professional,
@@ -204,9 +206,38 @@ async function customFetch(input: RequestInfo | URL, init?: RequestInit): Promis
         throw new ApiError(message);
     }
 }
+export function addJobOffer(job: JobOfferCreate, customerId: number): Promise<number>{
+    return customFetch(`/crm/API/customers/${customerId}/job-offers`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(job),
+    })
+}
+export function updateJobOffer (jobOfferId: string|undefined , job : JobOfferCreate):Promise<JobOffer>{
+    return customFetch(`/crm/API/joboffers/${jobOfferId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(job),
+    })
+
+}
+export function getJobOfferDetails(jobOfferId: string | undefined): Promise<JobOffer>{
+    return customFetch(`/crm/API/joboffers/${jobOfferId}`)
+}
+
+export function getCustomerJobOffers(customerId: number): Promise<JobOfferResponse>{
+    return customFetch(`/crm/API/joboffers?customerId=${customerId}`)
+}
 
 export function getProfessionalFromCurrentUser(): Promise<Professional> {
     return customFetch("/crm/API/professionals/user/me");
+}
+export function getCustomerFromCurrentUser(): Promise<Customer> {
+    return customFetch("/crm/API/customers/user/me");
 }
 
 export function getContactFromCurrentUser(): Promise<Contact> {
