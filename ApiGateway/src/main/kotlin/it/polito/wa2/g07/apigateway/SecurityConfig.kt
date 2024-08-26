@@ -27,7 +27,7 @@ import java.io.IOException
 import java.util.function.Supplier
 import jakarta.servlet.http.Cookie
 
-import org.springframework.security.core.Authentication
+
 
 
 class CustomLogoutHandler(private val cookieName: String) : LogoutHandler {
