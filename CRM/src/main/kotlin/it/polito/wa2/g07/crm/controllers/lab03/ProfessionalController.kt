@@ -30,6 +30,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.http.ProblemDetail
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "4. Professionals", description = "Create, search and update professionals' information")
@@ -84,7 +85,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalRepository.findById(#professionalId).orElse(null)?.contactInfo?.userId == authentication.name")
     @PutMapping("{professionalId}/location")
     fun updateProfessionalLocation(
         @PathVariable professionalId:Long,
@@ -103,7 +104,8 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalRepository.findById(#professionalId).orElse(null)?.contactInfo?.userId == authentication.name")
     @PutMapping("{professionalId}/skills")
     fun updateProfessionalSkills(
         @PathVariable professionalId:Long,
@@ -141,7 +143,8 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalRepository.findById(#professionalId).orElse(null)?.contactInfo?.userId == authentication.name")
     @PutMapping("{professionalId}/dailyRate")
     fun updateProfessionalDailyRate(@PathVariable professionalId:Long,
                                           @RequestBody dailyRateDTO: DailyRateDTO
@@ -231,6 +234,20 @@ class ProfessionalController (private val professionalService: ProfessionalServi
         @ParameterObject pageable: Pageable
     ) : Page<ProfessionalReducedDTO> {
         return professionalService.searchProfessionals(filterDTO, pageable)
+    }
+
+    @Operation(summary = "Retrieve professional information related to the current user")
+    @ApiResponses(value=[
+        ApiResponse(responseCode = "200"),
+        ApiResponse(
+            responseCode = "404",
+            description = "The user is not associated to any professional",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+    @GetMapping("/user/me", "/user/me/")
+    fun getProfessionalMe(authentication: Authentication): ProfessionalDTO {
+        return professionalService.getProfessionalFromUserId(authentication.name)
     }
 
     @Operation(summary = "Retrieve a specific professional's information")

@@ -70,3 +70,8 @@ spring:
 
 management.endpoints.web.exposure.include: '*'
 management.endpoint.health.show.details: always
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG

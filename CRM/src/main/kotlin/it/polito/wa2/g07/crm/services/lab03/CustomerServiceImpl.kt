@@ -2,6 +2,7 @@ package it.polito.wa2.g07.crm.services.lab03
 
 
 import it.polito.wa2.g07.crm.dtos.lab03.*
+import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 import it.polito.wa2.g07.crm.entities.lab03.Customer
 import it.polito.wa2.g07.crm.exceptions.ContactAssociationException
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
@@ -10,6 +11,7 @@ import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab02.ContactServiceImpl
+import it.polito.wa2.g07.crm.services.project.KeycloakUserService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -20,12 +22,13 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class CustomerServiceImpl(private val customerRepository: CustomerRepository,
                           private val contactRepository: ContactRepository,
-                          private val contactService: ContactService):CustomerService {
+                          private val contactService: ContactService,
+                          private val keycloakUserService: KeycloakUserService):CustomerService {
 
     @Transactional
     override fun createCustomer(customerDTO: CreateCustomerDTO): CustomerDTO {
         if (customerDTO.contact.category?.uppercase()!= "CUSTOMER" ){
-            throw InvalidParamsException("You must register a Customer user ")
+            throw InvalidParamsException("Cannot register a Professional profile as a Customer.")
         }
 
         val contactId = contactService.create(customerDTO.contact).id
@@ -48,15 +51,31 @@ class CustomerServiceImpl(private val customerRepository: CustomerRepository,
             throw EntityNotFoundException("Contact with Id :$contactId is not found")
         }
 
-        val contact = contactOpt.get()
+        var contact = contactOpt.get()
         if (customerRepository.findByContactInfo(contact).isPresent){
             throw ContactAssociationException("Contact with id : $contactId is already associated to another Customer ")
-        }else if(contact.category.name.uppercase() != "CUSTOMER"){
-            throw InvalidParamsException("You must register a Customer user ")
+        }else if(contact.category === ContactCategory.UNKNOWN) {
+            contact.category = ContactCategory.CUSTOMER
+            contact = contactRepository.save(contact)
+        } else if(contact.category === ContactCategory.PROFESSIONAL) {
+            throw InvalidParamsException("Cannot register a Professional profile as a Customer.")
         }
         val customer = Customer(contactInfo = contact, notes)
         logger.info("Associated contact ${contactId} to a new Customer ")
-        return customerRepository.save(customer).toCustomerDto()
+
+        val customerDTO = customerRepository.save(customer).toCustomerDto()
+
+        if (contact.userId != null) {
+            keycloakUserService.setUserAsCustomer(contact.userId!!)
+        }
+
+        return customerDTO
+    }
+    @Transactional
+    override fun getCustomerFromUserId(userId: String): CustomerDTO {
+       return customerRepository.findByUserId(userId)
+           .map { it.toCustomerDto() }
+           .orElseThrow { EntityNotFoundException("Customer is not associated with user $userId.") }
     }
 
     @Transactional(readOnly = true)

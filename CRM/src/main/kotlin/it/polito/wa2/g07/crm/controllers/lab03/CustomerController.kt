@@ -8,11 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import it.polito.wa2.g07.crm.dtos.lab02.*
-import it.polito.wa2.g07.crm.dtos.lab03.CreateCustomerDTO
-import it.polito.wa2.g07.crm.dtos.lab03.CustomerDTO
-import it.polito.wa2.g07.crm.dtos.lab03.ReducedCustomerDTO
-import it.polito.wa2.g07.crm.dtos.lab03.JobOfferCreateDTO
-import it.polito.wa2.g07.crm.dtos.lab03.JobOfferDTO
+import it.polito.wa2.g07.crm.dtos.lab03.*
 import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.CustomerService
 
@@ -27,6 +23,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.http.ProblemDetail
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
+import org.springframework.security.core.Authentication
 
 @Tag(name = "3. Customers", description = "Create, search and update customers")
 @RestController
@@ -72,6 +69,20 @@ class CustomerController (  private val customerService: CustomerService,
         return customerService.getCustomerById(customerId)
     }
 
+    @Operation(summary = "Retrieve Customer information related to the current user")
+    @ApiResponses(value=[
+        ApiResponse(responseCode = "200"),
+        ApiResponse(
+            responseCode = "404",
+            description = "The user is not associated to any customer",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+    @GetMapping("/user/me", "/user/me/")
+    fun getCustomerMe(authentication: Authentication): CustomerDTO {
+        return customerService.getCustomerFromUserId(authentication.name)
+    }
+
     @Operation(summary = "Create a new customer")
     @ApiResponses(value=[
         ApiResponse(
@@ -90,7 +101,7 @@ class CustomerController (  private val customerService: CustomerService,
         )
     ])
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+   // @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PostMapping("", "/")
     fun createCustomer(@RequestBody @Valid customer:CreateCustomerDTO):CustomerDTO {
        return customerService.createCustomer(customer)
@@ -209,7 +220,7 @@ class CustomerController (  private val customerService: CustomerService,
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    @PreAuthorize("hasAnyRole('operator', 'manager','customer')")
     @PostMapping("/{customerId}/job-offers", "/{customerId}/job-offers/")
     fun createJobOffer( @PathVariable("customerId") customerId: Long,
                         @RequestBody @Valid jobDTO: JobOfferCreateDTO): JobOfferDTO {

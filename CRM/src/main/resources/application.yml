@@ -3,11 +3,15 @@ auth:
 spring:
   application:
     name: CRM
+  sql:
+    init:
+      mode: always
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
     open-in-view: false
+    defer-datasource-initialization: true
   docker:
     compose:
       file: ./CRM/compose.yaml
@@ -22,6 +26,16 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${auth.issuer}
+  kafka:
+    consumer:
+      bootstrap-servers: 127.0.0.1:9092
+      group-id: consumer
+      auto-offset-reset: earliest
+keycloak:
+  server-url: http://localhost:9090
+  realm: CRM
+  client-id: crmclient
+  client-secret: dOQVIYfE26xG2UiGSOYzud5tk3YRyNoA
 springdoc:
   swagger-ui:
     tags-sorter: alpha

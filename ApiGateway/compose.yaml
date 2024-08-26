@@ -10,5 +10,44 @@ services:
       KEYCLOAK_FRONTEND_URL: http://localhost:9090
     volumes:
       - ./keycloak:/opt/keycloak/data/import
-    restart: always
+      - ./kc-kafka:/opt/keycloak/providers
     command: start-dev --import-realm
+    networks:
+      - kfk-net
+  kafka:
+    image: 'bitnami/kafka:3.7'
+    hostname: kafka
+    ports:
+      - "9092:9092"
+    volumes:
+      - 'kafka_data:/bitnami'
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:29092,CONTROLLER://:9093,PLAINTEXT_HOST://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+    networks:
+      - kfk-net
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "9091:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    networks:
+      - kfk-net
+
+volumes:
+  kafka_data:
+    driver: local
+
+networks:
+  kfk-net:
+    driver: bridge

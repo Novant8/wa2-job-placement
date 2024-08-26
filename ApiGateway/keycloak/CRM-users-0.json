@@ -1,6 +1,83 @@
 {
   "realm" : "CRM",
   "users" : [ {
+    "id" : "1f1c5579-1d62-47fd-9676-c4f8cf9d5593",
+    "username" : "company.a",
+    "firstName" : "Company",
+    "lastName" : "A",
+    "email" : "company.a@example.org",
+    "emailVerified" : false,
+    "createdTimestamp" : 1724609460548,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "51f1efec-87f9-4425-a362-7c731fe352fc",
+      "type" : "password",
+      "createdDate" : 1724609460574,
+      "secretData" : "{\"value\":\"LI0QWsqVwwNmSrZbP8ioKi/vnMp17weI+KRte5+qey4=\",\"salt\":\"mctnKhpDc0IXeyZrzugRXQ==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-crm" ],
+    "clientRoles" : {
+      "crmclient" : [ "customer" ]
+    },
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "64ee56f9-d14b-4b94-9f6a-9d2a20cb5d18",
+    "username" : "giovanni.mariani",
+    "firstName" : "Giovanni",
+    "lastName" : "Mariani",
+    "email" : "giovanni.mariani@example.org",
+    "emailVerified" : false,
+    "createdTimestamp" : 1723377152342,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "3990ef92-e230-4695-a47f-efa01dd496c5",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1724511661824,
+      "secretData" : "{\"value\":\"tYBaRFK50R9fhfEv0bmBFp2EV6Q3trIB7zRnnjHqK4I=\",\"salt\":\"g4BcRBt8jku/92aL6u3ugw==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-crm" ],
+    "clientRoles" : {
+      "crmclient" : [ "professional" ]
+    },
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "a8e0a84c-a3b5-4965-9cac-cdb0cdfacd9b",
+    "username" : "luca.rossi",
+    "firstName" : "Luca",
+    "lastName" : "Rossi",
+    "email" : "luca.rossi@example.org",
+    "emailVerified" : false,
+    "createdTimestamp" : 1722967337160,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "42678f0a-0c16-443e-b74d-001baa63f879",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1724511616610,
+      "secretData" : "{\"value\":\"xzqfJsKHV8fP71K/9Mc0qefsji7a/72xC+1kLqK0zdU=\",\"salt\":\"Ijn44F/T6hG2WPVUog6mdA==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-crm" ],
+    "clientRoles" : {
+      "crmclient" : [ "professional" ]
+    },
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
     "id" : "12823af9-f79a-435d-b38f-2ba4c396003b",
     "username" : "luigi.verdi",
     "firstName" : "Luigi",
@@ -41,8 +118,8 @@
       "type" : "password",
       "userLabel" : "My password",
       "createdDate" : 1717241783770,
-      "secretData" : "{\"value\":\"zf7iDtBb927/nWI9OWDkhYArFoozjwaG+Rq8vHoTmCo1gZwuiciqW37sR4ayUDosGQHiDthB2dHA6JV3C6jePA==\",\"salt\":\"9Zc3Lmkx87VXrF1ixgUP8Q==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+      "secretData" : "{\"value\":\"w0tqgCQbo4dnBICTmE1Y8IKSIeEGlefM2JzAW78x5Dc=\",\"salt\":\"Y4hGCy/a/jj7NMOBjtzdJQ==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
     } ],
     "disableableCredentialTypes" : [ ],
     "requiredActions" : [ ],
@@ -75,6 +152,48 @@
     "realmRoles" : [ "default-roles-crm" ],
     "clientRoles" : {
       "crmclient" : [ "guest" ]
+    },
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "174c62a5-ff29-4f53-bacd-42f3224b5923",
+    "username" : "service-account-crmclient",
+    "emailVerified" : false,
+    "createdTimestamp" : 1722724287530,
+    "enabled" : true,
+    "totp" : false,
+    "serviceAccountClientId" : "crmclient",
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-crm" ],
+    "clientRoles" : {
+      "realm-management" : [ "view-users", "manage-users", "view-clients", "view-realm" ]
+    },
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "631e0f6f-8f06-4007-af3c-5a823c3aae52",
+    "username" : "silvio.pellico",
+    "firstName" : "Silvio",
+    "lastName" : "Pellico",
+    "email" : "hrsivlio@example.org",
+    "emailVerified" : false,
+    "createdTimestamp" : 1724625111575,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "09e96e02-a330-4148-bc2c-d426109c5e65",
+      "type" : "password",
+      "createdDate" : 1724625111626,
+      "secretData" : "{\"value\":\"dQDBDQHF5MXEKpeZ9dHMrYfVNTCAydV5d9+jjZQNx1I=\",\"salt\":\"qpqW3duyb/MJkRmY0qf3NA==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-crm" ],
+    "clientRoles" : {
+      "crmclient" : [ "recruiter" ]
     },
     "notBefore" : 0,
     "groups" : [ ]

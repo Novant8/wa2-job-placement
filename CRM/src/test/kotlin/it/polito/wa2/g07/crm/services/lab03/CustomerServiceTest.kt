@@ -14,6 +14,7 @@ import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.services.lab02.ContactService
+import it.polito.wa2.g07.crm.services.project.KeycloakUserService
 import org.junit.jupiter.api.*
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -78,7 +79,8 @@ class CustomerServiceTest {
     private val contactRepository= mockk<ContactRepository>()
     private val customerRepository= mockk<CustomerRepository>()
     private val contactService = mockk<ContactService>()
-    private val service = CustomerServiceImpl(customerRepository,contactRepository,contactService)
+    private val keycloakUserService = mockk<KeycloakUserService>()
+    private val service = CustomerServiceImpl(customerRepository,contactRepository,contactService,keycloakUserService)
 
      @Nested
      inner class CreateCustomerTests{
@@ -204,6 +206,7 @@ class CustomerServiceTest {
         private val usedContactIds = HashSet<Long>()
         @BeforeEach
         fun initMocks(){
+            every { keycloakUserService.setUserAsCustomer(any(String::class)) } returns Unit
             every { customerRepository.save(capture(customerSlot)) } answers {firstArg<Customer>()}
             every {customerRepository.delete(any(Customer::class))} returns Unit
             every { contactRepository.findById(any(Long::class)) } returns Optional.empty()
