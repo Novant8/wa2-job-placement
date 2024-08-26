@@ -31,6 +31,7 @@ dependencies {
 	implementation("org.apache.camel.springboot:camel-spring-boot-starter:4.5.0")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("io.micrometer:micrometer-registry-prometheus")
+	implementation("org.springframework.kafka:spring-kafka")
 	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 	runtimeOnly("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")

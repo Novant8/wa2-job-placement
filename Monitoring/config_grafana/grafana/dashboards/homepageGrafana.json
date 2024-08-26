@@ -64,7 +64,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "[![Go to another page](https://placehold.co/500x200/3d71d9/white?text=Go+to+\\n+Temporary+Job+Application+\\n+G07)](http://localhost:8080)",
+        "content": "[![Go to another page](https://placehold.co/500x200/3d71d9/white?text=Go+to+\\n+Temporary+Job+Application+\\n+G07)](http://localhost:8080/oauth2/authorization/crmclient)",
         "mode": "markdown"
       },
       "pluginVersion": "11.1.4",
