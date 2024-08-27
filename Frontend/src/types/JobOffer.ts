@@ -34,3 +34,6 @@ export interface JobOfferCreate {
     notes: string |null | undefined;
 }
 
+
+
+

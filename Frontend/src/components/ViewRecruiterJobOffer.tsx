@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import {Button, Card, Container, Form, InputGroup, Row, Spinner} from 'react-bootstrap';
 import * as API from "../../API.tsx";
 import {useAuth} from "../contexts/auth.tsx";
-import {Customer} from "../types/customer.ts";
-import {Contact, ContactCategory} from "../types/contact.ts";
 import {Pageable} from "../types/Pageable.ts";
 import {ReducedJobOffer} from "../types/JobOffer.ts";
 import {useNavigate} from "react-router-dom";
@@ -121,7 +119,7 @@ export default function ViewRecruiterJobOffer () {
     <strong>Professional:</strong> {offer.professional ? offer.professional : 'N/A'}
     </Card.Text>
 
-    <Button variant="primary" onClick={()=>navigate(`jobOffer/${offer.id}`)}>
+    <Button variant="primary" onClick={()=>navigate(`RecruiterJobOffer/${offer.id}`)}>
     View
     </Button>
     </Card.Body>
