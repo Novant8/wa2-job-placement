@@ -7,8 +7,6 @@ import ConfirmationModal from "../components/ConfirmationModal.tsx";
 import * as API from "../../API.tsx";
 import {useAuth} from "../contexts/auth.tsx";
 
-//TODO: Accept Decline Job Offer
-
 export default function ViewJobOfferDetailsRecruiter(){
     const [isEditable, setIsEditable] = useState(false);
     const [editableOffer, setEditableOffer] = useState(true);
@@ -20,31 +18,9 @@ export default function ViewJobOfferDetailsRecruiter(){
     const[modalAction, setModalAction] = useState("");
 
 
-    /*const [ userInfo, setUserInfo ] = useState<Customer>({
-        id: 0,
-        contactInfo: {
-            id: 0 ,
-            name: "",
-            surname: "",
-            ssn: "",
-            category: "UNKNOWN",
-            addresses: []
-        }
-
-    });*/
     const {jobOfferId} = useParams();
     //const { me } = useAuth();
     const navigate = useNavigate();
-
-    /*function updateInfoField<K extends keyof Contact>(field: K, value: Contact[K]) {
-        setUserInfo({
-            ...userInfo,
-            contactInfo: {
-                ...userInfo.contactInfo,
-                [field]: value
-            }
-        });
-    }*/
 
 
     useEffect(()=>{
@@ -259,7 +235,7 @@ export default function ViewJobOfferDetailsRecruiter(){
             {!isEditable &&
                 <>
     <Button variant="success" onClick={() => {setModalShow(true)
-        setModalAction("accept")}} style={{marginRight:10}}  >
+        setModalAction("accept")}} disabled={!editableOffer} style={{marginRight:10}}  >
        Accept
     </Button>
 
