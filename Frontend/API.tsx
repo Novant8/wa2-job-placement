@@ -203,7 +203,7 @@ export function updateProfessionalField(professionalId: number, field: "dailyRat
 const url :string = "http://localhost:8080"
 
 
-async function getCustomers(token: string | undefined):Promise<any> {
+export async function getCustomers(token: string | undefined):Promise<any> {
     return new Promise((resolve, reject)=>{
         fetch(url+ '/crm/API/customers',{
             method: 'GET',
@@ -225,7 +225,7 @@ async function getCustomers(token: string | undefined):Promise<any> {
     })
 }
 
-async function getProfessionals(token: string | undefined, filterDTO?: ProfessionalFilter): Promise<any> {
+export async function getProfessionals(token: string | undefined, filterDTO?: ProfessionalFilter): Promise<any> {
     return new Promise((resolve, reject) => {
 
         let endpoint = url + '/crm/API/professionals';

@@ -5,7 +5,7 @@ import {useAuth} from "../contexts/auth.tsx";
 import {Pageable} from "../types/Pageable.ts";
 import {ReducedJobOffer} from "../types/JobOffer.ts";
 import {useNavigate} from "react-router-dom";
-import * as Icon from "react-bootstrap-icons";
+//import * as Icon from "react-bootstrap-icons";
 
 
 
@@ -20,6 +20,63 @@ export default function ViewRecruiterJobOffer () {
     const [status, setStatus] = useState("")
     const [customerId, setCustomerId] = useState("")
     const navigate = useNavigate();
+
+    const [mappedProfessional, setMappedProfessional] = useState<OptionItem[]>([]);
+    const [mappedCustomer, setMappedCustomer] = useState<OptionItem[]>([]);
+
+    interface OptionItem {
+        id: number;
+        fullName: string;
+    }
+
+     interface ContactInfo {
+        id: number;
+        name: string;
+        surname: string;
+        category: string;
+    }
+
+    interface ContentItem {
+        id: number;
+        contactInfo: ContactInfo;
+        location: string;
+        skills: string[];
+        employmentState: string;
+    }
+    interface ContentItemCustomer {
+        id: number;
+        contactInfo: ContactInfo;
+        notes: string| null;
+    }
+
+
+
+    useEffect(() => {
+        const token = me?.xsrfToken
+        API.getProfessionals(token).then((prof=>{
+
+            const mappedOptions: OptionItem[] = prof.content.map((item: ContentItem) => ({
+                id: item.id,
+                fullName: `${item.contactInfo.name} ${item.contactInfo.surname}`,
+            }));
+            setMappedProfessional(mappedOptions);
+        })).catch((err)=>{
+            console.log(err)
+        })
+    }, []);
+
+    useEffect(() => {
+        const token = me?.xsrfToken;
+        API.getCustomers(token).then((customer => {
+            const mappedOptions: OptionItem[] = customer.content.map((item: ContentItemCustomer) => ({
+                id: item.id,
+                fullName: `${item.contactInfo.name} ${item.contactInfo.surname}`,
+            }));
+            setMappedCustomer(mappedOptions);
+        })).catch((err) => {
+            console.log(err);
+        });
+    }, []);
 
 
 
@@ -64,33 +121,6 @@ export default function ViewRecruiterJobOffer () {
     return (
         <Container className="mt-5">
             <InputGroup className="mb-3">
-                <InputGroup.Text id="basic-addon1"><Icon.Briefcase/>  Professional </InputGroup.Text>
-                <Form.Control
-                    placeholder="Search Professional Id"
-                    aria-label="Search Professional Id"
-                    aria-describedby="basic-addon1"
-                    value={professionalId}
-                    name="professionalId"
-                    onChange={(e)=> setProfessionalId(e.target.value)}
-                />
-            </InputGroup>
-
-            <InputGroup className="mb-3">
-                <InputGroup.Text id="basic-addon1"><Icon.Buildings/> Customer</InputGroup.Text>
-                <Form.Control
-                    placeholder="Search Customer Id"
-                    aria-label="Search Customer Id"
-                    aria-describedby="basic-addon1"
-                    value={customerId}
-                    name="customerId"
-                    onChange={(e)=> setCustomerId(e.target.value)}
-                />
-            </InputGroup>
-
-
-
-
-            <InputGroup className="mb-3">
                 <Form.Select
                     aria-label="Search Offer Status"
                     value={status}
@@ -108,30 +138,60 @@ export default function ViewRecruiterJobOffer () {
                 </Form.Select>
             </InputGroup>
 
+            <InputGroup className="mb-3">
+                {/*<Icon.Briefcase/>*/}
+                <Form.Select
+                    value={professionalId} onChange={(e)=> setProfessionalId(e.target.value)}>
+                    <option value="">Select Professional</option> {/* Opzione di default */}
+                    {mappedProfessional.map(prof => (
+                        <option key={prof.id} value={prof.id}>
+                            {prof.fullName}
+                        </option>
+                    ))}
+
+                </Form.Select>
+            </InputGroup>
+
+            <InputGroup style={{marginBottom: 20}}>
+                {/*<Icon.Buildings/>*/}
+                <Form.Select
+                    value={customerId} onChange={(e)=> setCustomerId(e.target.value)}>
+
+                    <option value=""> Select Customer</option> {/* Opzione di default */}
+                    {mappedCustomer.map(cust => (
+                        <option key={cust.id} value={cust.id}>
+                            {cust.fullName}
+                        </option>
+                    ))}
+                </Form.Select>
+            </InputGroup>
+
+
             {jobOffers.map(offer => (
                     <Row key={offer.id} xs={12} className="mb-4">
                 <Card>
                     <Card.Body>
                         <Card.Title>Job Offer ID: {offer.id}</Card.Title>
-    <Card.Text>
-    <strong>Description:</strong> {offer.description} &nbsp;
-    <strong>Status:</strong> {offer.offerStatus}&nbsp;
-    <strong>Professional:</strong> {offer.professional ? offer.professional : 'N/A'}
-    </Card.Text>
+            <Card.Text>
+            <strong>Description:</strong> {offer.description} &nbsp;
+            <strong>Status:</strong> {offer.offerStatus}&nbsp;
+            <strong>Professional:</strong> {offer.professional ? offer.professional : 'N/A'}
+            </Card.Text>
 
-    <Button variant="primary" onClick={()=>navigate(`RecruiterJobOffer/${offer.id}`)}>
-    View
-    </Button>
-    </Card.Body>
-    </Card>
-    </Row>
-))}
+            <Button variant="primary" onClick={()=>navigate(`RecruiterJobOffer/${offer.id}`)}>
+            View
+            </Button>
+            </Card.Body>
+            </Card>
+            </Row>
+        ))}
 
     {pageable && (
         <div className="mt-4">
             <p>Page {pageable.pageNumber + 1} of {totalPages}</p>
     </div>
     )}
+
     </Container>
 );
 };

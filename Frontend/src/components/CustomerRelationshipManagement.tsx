@@ -43,74 +43,9 @@ export  default  function CandidateManagement(){
 
 
 
-
-
-    /*const[candidates,setCandidates] = useState( {"content":
-            [
-                {
-                    "id":1,
-                    "contactInfo":{"id":1,"name":"Luigi","surname":"Verdi","category":"PROFESSIONAL",
-                    "addresses":[]
-                    },
-                    "location":"Torino",
-                    "skills": ["Proficient in Kotlin","Can work well in a team"],
-                    "dailyRate" : 20,
-                    "employedState":"UNEMPLOYED"
-                },
-                {
-                    "id":2,
-                    "contactInfo":{"id":2,"name":"Mario","surname":"Rossi","category":"PROFESSIONAL",
-                    "addresses":[]
-                    },
-                    "location":"Milano",
-                    "skills": ["Proficient in Java","Can work well in a team","Agile"],
-                    "dailyRate" : 20,
-                    "employedState":"EMPLOYED"
-                },
-                {
-                    "id":3,
-                    "contactInfo":{"id":3,"name":"Giovanni","surname":"Mariani","category":"PROFESSIONAL",
-                    "addresses":[]
-                    },
-                    "location":"Bologna",
-                    "skills": ["Proficient in Python","Can work well in a team","Agile","Mobile Application"],
-                    "dailyRate" : 20,
-                    "employedState":"UNEMPLOYED"
-                }
-
-            ],
-        "pageable":"INSTANCE","totalPages":1,
-        "totalElements":3,
-        "last":true,
-        "size":3,
-        "number":0,
-        "sort":{"empty":true,"sorted":false,"unsorted":true},
-        "numberOfElements":3,
-        "first":true,
-        "empty":false})*/
-
     const {me} = useAuth()
 
     const [customers, setCustomers]=useState({});
-
-
-    //const [location, setLocation] = useState("");
-    //const [skills, setSkills] = useState("");
-    //const [skills, setSkills] = useState<string[]>([]); // Array di skill
-    //const [employmentState, setEmploymentState] = useState("");
-
-
-
-
-    /*useEffect(() => {
-        const token = me?.xsrfToken
-        API.getProfessionals(token).then((prof=>{
-            //console.log(prof);
-            setProfessional(prof);
-        })).catch((err)=>{
-            console.log(err)
-        })
-    }, []);*/
 
 
     useEffect(() => {
