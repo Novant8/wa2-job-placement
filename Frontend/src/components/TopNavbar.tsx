@@ -16,7 +16,10 @@ export default function TopNavbar() {
                 <Nav.Link onClick={()=>navigate('/crm')}>CRM</Nav.Link>
                 <Nav.Link href="#features">Document Store</Nav.Link>
                 <Nav.Link href="#pricing">Send Email</Nav.Link >
-                <Nav.Link href="/grafana">Dashboard</Nav.Link >
+                {me?.principal &&
+                    <Nav.Link href="/grafana">Dashboard</Nav.Link >
+                }
+
             </Nav>
             {me?.principal &&
                 <Nav>

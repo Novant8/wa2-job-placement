@@ -23,12 +23,15 @@ class KafkaConsumer(private val authRecorderReposiytory: AuthRecorderReposiytory
 
                 var auth = authRecorderReposiytory.findById(message.userId)
                 if (auth == null) {
-                        println("Non esiste")
-                        authRecorderReposiytory.save(AuthRecorder(message.userId,message.name,ts,0))
+                        println("Changed")
+                        authRecorderReposiytory.save(AuthRecorder(message.userId,message.name,ts,0,true))
                 }else{
-                        println("Esiste")
-                        auth.lastLoginTime = ts
-                        authRecorderReposiytory.save(auth)
+                        if (auth.isLogged==false) {
+                                println("Changed")
+                                 auth.lastLoginTime = ts
+                                auth.isLogged=true
+                                authRecorderReposiytory.save(auth)
+                        }
                 }
 
                 //val login = AuthRecorder("A","b",ts,0)
@@ -37,16 +40,12 @@ class KafkaConsumer(private val authRecorderReposiytory: AuthRecorderReposiytory
         @KafkaListener(topics = ["IAM-LOGOUT"], groupId = "group1",containerFactory = "kafkaListenerContainerFactory")
         fun logoutListener(message: AuthDTO,@Header(KafkaHeaders.RECEIVED_TIMESTAMP) ts: Long) {
                 println("Consumed message: $message")
-                var auth = authRecorderReposiytory.findById(message.userId)
-                if (auth == null) {
-                        println("Non esiste")
-                        authRecorderReposiytory.save(AuthRecorder(message.userId,message.name,ts,0))
-                }else{
-                        println("Esiste")
-                        auth.totalTime += ts- auth.lastLoginTime!!
-                        authRecorderReposiytory.save(auth)
+                var auth = authRecorderReposiytory.findById(message.userId)!!
+                auth.isLogged= false
+                auth.totalTime += ts- auth.lastLoginTime!!
+                authRecorderReposiytory.save(auth)
+                println("Changed")
 
-                }
 
         }
 }
@@ -60,7 +59,8 @@ public class AuthRecorder(
         var id: String? = null,
         var username: String? = null,
         var lastLoginTime: Long? = null,
-        var totalTime : Long = 0
+        var totalTime : Long = 0,
+        var isLogged : Boolean=false
 ){
 
 }
