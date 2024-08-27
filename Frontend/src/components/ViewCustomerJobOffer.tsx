@@ -82,25 +82,26 @@ export default function ViewCustomerJobOffer (){
 
     return (
         <Container className="mt-5">
+            <h1>Job Offers</h1>
 
-                {jobOffers.map(offer => (
-                    <Row key={offer.id} xs={12} className="mb-4">
-                        <Card>
-                            <Card.Body>
-                                <Card.Title>Job Offer ID: {offer.id}</Card.Title>
-                                <Card.Text>
-                                    <strong>Description:</strong> {offer.description} &nbsp;
-                                    <strong>Status:</strong> {offer.offerStatus}&nbsp;
-                                    <strong>Professional:</strong> {offer.professional ? offer.professional : 'N/A'}
-                                </Card.Text>
+            {jobOffers.map(offer => (
+                <Row key={offer.id} xs={12} className="mb-4">
+                    <Card>
+                        <Card.Body>
+                            <Card.Title>Job Offer ID: {offer.id}</Card.Title>
+                            <Card.Text>
+                                <strong>Description:</strong> {offer.description} &nbsp;
+                                <strong>Status:</strong> {offer.offerStatus}&nbsp;
+                                <strong>Professional:</strong> {offer.professional ? offer.professional : 'N/A'}
+                            </Card.Text>
 
-                                <Button variant="primary" onClick={()=>navigate(`jobOffer/${offer.id}`)}>
-                                    View
-                                </Button>
-                            </Card.Body>
-                        </Card>
-                    </Row>
-                ))}
+                            <Button variant="primary" onClick={() => navigate(`jobOffer/${offer.id}`)}>
+                                View
+                            </Button>
+                        </Card.Body>
+                    </Card>
+                </Row>
+            ))}
 
             {pageable && (
                 <div className="mt-4">

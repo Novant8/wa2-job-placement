@@ -112,7 +112,7 @@ export  default  function ProfessionalsView(){
 
     return (
         <>
-            <h1>Candidate Management</h1>
+            <h1>Professionals</h1>
             <Container>
                 <InputGroup className="mb-3">
                     <InputGroup.Text id="basic-addon1"><Icon.Geo/> Location</InputGroup.Text>

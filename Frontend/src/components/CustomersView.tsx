@@ -27,7 +27,7 @@ function CustomerAccordion(props: ProfessionalAccordionProps) {
                             SSN: {props.cust.contactInfo.ssn}
                         </div>
                         :""}
-                    {/*TODO: mostrare gli addresses della contact info ???*/}
+
                     <div>
                         Notes: {props.cust.notes? props.cust.notes : "No notes"}
                     </div>
@@ -68,7 +68,7 @@ export  default  function CandidateManagement(){
 
     return (
         <>
-            <h1>CRM</h1>
+            <h1>Customers</h1>
             <Container>
 
 

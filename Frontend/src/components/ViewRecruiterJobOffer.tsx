@@ -120,6 +120,7 @@ export default function ViewRecruiterJobOffer () {
 
     return (
         <Container className="mt-5">
+            <h1>Job Offers</h1>
             <InputGroup className="mb-3">
                 <Form.Select
                     aria-label="Search Offer Status"
@@ -141,8 +142,9 @@ export default function ViewRecruiterJobOffer () {
             <InputGroup className="mb-3">
                 {/*<Icon.Briefcase/>*/}
                 <Form.Select
-                    value={professionalId} onChange={(e)=> setProfessionalId(e.target.value)}>
-                    <option value="">Select Professional</option> {/* Opzione di default */}
+                    value={professionalId} onChange={(e) => setProfessionalId(e.target.value)}>
+                    <option value="">Select Professional</option>
+                    {/* Opzione di default */}
                     {mappedProfessional.map(prof => (
                         <option key={prof.id} value={prof.id}>
                             {prof.fullName}
@@ -155,9 +157,10 @@ export default function ViewRecruiterJobOffer () {
             <InputGroup style={{marginBottom: 20}}>
                 {/*<Icon.Buildings/>*/}
                 <Form.Select
-                    value={customerId} onChange={(e)=> setCustomerId(e.target.value)}>
+                    value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
 
-                    <option value=""> Select Customer</option> {/* Opzione di default */}
+                    <option value=""> Select Customer</option>
+                    {/* Opzione di default */}
                     {mappedCustomer.map(cust => (
                         <option key={cust.id} value={cust.id}>
                             {cust.fullName}
@@ -168,30 +171,30 @@ export default function ViewRecruiterJobOffer () {
 
 
             {jobOffers.map(offer => (
-                    <Row key={offer.id} xs={12} className="mb-4">
-                <Card>
-                    <Card.Body>
-                        <Card.Title>Job Offer ID: {offer.id}</Card.Title>
-            <Card.Text>
-            <strong>Description:</strong> {offer.description} &nbsp;
-            <strong>Status:</strong> {offer.offerStatus}&nbsp;
-            <strong>Professional:</strong> {offer.professional ? offer.professional : 'N/A'}
-            </Card.Text>
+                <Row key={offer.id} xs={12} className="mb-4">
+                    <Card>
+                        <Card.Body>
+                            <Card.Title>Job Offer ID: {offer.id}</Card.Title>
+                            <Card.Text>
+                                <strong>Description:</strong> {offer.description} &nbsp;
+                                <strong>Status:</strong> {offer.offerStatus}&nbsp;
+                                <strong>Professional:</strong> {offer.professional ? offer.professional : 'N/A'}
+                            </Card.Text>
 
-            <Button variant="primary" onClick={()=>navigate(`RecruiterJobOffer/${offer.id}`)}>
-            View
-            </Button>
-            </Card.Body>
-            </Card>
-            </Row>
-        ))}
+                            <Button variant="primary" onClick={() => navigate(`RecruiterJobOffer/${offer.id}`)}>
+                                View
+                            </Button>
+                        </Card.Body>
+                    </Card>
+                </Row>
+            ))}
 
-    {pageable && (
-        <div className="mt-4">
-            <p>Page {pageable.pageNumber + 1} of {totalPages}</p>
-    </div>
-    )}
+            {pageable && (
+                <div className="mt-4">
+                    <p>Page {pageable.pageNumber + 1} of {totalPages}</p>
+                </div>
+            )}
 
-    </Container>
-);
+        </Container>
+    );
 };
