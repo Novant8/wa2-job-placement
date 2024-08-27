@@ -34,6 +34,11 @@ export interface JobOfferCreate {
     notes: string |null | undefined;
 }
 
+export interface JobOfferUpdateStatus {
+    status: string;
+    professional?: ReducedProfessional;
+}
+
 
 
 

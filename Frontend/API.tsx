@@ -1,6 +1,6 @@
 import {ProfessionalFilter} from "./src/types/professionalFilter.ts";
 import {JobOfferFilter} from "./src/types/JobOfferFilter.ts";
-import {JobOffer, JobOfferCreate, JobOfferResponse} from "./src/types/JobOffer.ts";
+import {JobOffer, JobOfferCreate, JobOfferResponse, JobOfferUpdateStatus} from "./src/types/JobOffer.ts";
 import {
     CreateProfessionalReduced,
     Professional,
@@ -86,6 +86,19 @@ export function updateJobOffer (jobOfferId: string|undefined , job : JobOfferCre
     })
 
 }
+
+export function updateJobOfferStatus (jobOfferId: string|undefined , jobOfferUpdateStatus : JobOfferUpdateStatus):Promise<JobOffer>{
+    return customFetch(`/crm/API/joboffers/${jobOfferId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(jobOfferUpdateStatus),
+    })
+
+}
+
+
 export function getJobOfferDetails(jobOfferId: string | undefined): Promise<JobOffer>{
     return customFetch(`/crm/API/joboffers/${jobOfferId}`)
 }

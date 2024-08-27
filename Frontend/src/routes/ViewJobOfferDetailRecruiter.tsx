@@ -17,6 +17,7 @@ export default function ViewJobOfferDetailsRecruiter(){
     const [error, setError] = useState<string | null>(null);
     const [newSkill, setNewSkill] = useState<string>("");
     const[modalShow, setModalShow] = useState<boolean>(false);
+    const[modalAction, setModalAction] = useState("");
 
 
     /*const [ userInfo, setUserInfo ] = useState<Customer>({
@@ -73,6 +74,7 @@ export default function ViewJobOfferDetailsRecruiter(){
             duration: jobOffer.duration,
             notes: jobOffer.notes,
             requiredSkills: jobOffer.requiredSkills,
+
             //offerStatus: jobOffer.offerStatus
         };
 
@@ -85,6 +87,8 @@ export default function ViewJobOfferDetailsRecruiter(){
                 setError('Failed to update job offer');
             });
     };
+
+
 
     const handleInputChange = (field: keyof JobOffer, value: any) => {
         setJobOffer({
@@ -141,6 +145,8 @@ export default function ViewJobOfferDetailsRecruiter(){
         <>
         <ConfirmationModal
             show={modalShow}
+            action={modalAction}
+            jobOffer={jobOffer}
             onHide={() => setModalShow(false)}
         />
         <Form>
@@ -246,17 +252,19 @@ export default function ViewJobOfferDetailsRecruiter(){
     />
     </Form.Group>
 
-    <Button variant="primary" onClick={handleEditClick} disabled={!editableOffer} style={{marginLeft:10}}>
+    <Button variant="primary" onClick={handleEditClick} disabled={!editableOffer} style={{marginRight:10}}>
         {isEditable ? 'Cancel' : 'Edit'}
     </Button>
 
             {!isEditable &&
                 <>
-    <Button variant="success" onClick={() => setModalShow(true)} style={{marginRight:10}}  >
+    <Button variant="success" onClick={() => {setModalShow(true)
+        setModalAction("accept")}} style={{marginRight:10}}  >
        Accept
     </Button>
 
-    <Button variant="danger" onClick={handleEditClick} disabled={!editableOffer} style={{marginLeft:10}} >
+    <Button variant="danger" onClick={() => {setModalShow(true)
+        setModalAction("decline")}} disabled={!editableOffer}>
         Decline
     </Button>
                 </>
