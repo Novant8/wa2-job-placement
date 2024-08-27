@@ -1,4 +1,5 @@
 import {ProfessionalFilter} from "./src/types/professionalFilter.ts";
+import {JobOfferFilter} from "./src/types/JobOfferFilter.ts";
 import {JobOffer, JobOfferCreate, JobOfferResponse} from "./src/types/JobOffer.ts";
 import {
     CreateProfessionalReduced,
@@ -262,11 +263,64 @@ async function getProfessionals(token: string | undefined, filterDTO?: Professio
 }
 
 
+export async function getJobOfferRecruiter(token: string | undefined, filterDTO?: JobOfferFilter): Promise<any> {
+    return new Promise((resolve, reject) => {
+
+        let endpoint = url + '/crm/API/joboffers';
+
+
+        if (filterDTO) {
+            const params = new URLSearchParams();
+
+            if (filterDTO.professionalId) {
+                params.append('professionalId', filterDTO.professionalId);
+            }
+
+            if (filterDTO.status) {
+                params.append('status', filterDTO.status);
+            }
+
+            if (filterDTO.customerId) {
+                params.append('customerId', filterDTO.customerId);
+            }
+
+
+
+
+            const queryString = params.toString();
+            if (queryString) {
+                endpoint += '?' + queryString;
+                console.log(endpoint);
+            }
+        }
+
+        fetch(endpoint, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': `${token}`
+            },
+        }).then((response) => {
+            if (response.ok) {
+                response.json()
+                    .then((prof) => resolve(prof))
+                    .catch(() => { reject({ error: "Cannot parse server response." }) });
+            } else {
+                response.json()
+                    .then((message) => { reject(message); })
+                    .catch(() => { reject({ error: "Cannot parse server response." }) });
+            }
+        }).catch(() => { reject({ error: "Cannot communicate with the server." }) })
+    });
+}
+
+
 
 
 const API = {
 
     getProfessionals,
-    getCustomers
+    getCustomers,
+
 };
 export default API;

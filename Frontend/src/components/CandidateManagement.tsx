@@ -196,7 +196,7 @@ export  default  function CandidateManagement(){
                         <option value="UNEMPLOYED">UNEMPLOYED</option>
                         <option value="EMPLOYED">EMPLOYED</option>
                     </Form.Select>
-        </InputGroup>
+                </InputGroup>
 
                 {professional?.content?.length>0 ?
                     <Accordion>
