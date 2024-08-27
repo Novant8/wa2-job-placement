@@ -43,4 +43,33 @@ class KafkaConsumerConfig {
         factory.consumerFactory = consumerFactory()
         return factory
     }
+    @Bean
+    fun MessageConsumerFactory(): ConsumerFactory<String, MessageMonitoringDTO> {
+        val configProps = mapOf(
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to "localhost:9092",
+            ConsumerConfig.GROUP_ID_CONFIG to "group1",
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to ErrorHandlingDeserializer::class.java,
+            ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS to JsonDeserializer::class.java,
+            JsonDeserializer.VALUE_DEFAULT_TYPE to MessageMonitoringDTO::class.java.name ,
+            JsonDeserializer.TRUSTED_PACKAGES to "*",
+            JsonDeserializer.USE_TYPE_INFO_HEADERS to "false"
+
+        )
+
+        val jsonDeserializer = JsonDeserializer(MessageMonitoringDTO::class.java)
+        //jsonDeserializer.addTrustedPackages("*")
+        return DefaultKafkaConsumerFactory(
+            configProps,
+            StringDeserializer(),
+            jsonDeserializer
+        )
+    }
+
+    @Bean
+    fun kafkaMessageListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, MessageMonitoringDTO> {
+        val factory = ConcurrentKafkaListenerContainerFactory<String, MessageMonitoringDTO>()
+        factory.consumerFactory = MessageConsumerFactory()
+        return factory
+    }
 }

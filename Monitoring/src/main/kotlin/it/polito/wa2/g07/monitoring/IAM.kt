@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class KafkaConsumer(private val authRecorderReposiytory: AuthRecorderReposiytory) {
-        @KafkaListener(topics = ["IAM-LOGIN"], groupId = "group1")
+        @KafkaListener(topics = ["IAM-LOGIN"], groupId = "group1",containerFactory = "kafkaListenerContainerFactory")
        // fun loginListener(message: String) {
         fun loginListener(@Header(KafkaHeaders.RECEIVED_TIMESTAMP) ts: Long, message: AuthDTO ) {
                 println("Consumed message ${message.toString()} generated at $ts")
@@ -34,7 +34,7 @@ class KafkaConsumer(private val authRecorderReposiytory: AuthRecorderReposiytory
                 //val login = AuthRecorder("A","b",ts,0)
                 //println(authRecorderReposiytory.save(login))
         }
-        @KafkaListener(topics = ["IAM-LOGOUT"], groupId = "group1")
+        @KafkaListener(topics = ["IAM-LOGOUT"], groupId = "group1",containerFactory = "kafkaListenerContainerFactory")
         fun logoutListener(message: AuthDTO,@Header(KafkaHeaders.RECEIVED_TIMESTAMP) ts: Long) {
                 println("Consumed message: $message")
                 var auth = authRecorderReposiytory.findById(message.userId)
