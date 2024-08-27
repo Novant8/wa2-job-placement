@@ -60,7 +60,7 @@ function ProfessionalAccordion(props: ProfessionalAccordionProps) {
         </div>
     )
 }
-export  default  function CandidateManagement(){
+export  default  function ProfessionalsView(){
 
 
     const {me} = useAuth()
