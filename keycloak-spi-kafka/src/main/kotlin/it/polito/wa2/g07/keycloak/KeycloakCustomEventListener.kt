@@ -11,8 +11,10 @@ class KeycloakCustomEventListener : EventListenerProvider {
         println("Event:-" + event.userId)
         val mapper = ObjectMapper()
         val value = try {
+
             val eventDetails = event.details
             eventDetails["userId"] = event.userId
+
             mapper.writeValueAsString(eventDetails)
         } catch(e: JsonProcessingException) {
             "<JSON Processing Error>"
@@ -22,7 +24,7 @@ class KeycloakCustomEventListener : EventListenerProvider {
 
     override fun onEvent(adminEvent: AdminEvent, b: Boolean) {
         println("Admin Event:-" + adminEvent.resourceType.name)
-        Producer.publishEvent("IAM-"+adminEvent.operationType.toString(), adminEvent.authDetails.userId)
+        Producer.publishEvent("IAM-"+adminEvent.operationType.toString(), adminEvent.authDetails)
     }
 
     override fun close() {
