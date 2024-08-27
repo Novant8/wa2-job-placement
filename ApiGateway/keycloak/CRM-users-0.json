@@ -125,7 +125,7 @@
     "requiredActions" : [ ],
     "realmRoles" : [ "default-roles-crm" ],
     "clientRoles" : {
-      "crmclient" : [ "manager","grafana" ]
+      "crmclient" : [ "manager" ]
     },
     "notBefore" : 0,
     "groups" : [ ]
@@ -177,7 +177,7 @@
     "username" : "silvio.pellico",
     "firstName" : "Silvio",
     "lastName" : "Pellico",
-    "email" : "hrsivlio@example.org",
+    "email" : "silvio.pellico@example.org",
     "emailVerified" : false,
     "createdTimestamp" : 1724625111575,
     "enabled" : true,
@@ -193,7 +193,7 @@
     "requiredActions" : [ ],
     "realmRoles" : [ "default-roles-crm" ],
     "clientRoles" : {
-      "crmclient" : [ "recruiter" ]
+      "crmclient" : [ "operator" ]
     },
     "notBefore" : 0,
     "groups" : [ ]
