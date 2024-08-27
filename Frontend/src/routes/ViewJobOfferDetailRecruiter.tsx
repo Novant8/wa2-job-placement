@@ -246,7 +246,7 @@ export default function ViewJobOfferDetailsRecruiter(){
     />
     </Form.Group>
 
-    <Button variant="primary" onClick={handleEditClick} disabled={!editableOffer} style={{marginLeft:10}>
+    <Button variant="primary" onClick={handleEditClick} disabled={!editableOffer} style={{marginLeft:10}}>
         {isEditable ? 'Cancel' : 'Edit'}
     </Button>
 
