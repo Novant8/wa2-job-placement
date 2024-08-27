@@ -228,29 +228,41 @@ export default function ViewJobOfferDetailsRecruiter(){
     />
     </Form.Group>
 
-    <Button variant="primary" onClick={handleEditClick} disabled={!editableOffer} style={{marginRight:10}}>
-        {isEditable ? 'Cancel' : 'Edit'}
-    </Button>
+            {jobOffer?.offerStatus==="CREATED" &&
+        <>
+            <Button variant="primary" onClick={handleEditClick} disabled={!editableOffer} style={{marginRight:10}}>
+                {isEditable ? 'Cancel' : 'Edit'}
+            </Button>
 
-            {!isEditable &&
-                <>
-    <Button variant="success" onClick={() => {setModalShow(true)
-        setModalAction("accept")}} disabled={!editableOffer} style={{marginRight:10}}  >
-       Accept
-    </Button>
+                    {!isEditable &&
+                        <>
+            <Button variant="success" onClick={() => {setModalShow(true)
+                setModalAction("accept")}} disabled={!editableOffer} style={{marginRight:10}}  >
+               Accept
+            </Button>
 
-    <Button variant="danger" onClick={() => {setModalShow(true)
-        setModalAction("decline")}} disabled={!editableOffer}>
-        Decline
-    </Button>
-                </>
-        }
+            <Button variant="danger" onClick={() => {setModalShow(true)
+                setModalAction("decline")}} disabled={!editableOffer}>
+                Decline
+            </Button>
+                        </>
+                }
+            {isEditable &&
+                <Button variant="warning" onClick={handleSubmit}>
+                    Submit
+                </Button>
+            }
+        </>
 
-    {isEditable &&
-    <Button variant="warning" onClick={handleSubmit}>
-        Submit
-        </Button>
+
     }
+
+            { jobOffer?.offerStatus==="SELECTION_PHASE" &&
+                <Button variant="warning" onClick={handleSubmit}>
+            Propose Professional
+        </Button>}
+
+
     </Form>
         </>
 );
