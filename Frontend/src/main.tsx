@@ -7,6 +7,7 @@ import Crm from "./routes/Crm.tsx";
 import EditAccount from "./routes/EditAccount.tsx";
 import ViewJobOfferDetails from "./routes/ViewJobOfferDetails.tsx";
 import ViewJobOfferDetailsRecruiter from "./routes/ViewJobOfferDetailRecruiter.tsx";
+import CustomerInfo from "./routes/CustomerInfo.tsx";
 
 const router = createBrowserRouter([
     {
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
             {
                 path: "/crm/jobOffer/:jobOfferId",
                 element: <ViewJobOfferDetails />
+            },
+            {
+                path: "/crm/customers/:customerId",
+                element: <CustomerInfo />
             },
             {
                 path: "/crm/RecruiterJobOffer/:jobOfferId",

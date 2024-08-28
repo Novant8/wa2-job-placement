@@ -10,6 +10,7 @@ import {Customer} from "./src/types/customer.ts";
 import {Contact} from "./src/types/contact.ts";
 import {Address, getAddressType} from "./src/types/address.ts";
 import Cookies from "js-cookie";
+import {CustomerFilter} from "./src/types/customerFilter.ts";
 
 interface ErrorResponseBody {
     type: string,
@@ -197,33 +198,52 @@ export function updateProfessionalField(professionalId: number, field: "dailyRat
 
 
 }
+export function getCustomerById(customerId: number | undefined): Promise<Customer>{
+    return customFetch(`/crm/API/customers/${customerId}`)
+}
 
+export function getCustomers(filter? :CustomerFilter): Promise<any>{
+    let endpoint = '/crm/API/customers';
+
+    if (filter){
+        const params = new URLSearchParams();
+
+        if (filter.fullName)
+           params.append("fullName", filter.fullName);
+
+        if (filter.email)
+            params.append("email", filter.email);
+
+        if (filter.telephone)
+            params.append("telephone", filter.telephone);
+
+        if (filter.address)
+            params.append("address", filter.address)
+
+        const queryString = params.toString();
+
+        if (queryString) {
+            endpoint += '?' + queryString;
+        }
+    }
+
+    return customFetch(endpoint)
+}
+
+export function updateCustomerNotes(customerId : number | undefined, notes : string ):Promise<Customer>{
+    return customFetch(`/crm/API/customers/${customerId}/notes`,{
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({"notes": notes })
+    })
+}
 
 
 const url :string = "http://localhost:8080"
 
 
-export async function getCustomers(token: string | undefined):Promise<any> {
-    return new Promise((resolve, reject)=>{
-        fetch(url+ '/crm/API/customers',{
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-XSRF-TOKEN': `${token}`
-            },
-        }).then((response)=>{
-            if (response.ok){
-                response.json()
-                    .then((prof)=>resolve(prof))
-                    .catch(() => { reject({ error: "Cannot parse server response." }) });
-            }else{
-                response.json()
-                    .then((message) => { reject(message); })
-                    .catch(() => { reject({ error: "Cannot parse server response." }) });
-            }
-        }).catch(() => { reject({ error: "Cannot communicate with the server." }) })
-    })
-}
 
 export async function getProfessionals(token: string | undefined, filterDTO?: ProfessionalFilter): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -333,7 +353,7 @@ export async function getJobOfferRecruiter(token: string | undefined, filterDTO?
 const API = {
 
     getProfessionals,
-    getCustomers,
+    //getCustomers,
 
 };
 export default API;
