@@ -7,26 +7,19 @@ import java.time.LocalDateTime
 
 @Entity
 
-class DocumentMetadata{
-        @Id
-        @GeneratedValue
-        var metadataID: Long = 0
+class DocumentMetadata(
+    var name: String,
+    var contentType: String? = null,
+    var size: Long = 0,
+    var creationTimestamp: LocalDateTime = LocalDateTime.now()
+) {
+    @Id
+    @GeneratedValue
+    var metadataID: Long = 0
 
-        @OneToOne
-       lateinit var document: Document
+    @OneToOne
+    lateinit var document: Document
 
-
-       lateinit var name: String
-
-
-         var size: Long = 0
-
-
-        var contentType: String? = null
-
-
-        lateinit var creationTimestamp: LocalDateTime
-
-
-
+    @ManyToOne
+    lateinit var documentHistory: DocumentHistory
 }
