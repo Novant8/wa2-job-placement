@@ -70,7 +70,7 @@ class DocumentController(private val documentService: DocumentService) {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/","",consumes = ["multipart/form-data"])
-    //@PreAuthorize("hasAnyRole('operator', 'manager')")
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     fun saveDocument(@RequestParam("document") document: MultipartFile): DocumentMetadataDTO {
 
         if(document.originalFilename === null || document.originalFilename!!.isEmpty()) {
@@ -81,7 +81,7 @@ class DocumentController(private val documentService: DocumentService) {
     }
 
     @PutMapping("/{historyId}","/{historyId}/")
-    //@PreAuthorize("hasAnyRole('operator', 'manager')")
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     fun putDocuments(@PathVariable("historyId") historyId: Long,
                      @RequestParam("document") document: MultipartFile) : DocumentMetadataDTO {
 
