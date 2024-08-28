@@ -1,12 +1,13 @@
 import /*React,*/ {useEffect, useState} from "react";
 import API from "../../API.tsx";
 import {useAuth} from "../contexts/auth.tsx";
-import {Accordion, Container,InputGroup,Form} from "react-bootstrap";
+import {Accordion, Container, InputGroup, Form, Button} from "react-bootstrap";
 import * as Icon from 'react-bootstrap-icons';
 import {Professional} from "../types/professional.ts";
 import TagsInput from 'react-tagsinput';
 import 'react-tagsinput/react-tagsinput.css';
 import "../styles/CandidateManagement.css"
+import {useNavigate} from "react-router-dom";
 
 //TODO: Add pagination
 
@@ -16,6 +17,7 @@ export type ProfessionalAccordionProps = {
 };
 
 function ProfessionalAccordion(props: ProfessionalAccordionProps) {
+    const navigate = useNavigate();
     return (
         <div>
             <Accordion.Item eventKey={props.prof?.id?.toString()}>
@@ -23,9 +25,7 @@ function ProfessionalAccordion(props: ProfessionalAccordionProps) {
                     {props.prof.contactInfo?.name} {props.prof.contactInfo?.surname}
                 </Accordion.Header>
                 <Accordion.Body>
-                    <div>
-                        Category: {props.prof.contactInfo.category}
-                    </div>
+
                     {props.prof.contactInfo.ssn?
                         <div>
                             SSN: {props.prof.contactInfo.ssn}
@@ -54,6 +54,8 @@ function ProfessionalAccordion(props: ProfessionalAccordionProps) {
                     <div>Notes: {props.prof.notes}</div>
                     :""
                     }
+
+                    <Button className="primary mt-3" onClick={() => navigate(`professionals/${props.prof?.id}`)}> View Details </Button>
                 </Accordion.Body>
 
             </Accordion.Item>

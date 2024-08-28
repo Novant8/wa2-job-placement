@@ -108,6 +108,9 @@ export function getCustomerJobOffers(customerId: number): Promise<JobOfferRespon
     return customFetch(`/crm/API/joboffers?customerId=${customerId}`)
 }
 
+export function getProfessionalJobOffer(professionalId: number): Promise<JobOfferResponse>{
+    return customFetch(`/crm/API/joboffers?professionalId=${professionalId}`)
+}
 export function getProfessionalFromCurrentUser(): Promise<Professional> {
     return customFetch("/crm/API/professionals/user/me");
 }
@@ -201,7 +204,9 @@ export function updateProfessionalField(professionalId: number, field: "dailyRat
 export function getCustomerById(customerId: number | undefined): Promise<Customer>{
     return customFetch(`/crm/API/customers/${customerId}`)
 }
-
+export function getProfessionalById(professionalId: number | undefined): Promise<Professional>{
+    return customFetch(`/crm/API/professionals/${professionalId}`)
+}
 export function getCustomers(filter? :CustomerFilter): Promise<any>{
     let endpoint = '/crm/API/customers';
 
@@ -232,6 +237,16 @@ export function getCustomers(filter? :CustomerFilter): Promise<any>{
 
 export function updateCustomerNotes(customerId : number | undefined, notes : string ):Promise<Customer>{
     return customFetch(`/crm/API/customers/${customerId}/notes`,{
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({"notes": notes })
+    })
+}
+
+export function updateProfessionalNotes(professionalId : number | undefined, notes : string ):Promise<Professional>{
+    return customFetch(`/crm/API/professionals/${professionalId}/notes`,{
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
