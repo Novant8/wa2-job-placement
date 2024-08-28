@@ -12,6 +12,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.kafka.core.KafkaTemplate
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,6 +24,7 @@ class JobOfferServiceImpl(
     private val jobOfferRepository: JobOfferRepository,
     private val customerRepository: CustomerRepository,
     private val professionalRepository: ProfessionalRepository,
+    private val kafkaTemplate: KafkaTemplate<String, JobOfferKafkaDTO>
 ): JobOfferService {
 
     @Transactional
@@ -40,6 +42,7 @@ class JobOfferServiceImpl(
 
         jobOffer = jobOfferRepository.save(jobOffer)
         logger.info("Created Job Offer with ID #${jobOffer.offerId}")
+        kafkaTemplate.send("JOB_OFFER-CREATE",jobOffer.toJobOfferKafkaDTO())
         return jobOffer.toJobOfferDTO()
     }
     @Transactional
@@ -95,6 +98,7 @@ class JobOfferServiceImpl(
 
         val updatedJobOffer = jobOfferRepository.save(jobOffer)
         logger.info("Updated status for Job Offer #${jobOffer.offerId} from ${jobOffer.status} to ${updatedJobOffer.status}.")
+        kafkaTemplate.send("JOB_OFFER-UPDATE",updatedJobOffer.toJobOfferKafkaDTO())
         return jobOffer.toJobOfferDTO()
     }
 
@@ -104,8 +108,9 @@ class JobOfferServiceImpl(
         jobOffer.requiredSkills= jobOfferUpdateDTO.requiredSkills
         jobOffer.notes= jobOfferUpdateDTO.notes
         jobOffer.description = jobOfferUpdateDTO.description
-
-        return jobOfferRepository.save(jobOffer).toJobOfferDTO()
+        val updatedJobOffer = jobOfferRepository.save(jobOffer)
+        kafkaTemplate.send("JOB_OFFER-UPDATE",updatedJobOffer.toJobOfferKafkaDTO())
+        return updatedJobOffer.toJobOfferDTO()
     }
 
     companion object{

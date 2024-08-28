@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.kafka.core.KafkaTemplate
 import java.util.*
 
 class JobOfferServiceTest {
@@ -27,8 +28,8 @@ class JobOfferServiceTest {
     private val customerRepository= mockk<CustomerRepository>()
     private val jobOfferRepository= mockk<JobOfferRepository>()
     private val professionalRepository = mockk<ProfessionalRepository>()
-
-    private val service = JobOfferServiceImpl(jobOfferRepository,customerRepository,professionalRepository)
+    private val kafkaTemplate = mockk<KafkaTemplate<String,JobOfferKafkaDTO>>(relaxed = true)
+    private val service = JobOfferServiceImpl(jobOfferRepository,customerRepository,professionalRepository,kafkaTemplate)
     @Nested
     inner class CreateJobOffer(){
         private val jobOfferSlot = slot<JobOffer>()

@@ -15,7 +15,7 @@ class AuthKafkaConsumerService(
 ) {
 
 
-        @KafkaListener(topics = ["IAM-LOGIN"], groupId = "consumer-monitoring-group",containerFactory = "kafkaListenerContainerFactory")
+        @KafkaListener(topics = ["IAM-LOGIN"], groupId = "consumer-monitoring-group",containerFactory = "kafkaAuthListenerContainerFactory")
         fun loginListener(@Header(KafkaHeaders.RECEIVED_TIMESTAMP) ts: Long, message: AuthMonitoringDTO ) {
                 var auth = authMonitoringRepository.findById(message.userId)
                 if (auth.isEmpty) {

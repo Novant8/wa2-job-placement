@@ -1,7 +1,7 @@
 package it.polito.wa2.g07.crm.kafka
 
-import it.polito.wa2.g07.crm.dtos.lab02.MessageDTO
 import it.polito.wa2.g07.crm.dtos.lab02.MessageKafkaDTO
+import it.polito.wa2.g07.crm.dtos.lab03.JobOfferKafkaDTO
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Value
@@ -10,16 +10,15 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
-import org.springframework.kafka.support.serializer.JsonDeserializer
 import org.springframework.kafka.support.serializer.JsonSerializer
 
 
 @Configuration
-class KafkaProducerConfig {
+class JobOfferKafkaProducerConfig {
     @Value("\${spring.kafka.consumer.bootstrap-servers}")
     lateinit var kafkaServer: String
     @Bean
-    fun producerFactory(): ProducerFactory<String, MessageKafkaDTO> {
+    fun jobOfferProducerFactory(): ProducerFactory<String, JobOfferKafkaDTO> {
         val configProps: MutableMap<String, Any> = HashMap()
         configProps[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = kafkaServer
         configProps[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
@@ -28,7 +27,7 @@ class KafkaProducerConfig {
     }
 
     @Bean
-    fun kafkaTemplate(): KafkaTemplate<String, MessageKafkaDTO> {
-        return KafkaTemplate(producerFactory())
+    fun JobOfferKafkaTemplate(): KafkaTemplate<String, JobOfferKafkaDTO> {
+        return KafkaTemplate(jobOfferProducerFactory())
     }
 }
