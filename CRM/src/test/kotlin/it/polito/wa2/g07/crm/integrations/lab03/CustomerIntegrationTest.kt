@@ -694,7 +694,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
         }
 
         @Test
-        @Disabled
+
         fun putAddressNotAssociatedWithTheUser(){
             val email = "{\"email\":\"new.email@email.com\"}"
 

@@ -11,13 +11,18 @@ import it.polito.wa2.g07.document_store.repositories.DocumentRepository
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
 @Transactional
-class DocumentServiceImpl(private val documentRepository: DocumentRepository, private val documentMetadataRepository: DocumentMetadataRepository) : DocumentService {
+class DocumentServiceImpl(private val documentRepository: DocumentRepository,
+                          private val documentMetadataRepository: DocumentMetadataRepository,
+                          private val kafkaTemplate: KafkaTemplate<String, DocumentMetadataDTO>
+) : DocumentService {
+
     override fun create(name: String, size:Long, contentType: String?, file: ByteArray): DocumentMetadataDTO{
 
         if(documentMetadataRepository.existsByNameIgnoreCase(name)) {
@@ -37,6 +42,7 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         docMetadata.creationTimestamp= LocalDateTime.now()
 
         val savedMetadata = documentMetadataRepository.save(docMetadata).toMetadataDto()
+        kafkaTemplate.send("DOCUMENT", savedMetadata)
         logger.info("Created Document {} - {}",savedMetadata.id, savedMetadata.name )
         return savedMetadata
 
@@ -99,6 +105,7 @@ class DocumentServiceImpl(private val documentRepository: DocumentRepository, pr
         docMetadata.creationTimestamp= LocalDateTime.now()
 
         val savedMetadata = documentMetadataRepository.save(docMetadata).toMetadataDto()
+        kafkaTemplate.send("DOCUMENT", savedMetadata)
         logger.info("Edited Document {} - {} -> {}", savedMetadata.id, oldName, savedMetadata.name)
         return savedMetadata
     }

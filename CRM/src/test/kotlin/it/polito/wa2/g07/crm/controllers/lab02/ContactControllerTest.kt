@@ -13,6 +13,7 @@ import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.CustomerService
 import it.polito.wa2.g07.crm.services.lab03.ProfessionalService
+
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
@@ -24,6 +25,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
+import org.springframework.security.core.Authentication
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.*
 
@@ -557,10 +559,26 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
 
         @BeforeEach
         fun initMocks() {
-            every { contactService.updateAddress(any(Long::class), any(Long::class), any(AddressDTO::class)) } throws EntityNotFoundException("Contact not found")
-            every { contactService.updateAddress(mockContactDTO.id, any(Long::class), any(AddressDTO::class)) } throws EntityNotFoundException("Address not found")
+            every { contactService.updateAddress(any(Long::class), any(Long::class), any(AddressDTO::class), any() )} throws EntityNotFoundException("Contact not found")
+            every { contactService.updateAddress(mockContactDTO.id, any(Long::class), any(AddressDTO::class), any()) } throws EntityNotFoundException("Address not found")
+            every { contactService.updateAddress(any(Long::class), any(Long::class), any(AddressDTO::class) )} throws EntityNotFoundException("Contact not found")
+            every { contactService.updateAddress(mockContactDTO.id, any(Long::class), any(AddressDTO::class) )} throws EntityNotFoundException("Contact not found")
+
             for (addressResponseDTO in listOf(mockEmailDTO, mockTelephoneDTO, mockDwellingDTO)) {
-                every { contactService.updateAddress(mockContactDTO.id, addressResponseDTO.id, any(AddressDTO::class)) } answers {
+                every { contactService.updateAddress(mockContactDTO.id, addressResponseDTO.id, any(AddressDTO::class), any())} answers {
+                    val addressDTO = thirdArg<AddressDTO>()
+                    if (addressDTO.addressType != addressResponseDTO.toAddressDTO().addressType)
+                        throw InvalidParamsException("Mismatching address types")
+                    ContactDTO(
+                        mockContactDTO.id,
+                        mockContactDTO.name,
+                        mockContactDTO.surname,
+                        mockContactDTO.category,
+                        mockContactDTO.addresses.map { if (it.id == addressResponseDTO.id) addressDTO.toEntity().toAddressResponseDTO() else it },
+                        mockContactDTO.ssn
+                    )
+                }
+                every { contactService.updateAddress(mockContactDTO.id, addressResponseDTO.id, any(AddressDTO::class))} answers {
                     val addressDTO = thirdArg<AddressDTO>()
                     if (addressDTO.addressType != addressResponseDTO.toAddressDTO().addressType)
                         throw InvalidParamsException("Mismatching address types")
@@ -574,11 +592,13 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
                     )
                 }
                 every { contactService.updateAddress(mockContactDTO.id, addressResponseDTO.id, addressResponseDTO.toAddressDTO()) } throws DuplicateAddressException("Address already associated")
+
+                every { contactService.updateAddress(mockContactDTO.id, addressResponseDTO.id, addressResponseDTO.toAddressDTO(), any()) } throws DuplicateAddressException("Address already associated")
             }
         }
 
         @Test
-        @Disabled
+
         fun updateMail_success() {
             val contactId = mockContactDTO.id
             val addressId = mockEmailDTO.id
@@ -597,7 +617,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
-        @Disabled
+
         fun updateMail_invalidMail() {
             for (emailDTO in invalidEmailDTOs) {
                 val contactId = mockContactDTO.id
@@ -613,7 +633,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
-        @Disabled
+
         fun updateMail_contactNotFound() {
             val contactId = mockContactDTO.id + 1
             val addressId = mockEmailDTO.id
@@ -628,7 +648,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
-        @Disabled
+
         fun updateMail_addressNotFound() {
             val contactId = mockContactDTO.id
             val addressId = 42L
@@ -643,7 +663,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
-        @Disabled
+
         fun updateMail_invalidAddressType() {
             val contactId = mockContactDTO.id
             val addressId = mockTelephoneDTO.id
@@ -658,7 +678,7 @@ class ContactControllerTest(@Autowired val mockMvc: MockMvc) {
         }
 
         @Test
-        @Disabled
+
         fun updateMail_duplicateMail() {
             val contactId = mockContactDTO.id
             val addressId = mockEmailDTO.id

@@ -24,9 +24,9 @@ class MessageServiceImpl(
     private val messageRepository: MessageRepository,
     private val addressRepository: AddressRepository,
     private val contactRepository: ContactRepository,
+    private val kafkaTemplate: KafkaTemplate<String, MessageKafkaDTO>
     ): MessageService {
-    @Autowired
-    lateinit var kafkaTemplate: KafkaTemplate<String?, MessageKafkaDTO?>
+
 
     @Transactional(readOnly = true)
     override fun getMessage(messageID: Long): MessageDTO? {

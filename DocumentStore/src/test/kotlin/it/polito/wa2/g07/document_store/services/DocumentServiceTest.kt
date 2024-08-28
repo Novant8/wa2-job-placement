@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import org.springframework.kafka.core.KafkaTemplate
 import java.time.LocalDateTime
 import java.util.Optional
 
@@ -36,7 +37,8 @@ class DocumentServiceTest {
 
     private val documentRepository = mockk<DocumentRepository>()
     private val documentMetadataRepository = mockk<DocumentMetadataRepository>()
-    private val service = DocumentServiceImpl(documentRepository, documentMetadataRepository)
+    private val kafkaTemplate = mockk<KafkaTemplate<String, DocumentMetadataDTO>>(relaxed = true)
+    private val service = DocumentServiceImpl(documentRepository, documentMetadataRepository,kafkaTemplate)
 
     @Nested
     inner class GetDocumentsTests {

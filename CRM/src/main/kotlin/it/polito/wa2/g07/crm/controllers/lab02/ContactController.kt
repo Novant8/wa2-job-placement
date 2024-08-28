@@ -340,7 +340,7 @@ class ContactController(private val contactService: ContactService,
     fun updateEmail (
         @PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long,
         @Valid @RequestBody emailDTO: EmailDTO,
-        authentication: Authentication
+        authentication: Authentication?
     ): ContactDTO {
        return contactService.updateAddress(contactId, emailId, emailDTO, authentication)
     }

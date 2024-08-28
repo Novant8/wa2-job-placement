@@ -19,6 +19,10 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${auth.issuer}
+
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
 server:
   port: 8081
 

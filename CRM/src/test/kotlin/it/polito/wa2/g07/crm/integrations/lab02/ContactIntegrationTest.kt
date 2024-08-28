@@ -10,6 +10,8 @@ import it.polito.wa2.g07.crm.entities.lab02.Email
 import it.polito.wa2.g07.crm.entities.lab02.Telephone
 import it.polito.wa2.g07.crm.repositories.lab02.AddressRepository
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
+import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
+import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
 
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -36,6 +38,10 @@ class ContactIntegrationTest:CrmApplicationTests() {
 
     @Autowired
     lateinit var addressRepository: AddressRepository
+    @Autowired
+    lateinit var professionalRepository: ProfessionalRepository
+    @Autowired
+    lateinit var customerRepository: CustomerRepository
 //    @MockkBean
 //    private lateinit var contactService:ContactService
 
@@ -45,7 +51,11 @@ class ContactIntegrationTest:CrmApplicationTests() {
 
         @BeforeEach
         fun init(){
+            professionalRepository.deleteAll()
+            customerRepository.deleteAll()
+            addressRepository.deleteAll()
             contactRepository.deleteAll()
+
             val contactDto = CreateContactDTO(
                 "Test",
                 "User",
@@ -391,8 +401,11 @@ class ContactIntegrationTest:CrmApplicationTests() {
 
         @BeforeEach
         open fun init(){
+            professionalRepository.deleteAll()
+            customerRepository.deleteAll()
             contactRepository.deleteAll()
             addressRepository.deleteAll()
+
             val contact1Dto = CreateContactDTO("Test", "User", "customer",null, listOf(
                 TelephoneDTO("435433635532424556"),
                 EmailDTO("test.user@email.com")
@@ -486,7 +499,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
 
 
         @Test
-        @Disabled
+
         fun putEmail (){
 
             val email = "{\"email\":\"new.email@email.com\"}"
@@ -554,7 +567,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
         }
 
         @Test
-        @Disabled
+
         fun putAddressForNonExistentUser(){
             val email = "{\"email\":\"new.email@email.com\"}"
 
@@ -562,7 +575,7 @@ class ContactIntegrationTest:CrmApplicationTests() {
                 .andExpect(status().isNotFound)
         }
         @Test
-        @Disabled
+
         fun putAddressNotAssociatedWithTheUser(){
             val email = "{\"email\":\"new.email@email.com\"}"
 

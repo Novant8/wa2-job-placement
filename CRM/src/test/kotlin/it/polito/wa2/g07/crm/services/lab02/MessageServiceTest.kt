@@ -18,6 +18,7 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.kafka.core.KafkaTemplate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -89,7 +90,8 @@ class MessageServiceTest {
     private val contactRepository = mockk<ContactRepository>()
     private val addressRepository = mockk<AddressRepository>()
     private val messageRepository = mockk<MessageRepository>()
-    private val service = MessageServiceImpl(messageRepository, addressRepository,contactRepository)
+    private val kafkaTemplate = mockk<KafkaTemplate<String, MessageKafkaDTO>>(relaxed = true)
+    private val service = MessageServiceImpl(messageRepository, addressRepository,contactRepository,kafkaTemplate)
 
     @Nested
     inner class GetMessageTests {
