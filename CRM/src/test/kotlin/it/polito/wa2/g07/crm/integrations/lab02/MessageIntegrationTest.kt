@@ -8,6 +8,8 @@ import it.polito.wa2.g07.crm.entities.lab02.*
 import it.polito.wa2.g07.crm.repositories.lab02.MessageRepository
 import it.polito.wa2.g07.crm.repositories.lab02.AddressRepository
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
+import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
+import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
 
 import org.json.JSONObject
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -45,7 +47,10 @@ class MessageIntegrationTest:CrmApplicationTests() {
     lateinit var contactRepository: ContactRepository
     @Autowired
     lateinit var addressRepository: AddressRepository
-
+    @Autowired
+    lateinit var professionalRepository: ProfessionalRepository
+    @Autowired
+    lateinit var customerRepository: CustomerRepository
     var msg1_id: Long = 0
     var msg2_id: Long = 0
     var msg3_id: Long = 0
@@ -74,10 +79,13 @@ class MessageIntegrationTest:CrmApplicationTests() {
 
     fun initDb() {
         //Each test the DB start clean
-
-        messageRepository.deleteAll()
-        contactRepository.deleteAll()
+        professionalRepository.deleteAll()
+        customerRepository.deleteAll()
         addressRepository.deleteAll()
+        contactRepository.deleteAll()
+        messageRepository.deleteAll()
+
+
 
         msg1.addEvent(MessageEvent(msg1, MessageStatus.RECEIVED, LocalDateTime.now(), "The message is received"))
 

@@ -101,7 +101,7 @@ class CustomerController (  private val customerService: CustomerService,
         )
     ])
     @ResponseStatus(HttpStatus.CREATED)
-   // @PreAuthorize("hasAnyRole('operator', 'manager')")
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @PostMapping("", "/")
     fun createCustomer(@RequestBody @Valid customer:CreateCustomerDTO):CustomerDTO {
        return customerService.createCustomer(customer)

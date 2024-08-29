@@ -13,6 +13,7 @@ import it.polito.wa2.g07.crm.repositories.lab02.AddressRepository
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.repositories.lab03.JobOfferRepository
+import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
@@ -53,7 +54,8 @@ class CustomerIntegrationTest: CrmApplicationTests() {
     @Autowired
     lateinit var addressRepository: AddressRepository
 
-
+    @Autowired
+    lateinit var professionalRepository: ProfessionalRepository
     @Nested
     @WithMockUser(roles = [ "operator" ])
     inner class PostCustomerTest{
@@ -72,6 +74,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
 
         @BeforeEach
         fun init(){
+            professionalRepository.deleteAll()
             customerRepository.deleteAll()
             contactRepository.deleteAll()
             contact = contactRepository.save(contact)
@@ -229,7 +232,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
 
         @BeforeEach
         fun init(){
-
+            professionalRepository.deleteAll()
             customerRepository.deleteAll()
             contactRepository.deleteAll()
             val contactDto1 = CreateContactDTO(
@@ -339,6 +342,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
 
         @BeforeEach
         fun init(){
+            professionalRepository.deleteAll()
             customerRepository.deleteAll()
             contactRepository.deleteAll()
             val customerDto1 = CreateCustomerDTO(
@@ -449,6 +453,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
 
         @BeforeEach()
         fun init() {
+            professionalRepository.deleteAll()
             jobOfferRepository.deleteAll()
             customerRepository.deleteAll()
             contactRepository.deleteAll()
@@ -694,7 +699,7 @@ class CustomerIntegrationTest: CrmApplicationTests() {
         }
 
         @Test
-        @Disabled
+
         fun putAddressNotAssociatedWithTheUser(){
             val email = "{\"email\":\"new.email@email.com\"}"
 

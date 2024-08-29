@@ -1,22 +1,21 @@
 package it.polito.wa2.g07.crm.services.lab02
 
 
+import com.nimbusds.jose.shaded.gson.JsonObject
 import it.polito.wa2.g07.crm.dtos.lab02.*
 import it.polito.wa2.g07.crm.entities.lab02.*
 import it.polito.wa2.g07.crm.exceptions.InvalidParamsException
 import it.polito.wa2.g07.crm.exceptions.MessageNotFoundException
-import it.polito.wa2.g07.crm.repositories.lab02.MessageRepository
-import org.springframework.data.domain.Pageable
-
-import org.springframework.stereotype.Service
-import org.springframework.data.domain.Page
-
-
 import it.polito.wa2.g07.crm.repositories.lab02.AddressRepository
 import it.polito.wa2.g07.crm.repositories.lab02.ContactRepository
+import it.polito.wa2.g07.crm.repositories.lab02.MessageRepository
 import it.polito.wa2.g07.crm.services.lab02.ContactServiceImpl.Companion.logger
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-
 import java.time.LocalDateTime
 
 
@@ -25,7 +24,9 @@ class MessageServiceImpl(
     private val messageRepository: MessageRepository,
     private val addressRepository: AddressRepository,
     private val contactRepository: ContactRepository,
+    private val kafkaTemplate: KafkaTemplate<String, MessageKafkaDTO>
     ): MessageService {
+
 
     @Transactional(readOnly = true)
     override fun getMessage(messageID: Long): MessageDTO? {
@@ -121,8 +122,11 @@ class MessageServiceImpl(
         val m = Message(msg.subject, msg.body, sender, MessageChannel.valueOf(msg.channel.uppercase()))
         val event = MessageEvent(m, MessageStatus.RECEIVED, LocalDateTime.now())
         m.addEvent(event)
-        return messageRepository.save(m).toMessageDTO()
 
+        val result = messageRepository.save(m)
+
+        kafkaTemplate.send("MESSAGE",result.toMessageKafkaDTO() )
+        return result.toMessageDTO()
 
 
     }
@@ -163,8 +167,9 @@ class MessageServiceImpl(
             date= event_data.timestamp!!
        }
         logger.info("The status has been assigned to the message")
-       val m_event = MessageEvent(msg,event_data.status,date,event_data.comments)
-       msg.addEvent(m_event)
+        val m_event = MessageEvent(msg,event_data.status,date,event_data.comments)
+        msg.addEvent(m_event)
+        kafkaTemplate.send("MESSAGE", msg.toMessageKafkaDTO())
         return m_event.toMessageEventDTO()
    }
 
@@ -187,7 +192,9 @@ class MessageServiceImpl(
         }
         var msg  = message.get()
         msg.priority = priority
-        return messageRepository.save(msg).toMessageDTO()
+        var result = messageRepository.save(msg)
+        kafkaTemplate.send("MESSAGE",result.toMessageKafkaDTO() )
+        return result.toMessageDTO()
 
     }
 

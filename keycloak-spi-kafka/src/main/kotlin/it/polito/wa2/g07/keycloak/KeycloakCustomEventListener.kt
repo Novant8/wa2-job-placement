@@ -11,8 +11,10 @@ class KeycloakCustomEventListener : EventListenerProvider {
         println("Event:-" + event.userId)
         val mapper = ObjectMapper()
         val value = try {
+
             val eventDetails = event.details
             eventDetails["userId"] = event.userId
+
             mapper.writeValueAsString(eventDetails)
         } catch(e: JsonProcessingException) {
             "<JSON Processing Error>"
