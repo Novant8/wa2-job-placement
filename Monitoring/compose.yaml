@@ -21,7 +21,6 @@ services:
     volumes:
       #provisioning
       - ./config_grafana/datasources.yml:/etc/grafana/provisioning/datasources/prometheus.yml
-      - ./config_grafana/custom_dashboard.yml:/etc/grafana/provisioning/dashboards/custom_dashboard.yml
       #grafana config file
       - ./config_grafana/grafana.ini:/etc/grafana/grafana.ini
       - ./config_grafana/grafana/:/var/lib/grafana/:rw
