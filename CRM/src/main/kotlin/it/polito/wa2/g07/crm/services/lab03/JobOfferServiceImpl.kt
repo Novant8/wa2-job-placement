@@ -43,6 +43,16 @@ class JobOfferServiceImpl(
         return jobOffer.toJobOfferDTO()
     }
     @Transactional
+    override fun addCandidate(jobOfferId: Long, professionalId: Long): JobOfferDTO {
+        val professional = professionalRepository.findById(professionalId).getOrElse { throw EntityNotFoundException("The Professional doesn't exist") }
+
+        val jobOffer = jobOfferRepository.findById(jobOfferId).getOrElse { throw EntityNotFoundException("The given Job Offer doesn't exist") }
+
+        jobOffer.addCandidate(professional);
+
+        return jobOffer.toJobOfferDTO()
+    }
+    @Transactional
     override fun searchJobOffer(filterDTO: JobOfferFilterDTO, pageable: Pageable): Page<JobOfferReducedDTO> {
 
         return jobOfferRepository.findAll(filterDTO.toSpecification(),pageable).map { it.toJobOfferReducedDTO() }
@@ -107,6 +117,8 @@ class JobOfferServiceImpl(
 
         return jobOfferRepository.save(jobOffer).toJobOfferDTO()
     }
+
+
 
     companion object{
         val logger: Logger = LoggerFactory.getLogger(JobOfferServiceImpl::class.java)

@@ -83,6 +83,16 @@ class JobOffer(
             //  null -> throw IllegalStateException("Value cannot be calculated if the job offer has no professional!")
             else -> this.duration * this.professional!!.dailyRate * PROFIT_MARGIN
         }
+    @ManyToMany(mappedBy = "proposedJobOffers", cascade = [CascadeType.ALL])
+    var candidates: MutableSet<Professional> = mutableSetOf()
 
+    fun addCandidate (p:Professional){
+        p.proposedJobOffers.add(this);
+        candidates.add(p);
+    }
 
+    fun removeCandidate (p: Professional){
+        p.proposedJobOffers.remove(this);
+        candidates.remove(p);
+    }
 }

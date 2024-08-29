@@ -1,5 +1,6 @@
 package it.polito.wa2.g07.crm.entities.lab03
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import it.polito.wa2.g07.crm.entities.lab03.JobOffer
 import it.polito.wa2.g07.crm.entities.lab02.Contact
 
@@ -42,4 +43,7 @@ class Professional(
     @OneToMany(mappedBy = "professional",cascade = [ CascadeType.ALL ])
     val jobOffers : MutableSet<JobOffer> = mutableSetOf()
 
+    @ManyToMany (cascade = [CascadeType.ALL])
+    @JsonManagedReference
+    var proposedJobOffers: MutableSet<JobOffer> = mutableSetOf()
 }

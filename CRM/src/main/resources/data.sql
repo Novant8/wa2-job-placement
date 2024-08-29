@@ -156,3 +156,25 @@ BEGIN
     END IF;
 END;
 ';
+
+-- Company B
+DO '
+BEGIN
+    IF (SELECT count(*) FROM contact WHERE user_id = ''1ed45cd7-c430-4d9d-b923-52d721f1a0b9'') = 0 THEN
+        INSERT INTO contact(contact_id, name, surname, user_id, category)
+        VALUES (nextval(''contact_seq''), ''Company'', ''B'', ''1ed45cd7-c430-4d9d-b923-52d721f1a0b9'', 0);
+
+        INSERT INTO address(id, channel)
+        VALUES (nextval(''address_seq''), ''email'');
+
+        INSERT INTO email(id, email)
+        VALUES (currval(''address_seq''), ''company.b@example.org'');
+
+        INSERT INTO contact_addresses(contacts_contact_id, addresses_id)
+        VALUES (currval(''contact_seq''), currval(''address_seq''));
+
+        INSERT INTO customer(customer_id, contact_info_contact_id)
+        VALUES (nextval(''customer_seq''), currval(''contact_seq''));
+    END IF;
+END;
+';
