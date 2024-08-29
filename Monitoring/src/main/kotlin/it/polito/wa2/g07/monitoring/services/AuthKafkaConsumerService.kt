@@ -17,24 +17,15 @@ class AuthKafkaConsumerService(
 
         @KafkaListener(topics = ["IAM-LOGIN"], groupId = "consumer-monitoring-group",containerFactory = "kafkaAuthListenerContainerFactory")
         fun loginListener(@Header(KafkaHeaders.RECEIVED_TIMESTAMP) ts: Long, message: AuthMonitoringDTO ) {
-                var auth = authMonitoringRepository.findById(message.userId)
-                if (auth.isEmpty) {
-                        authMonitoringRepository.save(AuthMonitoring(message.userId,message.name,ts,0,true))
-                }else{
-                        if (auth.get().isLogged==false) {
-                                auth.get().lastLoginTime = ts
-                                auth.get().isLogged=true
-                                authMonitoringRepository.save(auth.get())
-                        }
-                }
+                authMonitoringRepository.save(AuthMonitoring(username  =message.name,loginTime = ts))
         }
-        @KafkaListener(topics = ["IAM-LOGOUT"], groupId = "group1",containerFactory = "kafkaListenerContainerFactory")
+       /* @KafkaListener(topics = ["IAM-LOGOUT"], groupId = "group1",containerFactory = "kafkaAuthListenerContainerFactory")
         fun logoutListener(message: AuthMonitoringDTO,@Header(KafkaHeaders.RECEIVED_TIMESTAMP) ts: Long) {
                 var auth = authMonitoringRepository.findById(message.userId) //It should not happen that we logout before login
                 auth.get().isLogged= false
                 auth.get().totalTime += ts- auth.get().lastLoginTime!!
                 authMonitoringRepository.save(auth.get())
-        }
+        }*/
 }
 
 

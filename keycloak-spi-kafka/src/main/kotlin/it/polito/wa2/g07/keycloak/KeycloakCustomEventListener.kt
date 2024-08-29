@@ -24,7 +24,7 @@ class KeycloakCustomEventListener : EventListenerProvider {
 
     override fun onEvent(adminEvent: AdminEvent, b: Boolean) {
         println("Admin Event:-" + adminEvent.resourceType.name)
-        Producer.publishEvent("IAM-"+adminEvent.operationType.toString(), adminEvent.authDetails)
+        Producer.publishEvent("IAM-"+adminEvent.operationType.toString(), adminEvent.authDetails.userId)
     }
 
     override fun close() {

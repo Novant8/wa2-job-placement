@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository
 
 
 @Repository
-interface AuthMonitoringRepository : JpaRepository<AuthMonitoring, String> {
+interface AuthMonitoringRepository : JpaRepository<AuthMonitoring, Long> {
 
 
 }
