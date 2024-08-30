@@ -31,7 +31,7 @@ fun JobOffer.toJobOfferReducedDTO(): JobOfferReducedDTO {
     return JobOfferReducedDTO(
         id = this.offerId,
         description = this.description,
-        professional = this.professional!!.toProfessionalReducedDTO_Basic(),
+        professional = this.professional!!.toProfessionalReducedDto(),
         customer = this.customer.toReduceCustomerDTO_Basic(),
         offerStatus = this.status
     )

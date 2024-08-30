@@ -43,7 +43,7 @@ fun JobOffer.toJobOfferDTO(): JobOfferDTO {
         requiredSkills = this.requiredSkills,
         duration = this.duration,
         notes = this.notes,
-        professional = this.professional!!.toProfessionalReducedDTO_Basic(),
+        professional = this.professional!!.toProfessionalReducedDto(),
         value = this.value,
         offerStatus = this.status,
         candidates = this.candidates.map { it.toProfessionalReducedDto() }

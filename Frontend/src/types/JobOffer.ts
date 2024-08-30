@@ -44,5 +44,5 @@ export interface JobOfferCreate {
 
 export interface JobOfferUpdateStatus {
   status: JobOfferStatus;
-  professional?: ReducedProfessional;
+  professionalId?: number; //ReducedProfessional;
 }

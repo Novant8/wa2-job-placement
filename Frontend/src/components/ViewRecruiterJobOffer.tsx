@@ -194,7 +194,11 @@ export default function ViewRecruiterJobOffer() {
                 <strong>Description:</strong> {offer.description} &nbsp;
                 <strong>Status:</strong> {offer.offerStatus}&nbsp;
                 <strong>Professional:</strong>{" "}
-                {offer.professional ? offer.professional : "N/A"}
+                {offer.professional
+                  ? offer.professional.contactInfo.name +
+                    " " +
+                    offer.professional.contactInfo.surname
+                  : "N/A"}
               </Card.Text>
 
               <Button

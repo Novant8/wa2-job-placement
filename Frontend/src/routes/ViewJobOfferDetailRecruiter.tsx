@@ -269,7 +269,7 @@ export default function ViewJobOfferDetailsRecruiter() {
           />
           <Form.Control
             type="text"
-            value={`Employment State: ${jobOffer?.professional?.employedState || "N/A"}`}
+            value={`Employment State: ${jobOffer?.professional?.employmentState || "N/A"}`}
             disabled
           />
         </Form.Group>
@@ -388,65 +388,150 @@ export default function ViewJobOfferDetailsRecruiter() {
           </>
         )}
 
-        {jobOffer?.candidates?.length > 0 && (
-          <Container className="mt-5">
-            <h2>Candidates</h2>
-            <Row>
-              {jobOffer?.candidates.map((candidate) => (
-                <Col md={12} key={candidate.id} className="mb-4">
-                  <Card>
-                    <Card.Body>
-                      <Card.Title>{`${candidate.contactInfo.name} ${candidate.contactInfo.surname}`}</Card.Title>
-                      <Card.Subtitle className="mb-2 text-muted">
-                        Location: {candidate.location}
-                      </Card.Subtitle>
-                      <Card.Text>
-                        Employment State: {candidate.employedState}
-                        <br />
-                        Skills: {candidate.skills.join(", ")}
-                      </Card.Text>
-                      <Button
-                        variant="success"
-                        //onClick={() => handleCandidateAction("eligible", candidate.id)}
+        {jobOffer?.candidates?.length > 0 &&
+          jobOffer?.offerStatus === "SELECTION_PHASE" && (
+            <Container className="mt-5">
+              <h2>Candidates</h2>
+              <Row>
+                {jobOffer?.candidates.map((candidate) => (
+                  <Col md={12} key={candidate.id} className="mb-4">
+                    <Card>
+                      <Card.Body>
+                        <Card.Title>{`${candidate.contactInfo.name} ${candidate.contactInfo.surname}`}</Card.Title>
+                        <Card.Subtitle className="mb-2 text-muted">
+                          Location: {candidate.location}
+                        </Card.Subtitle>
+                        <Card.Text>
+                          Employment State: {candidate.employmentState}
+                          <br />
+                          Skills: {candidate.skills.join(", ")}
+                        </Card.Text>
+                        <Button
+                          variant="success"
+                          //onClick={() => handleCandidateAction("eligible", candidate.id)}
 
-                        onClick={() => {
+                          onClick={() => {
+                            let selected: Candidate = {
+                              id: candidate.id,
+                              name: candidate.contactInfo.name,
+                              surname: candidate.contactInfo.surname,
+                            };
+                            setSelectedCandidate(selected);
+                            setJobProposalModalShow(true);
+                          }}
+                          className="me-2"
+                        >
+                          Eligible Candidate
+                        </Button>
+                        <Button
+                          variant="danger"
+                          onClick={() => {
+                            let selected: Candidate = {
+                              id: candidate.id,
+                              name: candidate.contactInfo.name,
+                              surname: candidate.contactInfo.surname,
+                            };
+                            setSelectedCandidate(selected);
+                            setRemoveCandidateModalShow(true);
+                          }}
+                          className="me-2"
+                        >
+                          Remove Candidate
+                        </Button>
+                        <Button
+                          variant="primary"
+                          //onClick={() => handleCandidateAction("download", candidate.id)}
+                        >
+                          Download CV
+                        </Button>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </Container>
+          )}
+
+        {jobOffer?.offerStatus === "CANDIDATE_PROPOSAL" && (
+          <Container className="mt-5">
+            <h2>Proposed Professional</h2>
+            <Row>
+              <Col md={12} key={jobOffer.professional.id} className="mb-4">
+                <Card>
+                  <Card.Body>
+                    <Card.Title>{`${jobOffer.professional.contactInfo.name} ${jobOffer.professional.contactInfo.surname}`}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      Location: {jobOffer.professional.location}
+                    </Card.Subtitle>
+                    <Card.Text>
+                      Employment State: {jobOffer.professional.employmentState}
+                      <br />
+                      Skills: {jobOffer.professional.skills.join(", ")}
+                    </Card.Text>
+                    {/*
+                    <Button
+                      variant="success"
+                      //onClick={() => handleCandidateAction("eligible", candidate.id)}
+
+                      onClick={() => {
+                        let selected: Candidate = {
+                          id: jobOffer.professional.id,
+                          name: jobOffer.professional.contactInfo.name,
+                          surname: jobOffer.professional.contactInfo.surname,
+                        };
+                        setSelectedCandidate(selected);
+                        setJobProposalModalShow(true);
+                      }}
+                      className="me-2"
+                    >
+                      Eligible Candidate
+                    </Button>
+                    */}
+
+                    {/*
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        let selected: Candidate = {
+                          id: jobOffer.professional.id,
+                          name: jobOffer.professional.contactInfo.name,
+                          surname: jobOffer.professional.contactInfo.surname,
+                        };
+                        setSelectedCandidate(selected);
+                        setRemoveCandidateModalShow(true);
+                      }}
+                      className="me-2"
+                    >
+                      Remove Candidate
+                    </Button>
+                    */}
+                    <Button
+                      variant="warning"
+                      onClick={() => {
+                        /*
                           let selected: Candidate = {
-                            id: candidate.id,
-                            name: candidate.contactInfo.name,
-                            surname: candidate.contactInfo.surname,
+                            id: jobOffer.professional.id,
+                            name: jobOffer.professional.contactInfo.name,
+                            surname: jobOffer.professional.contactInfo.surname,
                           };
                           setSelectedCandidate(selected);
-                          setJobProposalModalShow(true);
-                        }}
-                        className="me-2"
-                      >
-                        Eligible Candidate
-                      </Button>
-                      <Button
-                        variant="danger"
-                        onClick={() => {
-                          let selected: Candidate = {
-                            id: candidate.id,
-                            name: candidate.contactInfo.name,
-                            surname: candidate.contactInfo.surname,
-                          };
-                          setSelectedCandidate(selected);
-                          setRemoveCandidateModalShow(true);
-                        }}
-                        className="me-2"
-                      >
-                        Remove Candidate
-                      </Button>
-                      <Button
-                        variant="primary"
-                        //onClick={() => handleCandidateAction("download", candidate.id)}
-                      >
-                        Download CV
-                      </Button>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))}
+                          setRemoveCandidateModalShow(true);*/
+                        console.log("show job proposal");
+                      }}
+                      className="me-2"
+                    >
+                      Show Job Proposal
+                    </Button>
+
+                    <Button
+                      variant="primary"
+                      //onClick={() => handleCandidateAction("download", candidate.id)}
+                    >
+                      Download CV
+                    </Button>
+                  </Card.Body>
+                </Card>
+              </Col>
             </Row>
           </Container>
         )}
