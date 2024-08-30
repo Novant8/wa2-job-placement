@@ -355,6 +355,12 @@ export function createJobProposal(
   );
 }
 
+export function getJobProposalbuId(
+  proposalId: number | undefined,
+): Promise<JobProposal> {
+  return customFetch(`/crm/API/jobProposals/${proposalId}`);
+}
+
 const url: string = "http://localhost:8080";
 
 export async function getProfessionals(

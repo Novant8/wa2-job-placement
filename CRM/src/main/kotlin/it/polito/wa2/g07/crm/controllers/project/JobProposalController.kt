@@ -38,4 +38,18 @@ class JobProposalController(private val jobProposalService: JobProposalService) 
     fun createJobProposal(@PathVariable("customerId") customerId: Long, @PathVariable("professionalId") professionalId: Long, @PathVariable("jobOfferId") jobOfferId:Long  ): JobProposalDTO {
         return jobProposalService.createJobProposal(customerId, professionalId,jobOfferId)
     }
+
+    @Operation(summary = "Retrieve a specific job proposal information")
+    @ApiResponses(value=[
+        ApiResponse(responseCode = "200"),
+        ApiResponse(
+            responseCode = "404",
+            description = "The job proposal was not found",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+    @GetMapping("/{jobProposalId}")
+    fun getJobsOfferSpecific(@PathVariable("jobProposalId") idProposal:Long) : JobProposalDTO{
+        return jobProposalService.searchJobProposalById(idProposal)
+    }
 }

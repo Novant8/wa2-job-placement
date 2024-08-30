@@ -1,5 +1,7 @@
 package it.polito.wa2.g07.crm.services.project
 
+import it.polito.wa2.g07.crm.dtos.lab03.JobOfferDTO
+import it.polito.wa2.g07.crm.dtos.lab03.toJobOfferDTO
 import it.polito.wa2.g07.crm.dtos.project.JobProposalDTO
 import it.polito.wa2.g07.crm.dtos.project.toJobProposalDTO
 import it.polito.wa2.g07.crm.entities.project.JobProposal
@@ -8,6 +10,7 @@ import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.repositories.lab03.JobOfferRepository
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
 import it.polito.wa2.g07.crm.repositories.project.JobProposalRepository
+import org.springframework.data.jpa.domain.AbstractPersistable_.id
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.jvm.optionals.getOrElse
@@ -29,5 +32,11 @@ class JobProposalServiceImpl (
 
          proposalRepository.save(jobProposal)
         return jobProposal.toJobProposalDTO()
+    }
+
+    @Transactional
+    override fun searchJobProposalById(idProposal: Long): JobProposalDTO {
+        val proposal = proposalRepository.findById(idProposal).getOrElse { throw EntityNotFoundException("The proposal does not exist") }
+        return proposal.toJobProposalDTO()
     }
 }

@@ -20,6 +20,7 @@ import EditableField from "../components/EditableField.tsx";
 import SelectCandidateModal from "../components/SelectCandidateModal.tsx";
 import RemoveCandidateModal from "../components/RemoveCandidateModal.tsx";
 import JobProposalModal from "../components/JobProposalModal.tsx";
+import JobProposalModalDetail from "../components/JobProposalDetailModal.tsx";
 import { ReducedProfessional } from "../types/professional.ts";
 import { JobOfferUpdateStatus } from "../types/JobOffer.ts";
 
@@ -39,6 +40,8 @@ export default function ViewJobOfferDetailsRecruiter() {
   const [modalAction, setModalAction] = useState("");
   const [dirty, setDirty] = useState(false);
   const [jobProposalModalShow, setJobProposalModalShow] =
+    useState<boolean>(false);
+  const [jobProposalDetailModalShow, setJobProposalDetailModalShow] =
     useState<boolean>(false);
   const [candidateModalShow, setCandidateModalShow] = useState<boolean>(false);
   const [removeCandidateModalShow, setRemoveCandidateModalShow] =
@@ -196,6 +199,11 @@ export default function ViewJobOfferDetailsRecruiter() {
         jobOffer={jobOffer}
         candidate={selectedCandidate}
         setDirty={() => setDirty(true)}
+      />
+
+      <JobProposalModalDetail
+        show={jobProposalDetailModalShow}
+        onHide={() => setJobProposalDetailModalShow(false)}
       />
 
       <SelectCandidateModal
@@ -508,6 +516,7 @@ export default function ViewJobOfferDetailsRecruiter() {
                     <Button
                       variant="warning"
                       onClick={() => {
+                        setJobProposalDetailModalShow(true);
                         /*
                           let selected: Candidate = {
                             id: jobOffer.professional.id,
@@ -516,7 +525,6 @@ export default function ViewJobOfferDetailsRecruiter() {
                           };
                           setSelectedCandidate(selected);
                           setRemoveCandidateModalShow(true);*/
-                        console.log("show job proposal");
                       }}
                       className="me-2"
                     >
