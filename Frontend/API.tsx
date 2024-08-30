@@ -16,6 +16,7 @@ import { Contact } from "./src/types/contact.ts";
 import { Address, getAddressType } from "./src/types/address.ts";
 import Cookies from "js-cookie";
 import { CustomerFilter } from "./src/types/customerFilter.ts";
+import { JobProposal } from "./src/types/JobProposal.ts";
 
 interface ErrorResponseBody {
   type: string;
@@ -323,6 +324,31 @@ export function addCandidate(
 ): Promise<JobOffer> {
   return customFetch(
     `/crm/API/joboffers/${jobOfferId}/candidate/${professionalId}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export function removeCandidate(
+  jobOfferId: number | undefined,
+  professionalId: number | undefined,
+): Promise<JobOffer> {
+  return customFetch(
+    `/crm/API/joboffers/${jobOfferId}/candidate/${professionalId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+export function createJobProposal(
+  customerId: number | undefined,
+  jobOfferId: number | undefined,
+  professionalId: number | undefined,
+): Promise<any> {
+  return customFetch(
+    `/crm/API/jobProposals/${customerId}/${professionalId}/${jobOfferId}`,
     {
       method: "POST",
     },

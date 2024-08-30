@@ -18,4 +18,5 @@ interface JobOfferService {
    fun updateJobOffer(jobOfferId: Long, jobOfferUpdateDTO: JobOfferUpdateDTO): JobOfferDTO
 
    fun addCandidate (jobOfferId: Long, professionalId: Long): JobOfferDTO
+   fun removeCandidate (jobOfferId: Long, professionalId: Long): Long
 }

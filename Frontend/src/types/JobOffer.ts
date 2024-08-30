@@ -2,10 +2,17 @@ import { Pageable } from "./Pageable.ts";
 import { ReducedProfessional } from "./professional.ts";
 import { ReducedCustomer } from "./customer.ts";
 
+export type JobOfferStatus =
+  | "CREATED"
+  | "SELECTION_PHASE"
+  | "CANDIDATE_PROPOSAL"
+  | "CONSOLIDATED"
+  | "DONE"
+  | "ABORTED";
 export interface ReducedJobOffer {
   id: number;
   description: string;
-  offerStatus: string;
+  offerStatus: JobOfferStatus;
   professional: string | null;
 }
 
@@ -24,7 +31,7 @@ export interface JobOffer {
   notes?: string;
   professional: ReducedProfessional;
   value: number;
-  offerStatus: string;
+  offerStatus: JobOfferStatus;
   candidates: ReducedProfessional[];
 }
 
@@ -36,6 +43,6 @@ export interface JobOfferCreate {
 }
 
 export interface JobOfferUpdateStatus {
-  status: string;
+  status: JobOfferStatus;
   professional?: ReducedProfessional;
 }

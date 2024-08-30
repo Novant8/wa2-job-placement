@@ -10,15 +10,24 @@ import {
   Card,
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { JobOffer, JobOfferCreate } from "../types/JobOffer.ts";
+import { JobOffer, JobOfferCreate, JobOfferStatus } from "../types/JobOffer.ts";
 import ConfirmationModal from "../components/ConfirmationModal.tsx";
 
 import * as API from "../../API.tsx";
-import { useAuth } from "../contexts/auth.tsx";
-import EditableField from "../components/EditableField.tsx";
-import { valueOf } from "js-cookie";
-import SelectCandidateModal from "../components/SelectCandidateModal.tsx";
 
+import EditableField from "../components/EditableField.tsx";
+
+import SelectCandidateModal from "../components/SelectCandidateModal.tsx";
+import RemoveCandidateModal from "../components/RemoveCandidateModal.tsx";
+import JobProposalModal from "../components/JobProposalModal.tsx";
+import { ReducedProfessional } from "../types/professional.ts";
+import { JobOfferUpdateStatus } from "../types/JobOffer.ts";
+
+type Candidate = {
+  id: number;
+  name: string;
+  surname: string;
+};
 export default function ViewJobOfferDetailsRecruiter() {
   const [isEditable, setIsEditable] = useState(false);
   const [editableOffer, setEditableOffer] = useState(true);
@@ -29,10 +38,16 @@ export default function ViewJobOfferDetailsRecruiter() {
   const [modalShow, setModalShow] = useState<boolean>(false);
   const [modalAction, setModalAction] = useState("");
   const [dirty, setDirty] = useState(false);
-
+  const [jobProposalModalShow, setJobProposalModalShow] =
+    useState<boolean>(false);
   const [candidateModalShow, setCandidateModalShow] = useState<boolean>(false);
-  //const [candidateModalAction, setCandidateModalAction] = useState("");
-
+  const [removeCandidateModalShow, setRemoveCandidateModalShow] =
+    useState<boolean>(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate>({
+    id: 0,
+    name: "",
+    surname: "",
+  });
   const [notesLoading, setNotesLoading] = useState(false);
 
   const { jobOfferId } = useParams();
@@ -165,6 +180,22 @@ export default function ViewJobOfferDetailsRecruiter() {
         action={modalAction}
         onHide={() => setModalShow(false)}
         jobOffer={jobOffer}
+      />
+
+      <RemoveCandidateModal
+        show={removeCandidateModalShow}
+        onHide={() => setRemoveCandidateModalShow(false)}
+        jobOffer={jobOffer}
+        candidate={selectedCandidate}
+        setDirty={() => setDirty(true)}
+      />
+
+      <JobProposalModal
+        show={jobProposalModalShow}
+        onHide={() => setJobProposalModalShow(false)}
+        jobOffer={jobOffer}
+        candidate={selectedCandidate}
+        setDirty={() => setDirty(true)}
       />
 
       <SelectCandidateModal
@@ -377,13 +408,31 @@ export default function ViewJobOfferDetailsRecruiter() {
                       <Button
                         variant="success"
                         //onClick={() => handleCandidateAction("eligible", candidate.id)}
+
+                        onClick={() => {
+                          let selected: Candidate = {
+                            id: candidate.id,
+                            name: candidate.contactInfo.name,
+                            surname: candidate.contactInfo.surname,
+                          };
+                          setSelectedCandidate(selected);
+                          setJobProposalModalShow(true);
+                        }}
                         className="me-2"
                       >
                         Eligible Candidate
                       </Button>
                       <Button
                         variant="danger"
-                        //onClick={() => handleCandidateAction("remove", candidate.id)}
+                        onClick={() => {
+                          let selected: Candidate = {
+                            id: candidate.id,
+                            name: candidate.contactInfo.name,
+                            surname: candidate.contactInfo.surname,
+                          };
+                          setSelectedCandidate(selected);
+                          setRemoveCandidateModalShow(true);
+                        }}
                         className="me-2"
                       >
                         Remove Candidate
