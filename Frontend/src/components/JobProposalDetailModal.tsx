@@ -162,16 +162,20 @@ export default function JobProposalModalDetail(props: any) {
             </p>
           </>
         )}
-        {me?.roles.includes("manager") && (
+        {me?.roles.includes("operator") && (
           <>
             <p>
               {" "}
               Confirmation by customer:{" "}
-              {!jobProposal?.customerConfirmation
+              {jobProposal?.customerConfirmation === false &&
+              jobProposal?.status === "CREATED"
                 ? "The customer has not decided yet"
                 : jobProposal?.customerConfirmation === true
                   ? "Accepted by the customer"
-                  : "Declined by yhe customer"}
+                  : jobProposal?.customerConfirmation === false &&
+                      jobProposal?.status === "DECLINED"
+                    ? "Declined by the customer"
+                    : ""}
             </p>
           </>
         )}
@@ -214,15 +218,101 @@ export default function JobProposalModalDetail(props: any) {
             </p>
           </>
         )}
-        <p>
-          {" "}
-          Accepted by the professional:{" "}
-          {jobProposal?.status === "ACCEPTED"
-            ? "Yes"
-            : jobProposal?.status === "CREATED"
-              ? "Not yet accepted by the customer"
-              : "No"}
-        </p>
+        {me?.roles.includes("professional") && (
+          <>
+            <p>
+              {" "}
+              Confirmation by customer:{" "}
+              {jobProposal?.customerConfirmation === false &&
+              jobProposal?.status === "CREATED"
+                ? "The customer has not decided yet"
+                : jobProposal?.customerConfirmation === true
+                  ? "Accepted by the customer"
+                  : jobProposal?.customerConfirmation === false &&
+                      jobProposal?.status === "DECLINED"
+                    ? "Declined by the customer"
+                    : ""}
+            </p>
+          </>
+        )}
+        {me?.roles.includes("operator") && (
+          <>
+            <p>
+              {" "}
+              Accepted by the professional:{" "}
+              {jobProposal?.status === "ACCEPTED"
+                ? "Yes"
+                : jobProposal?.status === "CREATED"
+                  ? "Not yet accepted by the customer"
+                  : "No"}
+            </p>
+          </>
+        )}
+        {me?.roles.includes("customer") && (
+          <>
+            <p>
+              {" "}
+              Accepted by the professional:{" "}
+              {jobProposal?.status === "ACCEPTED"
+                ? "Yes"
+                : jobProposal?.status === "CREATED"
+                  ? "Not yet accepted by the customer"
+                  : "No"}
+            </p>
+          </>
+        )}
+        {me?.roles.includes("manager") && (
+          <p>
+            {" "}
+            Accepted by the professional:{" "}
+            {jobProposal?.status === "ACCEPTED"
+              ? "Yes"
+              : jobProposal?.status === "CREATED"
+                ? "Not yet accepted by the customer"
+                : "No"}
+          </p>
+        )}
+        {me?.roles.includes("professional") && (
+          <p>
+            {" "}
+            Accept the job proposal:{" "}
+            {jobProposal?.status === "ACCEPTED" ? (
+              "You have already accepted this job proposal"
+            ) : jobProposal?.status === "CREATED" &&
+              !jobProposal.customerConfirmation ? (
+              "Not yet accepted by the customer you can't accept it yet"
+            ) : jobProposal?.status === "CREATED" &&
+              !jobProposal.customerConfirmation ? (
+              "You can't accept it because has been declined by the customer"
+            ) : jobProposal?.status === "CREATED" &&
+              jobProposal.customerConfirmation ? (
+              <>
+                <Button
+                  variant="success"
+                  style={{ marginRight: 10 }}
+                  onClick={() => {
+                    //setModalAction("accept");
+                    //setProposalConfirmationModalShow(true);
+                  }}
+                >
+                  Accept
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => {
+                    //setModalAction("decline");
+                    //setProposalConfirmationModalShow(true);
+                  }}
+                >
+                  Decline
+                </Button>
+              </>
+            ) : (
+              ""
+            )}
+          </p>
+        )}
+
         <p>
           Contract:{" "}
           {jobProposal?.documentId ? (
