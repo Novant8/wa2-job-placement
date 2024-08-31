@@ -11,12 +11,11 @@ export default function CustomerAcceptDeclineProposalModal(props: any) {
       props.customerId,
       customerConfirm,
     )
-      .then(() => {
-        props.onHide;
-      })
+      .then(() => props.onHide)
       .catch((err) => {
         console.log(err);
-      });
+      })
+      .finally(() => props.setDirty);
   };
 
   return (

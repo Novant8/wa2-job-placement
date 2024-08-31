@@ -15,6 +15,7 @@ export default function JobProposalModalDetail(props: any) {
   const [proposalConfirmationModalShow, setProposalConfirmationModalShow] =
     useState<boolean>(false);
   const { me } = useAuth();
+  const [dirty, setDirty] = useState<boolean>(false);
 
   const [userInfo, setUserInfo] = useState<Customer>({
     id: 0,
@@ -71,7 +72,7 @@ export default function JobProposalModalDetail(props: any) {
         setJobProposal(data);
       })
       .catch((err) => console.log(err));
-  }, [props.professionalId]);
+  }, [props.professionalId, dirty]);
   /*
     const handleAcceptDecline = (status: any, professional: number) => {
     if (!props.jobOffer) return;
@@ -118,6 +119,7 @@ export default function JobProposalModalDetail(props: any) {
           onHide={() => setProposalConfirmationModalShow(false)}
           customerId={userInfo.id}
           proposalId={jobProposal?.id}
+          setDirty={() => setDirty(true)}
         />
       )}
       <Modal.Header closeButton>
@@ -172,7 +174,8 @@ export default function JobProposalModalDetail(props: any) {
             <p>
               {" "}
               Confirmation by customer:{" "}
-              {!jobProposal?.customerConfirm ? (
+              {!jobProposal?.customerConfirm &&
+              jobProposal?.status === "CREATED" ? (
                 <>
                   <Button
                     variant="success"
@@ -194,10 +197,13 @@ export default function JobProposalModalDetail(props: any) {
                     Decline
                   </Button>
                 </>
-              ) : jobProposal?.customerConfirm === true ? (
+              ) : jobProposal?.customerConfirm ? (
                 "You have accepted this professional for the job offer"
+              ) : !jobProposal?.customerConfirm &&
+                jobProposal?.status === "DECLINED" ? (
+                "You have declined this professional for the job offer"
               ) : (
-                "You have accepted this professional for the job offer"
+                ""
               )}
             </p>
           </>

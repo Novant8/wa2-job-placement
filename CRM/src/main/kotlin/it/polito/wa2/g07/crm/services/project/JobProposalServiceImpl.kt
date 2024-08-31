@@ -5,6 +5,7 @@ import it.polito.wa2.g07.crm.dtos.lab03.toJobOfferDTO
 import it.polito.wa2.g07.crm.dtos.project.JobProposalDTO
 import it.polito.wa2.g07.crm.dtos.project.toJobProposalDTO
 import it.polito.wa2.g07.crm.entities.project.JobProposal
+import it.polito.wa2.g07.crm.entities.project.ProposalStatus
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.repositories.lab03.JobOfferRepository
@@ -55,6 +56,8 @@ class JobProposalServiceImpl (
         else
         {
             proposal.customerConfirm = customerConfirm
+            if (!customerConfirm)
+                proposal.status = ProposalStatus.DECLINED
             return proposalRepository.save(proposal).toJobProposalDTO()
         }
 
