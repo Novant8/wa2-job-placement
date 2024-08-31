@@ -1,14 +1,10 @@
 package it.polito.wa2.g07.crm.services.lab03
 
 import it.polito.wa2.g07.crm.dtos.lab02.CreateProfessionalReducedDTO
-import it.polito.wa2.g07.crm.dtos.lab03.CreateProfessionalDTO
-import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalFilterDTO
-import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalReducedDTO
+import it.polito.wa2.g07.crm.dtos.lab03.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import it.polito.wa2.g07.crm.dtos.lab03.ProfessionalDTO
 import it.polito.wa2.g07.crm.entities.lab03.EmploymentState
-import org.springframework.security.core.Authentication
 
 interface ProfessionalService {
     fun createProfessional(professional: CreateProfessionalDTO): ProfessionalDTO
@@ -22,6 +18,7 @@ interface ProfessionalService {
     fun postProfessionalDailyRate(professionalId:Long, dailyRate :Double): ProfessionalDTO
     fun postProfessionalSkills(professionalId:Long, skills: Set<String> ): ProfessionalDTO
     fun postProfessionalEmploymentState(professionalId:Long, employmentState: EmploymentState ): ProfessionalDTO
+    fun postProfessionalCvDocument(professionalId: Long, cvDocumentDTO: CvDocumentDTO): ProfessionalDTO
 
     //fun create(professional: CreateProfessionalDTO): ProfessionalDTO
     fun bindContactToProfessional(contactId: Long, createProfessionalReducedDTO: CreateProfessionalReducedDTO): ProfessionalDTO

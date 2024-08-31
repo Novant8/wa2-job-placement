@@ -42,4 +42,6 @@ class Professional(
     @OneToMany(mappedBy = "professional",cascade = [ CascadeType.ALL ])
     val jobOffers : MutableSet<JobOffer> = mutableSetOf()
 
+    var cvDocument: Long? = null
+
 }
