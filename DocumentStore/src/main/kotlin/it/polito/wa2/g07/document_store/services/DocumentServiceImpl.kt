@@ -38,13 +38,13 @@ class DocumentServiceImpl(
         return documentMetadataRepository.save(docMetadata)
     }
 
-    override fun create(name: String, size:Long, contentType: String?, file: ByteArray): DocumentMetadataDTO{
+    override fun create(name: String, size:Long, contentType: String?, file: ByteArray, ownerUserId: String?): DocumentMetadataDTO{
 
         if(documentMetadataRepository.existsByNameIgnoreCase(name)) {
             throw DuplicateDocumentException("A document with the same name already exists")
         }
 
-        val history = documentHistoryRepository.save(DocumentHistory())
+        val history = documentHistoryRepository.save(DocumentHistory(ownerUserId))
         val savedMetadata = createDocumentMetadata(name, size, contentType, file)
 
         history.addDocumentMetadata(savedMetadata)

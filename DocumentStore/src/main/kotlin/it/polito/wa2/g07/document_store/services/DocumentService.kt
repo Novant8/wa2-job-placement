@@ -12,7 +12,7 @@ import org.springframework.data.domain.Page
 
 interface DocumentService {
 
- fun create(name: String, size:Long, contentType: String?, file: ByteArray): DocumentMetadataDTO
+ fun create(name: String, size:Long, contentType: String?, file: ByteArray, ownerUserId: String?): DocumentMetadataDTO
 
  fun getAllDocuments(pageable: Pageable): Page<DocumentReducedMetadataDTO>
  fun getDocumentContent(historyId:Long): DocumentDTO

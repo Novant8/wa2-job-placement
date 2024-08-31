@@ -3,7 +3,9 @@ package it.polito.wa2.g07.document_store.entities
 import jakarta.persistence.*
 
 @Entity
-class DocumentHistory {
+class DocumentHistory(
+    var ownerUserId: String? = null
+) {
     @Id
     @GeneratedValue
     var id: Long = 0

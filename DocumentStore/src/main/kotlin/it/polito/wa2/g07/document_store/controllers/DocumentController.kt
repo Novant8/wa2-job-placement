@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
@@ -32,7 +33,7 @@ class DocumentController(private val documentService: DocumentService) {
         val document = documentService.getDocumentContent(historyId)
         val headers = HttpHeaders()
         headers.set(HttpHeaders.CONTENT_TYPE, document.contentType)
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"${document.name}\"")
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=\"${document.name}\"")
 
         return ResponseEntity<ByteArray>(document.content, headers, HttpStatus.OK)
     }
@@ -55,7 +56,7 @@ class DocumentController(private val documentService: DocumentService) {
         val document = documentService.getDocumentVersionContent(historyId, metadataId)
         val headers = HttpHeaders()
         headers.set(HttpHeaders.CONTENT_TYPE, document.contentType)
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"${document.name}\"")
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=\"${document.name}\"")
 
         return ResponseEntity<ByteArray>(document.content, headers, HttpStatus.OK)
     }
@@ -70,20 +71,24 @@ class DocumentController(private val documentService: DocumentService) {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/","",consumes = ["multipart/form-data"])
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
-    fun saveDocument(@RequestParam("document") document: MultipartFile): DocumentMetadataDTO {
+    @PreAuthorize("hasAnyRole('operator', 'manager', 'professional')")
+    fun saveDocument(
+        @RequestPart("document") document: MultipartFile,
+        authentication: Authentication?
+    ): DocumentMetadataDTO {
 
-        if(document.originalFilename === null || document.originalFilename!!.isEmpty()) {
+        if(document.originalFilename.isNullOrEmpty()) {
             throw InvalidBodyException("The document does not have a name")
         }
 
-        return  documentService.create(document.originalFilename!!, document.size, document.contentType, document.bytes)
+        return  documentService.create(document.originalFilename!!, document.size, document.contentType, document.bytes, authentication?.name)
     }
 
     @PutMapping("/{historyId}","/{historyId}/")
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if the user is trying to modify their own document.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @documentHistoryRepository.findById(#historyId).orElse(null)?.ownerUserId == authentication.name")
     fun putDocuments(@PathVariable("historyId") historyId: Long,
-                     @RequestParam("document") document: MultipartFile) : DocumentMetadataDTO {
+                     @RequestPart("document") document: MultipartFile) : DocumentMetadataDTO {
 
         if(document.originalFilename === null || document.originalFilename!!.isEmpty()) {
             throw InvalidBodyException("The document does not have a name")
@@ -100,14 +105,16 @@ class DocumentController(private val documentService: DocumentService) {
 
     @DeleteMapping("/{historyId}","/{historyId}/")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if the user is trying to modify their own document.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @documentHistoryRepository.findById(#historyId).orElse(null)?.ownerUserId == authentication.name")
     fun deleteHistory(@PathVariable("historyId") historyId: Long){
        documentService.deleteDocumentHistory(historyId)
     }
 
     @DeleteMapping("/{historyId}/version/{metadataId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+    // Authorize only if the authenticated user is an operator/manager, or if the user is trying to modify their own document.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @documentHistoryRepository.findById(#historyId).orElse(null)?.ownerUserId == authentication.name")
     fun deleteVersion(
         @PathVariable("historyId") historyId: Long,
         @PathVariable("metadataId") metadataId: Long

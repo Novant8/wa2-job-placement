@@ -193,7 +193,7 @@ class DocumentServiceTest {
             val size = 42L
             val contentType = "application/pdf"
             val content = "hello i'm a PDF file".toByteArray()
-            val result = service.create(name, size, contentType, content)
+            val result = service.create(name, size, contentType, content, "123456")
 
             val expectedDTO = DocumentMetadataDTO(newHistoryId, newMetadataId, size, contentType, name, creationTimestamp)
             assertEquals(result, expectedDTO)
@@ -207,7 +207,7 @@ class DocumentServiceTest {
             val content = "hello i'm a PDF file".toByteArray()
 
             assertThrows<DuplicateDocumentException> {
-                service.create(name, size, contentType, content)
+                service.create(name, size, contentType, content, "123456")
             }
         }
     }

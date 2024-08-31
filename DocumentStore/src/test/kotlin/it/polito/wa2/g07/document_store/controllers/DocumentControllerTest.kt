@@ -181,13 +181,13 @@ class DocumentControllerTest(@Autowired var mockMvc: MockMvc) {
 
         @BeforeEach
         fun initMocks() {
-            every { documentService.create(any(String::class), any(Long::class), any(String::class), any(ByteArray::class)) } answers {
+            every { documentService.create(any(String::class), any(Long::class), any(String::class), any(ByteArray::class), any(String::class)) } answers {
                 val name = firstArg<String>()
                 val size = secondArg<Long>()
                 val contentType = thirdArg<String>()
                 DocumentMetadataDTO(mockDocumentDTO.historyId, newId, size, contentType, name, LocalDateTime.now())
             }
-            every { documentService.create(mockDocumentDTO.name, any(Long::class), any(String::class), any(ByteArray::class)) } throws DuplicateDocumentException("Document with the same name already exists")
+            every { documentService.create(mockDocumentDTO.name, any(Long::class), any(String::class), any(ByteArray::class), any(String::class)) } throws DuplicateDocumentException("Document with the same name already exists")
         }
 
         @Test
