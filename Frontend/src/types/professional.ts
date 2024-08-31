@@ -9,6 +9,7 @@ export interface Professional {
     skills: UserSkill[];
     dailyRate: number;
     employmentState: EmploymentState;
+    cvDocument?: number;
     notes?: string;
 }
 

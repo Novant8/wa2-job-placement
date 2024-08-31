@@ -9,6 +9,7 @@ import {Customer} from "./src/types/customer.ts";
 import {Contact} from "./src/types/contact.ts";
 import {Address, getAddressType} from "./src/types/address.ts";
 import Cookies from "js-cookie";
+import {DocumentHistory, DocumentMetadata} from "./src/types/documents.ts";
 
 interface ErrorResponseBody {
     type: string,
@@ -172,7 +173,9 @@ export function removeAddressFromContact(contactId: number, address: Address): P
     })
 }
 
-export function updateProfessionalField(professionalId: number, field: "dailyRate" | "location", value: number | string): Promise<Professional> {
+export type ProfessionalField = "dailyRate" | "location" | "cvDocument"
+
+export function updateProfessionalField<T extends ProfessionalField>(professionalId: number, field: T, value: Professional[T]): Promise<Professional> {
     return customFetch(`/crm/API/professionals/${professionalId}/${field}`, {
         method: "PUT",
         headers: {
@@ -180,10 +183,37 @@ export function updateProfessionalField(professionalId: number, field: "dailyRat
         },
         body: JSON.stringify({ [field]: value })
     })
-
-
 }
 
+export function getDocumentHistory(historyId: number): Promise<DocumentHistory> {
+    return customFetch(`/document-store/API/documents/${historyId}/history`);
+}
+
+export function uploadDocument(document: File): Promise<DocumentMetadata> {
+    const formData = new FormData();
+    formData.append("document", document, document.name);
+    return customFetch(`/upload/document`, {
+        method: "POST",
+        body: formData
+    })
+}
+
+export function updateDocument(historyId: number, document: File): Promise<DocumentMetadata> {
+    const formData = new FormData();
+    formData.append("document", document, document.name);
+    return customFetch(`/upload/document/${historyId}`, {
+        method: "PUT",
+        body: formData
+    })
+}
+
+export function deleteDocumentHistory(historyId: number): Promise<void> {
+    return customFetch(`/document-store/API/documents/${historyId}`, { method: "DELETE" })
+}
+
+export function deleteDocumentVersion(historyId: number, versionId: number): Promise<void> {
+    return customFetch(`/document-store/API/documents/${historyId}/version/${versionId}`, { method: "DELETE" })
+}
 
 
 const url :string = "http://localhost:8080"
