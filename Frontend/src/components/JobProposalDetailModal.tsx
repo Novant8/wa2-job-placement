@@ -16,7 +16,6 @@ export default function JobProposalModalDetail(props: any) {
     useState<boolean>(false);
   const { me } = useAuth();
   const [dirty, setDirty] = useState<boolean>(false);
-
   const [userInfo, setUserInfo] = useState<Customer>({
     id: 0,
     contactInfo: {
@@ -28,37 +27,40 @@ export default function JobProposalModalDetail(props: any) {
       addresses: [],
     },
   });
-  function updateInfoField<K extends keyof Contact>(
-    field: K,
-    value: Contact[K],
-  ) {
-    setUserInfo({
-      ...userInfo,
-      contactInfo: {
-        ...userInfo.contactInfo,
-        [field]: value,
-      },
-    });
-  }
 
-  useEffect(() => {
-    if (!me || userInfo.id > 0) return;
+  if (me?.roles.includes("customer")) {
+    function updateInfoField<K extends keyof Contact>(
+      field: K,
+      value: Contact[K],
+    ) {
+      setUserInfo({
+        ...userInfo,
+        contactInfo: {
+          ...userInfo.contactInfo,
+          [field]: value,
+        },
+      });
+    }
 
-    const registeredRole = me.roles.find((role) =>
-      ["customer", "professional"].includes(role),
-    );
-    if (registeredRole)
-      updateInfoField(
-        "category",
-        registeredRole.toUpperCase() as ContactCategory,
+    useEffect(() => {
+      if (!me || userInfo.id > 0) return;
+
+      const registeredRole = me.roles.find((role) =>
+        ["customer", "professional"].includes(role),
       );
+      if (registeredRole)
+        updateInfoField(
+          "category",
+          registeredRole.toUpperCase() as ContactCategory,
+        );
 
-    API.getCustomerFromCurrentUser()
-      .then((customer) => {
-        setUserInfo(customer);
-      })
-      .catch((err) => console.log(err));
-  }, [me, userInfo.id]);
+      API.getCustomerFromCurrentUser()
+        .then((customer) => {
+          setUserInfo(customer);
+        })
+        .catch((err) => console.log(err));
+    }, [me, userInfo.id]);
+  }
 
   useEffect(() => {
     if (props.professionalId === 0) return;
@@ -148,11 +150,15 @@ export default function JobProposalModalDetail(props: any) {
             <p>
               {" "}
               Confirmation by customer:{" "}
-              {!jobProposal?.customerConfirm
+              {jobProposal?.customerConfirmation === false &&
+              jobProposal?.status === "CREATED"
                 ? "The customer has not decided yet"
-                : jobProposal?.customerConfirm === true
+                : jobProposal?.customerConfirmation === true
                   ? "Accepted by the customer"
-                  : "Declined by yhe customer"}
+                  : jobProposal?.customerConfirmation === false &&
+                      jobProposal?.status === "CREATED"
+                    ? "Declined by yhe customer"
+                    : ""}
             </p>
           </>
         )}
@@ -161,9 +167,9 @@ export default function JobProposalModalDetail(props: any) {
             <p>
               {" "}
               Confirmation by customer:{" "}
-              {!jobProposal?.customerConfirm
+              {!jobProposal?.customerConfirmation
                 ? "The customer has not decided yet"
-                : jobProposal?.customerConfirm === true
+                : jobProposal?.customerConfirmation === true
                   ? "Accepted by the customer"
                   : "Declined by yhe customer"}
             </p>
@@ -174,7 +180,7 @@ export default function JobProposalModalDetail(props: any) {
             <p>
               {" "}
               Confirmation by customer:{" "}
-              {!jobProposal?.customerConfirm &&
+              {!jobProposal?.customerConfirmation &&
               jobProposal?.status === "CREATED" ? (
                 <>
                   <Button
@@ -197,9 +203,9 @@ export default function JobProposalModalDetail(props: any) {
                     Decline
                   </Button>
                 </>
-              ) : jobProposal?.customerConfirm ? (
+              ) : jobProposal?.customerConfirmation ? (
                 "You have accepted this professional for the job offer"
-              ) : !jobProposal?.customerConfirm &&
+              ) : !jobProposal?.customerConfirmation &&
                 jobProposal?.status === "DECLINED" ? (
                 "You have declined this professional for the job offer"
               ) : (

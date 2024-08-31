@@ -10,5 +10,5 @@ export interface JobProposal {
   jobOffer: JobOffer;
   documentId: number | null;
   status: JobProposalStatus;
-  customerConfirm: boolean;
+  customerConfirmation: boolean;
 }
