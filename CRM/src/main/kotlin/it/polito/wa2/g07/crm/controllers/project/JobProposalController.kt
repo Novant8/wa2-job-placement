@@ -68,6 +68,6 @@ class JobProposalController(private val jobProposalService: JobProposalService) 
         @PathVariable("jobOfferId") idOffer:Long,
         @PathVariable("professionalId") idProfessional:Long)
     : JobProposalDTO{
-        return jobProposalService.searchJobProposalByJobOfferAndProfessional(idProfessional, idOffer)
+        return jobProposalService.searchJobProposalByJobOfferAndProfessional(idOffer,idProfessional)
     }
 }
