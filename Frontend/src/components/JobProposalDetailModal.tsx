@@ -156,7 +156,7 @@ export default function JobProposalModalDetail(props: any) {
                 : jobProposal?.customerConfirmation === true
                   ? "Accepted by the customer"
                   : jobProposal?.customerConfirmation === false &&
-                      jobProposal?.status === "CREATED"
+                      jobProposal?.status === "DECLINED"
                     ? "Declined by yhe customer"
                     : ""}
             </p>
