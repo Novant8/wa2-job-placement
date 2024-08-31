@@ -204,6 +204,8 @@ export default function ViewJobOfferDetailsRecruiter() {
       <JobProposalModalDetail
         show={jobProposalDetailModalShow}
         onHide={() => setJobProposalDetailModalShow(false)}
+        jobOfferId={jobOffer?.id}
+        professionalId={selectedCandidate.id}
       />
 
       <SelectCandidateModal
@@ -516,15 +518,15 @@ export default function ViewJobOfferDetailsRecruiter() {
                     <Button
                       variant="warning"
                       onClick={() => {
+                        //setJobProposalDetailModalShow(true);
+
+                        let selected: Candidate = {
+                          id: jobOffer.professional.id,
+                          name: jobOffer.professional.contactInfo.name,
+                          surname: jobOffer.professional.contactInfo.surname,
+                        };
+                        setSelectedCandidate(selected);
                         setJobProposalDetailModalShow(true);
-                        /*
-                          let selected: Candidate = {
-                            id: jobOffer.professional.id,
-                            name: jobOffer.professional.contactInfo.name,
-                            surname: jobOffer.professional.contactInfo.surname,
-                          };
-                          setSelectedCandidate(selected);
-                          setRemoveCandidateModalShow(true);*/
                       }}
                       className="me-2"
                     >

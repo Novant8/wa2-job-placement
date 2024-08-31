@@ -355,10 +355,17 @@ export function createJobProposal(
   );
 }
 
-export function getJobProposalbuId(
+export function getJobProposalbyId(
   proposalId: number | undefined,
 ): Promise<JobProposal> {
   return customFetch(`/crm/API/jobProposals/${proposalId}`);
+}
+
+export function getJobProposalbyOfferAndProfessional(
+  offerId: number | undefined,
+  professionalId: number | undefined,
+): Promise<JobProposal> {
+  return customFetch(`/crm/API/jobProposals/${offerId}/${professionalId}`);
 }
 
 const url: string = "http://localhost:8080";

@@ -2,8 +2,23 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
 import { JobOfferUpdateStatus } from "../types/JobOffer.ts";
+import { useEffect, useState } from "react";
+import { JobProposal } from "../types/JobProposal.ts";
 
 export default function JobProposalModalDetail(props: any) {
+  const [jobProposal, setJobProposal] = useState<JobProposal>();
+  useEffect(() => {
+    if (props.professionalId === 0) return;
+
+    API.getJobProposalbyOfferAndProfessional(
+      props.jobOfferId,
+      props.professionalId,
+    )
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => console.log(err));
+  }, [props.professionalId]);
   /*
     const handleAcceptDecline = (status: any, professional: number) => {
     if (!props.jobOffer) return;

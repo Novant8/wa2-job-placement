@@ -39,4 +39,11 @@ class JobProposalServiceImpl (
         val proposal = proposalRepository.findById(idProposal).getOrElse { throw EntityNotFoundException("The proposal does not exist") }
         return proposal.toJobProposalDTO()
     }
+
+    @Transactional
+    override fun searchJobProposalByJobOfferAndProfessional(idJobOffer: Long, idProfessional: Long): JobProposalDTO {
+
+        val proposal = proposalRepository.findByJobOffer_OfferIdAndProfessional_ProfessionalId(idJobOffer, idProfessional).getOrElse { throw EntityNotFoundException("The proposal does not exist") }
+        return proposal.toJobProposalDTO()
+    }
 }
