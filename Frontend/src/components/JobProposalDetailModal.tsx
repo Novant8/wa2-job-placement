@@ -1,12 +1,64 @@
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
-import { JobOfferUpdateStatus } from "../types/JobOffer.ts";
 import { useEffect, useState } from "react";
 import { JobProposal } from "../types/JobProposal.ts";
+import { useAuth } from "../contexts/auth.tsx";
+
+import CustomerAcceptDeclineProposalModal from "./CustomerAcceptDeclineProposalModal.tsx";
+import { Customer } from "../types/customer.ts";
+import { Contact, ContactCategory } from "../types/contact.ts";
 
 export default function JobProposalModalDetail(props: any) {
   const [jobProposal, setJobProposal] = useState<JobProposal>();
+  const [modalAction, setModalAction] = useState("");
+  const [proposalConfirmationModalShow, setProposalConfirmationModalShow] =
+    useState<boolean>(false);
+  const { me } = useAuth();
+
+  const [userInfo, setUserInfo] = useState<Customer>({
+    id: 0,
+    contactInfo: {
+      id: 0,
+      name: "",
+      surname: "",
+      ssn: "",
+      category: "UNKNOWN",
+      addresses: [],
+    },
+  });
+  function updateInfoField<K extends keyof Contact>(
+    field: K,
+    value: Contact[K],
+  ) {
+    setUserInfo({
+      ...userInfo,
+      contactInfo: {
+        ...userInfo.contactInfo,
+        [field]: value,
+      },
+    });
+  }
+
+  useEffect(() => {
+    if (!me || userInfo.id > 0) return;
+
+    const registeredRole = me.roles.find((role) =>
+      ["customer", "professional"].includes(role),
+    );
+    if (registeredRole)
+      updateInfoField(
+        "category",
+        registeredRole.toUpperCase() as ContactCategory,
+      );
+
+    API.getCustomerFromCurrentUser()
+      .then((customer) => {
+        setUserInfo(customer);
+      })
+      .catch((err) => console.log(err));
+  }, [me, userInfo.id]);
+
   useEffect(() => {
     if (props.professionalId === 0) return;
 
@@ -16,6 +68,7 @@ export default function JobProposalModalDetail(props: any) {
     )
       .then((data) => {
         console.log(data);
+        setJobProposal(data);
       })
       .catch((err) => console.log(err));
   }, [props.professionalId]);
@@ -58,13 +111,114 @@ export default function JobProposalModalDetail(props: any) {
       aria-labelledby="contained-modal-title-vcenter"
       centered
     >
+      {me?.roles.includes("customer") && (
+        <CustomerAcceptDeclineProposalModal
+          show={proposalConfirmationModalShow}
+          action={modalAction}
+          onHide={() => setProposalConfirmationModalShow(false)}
+          customerId={userInfo.id}
+          proposalId={jobProposal?.id}
+        />
+      )}
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          Confirmation
+          Job Proposal Detail
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p>Job Proposal Info</p>
+        <h4>Job Proposal: {jobProposal?.id}</h4>
+        <p>
+          {" "}
+          Customer:{" "}
+          {jobProposal?.customer.contactInfo.name +
+            " " +
+            jobProposal?.customer.contactInfo.surname}
+        </p>
+        <p>
+          {" "}
+          Professional:{" "}
+          {jobProposal?.professional.contactInfo.name +
+            " " +
+            jobProposal?.professional.contactInfo.surname}
+        </p>
+        {me?.roles.includes("operator") && (
+          <>
+            <p>
+              {" "}
+              Confirmation by customer:{" "}
+              {!jobProposal?.customerConfirm
+                ? "The customer has not decided yet"
+                : jobProposal?.customerConfirm === true
+                  ? "Accepted by the customer"
+                  : "Declined by yhe customer"}
+            </p>
+          </>
+        )}
+        {me?.roles.includes("manager") && (
+          <>
+            <p>
+              {" "}
+              Confirmation by customer:{" "}
+              {!jobProposal?.customerConfirm
+                ? "The customer has not decided yet"
+                : jobProposal?.customerConfirm === true
+                  ? "Accepted by the customer"
+                  : "Declined by yhe customer"}
+            </p>
+          </>
+        )}
+        {me?.roles.includes("customer") && (
+          <>
+            <p>
+              {" "}
+              Confirmation by customer:{" "}
+              {!jobProposal?.customerConfirm ? (
+                <>
+                  <Button
+                    variant="success"
+                    style={{ marginRight: 10 }}
+                    onClick={() => {
+                      setModalAction("accept");
+                      setProposalConfirmationModalShow(true);
+                    }}
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => {
+                      setModalAction("decline");
+                      setProposalConfirmationModalShow(true);
+                    }}
+                  >
+                    Decline
+                  </Button>
+                </>
+              ) : jobProposal?.customerConfirm === true ? (
+                "You have accepted this professional for the job offer"
+              ) : (
+                "You have accepted this professional for the job offer"
+              )}
+            </p>
+          </>
+        )}
+        <p>
+          {" "}
+          Accepted by the professional:{" "}
+          {jobProposal?.status === "ACCEPTED"
+            ? "Yes"
+            : jobProposal?.status === "CREATED"
+              ? "Not yet accepted by the customer"
+              : "No"}
+        </p>
+        <p>
+          Contract:{" "}
+          {jobProposal?.documentId ? (
+            <Button variant="info">Download Job Contract</Button>
+          ) : (
+            "No contract yet submitted "
+          )}
+        </p>
       </Modal.Body>
       <Modal.Footer>
         <Button

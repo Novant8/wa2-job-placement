@@ -368,6 +368,20 @@ export function getJobProposalbyOfferAndProfessional(
   return customFetch(`/crm/API/jobProposals/${offerId}/${professionalId}`);
 }
 
+export function customerConfirmDeclineJobProposal(
+  proposalId: number | undefined,
+  customerId: number | undefined,
+  customerConfirm: boolean | undefined,
+): Promise<JobProposal> {
+  return customFetch(`/crm/API/jobProposals/${proposalId}/${customerId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(customerConfirm),
+  });
+}
+
 const url: string = "http://localhost:8080";
 
 export async function getProfessionals(

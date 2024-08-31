@@ -46,4 +46,18 @@ class JobProposalServiceImpl (
         val proposal = proposalRepository.findByJobOffer_OfferIdAndProfessional_ProfessionalId(idJobOffer, idProfessional).getOrElse { throw EntityNotFoundException("The proposal does not exist") }
         return proposal.toJobProposalDTO()
     }
+
+    @Transactional
+    override fun customerConfirmDecline(proposalId: Long,customerId: Long,customerConfirm: Boolean): JobProposalDTO {
+        val proposal = proposalRepository.findById(proposalId).orElseThrow { EntityNotFoundException("The proposal with ID $proposalId is not found") }
+        if(proposal.customer.customerId != customerId)
+            throw EntityNotFoundException("The customer does not belong to this proposal")
+        else
+        {
+            proposal.customerConfirm = customerConfirm
+            return proposalRepository.save(proposal).toJobProposalDTO()
+        }
+
+
+    }
 }

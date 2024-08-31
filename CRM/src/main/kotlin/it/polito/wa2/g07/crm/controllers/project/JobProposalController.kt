@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import it.polito.wa2.g07.crm.dtos.lab03.JobOfferDTO
+import it.polito.wa2.g07.crm.dtos.lab03.JobOfferUpdateDTO
 import it.polito.wa2.g07.crm.dtos.project.JobProposalDTO
 import it.polito.wa2.g07.crm.services.project.JobProposalService
 import org.springframework.http.HttpStatus
@@ -27,7 +28,7 @@ class JobProposalController(private val jobProposalService: JobProposalService) 
 
         ApiResponse(
             responseCode = "404",
-            description = "The job offer was not found or the Professional was not found or the Customer was not found ",
+            description = "The job proposal was not found ",
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
@@ -69,5 +70,24 @@ class JobProposalController(private val jobProposalService: JobProposalService) 
         @PathVariable("professionalId") idProfessional:Long)
     : JobProposalDTO{
         return jobProposalService.searchJobProposalByJobOfferAndProfessional(idOffer,idProfessional)
+    }
+
+    @Operation(summary = "Update Customer confirm")
+    @ApiResponses(value=[
+        ApiResponse(
+            responseCode = "201",
+            description = "The Job Proposal was successfully updated"),
+
+        ApiResponse(
+            responseCode = "404",
+            description = "The job proposal was not found  ",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+
+    @PreAuthorize("hasAnyRole('operator', 'manager','customer' )")
+    @PutMapping("/{proposalId}/{customerId}")
+    fun customerConfirmDecline(@PathVariable("proposalId") proposalId: Long, @PathVariable("customerId") customerId : Long ,@RequestBody customerConfirm: Boolean): JobProposalDTO {
+        return jobProposalService.customerConfirmDecline(proposalId, customerId, customerConfirm)
     }
 }

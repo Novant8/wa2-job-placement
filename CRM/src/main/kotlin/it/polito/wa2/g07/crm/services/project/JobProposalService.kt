@@ -11,4 +11,5 @@ interface JobProposalService {
     fun createJobProposal(customerId: Long, professionalId: Long, jobOfferId: Long) : JobProposalDTO
     fun searchJobProposalById(idProposal:Long): JobProposalDTO
     fun searchJobProposalByJobOfferAndProfessional(idJobOffer : Long, idProfessional: Long): JobProposalDTO
+    fun customerConfirmDecline(proposalId: Long, customerId: Long,customerConfirm: Boolean) : JobProposalDTO
 }
