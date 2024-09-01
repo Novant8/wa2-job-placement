@@ -29,10 +29,13 @@ class JobProposalServiceImpl (
         val professional = professionalRepository.findById(professionalId).getOrElse { throw EntityNotFoundException("The Professional doesn't exist") }
         val jobOffer = jobOfferRepository.findById(jobOfferId).getOrElse { throw EntityNotFoundException("The given Job Offer doesn't exist") }
 
-        val jobProposal = JobProposal(customer,professional,jobOffer)
+        val jobProposal = JobProposal(jobOffer)
 
-         proposalRepository.save(jobProposal)
-        return jobProposal.toJobProposalDTO()
+         customer.addJobProposal(jobProposal);
+         professional.addJobProposal(jobProposal)
+
+
+        return proposalRepository.save(jobProposal).toJobProposalDTO()
     }
 
     @Transactional

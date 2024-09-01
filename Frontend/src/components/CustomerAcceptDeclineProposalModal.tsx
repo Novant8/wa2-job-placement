@@ -11,11 +11,30 @@ export default function CustomerAcceptDeclineProposalModal(props: any) {
       props.customerId,
       customerConfirm,
     )
-      .then(() => props.onHide)
+      .then(() => {
+        if (!customerConfirm) {
+          console.log("HERE CUSTOMER CONFIRM " + customerConfirm);
+          API.updateJobOfferStatus(props.jobOfferId, {
+            status: "SELECTION_PHASE",
+          })
+            .then(() => {
+              API.removeCandidate(props.jobOfferId, props.candidateId)
+                .then(() => {
+                  props.setCustomerJobOfferDirty();
+                })
+                .catch((err) => console.log(err));
+            })
+            .catch((err) => console.log(err));
+        }
+        props.onHide();
+      })
       .catch((err) => {
         console.log(err);
       })
-      .finally(() => props.setDirty);
+      .finally(() => {
+        props.setDirty();
+        props.setProposalOnHide();
+      });
   };
 
   return (

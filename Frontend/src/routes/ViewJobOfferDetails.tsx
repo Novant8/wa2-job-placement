@@ -27,6 +27,7 @@ export default function ViewJobOfferDetails() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [newSkill, setNewSkill] = useState<string>("");
+  const [dirty, setDirty] = useState(false);
   const [userInfo, setUserInfo] = useState<Customer>({
     id: 0,
     contactInfo: {
@@ -80,6 +81,7 @@ export default function ViewJobOfferDetails() {
         API.getJobOfferDetails(jobOfferId)
           .then((data) => {
             setJobOffer(data);
+            setDirty(false);
           })
           .catch(() => {
             setError("Failed to fetch job offer details");
@@ -87,7 +89,7 @@ export default function ViewJobOfferDetails() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  });
+  }, [dirty]);
 
   const handleEditClick = () => {
     setIsEditable(!isEditable);
@@ -171,6 +173,7 @@ export default function ViewJobOfferDetails() {
         onHide={() => setJobProposalDetailModalShow(false)}
         jobOfferId={jobOffer?.id}
         professionalId={selectedCandidate.id}
+        setCustomerJobOfferDirty={() => setDirty(true)}
       />
       <Form>
         <Row className="mb-3">

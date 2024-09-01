@@ -121,7 +121,11 @@ export default function JobProposalModalDetail(props: any) {
           onHide={() => setProposalConfirmationModalShow(false)}
           customerId={userInfo.id}
           proposalId={jobProposal?.id}
+          jobOfferId={jobProposal?.jobOffer.id}
+          candidateId={jobProposal?.professional.id}
           setDirty={() => setDirty(true)}
+          setCustomerJobOfferDirty={props.setCustomerJobOfferDirty}
+          setProposalOnHide={props.onHide}
         />
       )}
       <Modal.Header closeButton>
@@ -162,23 +166,7 @@ export default function JobProposalModalDetail(props: any) {
             </p>
           </>
         )}
-        {me?.roles.includes("operator") && (
-          <>
-            <p>
-              {" "}
-              Confirmation by customer:{" "}
-              {jobProposal?.customerConfirmation === false &&
-              jobProposal?.status === "CREATED"
-                ? "The customer has not decided yet"
-                : jobProposal?.customerConfirmation === true
-                  ? "Accepted by the customer"
-                  : jobProposal?.customerConfirmation === false &&
-                      jobProposal?.status === "DECLINED"
-                    ? "Declined by the customer"
-                    : ""}
-            </p>
-          </>
-        )}
+
         {me?.roles.includes("customer") && (
           <>
             <p>
@@ -243,7 +231,7 @@ export default function JobProposalModalDetail(props: any) {
               {jobProposal?.status === "ACCEPTED"
                 ? "Yes"
                 : jobProposal?.status === "CREATED"
-                  ? "Not yet accepted by the customer"
+                  ? "Not yet accepted by the professional"
                   : "No"}
             </p>
           </>
@@ -256,7 +244,7 @@ export default function JobProposalModalDetail(props: any) {
               {jobProposal?.status === "ACCEPTED"
                 ? "Yes"
                 : jobProposal?.status === "CREATED"
-                  ? "Not yet accepted by the customer"
+                  ? "Not yet accepted by the professional"
                   : "No"}
             </p>
           </>
@@ -268,7 +256,7 @@ export default function JobProposalModalDetail(props: any) {
             {jobProposal?.status === "ACCEPTED"
               ? "Yes"
               : jobProposal?.status === "CREATED"
-                ? "Not yet accepted by the customer"
+                ? "Not yet accepted by the professional"
                 : "No"}
           </p>
         )}
