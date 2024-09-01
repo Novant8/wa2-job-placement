@@ -1,6 +1,5 @@
 package it.polito.wa2.g07.crm.entities.project
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend.Prop
 import it.polito.wa2.g07.crm.entities.lab03.Customer
 import it.polito.wa2.g07.crm.entities.lab03.JobOffer
 import it.polito.wa2.g07.crm.entities.lab03.Professional
@@ -15,7 +14,8 @@ enum class ProposalStatus {
 class JobProposal(
 
 
-   @OneToOne
+   @ManyToOne
+   @JoinColumn(unique = false)
    var jobOffer: JobOffer,
 
 
@@ -30,9 +30,11 @@ class JobProposal(
    var status : ProposalStatus = ProposalStatus.CREATED
 
    @ManyToOne
+   @JoinColumn(unique = false)
   lateinit var customer: Customer
 
    @ManyToOne
+   @JoinColumn(unique = false)
    lateinit var professional: Professional
 
 }

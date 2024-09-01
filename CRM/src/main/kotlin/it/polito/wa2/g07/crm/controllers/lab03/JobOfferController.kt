@@ -103,7 +103,7 @@ class JobOfferController(private val jobOfferService: JobOfferService) {
             return jobOfferService.updateJobOffer(jobOfferId, jobOfferUpdateDTO)
         }
 
-        @Operation(summary = "Add a candidate to a given Job Offer")
+        @Operation(summary = "Add a refused candidate to a given Job Offer")
         @ApiResponses(value=[
             ApiResponse(
                 responseCode = "200",
@@ -116,12 +116,42 @@ class JobOfferController(private val jobOfferService: JobOfferService) {
             )
         ])
 
-        @PreAuthorize("hasAnyRole('operator', 'manager' )")
+        @PreAuthorize("hasAnyRole('operator', 'manager','customer' )")
 
-        @PostMapping("/{jobOfferId}/candidate/{professionalId}")
-        fun addCandidate(@PathVariable ("jobOfferId") jobOfferId:Long, @PathVariable ("professionalId") professionalId: Long ): JobOfferDTO{
-            return jobOfferService.addCandidate(jobOfferId, professionalId)
+        @PostMapping("/{jobOfferId}/refusedCandidate/{professionalId}")
+        fun addRefusedCandidate(@PathVariable ("jobOfferId") jobOfferId:Long, @PathVariable ("professionalId") professionalId: Long ): JobOfferDTO{
+            return jobOfferService.addRefusedCandidate(jobOfferId, professionalId)
         }
+
+    @Operation(summary = "Add a candidate to a given Job Offer")
+    @ApiResponses(value=[
+        ApiResponse(
+            responseCode = "200",
+            description = "The candidate was successfully added"),
+
+        ApiResponse(
+            responseCode = "404",
+            description = "The job offer was not found or the Professional was not found ",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+
+    @PreAuthorize("hasAnyRole('operator', 'manager' )")
+
+    @PostMapping("/{jobOfferId}/candidate/{professionalId}")
+    fun addCandidate(@PathVariable ("jobOfferId") jobOfferId:Long, @PathVariable ("professionalId") professionalId: Long ): JobOfferDTO{
+        return jobOfferService.addCandidate(jobOfferId, professionalId)
+    }
+
+
+
+
+
+
+
+
+
+
         @Operation(summary = "Remove a candidate from a given Job Offer")
         @ApiResponses(value=[
             ApiResponse(

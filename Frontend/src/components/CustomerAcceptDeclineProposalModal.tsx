@@ -20,7 +20,13 @@ export default function CustomerAcceptDeclineProposalModal(props: any) {
             .then(() => {
               API.removeCandidate(props.jobOfferId, props.candidateId)
                 .then(() => {
-                  props.setCustomerJobOfferDirty();
+                  API.addRefusedCandidate(props.jobOfferId, props.candidateId)
+                    .then(() => {
+                      props.setCustomerJobOfferDirty();
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
                 })
                 .catch((err) => console.log(err));
             })

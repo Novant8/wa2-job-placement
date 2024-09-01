@@ -63,6 +63,18 @@ class JobOfferServiceImpl(
     }
 
     @Transactional
+    override fun addRefusedCandidate(jobOfferId: Long, professionalId: Long): JobOfferDTO {
+        val professional = professionalRepository.findById(professionalId).getOrElse { throw EntityNotFoundException("The Professional doesn't exist") }
+
+        val jobOffer = jobOfferRepository.findById(jobOfferId).getOrElse { throw EntityNotFoundException("The given Job Offer doesn't exist") }
+
+        jobOffer.addRefused(professional);
+
+        return jobOffer.toJobOfferDTO()
+    }
+
+
+    @Transactional
     override fun searchJobOffer(filterDTO: JobOfferFilterDTO, pageable: Pageable): Page<JobOfferReducedDTO> {
 
         return jobOfferRepository.findAll(filterDTO.toSpecification(),pageable).map { it.toJobOfferReducedDTO() }

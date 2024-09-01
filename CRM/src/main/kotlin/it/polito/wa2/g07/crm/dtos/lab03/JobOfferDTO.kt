@@ -17,7 +17,8 @@ data class JobOfferDTO (
     val notes: String?,
     val professional: ProfessionalReducedDTO?,    //during the lifecycle of a joboffer professional can be empty
     val value:Double? ,                  //when a professional is not present value cannot be computed
-    val candidates: List<ProfessionalReducedDTO>?
+    val candidates: List<ProfessionalReducedDTO>?,
+    val refusedCandidates: List<ProfessionalReducedDTO>?
 )
 
 
@@ -33,7 +34,8 @@ fun JobOffer.toJobOfferDTO(): JobOfferDTO {
             professional = null,
             value = this.value,
             offerStatus = this.status,
-            candidates = this.candidates.map { it.toProfessionalReducedDto() }
+            candidates = this.candidates.map {it.toProfessionalReducedDto()},
+            refusedCandidates = this.refusedCandidates.map { it.toProfessionalReducedDto() }
         )
     }
     return JobOfferDTO(
@@ -46,6 +48,8 @@ fun JobOffer.toJobOfferDTO(): JobOfferDTO {
         professional = this.professional!!.toProfessionalReducedDto(),
         value = this.value,
         offerStatus = this.status,
-        candidates = this.candidates.map { it.toProfessionalReducedDto() }
+        candidates = this.candidates.map { it.toProfessionalReducedDto()},
+        refusedCandidates = this.refusedCandidates.map { it.toProfessionalReducedDto()}
+
     )
 }

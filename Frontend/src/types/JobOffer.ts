@@ -33,6 +33,7 @@ export interface JobOffer {
   value: number;
   offerStatus: JobOfferStatus;
   candidates: ReducedProfessional[];
+  refusedCandidates: ReducedProfessional[];
 }
 
 export interface JobOfferCreate {

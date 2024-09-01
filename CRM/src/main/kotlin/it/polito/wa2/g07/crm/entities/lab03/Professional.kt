@@ -48,6 +48,10 @@ class Professional(
     @JsonManagedReference
     var proposedJobOffers: MutableSet<JobOffer> = mutableSetOf()
 
+    @ManyToMany (cascade = [CascadeType.ALL])
+    @JsonManagedReference
+    var refusedJobOffers: MutableSet<JobOffer> = mutableSetOf()
+
     @OneToMany(mappedBy = "professional")
     var jobProposals: MutableSet<JobProposal> = mutableSetOf()
 

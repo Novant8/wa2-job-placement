@@ -330,6 +330,18 @@ export function addCandidate(
   );
 }
 
+export function addRefusedCandidate(
+  jobOfferId: number | undefined,
+  professionalId: number | undefined,
+): Promise<JobOffer> {
+  return customFetch(
+    `/crm/API/joboffers/${jobOfferId}/refusedCandidate/${professionalId}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
 export function removeCandidate(
   jobOfferId: number | undefined,
   professionalId: number | undefined,
