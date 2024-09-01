@@ -73,10 +73,18 @@ function ProfessionalAccordion(props: CandidateAccordionProps) {
           <div>Employment State:{props.prof.employmentState}</div>
           {props.prof.notes ? <div>Notes: {props.prof.notes}</div> : ""}
 
-          <Button className="primary mt-3" onClick={() => handleCandidate()}>
-            {" "}
-            Propose Candidate{" "}
-          </Button>
+          {props.jobOffer.refusedCandidates.some(
+            (refusedCandidate) => refusedCandidate.id === props.prof.id,
+          ) ? (
+            <p style={{ color: "red" }}>
+              The customer has already refused this candidate
+            </p>
+          ) : (
+            <Button className="primary mt-3" onClick={() => handleCandidate()}>
+              {" "}
+              Propose Candidate{" "}
+            </Button>
+          )}
         </Accordion.Body>
       </Accordion.Item>
     </div>
@@ -84,13 +92,20 @@ function ProfessionalAccordion(props: CandidateAccordionProps) {
 }
 
 export default function SelectCandidateModal(props: any) {
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
   const [professional, setProfessional] = useState({});
   const { me } = useAuth();
 
   const [location, setLocation] = useState("");
   //const [skills, setSkills] = useState("");
   const [skills, setSkills] = useState<string[]>([]); // Array di skill
+
+  //TODO: REMOVE THIS USE EFFECT
+  useEffect(() => {
+    console.log("PROFESSIONAL" + JSON.stringify(professional));
+    console.log("JOB OFFER" + JSON.stringify(props.jobOffer));
+  }, [professional, props.jobOffer]);
+  console.log(props.jobOffer.refusedCandidates);
 
   useEffect(() => {
     const token = me?.xsrfToken;
