@@ -41,8 +41,8 @@ export default function ConfirmationModal(props: any) {
             : props.action === "decline"
               ? "Are you sure that you to decline to handle the job offer, after that the job offer will be aborted"
               : props.action === "done"
-                ? "Are you sure that yo want to make the job offer done?"
-                : "Are you sure that yo want to make the job offer aborted?"}
+                ? "Are you sure that you want to make the job offer done?"
+                : "Are you sure that you want to make the job offer aborted?"}
         </p>
       </Modal.Body>
       <Modal.Footer>

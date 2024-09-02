@@ -444,12 +444,21 @@ export default function ViewJobOfferDetails() {
           <Button
             style={{ marginRight: 10 }}
             variant="success"
-            onClick={() => handleDoneOffer()}
+            onClick={() => {
+              setModalAction("done");
+              setModalShow(true);
+            }}
           >
             Make Job Offer Done
           </Button>
 
-          <Button variant="danger" onClick={() => handleAbortOffer()}>
+          <Button
+            variant="danger"
+            onClick={() => {
+              setModalAction("abort");
+              setModalShow(true);
+            }}
+          >
             Abort Job Offer
           </Button>
         </>
