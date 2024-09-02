@@ -47,7 +47,7 @@ class JobProposalServiceImpl (
     @Transactional
     override fun searchJobProposalByJobOfferAndProfessional(idJobOffer: Long, idProfessional: Long): JobProposalDTO {
 
-        val proposal = proposalRepository.findByJobOffer_OfferIdAndProfessional_ProfessionalId(idJobOffer, idProfessional).getOrElse { throw EntityNotFoundException("The proposal does not exist") }
+        val proposal = proposalRepository.findByJobOffer_OfferIdAndProfessional_ProfessionalIdAndStatusNot(idJobOffer, idProfessional,ProposalStatus.DECLINED).getOrElse { throw EntityNotFoundException("The proposal does not exist") }
         return proposal.toJobProposalDTO()
     }
 
@@ -61,6 +61,26 @@ class JobProposalServiceImpl (
             proposal.customerConfirm = customerConfirm
             if (!customerConfirm)
                 proposal.status = ProposalStatus.DECLINED
+            return proposalRepository.save(proposal).toJobProposalDTO()
+        }
+
+
+    }
+
+    @Transactional
+    override fun professionalConfirmDecline(proposalId: Long,professionalId: Long,professionalConfirm: Boolean): JobProposalDTO {
+
+        val proposal = proposalRepository.findById(proposalId).orElseThrow { EntityNotFoundException("The proposal with ID $proposalId is not found") }
+        if(proposal.professional.professionalId != professionalId)
+            throw EntityNotFoundException("The professional does not belong to this proposal")
+        else
+        {
+
+            if (!professionalConfirm)
+                proposal.status = ProposalStatus.DECLINED
+            else
+                proposal.status= ProposalStatus.ACCEPTED
+
             return proposalRepository.save(proposal).toJobProposalDTO()
         }
 

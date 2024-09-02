@@ -2,25 +2,27 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
 
-export default function CustomerAcceptDeclineProposalModal(props: any) {
-  const handleAcceptDecline = (customerConfirm: boolean) => {
+export default function ProfessionalAcceptDeclineProposalModal(props: any) {
+  const handleAcceptDecline = (professionalConfirm: boolean) => {
     if (!props.proposalId) return;
 
-    API.customerConfirmDeclineJobProposal(
+    API.professionalConfirmDeclineJobProposal(
       props.proposalId,
-      props.customerId,
-      customerConfirm,
+      props.professionalId,
+      professionalConfirm,
     )
       .then(() => {
-        if (!customerConfirm) {
-          console.log("HERE CUSTOMER CONFIRM " + customerConfirm);
+        if (!professionalConfirm) {
           API.updateJobOfferStatus(props.jobOfferId, {
             status: "SELECTION_PHASE",
           })
             .then(() => {
-              API.removeCandidate(props.jobOfferId, props.candidateId)
+              API.removeCandidate(props.jobOfferId, props.professionalId)
                 .then(() => {
-                  API.addRefusedCandidate(props.jobOfferId, props.candidateId)
+                  API.addRefusedCandidate(
+                    props.jobOfferId,
+                    props.professionalId,
+                  )
                     .then(() => {
                       props.setCustomerJobOfferDirty(true);
                     })
@@ -31,6 +33,10 @@ export default function CustomerAcceptDeclineProposalModal(props: any) {
                 .catch((err) => console.log(err));
             })
             .catch((err) => console.log(err));
+        } else {
+          API.updateJobOfferStatus(props.jobOfferId, {
+            status: "CONSOLIDATED",
+          }).catch((err) => console.log(err));
         }
         props.onHide();
       })
@@ -58,8 +64,8 @@ export default function CustomerAcceptDeclineProposalModal(props: any) {
       <Modal.Body>
         <p>
           {props.action === "accept"
-            ? "Are you sure that you to accept this candidate for this job offer?"
-            : "Are you sure that you to decline this candidate for this job offer?"}
+            ? "Are you sure that you to accept the proposed Job Offer? Remember to upload the signed contract "
+            : "Are you sure that you to decline the proposed job offer?"}
         </p>
       </Modal.Body>
       <Modal.Footer>

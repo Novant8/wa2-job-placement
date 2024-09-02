@@ -90,4 +90,23 @@ class JobProposalController(private val jobProposalService: JobProposalService) 
     fun customerConfirmDecline(@PathVariable("proposalId") proposalId: Long, @PathVariable("customerId") customerId : Long ,@RequestBody customerConfirm: Boolean): JobProposalDTO {
         return jobProposalService.customerConfirmDecline(proposalId, customerId, customerConfirm)
     }
+
+    @Operation(summary = "Update JobProposal status after professional decision")
+    @ApiResponses(value=[
+        ApiResponse(
+            responseCode = "201",
+            description = "The Job Proposal was successfully updated"),
+
+        ApiResponse(
+            responseCode = "404",
+            description = "The job proposal was not found  ",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+
+    @PreAuthorize("hasAnyRole('operator', 'manager','professional' )")
+    @PutMapping("professional/{proposalId}/{professionalId}")
+    fun professionalConfirmDecline(@PathVariable("proposalId") proposalId: Long, @PathVariable("professionalId") professionalId : Long ,@RequestBody professionalConfirm: Boolean): JobProposalDTO {
+        return jobProposalService.professionalConfirmDecline(proposalId, professionalId, professionalConfirm)
+    }
 }

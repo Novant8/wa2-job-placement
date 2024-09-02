@@ -72,7 +72,7 @@ class JobOfferController(private val jobOfferService: JobOfferService) {
             )
         ])
 
-        @PreAuthorize("hasAnyRole('operator', 'manager','customer')")
+        @PreAuthorize("hasAnyRole('operator', 'manager','customer', 'professional')")
         @PostMapping("/{jobOfferId}")
         fun updateJobOfferStatus(
             @PathVariable jobOfferId: Long,
@@ -116,7 +116,7 @@ class JobOfferController(private val jobOfferService: JobOfferService) {
             )
         ])
 
-        @PreAuthorize("hasAnyRole('operator', 'manager','customer' )")
+        @PreAuthorize("hasAnyRole('operator', 'manager','customer','professional' )")
 
         @PostMapping("/{jobOfferId}/refusedCandidate/{professionalId}")
         fun addRefusedCandidate(@PathVariable ("jobOfferId") jobOfferId:Long, @PathVariable ("professionalId") professionalId: Long ): JobOfferDTO{
@@ -165,7 +165,7 @@ class JobOfferController(private val jobOfferService: JobOfferService) {
             )
         ])
 
-        @PreAuthorize("hasAnyRole('operator', 'manager','customer' )")
+        @PreAuthorize("hasAnyRole('operator', 'manager','customer','professional' )")
 
         @DeleteMapping("/{jobOfferId}/candidate/{professionalId}")
         fun removeCandidate(@PathVariable ("jobOfferId") jobOfferId:Long, @PathVariable ("professionalId") professionalId: Long ): Long{

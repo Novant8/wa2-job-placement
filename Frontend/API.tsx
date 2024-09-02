@@ -394,6 +394,23 @@ export function customerConfirmDeclineJobProposal(
   });
 }
 
+export function professionalConfirmDeclineJobProposal(
+  proposalId: number | undefined,
+  professionalId: number | undefined,
+  professionalConfirm: boolean | undefined,
+): Promise<JobProposal> {
+  return customFetch(
+    `/crm/API/jobProposals/professional/${proposalId}/${professionalId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(professionalConfirm),
+    },
+  );
+}
+
 const url: string = "http://localhost:8080";
 
 export async function getProfessionals(

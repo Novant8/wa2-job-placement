@@ -8,15 +8,23 @@ import { useAuth } from "../contexts/auth.tsx";
 import CustomerAcceptDeclineProposalModal from "./CustomerAcceptDeclineProposalModal.tsx";
 import { Customer } from "../types/customer.ts";
 import { Contact, ContactCategory } from "../types/contact.ts";
+import ProfessionalAcceptDeclineProposalModal from "./ProfessionalAcceptDeclineProposalModal.tsx";
+import { Professional } from "../types/professional.ts";
 
 export default function JobProposalModalDetail(props: any) {
   const [jobProposal, setJobProposal] = useState<JobProposal>();
   const [modalAction, setModalAction] = useState("");
-  const [proposalConfirmationModalShow, setProposalConfirmationModalShow] =
-    useState<boolean>(false);
+  const [
+    customerProposalConfirmationModalShow,
+    setCustomerProposalConfirmationModalShow,
+  ] = useState<boolean>(false);
+  const [
+    professionalProposalConfirmationModalShow,
+    setProfessionalProposalConfirmationModalShow,
+  ] = useState<boolean>(false);
   const { me } = useAuth();
   const [dirty, setDirty] = useState<boolean>(false);
-  const [userInfo, setUserInfo] = useState<Customer>({
+  const [customerInfo, setCustomerInfo] = useState<Customer>({
     id: 0,
     contactInfo: {
       id: 0,
@@ -28,38 +36,90 @@ export default function JobProposalModalDetail(props: any) {
     },
   });
 
-  if (me?.roles.includes("customer")) {
-    function updateInfoField<K extends keyof Contact>(
-      field: K,
-      value: Contact[K],
-    ) {
-      setUserInfo({
-        ...userInfo,
+  const [professioanlInfo, setProfessionalInfo] = useState<Professional>({
+    id: 0,
+    contactInfo: {
+      id: 0,
+      name: "",
+      surname: "",
+      ssn: "",
+      category: "UNKNOWN",
+      addresses: [],
+    },
+    location: "",
+    skills: [],
+    dailyRate: 0,
+    employmentState: "NOT_AVAILABLE",
+  });
+
+  function updateInfoField<K extends keyof Contact>(
+    field: K,
+    value: Contact[K],
+    role: string,
+  ) {
+    if (role == "customer") {
+      setCustomerInfo({
+        ...customerInfo,
         contactInfo: {
-          ...userInfo.contactInfo,
+          ...customerInfo.contactInfo,
+          [field]: value,
+        },
+      });
+    } else {
+      setProfessionalInfo({
+        ...professioanlInfo,
+        contactInfo: {
+          ...professioanlInfo.contactInfo,
           [field]: value,
         },
       });
     }
+  }
 
+  if (me?.roles.includes("customer")) {
     useEffect(() => {
-      if (!me || userInfo.id > 0) return;
+      if (!me || customerInfo.id > 0) return;
 
       const registeredRole = me.roles.find((role) =>
         ["customer", "professional"].includes(role),
       );
+
       if (registeredRole)
         updateInfoField(
           "category",
           registeredRole.toUpperCase() as ContactCategory,
+          registeredRole,
         );
 
       API.getCustomerFromCurrentUser()
         .then((customer) => {
-          setUserInfo(customer);
+          setCustomerInfo(customer);
         })
         .catch((err) => console.log(err));
-    }, [me, userInfo.id]);
+    }, [me, customerInfo.id]);
+  }
+
+  if (me?.roles.includes("professional")) {
+    useEffect(() => {
+      if (!me || customerInfo.id > 0) return;
+
+      const registeredRole = me.roles.find((role) =>
+        ["customer", "professional"].includes(role),
+      );
+
+      if (registeredRole)
+        updateInfoField(
+          "category",
+          registeredRole.toUpperCase() as ContactCategory,
+          registeredRole,
+        );
+
+      API.getProfessionalFromCurrentUser()
+        .then((professional) => {
+          setProfessionalInfo(professional);
+        })
+        .catch((err) => console.log(err));
+    }, [me, professioanlInfo.id]);
   }
 
   useEffect(() => {
@@ -75,38 +135,7 @@ export default function JobProposalModalDetail(props: any) {
       })
       .catch((err) => console.log(err));
   }, [props.professionalId, dirty]);
-  /*
-    const handleAcceptDecline = (status: any, professional: number) => {
-    if (!props.jobOffer) return;
 
-    const jobOfferUpdateStatus: JobOfferUpdateStatus = {
-      status: status,
-      professionalId: professional,
-    };
-
-    API.createJobProposal(
-      props.jobOffer.customer.id,
-      props.jobOffer.id,
-      props.candidate.id,
-    )
-      .then(() => {
-        API.updateJobOfferStatus(props.jobOffer.id, jobOfferUpdateStatus)
-          .then(() => {
-            //navigate(`/crm/RecruiterJobOffer/${props.jobOffer.id}`);
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        props.setDirty(true);
-        props.onHide;
-      });
-  };
-*/
   return (
     <Modal
       {...props}
@@ -116,15 +145,27 @@ export default function JobProposalModalDetail(props: any) {
     >
       {me?.roles.includes("customer") && (
         <CustomerAcceptDeclineProposalModal
-          show={proposalConfirmationModalShow}
+          show={customerProposalConfirmationModalShow}
           action={modalAction}
-          onHide={() => setProposalConfirmationModalShow(false)}
-          customerId={userInfo.id}
+          onHide={() => setCustomerProposalConfirmationModalShow(false)}
+          customerId={customerInfo.id}
           proposalId={jobProposal?.id}
           jobOfferId={jobProposal?.jobOffer.id}
           candidateId={jobProposal?.professional.id}
           setDirty={() => setDirty(true)}
           setCustomerJobOfferDirty={props.setCustomerJobOfferDirty}
+          setProposalOnHide={props.onHide}
+        />
+      )}
+      {me?.roles.includes("professional") && (
+        <ProfessionalAcceptDeclineProposalModal
+          show={professionalProposalConfirmationModalShow}
+          action={modalAction}
+          onHide={() => setProfessionalProposalConfirmationModalShow(false)}
+          proposalId={jobProposal?.id}
+          jobOfferId={jobProposal?.jobOffer.id}
+          professionalId={professioanlInfo.id}
+          setDirty={() => setDirty(true)}
           setProposalOnHide={props.onHide}
         />
       )}
@@ -180,7 +221,7 @@ export default function JobProposalModalDetail(props: any) {
                     style={{ marginRight: 10 }}
                     onClick={() => {
                       setModalAction("accept");
-                      setProposalConfirmationModalShow(true);
+                      setCustomerProposalConfirmationModalShow(true);
                     }}
                   >
                     Accept
@@ -189,7 +230,7 @@ export default function JobProposalModalDetail(props: any) {
                     variant="danger"
                     onClick={() => {
                       setModalAction("decline");
-                      setProposalConfirmationModalShow(true);
+                      setCustomerProposalConfirmationModalShow(true);
                     }}
                   >
                     Decline
@@ -279,8 +320,8 @@ export default function JobProposalModalDetail(props: any) {
                   variant="success"
                   style={{ marginRight: 10 }}
                   onClick={() => {
-                    //setModalAction("accept");
-                    //setProposalConfirmationModalShow(true);
+                    setModalAction("accept");
+                    setProfessionalProposalConfirmationModalShow(true);
                   }}
                 >
                   Accept
@@ -288,8 +329,8 @@ export default function JobProposalModalDetail(props: any) {
                 <Button
                   variant="danger"
                   onClick={() => {
-                    //setModalAction("decline");
-                    //setProposalConfirmationModalShow(true);
+                    setModalAction("decline");
+                    setProfessionalProposalConfirmationModalShow(true);
                   }}
                 >
                   Decline
