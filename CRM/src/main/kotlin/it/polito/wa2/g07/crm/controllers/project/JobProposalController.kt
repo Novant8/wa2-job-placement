@@ -109,4 +109,11 @@ class JobProposalController(private val jobProposalService: JobProposalService) 
     fun professionalConfirmDecline(@PathVariable("proposalId") proposalId: Long, @PathVariable("professionalId") professionalId : Long ,@RequestBody professionalConfirm: Boolean): JobProposalDTO {
         return jobProposalService.professionalConfirmDecline(proposalId, professionalId, professionalConfirm)
     }
+
+    @Operation(summary = "Load a New Document for the Job Proposal ")
+    @PreAuthorize("hasAnyRole('customer', 'professional' )")
+    @PutMapping("{proposalId}/document")
+    fun loadDocument (@PathVariable("proposalId") proposalId: Long,@RequestBody documentId: Long?): JobProposalDTO{
+        return jobProposalService.loadDocument(proposalId,documentId)
+    }
 }

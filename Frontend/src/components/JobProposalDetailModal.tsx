@@ -10,6 +10,8 @@ import { Customer } from "../types/customer.ts";
 import { Contact, ContactCategory } from "../types/contact.ts";
 import ProfessionalAcceptDeclineProposalModal from "./ProfessionalAcceptDeclineProposalModal.tsx";
 import { Professional } from "../types/professional.ts";
+import { UploadDocumentField } from "./UploadDocumentField.tsx";
+import { ApiError } from "../../API.tsx";
 
 export default function JobProposalModalDetail(props: any) {
   const [jobProposal, setJobProposal] = useState<JobProposal>();
@@ -22,6 +24,9 @@ export default function JobProposalModalDetail(props: any) {
     professionalProposalConfirmationModalShow,
     setProfessionalProposalConfirmationModalShow,
   ] = useState<boolean>(false);
+
+  const [loadingDocument, setLoadingDocument] = useState(false);
+  const [errorDocument, setErrorDocument] = useState("");
   const { me } = useAuth();
   const [dirty, setDirty] = useState<boolean>(false);
   const [customerInfo, setCustomerInfo] = useState<Customer>({
@@ -135,6 +140,47 @@ export default function JobProposalModalDetail(props: any) {
       })
       .catch((err) => console.log(err));
   }, [props.professionalId, dirty]);
+
+  function uploadOrUpdateContract(document: File) {
+    if (!jobProposal) return;
+
+    let promise;
+    if (jobProposal.documentId)
+      promise = API.updateDocument(jobProposal.documentId, document);
+    else promise = API.uploadDocument(document);
+
+    const prevDocument = jobProposal.documentId;
+    setJobProposal({ ...jobProposal, documentId: null });
+    setLoadingDocument(true);
+    promise
+      .then((document) => {
+        API.loadJobProposalDocument(jobProposal.id, document.historyId).then(
+          (proposal) => setJobProposal(proposal),
+        );
+      })
+      .catch((err) => {
+        setJobProposal({ ...jobProposal, documentId: prevDocument });
+        setErrorDocument(err);
+      })
+      .finally(() => {
+        setLoadingDocument(false);
+      });
+  }
+
+  function deleteContract(documentId: number) {
+    if (!jobProposal) return;
+    setLoadingDocument(true);
+    API.loadJobProposalDocument(jobProposal.id, null)
+      .then((proposal) => {
+        setJobProposal(proposal);
+        API.deleteDocumentHistory(documentId);
+      })
+      .catch((err) => {
+        console.log(err);
+        setErrorDocument(err);
+      })
+      .finally(setLoadingDocument(false));
+  }
 
   return (
     <Modal
@@ -344,6 +390,15 @@ export default function JobProposalModalDetail(props: any) {
 
         <p>
           Contract:{" "}
+          {me?.roles.includes("customer") && (
+            <UploadDocumentField
+              documentId={jobProposal?.documentId}
+              loading={loadingDocument}
+              error={errorDocument}
+              onUpload={uploadOrUpdateContract}
+              onDelete={deleteContract}
+            />
+          )}
           {jobProposal?.documentId ? (
             <Button variant="info">Download Job Contract</Button>
           ) : (

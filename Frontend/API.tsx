@@ -17,7 +17,7 @@ import { Address, getAddressType } from "./src/types/address.ts";
 import Cookies from "js-cookie";
 import { CustomerFilter } from "./src/types/customerFilter.ts";
 import { JobProposal } from "./src/types/JobProposal.ts";
-import {DocumentHistory, DocumentMetadata} from "./src/types/documents.ts";
+import { DocumentHistory, DocumentMetadata } from "./src/types/documents.ts";
 
 interface ErrorResponseBody {
   type: string;
@@ -246,7 +246,7 @@ export function removeAddressFromContact(
   );
 }
 
-export type ProfessionalField = "dailyRate" | "location" | "cvDocument"
+export type ProfessionalField = "dailyRate" | "location" | "cvDocument";
 
 export function updateProfessionalField<T extends ProfessionalField>(
   professionalId: number,
@@ -358,12 +358,12 @@ export function removeCandidate(
 }
 
 export function uploadDocument(document: File): Promise<DocumentMetadata> {
-    const formData = new FormData();
-    formData.append("document", document, document.name);
-    return customFetch(`/upload/document`, {
-        method: "POST",
-        body: formData
-    })
+  const formData = new FormData();
+  formData.append("document", document, document.name);
+  return customFetch(`/upload/document`, {
+    method: "POST",
+    body: formData,
+  });
 }
 export function createJobProposal(
   customerId: number | undefined,
@@ -378,13 +378,16 @@ export function createJobProposal(
   );
 }
 
-export function updateDocument(historyId: number, document: File): Promise<DocumentMetadata> {
+export function updateDocument(
+  historyId: number,
+  document: File,
+): Promise<DocumentMetadata> {
   const formData = new FormData();
   formData.append("document", document, document.name);
   return customFetch(`/upload/document/${historyId}`, {
     method: "PUT",
-    body: formData
-  })
+    body: formData,
+  });
 }
 
 export function getJobProposalbyId(
@@ -393,16 +396,26 @@ export function getJobProposalbyId(
   return customFetch(`/crm/API/jobProposals/${proposalId}`);
 }
 
-export function getDocumentHistory(historyId: number): Promise<DocumentHistory> {
+export function getDocumentHistory(
+  historyId: number,
+): Promise<DocumentHistory> {
   return customFetch(`/document-store/API/documents/${historyId}/history`);
 }
 
 export function deleteDocumentHistory(historyId: number): Promise<void> {
-    return customFetch(`/document-store/API/documents/${historyId}`, { method: "DELETE" })
+  return customFetch(`/document-store/API/documents/${historyId}`, {
+    method: "DELETE",
+  });
 }
 
-export function deleteDocumentVersion(historyId: number, versionId: number): Promise<void> {
-    return customFetch(`/document-store/API/documents/${historyId}/version/${versionId}`, { method: "DELETE" })
+export function deleteDocumentVersion(
+  historyId: number,
+  versionId: number,
+): Promise<void> {
+  return customFetch(
+    `/document-store/API/documents/${historyId}/version/${versionId}`,
+    { method: "DELETE" },
+  );
 }
 export function getJobProposalbyOfferAndProfessional(
   offerId: number | undefined,
@@ -440,6 +453,19 @@ export function professionalConfirmDeclineJobProposal(
       body: JSON.stringify(professionalConfirm),
     },
   );
+}
+
+export function loadJobProposalDocument(
+  proposalId: number | undefined,
+  documentId: number | null,
+): Promise<JobProposal> {
+  return customFetch(`/crm/API/jobProposals/${proposalId}/document`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(documentId),
+  });
 }
 
 const url: string = "http://localhost:8080";

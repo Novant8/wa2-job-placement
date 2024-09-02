@@ -14,4 +14,6 @@ interface JobProposalService {
     fun customerConfirmDecline(proposalId: Long, customerId: Long,customerConfirm: Boolean) : JobProposalDTO
 
     fun professionalConfirmDecline(proposalId: Long, professionalId: Long,professionalConfirm: Boolean) : JobProposalDTO
+
+    fun loadDocument(proposalId: Long, documentId : Long?) : JobProposalDTO
 }

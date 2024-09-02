@@ -1,134 +1,164 @@
-import {ChangeEvent, useEffect, useState} from "react";
-import {DocumentHistory, ReducedDocumentMetadata} from "../types/documents.ts";
+import { ChangeEvent, useEffect, useState } from "react";
+import {
+  DocumentHistory,
+  ReducedDocumentMetadata,
+} from "../types/documents.ts";
 import * as API from "../../API.tsx";
-import {ApiError} from "../../API.tsx";
-import {Accordion, Button, ButtonGroup, Form, InputGroup, Spinner} from "react-bootstrap";
+import { ApiError } from "../../API.tsx";
+import {
+  Accordion,
+  Button,
+  ButtonGroup,
+  Form,
+  InputGroup,
+  Spinner,
+} from "react-bootstrap";
 
 interface UploadFileFieldProps {
-    documentId: number | undefined,
-    loading?: boolean,
-    error?: string,
-    onUpload?: (file: File) => void,
-    onDelete?: (documentId: number) => void
+  documentId: number | undefined | null;
+  loading?: boolean;
+  error?: string;
+  onUpload?: (file: File) => void;
+  onDelete?: (documentId: number) => void;
 }
 
-export function UploadDocumentField({ documentId, error, loading, onUpload, onDelete } : UploadFileFieldProps) {
-    const [ file, setFile ] = useState<File | undefined>();
-    const [ documentHistory, setDocumentHistory ] = useState<DocumentHistory | undefined>();
-    const [ documentError, setDocumentError ] = useState("");
-    const [ versionDeleteLoading, setVersionDeleteLoading ] = useState<boolean[]>([]);
+export function UploadDocumentField({
+  documentId,
+  error,
+  loading,
+  onUpload,
+  onDelete,
+}: UploadFileFieldProps) {
+  const [file, setFile] = useState<File | undefined>();
+  const [documentHistory, setDocumentHistory] = useState<
+    DocumentHistory | undefined
+  >();
+  const [documentError, setDocumentError] = useState("");
+  const [versionDeleteLoading, setVersionDeleteLoading] = useState<boolean[]>(
+    [],
+  );
 
-    useEffect(() => {
-        if(!documentId)
-            return;
-        setDocumentError("");
-        API.getDocumentHistory(documentId)
-            .then(history => {
-                setDocumentHistory(history);
-                setVersionDeleteLoading(Array(history.versions.length).fill(false))
-            })
-            .catch((err: ApiError) => setDocumentError(err.message))
-    }, [ documentId ]);
+  useEffect(() => {
+    if (!documentId) return;
+    setDocumentError("");
+    API.getDocumentHistory(documentId)
+      .then((history) => {
+        setDocumentHistory(history);
+        setVersionDeleteLoading(Array(history.versions.length).fill(false));
+      })
+      .catch((err: ApiError) => setDocumentError(err.message));
+  }, [documentId]);
 
-    function handleFileUpload() {
-        setDocumentHistory(undefined);
-        setFile(undefined);
-        onUpload?.(file!);
-    }
+  function handleFileUpload() {
+    setDocumentHistory(undefined);
+    setFile(undefined);
+    onUpload?.(file!);
+  }
 
-    function handleHistoryDelete() {
-        setDocumentHistory(undefined);
-        setFile(undefined);
-        onDelete?.(documentId!);
-    }
+  function handleHistoryDelete() {
+    setDocumentHistory(undefined);
+    setFile(undefined);
+    onDelete?.(documentId!);
+  }
 
-    function handleVersionDelete(versionIndex: number) {
-        versionDeleteLoading[versionIndex] = true;
-        setVersionDeleteLoading([ ...versionDeleteLoading ]);
-        const historyId = documentHistory!.versions[versionIndex].historyId;
-        const versionId = documentHistory!.versions[versionIndex].versionId;
-        API.deleteDocumentVersion(historyId, versionId)
-            .then(() => {
-                documentHistory!.versions.splice(versionIndex, 1);
-            })
-            .catch((err: ApiError) => setDocumentError(err.message))
-            .finally(() => {
-                versionDeleteLoading[versionIndex] = false;
-                setVersionDeleteLoading([ ...versionDeleteLoading ]);
-            })
-    }
+  function handleVersionDelete(versionIndex: number) {
+    versionDeleteLoading[versionIndex] = true;
+    setVersionDeleteLoading([...versionDeleteLoading]);
+    const historyId = documentHistory!.versions[versionIndex].historyId;
+    const versionId = documentHistory!.versions[versionIndex].versionId;
+    API.deleteDocumentVersion(historyId, versionId)
+      .then(() => {
+        documentHistory!.versions.splice(versionIndex, 1);
+      })
+      .catch((err: ApiError) => setDocumentError(err.message))
+      .finally(() => {
+        versionDeleteLoading[versionIndex] = false;
+        setVersionDeleteLoading([...versionDeleteLoading]);
+      });
+  }
 
-    const latestDoc = documentHistory?.versions?.[0]
+  const latestDoc = documentHistory?.versions?.[0];
 
-    const showSpinner = loading || (documentId && !documentHistory);
-    if(showSpinner)
-        return <Spinner />
+  const showSpinner = loading || (documentId && !documentHistory);
+  if (showSpinner) return <Spinner />;
 
-    return (
+  return (
+    <>
+      {documentId && latestDoc && (
         <>
-            {
-                documentId && latestDoc &&
-                <>
-                    Currently uploaded:
-                    <FileField
-                        document={latestDoc}
-                        onDelete={handleHistoryDelete}
-                    />
-                </>
-            }
-            <Form.Group controlId="register-user-upload-document" className="my-3">
-                <InputGroup hasValidation>
-                    <Form.Control
-                        type="file"
-                        isInvalid={!!documentError || !!error}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => setFile(e.target.files![0])}
-                    />
-                    <Button variant={documentHistory ? "warning" : "primary"} disabled={!file} onClick={handleFileUpload}>{ documentHistory ? "Update" : "Upload" }</Button>
-                    <Form.Control.Feedback type="invalid">{documentError || error}</Form.Control.Feedback>
-                </InputGroup>
-            </Form.Group>
-            {
-                documentHistory && documentHistory.versions.length > 1 &&
-                <Accordion>
-                    <Accordion.Item eventKey="0">
-                        <Accordion.Header>Show all versions</Accordion.Header>
-                        <Accordion.Body>
-                            {
-                                documentHistory.versions.map((document, index) => (
-                                    versionDeleteLoading[index] ?
-                                        <Spinner key={`version-loading-${index}`} />
-                                        :
-                                        <FileField
-                                            key={`version-${index}`}
-                                            document={document}
-                                            onDelete={() => handleVersionDelete(index)}
-                                        />
-                                ))
-                            }
-                        </Accordion.Body>
-                    </Accordion.Item>
-                </Accordion>
-            }
+          Currently uploaded:
+          <FileField document={latestDoc} onDelete={handleHistoryDelete} />
         </>
-    )
+      )}
+      <Form.Group controlId="register-user-upload-document" className="my-3">
+        <InputGroup hasValidation>
+          <Form.Control
+            type="file"
+            isInvalid={!!documentError || !!error}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setFile(e.target.files![0])
+            }
+          />
+          <Button
+            variant={documentHistory ? "warning" : "primary"}
+            disabled={!file}
+            onClick={handleFileUpload}
+          >
+            {documentHistory ? "Update" : "Upload"}
+          </Button>
+          <Form.Control.Feedback type="invalid">
+            {documentError || error}
+          </Form.Control.Feedback>
+        </InputGroup>
+      </Form.Group>
+      {documentHistory && documentHistory.versions.length > 1 && (
+        <Accordion>
+          <Accordion.Item eventKey="0">
+            <Accordion.Header>Show all versions</Accordion.Header>
+            <Accordion.Body>
+              {documentHistory.versions.map((document, index) =>
+                versionDeleteLoading[index] ? (
+                  <Spinner key={`version-loading-${index}`} />
+                ) : (
+                  <FileField
+                    key={`version-${index}`}
+                    document={document}
+                    onDelete={() => handleVersionDelete(index)}
+                  />
+                ),
+              )}
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
+      )}
+    </>
+  );
 }
 
 interface FileFieldProps {
-    document: ReducedDocumentMetadata,
-    onDelete?: (documentId: number) => void
+  document: ReducedDocumentMetadata;
+  onDelete?: (documentId: number) => void;
 }
 
 function FileField({ document, onDelete }: FileFieldProps) {
-    return (
-        <div className="my-2">
-            <span className="mx-3 my-auto"><strong>{document.name}</strong></span>
-            <ButtonGroup>
-                <Button variant="primary"
-                        as="a"
-                        href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
-                        target="_blank">View</Button>
-                <Button variant="danger" onClick={() => onDelete?.(document.historyId)}>Delete</Button>
-            </ButtonGroup>
-        </div>
-    )
+  return (
+    <div className="my-2">
+      <span className="mx-3 my-auto">
+        <strong>{document.name}</strong>
+      </span>
+      <ButtonGroup>
+        <Button
+          variant="primary"
+          as="a"
+          href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
+          target="_blank"
+        >
+          View
+        </Button>
+        <Button variant="danger" onClick={() => onDelete?.(document.historyId)}>
+          Delete
+        </Button>
+      </ButtonGroup>
+    </div>
+  );
 }

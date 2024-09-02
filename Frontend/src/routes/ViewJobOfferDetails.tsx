@@ -16,6 +16,8 @@ import * as API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
 import { Customer } from "../types/customer.ts";
 import JobProposalModalDetail from "../components/JobProposalDetailModal.tsx";
+import ConfirmationModal from "../components/ConfirmationModal.tsx";
+import { set } from "js-cookie";
 type Candidate = {
   id: number;
   name: string;
@@ -28,6 +30,8 @@ export default function ViewJobOfferDetails() {
   const [error, setError] = useState<string | null>(null);
   const [newSkill, setNewSkill] = useState<string>("");
   const [dirty, setDirty] = useState(false);
+  const [modalShow, setModalShow] = useState<boolean>(false);
+  const [modalAction, setModalAction] = useState<string>("");
   const [userInfo, setUserInfo] = useState<Customer>({
     id: 0,
     contactInfo: {
@@ -93,6 +97,22 @@ export default function ViewJobOfferDetails() {
 
   const handleEditClick = () => {
     setIsEditable(!isEditable);
+  };
+
+  const handleAbortOffer = () => {
+    API.updateJobOfferStatus(jobOfferId, { status: "ABORTED" })
+      .then(() => {})
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleDoneOffer = () => {
+    API.updateJobOfferStatus(jobOfferId, { status: "DONE" })
+      .then(() => {})
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleSubmit = () => {
@@ -174,6 +194,13 @@ export default function ViewJobOfferDetails() {
         jobOfferId={jobOffer?.id}
         professionalId={selectedCandidate.id}
         setCustomerJobOfferDirty={() => setDirty(true)}
+      />
+      <ConfirmationModal
+        show={modalShow}
+        action={modalAction}
+        onHide={() => setModalShow(false)}
+        jobOffer={jobOffer}
+        setDirty={() => setDirty(false)}
       />
       <Form>
         <Row className="mb-3">
@@ -411,6 +438,22 @@ export default function ViewJobOfferDetails() {
           </Container>
         )}
       </Form>
+
+      {jobOffer?.offerStatus === "CONSOLIDATED" && (
+        <>
+          <Button
+            style={{ marginRight: 10 }}
+            variant="success"
+            onClick={() => handleDoneOffer()}
+          >
+            Make Job Offer Done
+          </Button>
+
+          <Button variant="danger" onClick={() => handleAbortOffer()}>
+            Abort Job Offer
+          </Button>
+        </>
+      )}
     </>
   );
 }
