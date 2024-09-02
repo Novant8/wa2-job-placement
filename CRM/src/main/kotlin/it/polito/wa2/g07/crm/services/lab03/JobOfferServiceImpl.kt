@@ -46,6 +46,38 @@ class JobOfferServiceImpl(
         return jobOffer.toJobOfferDTO()
     }
     @Transactional
+    override fun addCandidate(jobOfferId: Long, professionalId: Long): JobOfferDTO {
+        val professional = professionalRepository.findById(professionalId).getOrElse { throw EntityNotFoundException("The Professional doesn't exist") }
+
+        val jobOffer = jobOfferRepository.findById(jobOfferId).getOrElse { throw EntityNotFoundException("The given Job Offer doesn't exist") }
+
+        jobOffer.addCandidate(professional);
+
+        return jobOffer.toJobOfferDTO()
+    }
+    @Transactional
+    override fun removeCandidate(jobOfferId: Long, professionalId: Long): Long {
+        val professional = professionalRepository.findById(professionalId).getOrElse { throw EntityNotFoundException("The Professional doesn't exist") }
+
+        val jobOffer = jobOfferRepository.findById(jobOfferId).getOrElse { throw EntityNotFoundException("The given Job Offer doesn't exist") }
+
+        jobOffer.removeCandidate(professional)
+        return professional.professionalId
+    }
+
+    @Transactional
+    override fun addRefusedCandidate(jobOfferId: Long, professionalId: Long): JobOfferDTO {
+        val professional = professionalRepository.findById(professionalId).getOrElse { throw EntityNotFoundException("The Professional doesn't exist") }
+
+        val jobOffer = jobOfferRepository.findById(jobOfferId).getOrElse { throw EntityNotFoundException("The given Job Offer doesn't exist") }
+
+        jobOffer.addRefused(professional);
+
+        return jobOffer.toJobOfferDTO()
+    }
+
+
+    @Transactional
     override fun searchJobOffer(filterDTO: JobOfferFilterDTO, pageable: Pageable): Page<JobOfferReducedDTO> {
 
         return jobOfferRepository.findAll(filterDTO.toSpecification(),pageable).map { it.toJobOfferReducedDTO() }
@@ -112,6 +144,8 @@ class JobOfferServiceImpl(
         kafkaTemplate.send("JOB_OFFER-UPDATE",updatedJobOffer.toJobOfferKafkaDTO())
         return updatedJobOffer.toJobOfferDTO()
     }
+
+
 
     companion object{
         val logger: Logger = LoggerFactory.getLogger(JobOfferServiceImpl::class.java)

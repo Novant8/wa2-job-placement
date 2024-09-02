@@ -1,26 +1,44 @@
 import CreateJobOffer from "./CreateJobOffer.tsx";
-import CandidateManagement from "./CandidateManagement.tsx";
-import CustomerRelationshipManagement from "./CustomerRelationshipManagement.tsx";
+import ProfessionalsView from "./ProfessionalsView.tsx";
+import CustomerRelationshipManagement from "./CustomersView.tsx";
 import ViewCustomerJobOffer from "./ViewCustomerJobOffer.tsx";
+import ViewRecruiterJobOffer from "./ViewRecruiterJobOffer.tsx";
+import { useAuth } from "../contexts/auth.tsx";
+import ViewProfessionalJobOffer from "./ViewProfessionalJobOffer.tsx";
 enum SelectedItem {
-    ViewJobOffers = 'ViewJobOffers',
-    CreateJobOffer = 'CreateJobOffer',
-    CandidateManagement = 'CandidateManagement',
-    CustomerRelationshipManagement= 'Customer Relationship Management'
+  ViewJobOffers = "ViewJobOffers",
+  CreateJobOffer = "CreateJobOffer",
+  Professionals = "Professionals",
+  Customers = "Customers",
 }
 interface AsideContentProps {
-    selectedItem: SelectedItem | null;
+  selectedItem: SelectedItem | null;
 }
 
-export default function AsideContent({selectedItem}: AsideContentProps){
+export default function AsideContent({ selectedItem }: AsideContentProps) {
+  const { me } = useAuth();
 
-    return (
-        <div>
-            {selectedItem === SelectedItem.CreateJobOffer && <CreateJobOffer />}
-            {selectedItem === SelectedItem.CandidateManagement && <CandidateManagement />}
-            {selectedItem === SelectedItem.CustomerRelationshipManagement && <CustomerRelationshipManagement/>}
-            {selectedItem === SelectedItem.ViewJobOffers && <ViewCustomerJobOffer />}
-            {!selectedItem && <p>Please select an option from the aside.</p>}
-        </div>
-    )
+  return (
+    <div>
+      {selectedItem === SelectedItem.CreateJobOffer && <CreateJobOffer />}
+      {selectedItem === SelectedItem.Professionals && <ProfessionalsView />}
+      {selectedItem === SelectedItem.Customers && (
+        <CustomerRelationshipManagement />
+      )}
+      {me?.roles.includes("customer")
+        ? selectedItem === SelectedItem.ViewJobOffers && (
+            <ViewCustomerJobOffer />
+          )
+        : me?.roles.includes("operator")
+          ? selectedItem === SelectedItem.ViewJobOffers && (
+              <ViewRecruiterJobOffer />
+            )
+          : me?.roles.includes("professional")
+            ? selectedItem === SelectedItem.ViewJobOffers && (
+                <ViewProfessionalJobOffer />
+              )
+            : ""}
+      {!selectedItem && <p>Please select an option from the aside.</p>}
+    </div>
+  );
 }

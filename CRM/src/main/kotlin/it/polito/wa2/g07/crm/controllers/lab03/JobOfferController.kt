@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import it.polito.wa2.g07.crm.dtos.lab03.*
 import it.polito.wa2.g07.crm.services.lab03.JobOfferService
+import org.hibernate.Remove
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -71,7 +72,7 @@ class JobOfferController(private val jobOfferService: JobOfferService) {
             )
         ])
 
-        @PreAuthorize("hasAnyRole('operator', 'manager')")
+        @PreAuthorize("hasAnyRole('operator', 'manager','customer', 'professional')")
         @PostMapping("/{jobOfferId}")
         fun updateJobOfferStatus(
             @PathVariable jobOfferId: Long,
@@ -100,6 +101,75 @@ class JobOfferController(private val jobOfferService: JobOfferService) {
         @PutMapping("/{jobOfferId}")
         fun editJobOffer(@PathVariable ("jobOfferId") jobOfferId:Long, @RequestBody jobOfferUpdateDTO: JobOfferUpdateDTO): JobOfferDTO{
             return jobOfferService.updateJobOffer(jobOfferId, jobOfferUpdateDTO)
+        }
+
+        @Operation(summary = "Add a refused candidate to a given Job Offer")
+        @ApiResponses(value=[
+            ApiResponse(
+                responseCode = "200",
+                description = "The candidate was successfully added"),
+
+            ApiResponse(
+                responseCode = "404",
+                description = "The job offer was not found or the Professional was not found ",
+                content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+            )
+        ])
+
+        @PreAuthorize("hasAnyRole('operator', 'manager','customer','professional' )")
+
+        @PostMapping("/{jobOfferId}/refusedCandidate/{professionalId}")
+        fun addRefusedCandidate(@PathVariable ("jobOfferId") jobOfferId:Long, @PathVariable ("professionalId") professionalId: Long ): JobOfferDTO{
+            return jobOfferService.addRefusedCandidate(jobOfferId, professionalId)
+        }
+
+    @Operation(summary = "Add a candidate to a given Job Offer")
+    @ApiResponses(value=[
+        ApiResponse(
+            responseCode = "200",
+            description = "The candidate was successfully added"),
+
+        ApiResponse(
+            responseCode = "404",
+            description = "The job offer was not found or the Professional was not found ",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+
+    @PreAuthorize("hasAnyRole('operator', 'manager' )")
+
+    @PostMapping("/{jobOfferId}/candidate/{professionalId}")
+    fun addCandidate(@PathVariable ("jobOfferId") jobOfferId:Long, @PathVariable ("professionalId") professionalId: Long ): JobOfferDTO{
+        return jobOfferService.addCandidate(jobOfferId, professionalId)
+    }
+
+
+
+
+
+
+
+
+
+
+        @Operation(summary = "Remove a candidate from a given Job Offer")
+        @ApiResponses(value=[
+            ApiResponse(
+                responseCode = "200",
+                description = "The candidate was successfully removed"),
+
+            ApiResponse(
+                responseCode = "404",
+                description = "The job offer was not found or the Professional was not found ",
+                content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+            )
+        ])
+
+        @PreAuthorize("hasAnyRole('operator', 'manager','customer','professional' )")
+
+        @DeleteMapping("/{jobOfferId}/candidate/{professionalId}")
+        fun removeCandidate(@PathVariable ("jobOfferId") jobOfferId:Long, @PathVariable ("professionalId") professionalId: Long ): Long{
+            return jobOfferService.removeCandidate(jobOfferId, professionalId)
         }
 
         @Operation(summary = "Retrieve the value of a single job offer")

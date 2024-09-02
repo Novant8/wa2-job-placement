@@ -21,13 +21,12 @@ type Candidate = {
   name: string;
   surname: string;
 };
-export default function ViewJobOfferDetails() {
+export default function ViewJobOfferDetailProfessional() {
   const [isEditable, setIsEditable] = useState(false);
   const [jobOffer, setJobOffer] = useState<JobOffer>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [newSkill, setNewSkill] = useState<string>("");
-  const [dirty, setDirty] = useState(false);
   const [userInfo, setUserInfo] = useState<Customer>({
     id: 0,
     contactInfo: {
@@ -75,13 +74,12 @@ export default function ViewJobOfferDetails() {
       );
 
     setLoading(true);
-    API.getCustomerFromCurrentUser()
+    API.getProfessionalFromCurrentUser()
       .then((customer) => {
         setUserInfo(customer);
         API.getJobOfferDetails(jobOfferId)
           .then((data) => {
             setJobOffer(data);
-            setDirty(false);
           })
           .catch(() => {
             setError("Failed to fetch job offer details");
@@ -89,7 +87,7 @@ export default function ViewJobOfferDetails() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [dirty]);
+  });
 
   const handleEditClick = () => {
     setIsEditable(!isEditable);
@@ -173,7 +171,6 @@ export default function ViewJobOfferDetails() {
         onHide={() => setJobProposalDetailModalShow(false)}
         jobOfferId={jobOffer?.id}
         professionalId={selectedCandidate.id}
-        setCustomerJobOfferDirty={() => setDirty(true)}
       />
       <Form>
         <Row className="mb-3">
@@ -329,6 +326,24 @@ export default function ViewJobOfferDetails() {
 
         {jobOffer?.offerStatus === "CANDIDATE_PROPOSAL" && (
           <Container className="mt-5">
+            <Button
+              variant="warning"
+              onClick={() => {
+                //setJobProposalDetailModalShow(true);
+
+                let selected: Candidate = {
+                  id: jobOffer.professional.id,
+                  name: jobOffer.professional.contactInfo.name,
+                  surname: jobOffer.professional.contactInfo.surname,
+                };
+                setSelectedCandidate(selected);
+                setJobProposalDetailModalShow(true);
+              }}
+              className="me-2"
+            >
+              Show Job Proposal
+            </Button>
+            {/*
             <h2>Proposed Professional</h2>
             <Row>
               <Col md={12} key={jobOffer.professional.id} className="mb-4">
@@ -343,43 +358,9 @@ export default function ViewJobOfferDetails() {
                       <br />
                       Skills: {jobOffer.professional.skills.join(", ")}
                     </Card.Text>
-                    {/*
-                    <Button
-                      variant="success"
-                      //onClick={() => handleCandidateAction("eligible", candidate.id)}
 
-                      onClick={() => {
-                        let selected: Candidate = {
-                          id: jobOffer.professional.id,
-                          name: jobOffer.professional.contactInfo.name,
-                          surname: jobOffer.professional.contactInfo.surname,
-                        };
-                        setSelectedCandidate(selected);
-                        setJobProposalModalShow(true);
-                      }}
-                      className="me-2"
-                    >
-                      Eligible Candidate
-                    </Button>
-                    */}
 
-                    {/*
-                    <Button
-                      variant="danger"
-                      onClick={() => {
-                        let selected: Candidate = {
-                          id: jobOffer.professional.id,
-                          name: jobOffer.professional.contactInfo.name,
-                          surname: jobOffer.professional.contactInfo.surname,
-                        };
-                        setSelectedCandidate(selected);
-                        setRemoveCandidateModalShow(true);
-                      }}
-                      className="me-2"
-                    >
-                      Remove Candidate
-                    </Button>
-                    */}
+
                     <Button
                       variant="warning"
                       onClick={() => {
@@ -408,6 +389,7 @@ export default function ViewJobOfferDetails() {
                 </Card>
               </Col>
             </Row>
+        */}
           </Container>
         )}
       </Form>

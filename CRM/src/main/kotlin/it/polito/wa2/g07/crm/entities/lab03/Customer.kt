@@ -1,6 +1,7 @@
 package it.polito.wa2.g07.crm.entities.lab03
 
 import it.polito.wa2.g07.crm.entities.lab02.Contact
+import it.polito.wa2.g07.crm.entities.project.JobProposal
 import jakarta.persistence.*
 
 @Entity
@@ -25,5 +26,13 @@ class Customer (
 
     fun removePlacement(j: JobOffer): Boolean {
         return placementHistory.remove(j)
+    }
+
+    @OneToMany(mappedBy = "customer")
+    var jobProposals: MutableSet<JobProposal> = mutableSetOf()
+
+    fun addJobProposal(jobProposal: JobProposal){
+        jobProposals.add(jobProposal);
+        jobProposal.customer = this
     }
 }

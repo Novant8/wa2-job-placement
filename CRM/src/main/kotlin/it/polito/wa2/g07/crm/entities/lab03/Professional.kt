@@ -1,7 +1,9 @@
 package it.polito.wa2.g07.crm.entities.lab03
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import it.polito.wa2.g07.crm.entities.lab03.JobOffer
 import it.polito.wa2.g07.crm.entities.lab02.Contact
+import it.polito.wa2.g07.crm.entities.project.JobProposal
 
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
@@ -42,4 +44,19 @@ class Professional(
     @OneToMany(mappedBy = "professional",cascade = [ CascadeType.ALL ])
     val jobOffers : MutableSet<JobOffer> = mutableSetOf()
 
+    @ManyToMany (cascade = [CascadeType.ALL])
+    @JsonManagedReference
+    var proposedJobOffers: MutableSet<JobOffer> = mutableSetOf()
+
+    @ManyToMany (cascade = [CascadeType.ALL])
+    @JsonManagedReference
+    var refusedJobOffers: MutableSet<JobOffer> = mutableSetOf()
+
+    @OneToMany(mappedBy = "professional")
+    var jobProposals: MutableSet<JobProposal> = mutableSetOf()
+
+    fun addJobProposal(jobProposal: JobProposal) {
+        jobProposals.add(jobProposal)
+        jobProposal.professional = this
+    }
 }

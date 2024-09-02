@@ -8,7 +8,7 @@ import { Pageable } from "../types/Pageable.ts";
 import { ReducedJobOffer } from "../types/JobOffer.ts";
 import { useNavigate } from "react-router-dom";
 
-export default function ViewCustomerJobOffer() {
+export default function ViewProfessionalJobOffer() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
   const [pageable, setPageable] = useState<Pageable | null>(null);
   const [totalPages, setTotalPages] = useState<number | null>(null);
@@ -54,10 +54,10 @@ export default function ViewCustomerJobOffer() {
       );
 
     setLoading(true);
-    API.getCustomerFromCurrentUser()
+    API.getProfessionalFromCurrentUser()
       .then((customer) => {
         setUserInfo(customer);
-        API.getCustomerJobOffers(customer.id)
+        API.getProfessionalJobOffer(customer.id)
           .then((data) => {
             setJobOffers(data.content);
             setPageable(data.pageable);
@@ -109,7 +109,7 @@ export default function ViewCustomerJobOffer() {
 
               <Button
                 variant="primary"
-                onClick={() => navigate(`jobOffer/${offer.id}`)}
+                onClick={() => navigate(`ProfessionalJobOffer/${offer.id}`)}
               >
                 View
               </Button>
