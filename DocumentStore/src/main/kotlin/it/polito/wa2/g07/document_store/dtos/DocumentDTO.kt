@@ -6,15 +6,17 @@ import java.time.LocalDateTime
 
 
 data class DocumentDTO (
-    val id :Long?,
+    val historyId: Long,
+    val versionId:Long?,
     val size: Long,
     val contentType: String?,
     val name: String,
-    var creationTimestamp: LocalDateTime,
+    val creationTimestamp: LocalDateTime,
     val content:ByteArray
 )
 
-fun DocumentMetadata.toDocumentDto(): DocumentDTO = DocumentDTO(id=this.metadataID,
+fun DocumentMetadata.toDocumentDto(): DocumentDTO = DocumentDTO(historyId=this.documentHistory.id,
+                                                                versionId=this.metadataID,
                                                                 contentType = this.contentType,
                                                                 size = this.size,
                                                                 name = this.name,

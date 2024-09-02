@@ -59,4 +59,7 @@ class Professional(
         jobProposals.add(jobProposal)
         jobProposal.professional = this
     }
+
+    var cvDocument: Long? = null
+
 }

@@ -29,7 +29,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -148,9 +147,18 @@ class ProfessionalServiceImpl (
         return professionalRepository.save(professional).toProfessionalDto()
     }
 
+    @Transactional
+    override fun postProfessionalCvDocument(professionalId: Long, cvDocumentDTO: CvDocumentDTO): ProfessionalDTO {
+        val professionalOpt= professionalRepository.findById(professionalId)
+        if (!professionalOpt.isPresent){
+            throw  EntityNotFoundException("Professional with id : $professionalId is not present" )
+        }
+        val professional = professionalOpt.get()
+        professional.cvDocument= cvDocumentDTO.cvDocument
 
-
-
+        logger.info("Updated Professional's CV document with id ${professionalId}}")
+        return professionalRepository.save(professional).toProfessionalDto()
+    }
 
     @Transactional(readOnly = true)
     override fun searchProfessionals(filterDTO: ProfessionalFilterDTO, pageable: Pageable): Page<ProfessionalReducedDTO> {

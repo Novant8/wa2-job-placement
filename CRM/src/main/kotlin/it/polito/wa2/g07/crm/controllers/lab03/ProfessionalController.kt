@@ -153,6 +153,25 @@ class ProfessionalController (private val professionalService: ProfessionalServi
         return professionalService.postProfessionalDailyRate(professionalId, dailyRateDTO.dailyRate)
     }
 
+    @Operation(summary = "Update an existing professional's CV document")
+    @ApiResponses(value=[
+        ApiResponse(responseCode = "200"),
+        ApiResponse(
+            responseCode = "404",
+            description = "The professional was not found",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+    // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalRepository.findById(#professionalId).orElse(null)?.contactInfo?.userId == authentication.name")
+    @PutMapping("{professionalId}/cvDocument")
+    fun updateProfessionalCvDocument(@PathVariable professionalId:Long,
+                                    @RequestBody cvDocumentDTO: CvDocumentDTO
+    ): ProfessionalDTO?
+    {
+        return professionalService.postProfessionalCvDocument(professionalId, cvDocumentDTO)
+    }
+
     @Operation(summary = "Update an existing professional's e-mail")
     @ApiResponses(value=[
         ApiResponse(responseCode = "200"),
@@ -171,8 +190,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
         val contactId =  professional.contactInfo.id
         val contactDTO= contactService.updateAddress(contactId,emailId,emailDTO)
 
-        return ProfessionalDTO(professional.id, contactDTO,professional.location,professional.skills,professional.dailyRate,professional.employmentState,professional.notes)
-
+        return professional.copy(contactInfo=contactDTO)
     }
 
     @Operation(summary = "Update an existing professional's phone number")
@@ -193,7 +211,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
         val contactId =  professional.contactInfo.id
         val contactDTO= contactService.updateAddress(contactId,telephoneId,telephoneDTO)
 
-        return ProfessionalDTO(professional.id, contactDTO,professional.location,professional.skills,professional.dailyRate,professional.employmentState,professional.notes)
+        return professional.copy(contactInfo=contactDTO)
 
     }
 
@@ -215,8 +233,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
         val contactId =  professional.contactInfo.id
         val contactDTO= contactService.updateAddress(contactId,dwellingId,dwellingDTO)
 
-        return ProfessionalDTO(professional.id, contactDTO,professional.location,professional.skills,professional.dailyRate,professional.employmentState,professional.notes)
-
+        return professional.copy(contactInfo=contactDTO)
     }
 
     @Operation(summary = "List all professionals that match the given filters, with paging and sorting")

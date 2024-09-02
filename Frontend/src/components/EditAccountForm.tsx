@@ -1,4 +1,13 @@
-import {Alert, Button, Col, Dropdown, DropdownButton, Form, Row, Spinner} from "react-bootstrap";
+import {
+    Alert,
+    Button,
+    Col,
+    Dropdown,
+    DropdownButton,
+    Form,
+    Row,
+    Spinner
+} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import {useAuth} from "../contexts/auth.tsx";
 import EditableField from "./EditableField.tsx";
@@ -16,12 +25,13 @@ import {
     isDwellingAddress
 } from "../types/address.ts";
 import * as API from "../../API.tsx";
-import {ApiError} from "../../API.tsx";
+import {ApiError, ProfessionalField} from "../../API.tsx";
+import {UploadDocumentField} from "./UploadDocumentField.tsx";
 
 type ProfessionalUserInfo =
     Contact
     & Omit<Professional, "contact" | "notes">
-    & { professional: Omit<Professional, "contactInfo"> }
+    & { professional: Omit<Professional, "contactInfo" | "employmentState"> }
 type UserInfo = Contact | ProfessionalUserInfo
 
 type EmailAddressErrors = { [field in keyof EmailAddress]: string };
@@ -316,20 +326,69 @@ export default function EditAccountForm() {
             })
     }
 
-    function updateProfessionalField(field: "dailyRate" | "location", value: number | string) {
-        if(!isProfessional(userInfo)) return;
-        API.updateProfessionalField(userInfo.professional.id, field, value)
+    function updateProfessionalField<T extends ProfessionalField>(field: T, value: Professional[T]) {
+        if(!isProfessional(userInfo)) return Promise.resolve();
+        setLoadingSubmit({ ...loadingSubmit, [field]: true });
+
+        return API.updateProfessionalField(userInfo.professional.id, field, value)
             .then(({ contactInfo, ...professional }) => {
+                console.log(professional)
                 setUserInfo({ ...contactInfo, professional });
             })
             .catch((err: ApiError) => {
-                errors.professional.dailyRate = err.fieldErrors?.dailyRate || err.message;
+                errors.professional[field] = err.fieldErrors?.[field] || err.message;
                 setErrors({ ...errors });
+            })
+            .finally(() => {
+                setLoadingSubmit({ ...loadingSubmit, professional: { ...loadingSubmit.professional, [field]: false } });
             });
     }
 
     function firstUpper(str: string) {
         return str.slice(0,1).toUpperCase() + str.slice(1).toLowerCase();
+    }
+
+    function uploadOrUpdateResume(document: File) {
+        if(!isProfessional(userInfo)) return;
+        let promise;
+        if(userInfo.professional.cvDocument)
+            promise = API.updateDocument(userInfo.professional.cvDocument, document)
+        else
+            promise = API.uploadDocument(document)
+
+        const prevCvDocument = userInfo.professional.cvDocument;
+        setUserInfo({ ...userInfo, professional: { ...userInfo.professional, cvDocument: undefined } });
+        setLoadingSubmit({ ...loadingSubmit, professional: { ...loadingSubmit.professional, cvDocument: true } });
+        promise
+            .then(document => {
+                setUserInfo({ ...userInfo, professional: { ...userInfo.professional, cvDocument: document.historyId } });
+                return updateProfessionalField("cvDocument", document.historyId)
+            })
+            .catch((err: ApiError) => {
+                setUserInfo({ ...userInfo, professional: { ...userInfo.professional, cvDocument: prevCvDocument } });
+                errors.professional.cvDocument = err.fieldErrors?.cvDocument || err.message;
+                setErrors({ ...errors });
+            })
+            .finally(() => {
+                setLoadingSubmit({ ...loadingSubmit, professional: { ...loadingSubmit.professional, cvDocument: false } });
+            })
+    }
+
+    function deleteResume(documentId: number) {
+        if(!isProfessional(userInfo)) return;
+        setLoadingSubmit({ ...loadingSubmit, professional: { ...loadingSubmit.professional, cvDocument: true } });
+        updateProfessionalField("cvDocument", undefined)
+            .then(() => API.deleteDocumentHistory(documentId))
+            .then(() => {
+                setUserInfo({ ...userInfo, professional: { ...userInfo.professional, cvDocument: undefined } })
+            })
+            .catch((err: ApiError) => {
+                errors.professional.cvDocument = err.fieldErrors?.cvDocument || err.message;
+                setErrors({ ...errors });
+            })
+            .finally(() => {
+                setLoadingSubmit({ ...loadingSubmit, professional: { ...loadingSubmit.professional, cvDocument: false } });
+            })
     }
 
     if(loadingForm) {
@@ -434,7 +493,18 @@ export default function EditAccountForm() {
                 isProfessional(userInfo) &&
                 <>
                     <div className="my-2">
-                        <h3>Skills</h3>
+                        <h3 className="mt-3">Resume</h3>
+                        <hr/>
+                        <UploadDocumentField
+                            documentId={userInfo.professional.cvDocument}
+                            loading={loadingSubmit.professional.cvDocument}
+                            error={errors.professional.cvDocument}
+                            onUpload={uploadOrUpdateResume}
+                            onDelete={deleteResume}
+                        />
+                    </div>
+                    <div className="my-2">
+                    <h2>Skills</h2>
                         <hr/>
                         {
                             userInfo.professional.skills.map((skill, i) => (

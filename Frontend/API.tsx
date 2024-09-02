@@ -17,6 +17,7 @@ import { Address, getAddressType } from "./src/types/address.ts";
 import Cookies from "js-cookie";
 import { CustomerFilter } from "./src/types/customerFilter.ts";
 import { JobProposal } from "./src/types/JobProposal.ts";
+import {DocumentHistory, DocumentMetadata} from "./src/types/documents.ts";
 
 interface ErrorResponseBody {
   type: string;
@@ -245,10 +246,12 @@ export function removeAddressFromContact(
   );
 }
 
-export function updateProfessionalField(
+export type ProfessionalField = "dailyRate" | "location" | "cvDocument"
+
+export function updateProfessionalField<T extends ProfessionalField>(
   professionalId: number,
-  field: "dailyRate" | "location",
-  value: number | string,
+  field: T,
+  value: Professional[T],
 ): Promise<Professional> {
   return customFetch(`/crm/API/professionals/${professionalId}/${field}`, {
     method: "PUT",
@@ -354,6 +357,14 @@ export function removeCandidate(
   );
 }
 
+export function uploadDocument(document: File): Promise<DocumentMetadata> {
+    const formData = new FormData();
+    formData.append("document", document, document.name);
+    return customFetch(`/upload/document`, {
+        method: "POST",
+        body: formData
+    })
+}
 export function createJobProposal(
   customerId: number | undefined,
   jobOfferId: number | undefined,
@@ -367,12 +378,26 @@ export function createJobProposal(
   );
 }
 
+export function updateDocument(historyId: number, document: File): Promise<DocumentMetadata> {
+    const formData = new FormData();
+    formData.append("document", document, document.name);
+    return customFetch(`/upload/document/${historyId}`, {
+        method: "PUT",
+        body: formData
+    })
 export function getJobProposalbyId(
   proposalId: number | undefined,
 ): Promise<JobProposal> {
   return customFetch(`/crm/API/jobProposals/${proposalId}`);
 }
 
+export function deleteDocumentHistory(historyId: number): Promise<void> {
+    return customFetch(`/document-store/API/documents/${historyId}`, { method: "DELETE" })
+}
+
+export function deleteDocumentVersion(historyId: number, versionId: number): Promise<void> {
+    return customFetch(`/document-store/API/documents/${historyId}/version/${versionId}`, { method: "DELETE" })
+}
 export function getJobProposalbyOfferAndProfessional(
   offerId: number | undefined,
   professionalId: number | undefined,

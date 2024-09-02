@@ -5,17 +5,19 @@ import it.polito.wa2.g07.document_store.entities.DocumentMetadata
 import java.time.LocalDateTime
 
 data class DocumentMetadataDTO (
-    val id :Long,
+    var historyId:Long,
+    val versionId:Long,
     val size: Long,
     val contentType: String?,
     val name: String,
     var creationTimestamp: LocalDateTime,
-
-    )
+)
 
 fun DocumentMetadata.toMetadataDto(): DocumentMetadataDTO =
-    DocumentMetadataDTO(this.metadataID,
+    DocumentMetadataDTO(this.documentHistory.id,
+                        this.metadataID,
                         this.size,
                         this.contentType,
                         this.name,
-                        this.creationTimestamp )
+                        this.creationTimestamp
+    )

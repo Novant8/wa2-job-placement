@@ -18,7 +18,7 @@ export type FieldGroupValues = {
 export interface EditableFieldGroupProps {
     title: string;
     groupName: string;
-    showDelete: boolean;
+    showDelete?: boolean;
     initEdit?: boolean;
     loading: boolean;
     fields: FormFields[];

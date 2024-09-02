@@ -5,13 +5,11 @@ import jakarta.persistence.*
 
 
 @Entity
-class Document
+class Document(
+        var content: ByteArray
+)
 {
         @Id
         @GeneratedValue
         var documentID: Long= 0
-
-
-        lateinit var content: ByteArray
-
 }

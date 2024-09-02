@@ -13,7 +13,8 @@ data class ProfessionalDTO(
     val skills: Set<String>,
     var dailyRate: Double,
     var employmentState: EmploymentState,
-    var notes: String?
+    val cvDocument: Long?,
+    var notes: String?,
 )
 /* 
 fun Professional.toProfessionalDto(): ProfessionalDTO=
@@ -31,5 +32,6 @@ fun Professional.toProfessionalDto() =
         this.skills,
         this.dailyRate,
         this.employmentState,
+        this.cvDocument,
         this.notes
     )
