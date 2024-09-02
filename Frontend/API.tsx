@@ -379,16 +379,22 @@ export function createJobProposal(
 }
 
 export function updateDocument(historyId: number, document: File): Promise<DocumentMetadata> {
-    const formData = new FormData();
-    formData.append("document", document, document.name);
-    return customFetch(`/upload/document/${historyId}`, {
-        method: "PUT",
-        body: formData
-    })
+  const formData = new FormData();
+  formData.append("document", document, document.name);
+  return customFetch(`/upload/document/${historyId}`, {
+    method: "PUT",
+    body: formData
+  })
+}
+
 export function getJobProposalbyId(
   proposalId: number | undefined,
 ): Promise<JobProposal> {
   return customFetch(`/crm/API/jobProposals/${proposalId}`);
+}
+
+export function getDocumentHistory(historyId: number): Promise<DocumentHistory> {
+  return customFetch(`/document-store/API/documents/${historyId}/history`);
 }
 
 export function deleteDocumentHistory(historyId: number): Promise<void> {
