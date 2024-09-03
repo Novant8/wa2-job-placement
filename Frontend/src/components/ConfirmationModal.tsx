@@ -14,12 +14,13 @@ export default function ConfirmationModal(props: any) {
     API.updateJobOfferStatus(props.jobOffer.id, status)
       .then(() => {
         //navigate(`/crm/RecruiterJobOffer/${props.jobOffer.id}`);
-        props.onHide;
+
+        props.onHide();
       })
       .catch((error) => {
         console.log(error);
       })
-      .finally(() => props.setDirty);
+      .finally(() => props.setDirty());
   };
 
   return (

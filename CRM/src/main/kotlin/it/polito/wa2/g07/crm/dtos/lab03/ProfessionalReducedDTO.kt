@@ -10,7 +10,8 @@ data class ProfessionalReducedDTO(
     val contactInfo: ReducedContactDTO,
     val location: String?,
     val skills: Set<String>?,
-    val employmentState: EmploymentState?
+    val employmentState: EmploymentState?,
+    val cvDocument:Long?
 )
 
 fun Professional.toProfessionalReducedDto() =
@@ -19,12 +20,14 @@ fun Professional.toProfessionalReducedDto() =
         this.contactInfo.toReducedContactDTO(),
         this.location,
         this.skills.toSet(),
-        this.employmentState
+        this.employmentState,
+        this.cvDocument
     )
 fun Professional.toProfessionalReducedDTO_Basic() =
     ProfessionalReducedDTO(
         this.professionalId,
         this.contactInfo.toReducedContactDTO(),
+        null,
         null,
         null,
         null

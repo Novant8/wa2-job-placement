@@ -18,10 +18,12 @@ import { Customer } from "../types/customer.ts";
 import JobProposalModalDetail from "../components/JobProposalDetailModal.tsx";
 import ConfirmationModal from "../components/ConfirmationModal.tsx";
 import { set } from "js-cookie";
+import { ApiError } from "../../API.tsx";
 type Candidate = {
   id: number;
   name: string;
   surname: string;
+  cvDocument?: number;
 };
 export default function ViewJobOfferDetails() {
   const [isEditable, setIsEditable] = useState(false);
@@ -32,6 +34,7 @@ export default function ViewJobOfferDetails() {
   const [dirty, setDirty] = useState(false);
   const [modalShow, setModalShow] = useState<boolean>(false);
   const [modalAction, setModalAction] = useState<string>("");
+  const [documentError, setDocumentError] = useState("");
   const [userInfo, setUserInfo] = useState<Customer>({
     id: 0,
     contactInfo: {
@@ -52,6 +55,7 @@ export default function ViewJobOfferDetails() {
     id: 0,
     name: "",
     surname: "",
+    cvDocument: null,
   });
   function updateInfoField<K extends keyof Contact>(
     field: K,
@@ -169,6 +173,16 @@ export default function ViewJobOfferDetails() {
       requiredSkills: updatedSkills,
     });
   };
+  function handleViewDocument(documentId: number) {
+    setDocumentError("");
+    API.getDocumentHistory(documentId)
+      .then((history) => {
+        let document = history.versions[0];
+        const url = `/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`;
+        window.open(url, "_blank");
+      })
+      .catch((err: ApiError) => setDocumentError(err.message));
+  }
 
   if (loading) {
     return (
@@ -370,43 +384,7 @@ export default function ViewJobOfferDetails() {
                       <br />
                       Skills: {jobOffer.professional.skills.join(", ")}
                     </Card.Text>
-                    {/*
-                    <Button
-                      variant="success"
-                      //onClick={() => handleCandidateAction("eligible", candidate.id)}
 
-                      onClick={() => {
-                        let selected: Candidate = {
-                          id: jobOffer.professional.id,
-                          name: jobOffer.professional.contactInfo.name,
-                          surname: jobOffer.professional.contactInfo.surname,
-                        };
-                        setSelectedCandidate(selected);
-                        setJobProposalModalShow(true);
-                      }}
-                      className="me-2"
-                    >
-                      Eligible Candidate
-                    </Button>
-                    */}
-
-                    {/*
-                    <Button
-                      variant="danger"
-                      onClick={() => {
-                        let selected: Candidate = {
-                          id: jobOffer.professional.id,
-                          name: jobOffer.professional.contactInfo.name,
-                          surname: jobOffer.professional.contactInfo.surname,
-                        };
-                        setSelectedCandidate(selected);
-                        setRemoveCandidateModalShow(true);
-                      }}
-                      className="me-2"
-                    >
-                      Remove Candidate
-                    </Button>
-                    */}
                     <Button
                       variant="warning"
                       onClick={() => {
@@ -416,6 +394,7 @@ export default function ViewJobOfferDetails() {
                           id: jobOffer.professional.id,
                           name: jobOffer.professional.contactInfo.name,
                           surname: jobOffer.professional.contactInfo.surname,
+                          cvDocument: jobOffer?.professional.cvDocument,
                         };
                         setSelectedCandidate(selected);
                         setJobProposalDetailModalShow(true);
@@ -427,7 +406,10 @@ export default function ViewJobOfferDetails() {
 
                     <Button
                       variant="primary"
-                      //onClick={() => handleCandidateAction("download", candidate.id)}
+                      disabled={!jobOffer?.professional.cvDocument}
+                      onClick={() =>
+                        handleViewDocument(jobOffer?.professional.cvDocument)
+                      }
                     >
                       Download CV
                     </Button>

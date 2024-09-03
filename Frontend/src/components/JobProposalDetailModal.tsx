@@ -12,6 +12,7 @@ import ProfessionalAcceptDeclineProposalModal from "./ProfessionalAcceptDeclineP
 import { Professional } from "../types/professional.ts";
 import { UploadDocumentField } from "./UploadDocumentField.tsx";
 import { ApiError } from "../../API.tsx";
+import { Spinner } from "react-bootstrap";
 
 export default function JobProposalModalDetail(props: any) {
   const [jobProposal, setJobProposal] = useState<JobProposal>();
@@ -26,6 +27,7 @@ export default function JobProposalModalDetail(props: any) {
   ] = useState<boolean>(false);
 
   const [loadingDocument, setLoadingDocument] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [errorDocument, setErrorDocument] = useState("");
   const { me } = useAuth();
   const [dirty, setDirty] = useState<boolean>(false);
@@ -129,7 +131,7 @@ export default function JobProposalModalDetail(props: any) {
 
   useEffect(() => {
     if (props.professionalId === 0) return;
-
+    setLoading(true);
     API.getJobProposalbyOfferAndProfessional(
       props.jobOfferId,
       props.professionalId,
@@ -137,6 +139,8 @@ export default function JobProposalModalDetail(props: any) {
       .then((data) => {
         console.log(data);
         setJobProposal(data);
+        setDirty(false);
+        setLoading(false);
       })
       .catch((err) => console.log(err));
   }, [props.professionalId, dirty]);
@@ -155,7 +159,10 @@ export default function JobProposalModalDetail(props: any) {
     promise
       .then((document) => {
         API.loadJobProposalDocument(jobProposal.id, document.historyId).then(
-          (proposal) => setJobProposal(proposal),
+          (proposal) => {
+            setJobProposal(proposal);
+            setDirty(true);
+          },
         );
       })
       .catch((err) => {
@@ -174,14 +181,17 @@ export default function JobProposalModalDetail(props: any) {
       .then((proposal) => {
         setJobProposal(proposal);
         API.deleteDocumentHistory(documentId);
+        setDirty(true);
       })
       .catch((err) => {
         console.log(err);
         setErrorDocument(err);
       })
-      .finally(setLoadingDocument(false));
+      .finally(() => setLoadingDocument(false));
   }
-
+  if (loading) {
+    return <Spinner />;
+  }
   return (
     <Modal
       {...props}
@@ -265,6 +275,7 @@ export default function JobProposalModalDetail(props: any) {
                   <Button
                     variant="success"
                     style={{ marginRight: 10 }}
+                    disabled={!jobProposal.documentId}
                     onClick={() => {
                       setModalAction("accept");
                       setCustomerProposalConfirmationModalShow(true);
@@ -391,23 +402,34 @@ export default function JobProposalModalDetail(props: any) {
         <p>
           Contract:{" "}
           {me?.roles.includes("customer") && (
-            <UploadDocumentField
-              documentId={jobProposal?.documentId}
-              loading={loadingDocument}
-              error={errorDocument}
-              onUpload={uploadOrUpdateContract}
-              onDelete={deleteContract}
-            />
+            <>
+              <UploadDocumentField
+                documentId={jobProposal?.documentId}
+                loading={loadingDocument}
+                error={errorDocument}
+                onUpload={uploadOrUpdateContract}
+                onDelete={deleteContract}
+              />
+              {jobProposal?.documentId ? (
+                ""
+              ) : (
+                <p>
+                  No contract yet submitted, upload it if you want to accept the
+                  Job Proposal
+                </p>
+              )}
+            </>
           )}
-          {jobProposal?.documentId ? (
-            <Button variant="info">Download Job Contract</Button>
-          ) : (
-            "No contract yet submitted "
-          )}
+          {me?.roles.includes("operator") &&
+            (jobProposal?.documentId ? (
+              <Button variant="info">View Job Contract</Button>
+            ) : (
+              "No contract yet submitted "
+            ))}
         </p>
       </Modal.Body>
       <Modal.Footer>
-        <Button
+        {/* <Button
           variant="warning"
           onClick={() => {
             props.onHide();
@@ -415,7 +437,7 @@ export default function JobProposalModalDetail(props: any) {
           }}
         >
           Close
-        </Button>
+        </Button>*/}
       </Modal.Footer>
     </Modal>
   );
