@@ -29,6 +29,29 @@ export default function MessagesView() {
       .finally(() => setLoading(false));
   }, []);*/
 
+  function handleSelect(key: string | null) {
+    switch (key) {
+      case "received":
+        setStatus("RECEIVED");
+        break;
+      case "read":
+        setStatus("READ");
+        break;
+      case "processing":
+        setStatus("PROCESSING");
+        break;
+      case "done":
+        setStatus("DONE");
+        break;
+      case "discarded":
+        setStatus("DISCARDED");
+        break;
+      case "failed":
+        setStatus("FAILED");
+        break;
+    }
+  }
+
   useEffect(() => {
     const token = me?.xsrfToken;
     setLoading(true);
@@ -46,7 +69,7 @@ export default function MessagesView() {
 
   useEffect(() => {
     console.log(messages);
-  }, [messages]);
+  }, [messages, status]);
 
   /*if (loading) {
     return (
@@ -73,14 +96,9 @@ export default function MessagesView() {
         id="justify-tab-example"
         className="mb-3"
         justify
+        onSelect={(eventKey) => handleSelect(eventKey)}
       >
-        <Tab
-          eventKey="received"
-          title="Received"
-          onClick={() => {
-            setStatus("RECEIVED");
-          }}
-        >
+        <Tab eventKey="received" title="Received">
           {loading ? (
             <Container className="text-center mt-5">
               <Spinner animation="border" />
@@ -89,13 +107,7 @@ export default function MessagesView() {
             "Content for received"
           )}
         </Tab>
-        <Tab
-          eventKey="read"
-          title="Read"
-          onClick={() => {
-            setStatus("READ");
-          }}
-        >
+        <Tab eventKey="read" title="Read">
           {loading ? (
             <Container className="text-center mt-5">
               <Spinner animation="border" />
