@@ -14,7 +14,8 @@ data class JobProposalDTO (
     val jobOffer : JobOfferDTO,
     val documentId : Long?,
     val status: ProposalStatus,
-    val customerConfirmation : Boolean
+    val customerConfirmation : Boolean,
+    val professionalSignedContract: Long?
 )
 
 fun JobProposal.toJobProposalDTO(): JobProposalDTO{
@@ -25,6 +26,7 @@ fun JobProposal.toJobProposalDTO(): JobProposalDTO{
         jobOffer= this.jobOffer.toJobOfferDTO(),
         documentId= this.documentId,
         status= this.status,
-        customerConfirmation= this.customerConfirm
+        customerConfirmation= this.customerConfirm,
+        professionalSignedContract = this.professionalSignedContract
     )
 }

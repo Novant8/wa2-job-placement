@@ -20,6 +20,9 @@ interface UploadFileFieldProps {
   error?: string;
   onUpload?: (file: File) => void;
   onDelete?: (documentId: number) => void;
+  customerView: boolean;
+  customerConfirm: boolean;
+  professionalView: boolean;
 }
 
 export function UploadDocumentField({
@@ -28,6 +31,9 @@ export function UploadDocumentField({
   loading,
   onUpload,
   onDelete,
+  customerView,
+  customerConfirm,
+  professionalView,
 }: UploadFileFieldProps) {
   const [file, setFile] = useState<File | undefined>();
   const [documentHistory, setDocumentHistory] = useState<
@@ -86,51 +92,65 @@ export function UploadDocumentField({
     <>
       {documentId && latestDoc && (
         <>
-          Currently uploaded:
-          <FileField document={latestDoc} onDelete={handleHistoryDelete} />
+          {!customerView || (!professionalView && <p>Currently uploaded: </p>)}
+
+          <FileField
+            document={latestDoc}
+            onDelete={handleHistoryDelete}
+            customerConfirm={customerConfirm}
+          />
         </>
       )}
       <Form.Group controlId="register-user-upload-document" className="my-3">
         <InputGroup hasValidation>
-          <Form.Control
-            type="file"
-            isInvalid={!!documentError || !!error}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setFile(e.target.files![0])
-            }
-          />
-          <Button
-            variant={documentHistory ? "warning" : "primary"}
-            disabled={!file}
-            onClick={handleFileUpload}
-          >
-            {documentHistory ? "Update" : "Upload"}
-          </Button>
+          {!customerConfirm ||
+            (professionalView && (
+              <>
+                <Form.Control
+                  type="file"
+                  isInvalid={!!documentError || !!error}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setFile(e.target.files![0])
+                  }
+                />
+                <Button
+                  variant={documentHistory ? "warning" : "primary"}
+                  disabled={!file}
+                  onClick={handleFileUpload}
+                >
+                  {documentHistory ? "Update" : "Upload"}
+                </Button>
+              </>
+            ))}
+
           <Form.Control.Feedback type="invalid">
             {documentError || error}
           </Form.Control.Feedback>
         </InputGroup>
       </Form.Group>
-      {documentHistory && documentHistory.versions.length > 1 && (
-        <Accordion>
-          <Accordion.Item eventKey="0">
-            <Accordion.Header>Show all versions</Accordion.Header>
-            <Accordion.Body>
-              {documentHistory.versions.map((document, index) =>
-                versionDeleteLoading[index] ? (
-                  <Spinner key={`version-loading-${index}`} />
-                ) : (
-                  <FileField
-                    key={`version-${index}`}
-                    document={document}
-                    onDelete={() => handleVersionDelete(index)}
-                  />
-                ),
-              )}
-            </Accordion.Body>
-          </Accordion.Item>
-        </Accordion>
-      )}
+      {documentHistory &&
+        (professionalView || customerView) &&
+        documentHistory.versions.length > 1 && (
+          <Accordion>
+            <Accordion.Item eventKey="0">
+              <Accordion.Header>Show all versions</Accordion.Header>
+              <Accordion.Body>
+                {documentHistory.versions.map((document, index) =>
+                  versionDeleteLoading[index] ? (
+                    <Spinner key={`version-loading-${index}`} />
+                  ) : (
+                    <FileField
+                      key={`version-${index}`}
+                      document={document}
+                      onDelete={() => handleVersionDelete(index)}
+                      customerConfirm={customerConfirm}
+                    />
+                  ),
+                )}
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
+        )}
     </>
   );
 }
@@ -138,9 +158,10 @@ export function UploadDocumentField({
 interface FileFieldProps {
   document: ReducedDocumentMetadata;
   onDelete?: (documentId: number) => void;
+  customerConfirm: boolean;
 }
 
-function FileField({ document, onDelete }: FileFieldProps) {
+function FileField({ document, onDelete, customerConfirm }: FileFieldProps) {
   return (
     <div className="my-2">
       <span className="mx-3 my-auto">
@@ -155,9 +176,14 @@ function FileField({ document, onDelete }: FileFieldProps) {
         >
           View
         </Button>
-        <Button variant="danger" onClick={() => onDelete?.(document.historyId)}>
-          Delete
-        </Button>
+        {!customerConfirm && (
+          <Button
+            variant="danger"
+            onClick={() => onDelete?.(document.historyId)}
+          >
+            Delete
+          </Button>
+        )}
       </ButtonGroup>
     </div>
   );

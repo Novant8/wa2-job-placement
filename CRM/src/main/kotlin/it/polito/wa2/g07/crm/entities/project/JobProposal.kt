@@ -28,6 +28,7 @@ class JobProposal(
    var customerConfirm : Boolean = false
    var documentId : Long? = null
    var status : ProposalStatus = ProposalStatus.CREATED
+   var professionalSignedContract : Long? = null
 
    @ManyToOne
    @JoinColumn(unique = false)
