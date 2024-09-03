@@ -40,7 +40,7 @@ class MessageServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun getMessages(filterBy: List<MessageStatus>?, pageable: Pageable): Page<ReducedMessageDTO>{
+    override fun getMessages(filterBy: List<MessageStatus>?, pageable: Pageable): Page<MessageDTO>{ ///*ReducedMessageDTO*/
 
         val result = when (filterBy) {
             null ->    messageRepository.findAll(pageable)
@@ -48,7 +48,7 @@ class MessageServiceImpl(
 
         }
 
-        return result.map { m->m.toReducedDTO(); }
+        return result.map { m->m.toMessageDTO();/*toReducedDTO();*/ }
     }
 
     @Transactional

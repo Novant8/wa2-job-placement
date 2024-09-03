@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Page
 
 interface MessageService {
-    fun getMessages(filterBy: List<MessageStatus>?, pageable: Pageable): Page<ReducedMessageDTO>
+    fun getMessages(filterBy: List<MessageStatus>?, pageable: Pageable): Page<MessageDTO> //ReducedMessageDTO
     fun getMessage(messageID:Long): MessageDTO?
     fun createMessage(msg: MessageCreateDTO): MessageDTO?
     fun updateStatus(id_msg : Long, event_data: MessageEventDTO): MessageEventDTO?

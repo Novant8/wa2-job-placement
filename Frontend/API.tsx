@@ -481,6 +481,58 @@ export function createMessage(msg: MessageCreate): Promise<number> {
 
 const url: string = "http://localhost:8080";
 
+type StatusesList = string;
+export async function getMessagges(
+  token: string | undefined,
+  filterBy?: StatusesList[] | undefined,
+): Promise<any> {
+  return new Promise((resolve, reject) => {
+    let endpoint = url + "/crm/API/messages";
+
+    if (filterBy) {
+      const params = new URLSearchParams();
+
+      if (filterBy && filterBy.length > 0) {
+        params.append("filterBy", StatusesList.skills.join(","));
+      }
+
+      const queryString = params.toString();
+      if (queryString) {
+        endpoint += "?" + queryString;
+      }
+    }
+    fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-XSRF-TOKEN": `${token}`,
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          response
+            .json()
+            .then((prof) => resolve(prof))
+            .catch(() => {
+              reject({ error: "Cannot parse server response." });
+            });
+        } else {
+          response
+            .json()
+            .then((message) => {
+              reject(message);
+            })
+            .catch(() => {
+              reject({ error: "Cannot parse server response." });
+            });
+        }
+      })
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      });
+  });
+}
+
 export async function getProfessionals(
   token: string | undefined,
   filterDTO?: ProfessionalFilter,

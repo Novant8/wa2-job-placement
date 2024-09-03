@@ -5,7 +5,7 @@ import ViewCustomerJobOffer from "./ViewCustomerJobOffer.tsx";
 import ViewRecruiterJobOffer from "./ViewRecruiterJobOffer.tsx";
 import { useAuth } from "../contexts/auth.tsx";
 import ViewProfessionalJobOffer from "./ViewProfessionalJobOffer.tsx";
-import Messages from "./Messages.tsx";
+import MessagesView from "./MessagesView.tsx";
 enum SelectedItem {
   ViewJobOffers = "ViewJobOffers",
   CreateJobOffer = "CreateJobOffer",
@@ -24,7 +24,7 @@ export default function AsideContent({ selectedItem }: AsideContentProps) {
     <div>
       {selectedItem === SelectedItem.CreateJobOffer && <CreateJobOffer />}
       {selectedItem === SelectedItem.Professionals && <ProfessionalsView />}
-      {selectedItem === SelectedItem.Messages && <Messages />}
+      {selectedItem === SelectedItem.Messages && <MessagesView />}
       {selectedItem === SelectedItem.Customers && (
         <CustomerRelationshipManagement />
       )}
