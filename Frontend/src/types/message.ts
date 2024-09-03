@@ -32,7 +32,9 @@ export interface MessageEventDTO {
 
 export interface Message {
   id: number;
-  sender: Address;
+  sender: {
+    email: string;
+  };
   channel: MessageChannel;
   subject: string;
   body: string;

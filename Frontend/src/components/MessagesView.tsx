@@ -3,31 +3,59 @@ import { useAuth } from "../contexts/auth.tsx";
 import { useEffect, useState } from "react";
 import { Message } from "../types/message.ts";
 import { Pageable } from "../types/Pageable.ts";
-import { Container, Spinner, Tab, Tabs } from "react-bootstrap";
+import {
+  Accordion,
+  Button,
+  Container,
+  Spinner,
+  Tab,
+  Tabs,
+} from "react-bootstrap";
 export default function MessagesView() {
   const { me } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [messageStatuses, setMessageStatuses] = useState<string[]>([]);
+  const [messages, setMessages] = useState({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [pageable, setPageable] = useState<Pageable | null>(null);
   const [totalPages, setTotalPages] = useState<number | null>(null);
   const [status, setStatus] = useState<string | undefined>("RECEIVED");
-  /*
-  useEffect(() => {
-    const token = me?.xsrfToken;
-    setLoading(true);
-    API.getMessagges(token)
-      .then((msg) => {
-        setMessages(msg);
-        setPageable(msg.pageable);
-        setTotalPages(msg.totalPages);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => setLoading(false));
-  }, []);*/
+
+  type MessageAccordionProps = {
+    msg: Message;
+  };
+  function MessageAccordion(props: MessageAccordionProps) {
+    //const navigate = useNavigate();
+    return (
+      <div>
+        <Accordion.Item eventKey={props.msg?.id?.toString()}>
+          <Accordion.Header>{props.msg.subject}</Accordion.Header>
+          <Accordion.Body>
+            {props.msg.sender ? (
+              <div>SENDER: {props.msg.sender.email}</div>
+            ) : (
+              ""
+            )}
+            <div>Message: {props.msg.body}</div>
+            <div>
+              Last Event: {props.msg.lastEvent.status} on{" "}
+              {props.msg.lastEvent.timestamp?.toString()}
+            </div>
+            <div>Channel:{props.msg.channel}</div>
+            <div>
+              Date of the message: {props.msg.creationTimestamp?.toString()}
+            </div>
+
+            <Button
+              className="primary mt-3"
+              onClick={() => console.log("manage")}
+            >
+              Manage
+            </Button>
+          </Accordion.Body>
+        </Accordion.Item>
+      </div>
+    );
+  }
 
   function handleSelect(key: string | null) {
     switch (key) {
@@ -63,6 +91,7 @@ export default function MessagesView() {
       })
       .catch((err) => {
         console.log(err);
+        setError(err);
       })
       .finally(() => setLoading(false));
   }, [status]);
@@ -70,14 +99,6 @@ export default function MessagesView() {
   useEffect(() => {
     console.log(messages);
   }, [messages, status]);
-
-  /*if (loading) {
-    return (
-      <Container className="text-center mt-5">
-        <Spinner animation="border" />
-      </Container>
-    );
-  }*/
 
   if (error) {
     return (
@@ -99,57 +120,111 @@ export default function MessagesView() {
         onSelect={(eventKey) => handleSelect(eventKey)}
       >
         <Tab eventKey="received" title="Received">
-          {loading ? (
+          {loading && (
             <Container className="text-center mt-5">
               <Spinner animation="border" />
             </Container>
+          )}
+
+          {messages?.content?.length > 0 ? (
+            <Accordion>
+              {messages &&
+                messages.content?.map((e) => (
+                  <MessageAccordion key={e.id} msg={e} />
+                ))}
+            </Accordion>
           ) : (
-            "Content for received"
+            <div>There no received messages</div>
           )}
         </Tab>
         <Tab eventKey="read" title="Read">
-          {loading ? (
+          {loading && (
             <Container className="text-center mt-5">
               <Spinner animation="border" />
             </Container>
+          )}
+
+          {messages?.content?.length > 0 ? (
+            <Accordion>
+              {messages &&
+                messages.content?.map((e) => (
+                  <MessageAccordion key={e.id} msg={e} />
+                ))}
+            </Accordion>
           ) : (
-            "Content for read"
+            <div>There no read messages</div>
           )}
         </Tab>
         <Tab eventKey="processing" title="Processing">
-          {loading ? (
+          {loading && (
             <Container className="text-center mt-5">
               <Spinner animation="border" />
             </Container>
+          )}
+
+          {messages?.content?.length > 0 ? (
+            <Accordion>
+              {messages &&
+                messages.content?.map((e) => (
+                  <MessageAccordion key={e.id} msg={e} />
+                ))}
+            </Accordion>
           ) : (
-            "Content for processing"
+            <div>There no processing messages</div>
           )}
         </Tab>
         <Tab eventKey="done" title="Done">
-          {loading ? (
+          {loading && (
             <Container className="text-center mt-5">
               <Spinner animation="border" />
             </Container>
+          )}
+
+          {messages?.content?.length > 0 ? (
+            <Accordion>
+              {messages &&
+                messages.content?.map((e) => (
+                  <MessageAccordion key={e.id} msg={e} />
+                ))}
+            </Accordion>
           ) : (
-            "Content for done"
+            <div>There no done messages</div>
           )}
         </Tab>
         <Tab eventKey="discarded" title="Discarded">
-          {loading ? (
+          {loading && (
             <Container className="text-center mt-5">
               <Spinner animation="border" />
             </Container>
+          )}
+
+          {messages?.content?.length > 0 ? (
+            <Accordion>
+              {messages &&
+                messages.content?.map((e) => (
+                  <MessageAccordion key={e.id} msg={e} />
+                ))}
+            </Accordion>
           ) : (
-            "Content for discarded"
+            <div>There no discarded messages</div>
           )}
         </Tab>
         <Tab eventKey="failed" title="Failed">
-          {loading ? (
+          {loading && (
             <Container className="text-center mt-5">
               <Spinner animation="border" />
             </Container>
+          )}
+
+          {messages?.content?.length > 0 ? (
+            <Accordion>
+              {messages &&
+                messages.content?.map((e) => (
+                  <MessageAccordion key={e.id} msg={e} />
+                ))}
+            </Accordion>
           ) : (
-            "Content for failed"
+            <div>There no failed messages</div>
           )}
         </Tab>
       </Tabs>
