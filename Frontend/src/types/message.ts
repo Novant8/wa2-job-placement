@@ -42,7 +42,9 @@ export interface Message {
 }
 
 export interface MessageCreate {
-  sender: Address;
+  sender: {
+    email: string;
+  };
   channel: MessageChannel;
   subject: string;
   body: string;

@@ -195,6 +195,7 @@ export default function JobProposalModalDetail(props: any) {
           action={modalAction}
           onHide={() => setCustomerProposalConfirmationModalShow(false)}
           customerId={customerInfo.id}
+          customerInfo={customerInfo}
           proposalId={jobProposal?.id}
           jobOfferId={jobProposal?.jobOffer.id}
           candidateId={jobProposal?.professional.id}

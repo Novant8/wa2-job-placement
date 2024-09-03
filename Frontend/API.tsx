@@ -470,7 +470,7 @@ export function loadJobProposalDocument(
 }
 
 export function createMessage(msg: MessageCreate): Promise<number> {
-  return customFetch(`/crm/API/message`, {
+  return customFetch(`/crm/API/messages`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
