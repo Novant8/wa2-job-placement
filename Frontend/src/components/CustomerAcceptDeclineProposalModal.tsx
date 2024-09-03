@@ -1,8 +1,19 @@
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
+import { MessageCreate } from "../types/message.ts";
 
 export default function CustomerAcceptDeclineProposalModal(props: any) {
+  const testMessage = (msg: MessageCreate) => {
+    API.createMessage(msg)
+      .then(() => {
+        console.log("okay");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const handleAcceptDecline = (customerConfirm: boolean) => {
     if (!props.proposalId) return;
 

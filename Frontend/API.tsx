@@ -18,6 +18,7 @@ import Cookies from "js-cookie";
 import { CustomerFilter } from "./src/types/customerFilter.ts";
 import { JobProposal } from "./src/types/JobProposal.ts";
 import { DocumentHistory, DocumentMetadata } from "./src/types/documents.ts";
+import { Message, MessageCreate } from "./src/types/message.ts";
 
 interface ErrorResponseBody {
   type: string;
@@ -465,6 +466,16 @@ export function loadJobProposalDocument(
       "Content-Type": "application/json",
     },
     body: JSON.stringify(documentId),
+  });
+}
+
+export function createMessage(msg: MessageCreate): Promise<number> {
+  return customFetch(`/crm/API/message`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(msg),
   });
 }
 
