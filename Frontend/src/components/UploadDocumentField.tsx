@@ -23,6 +23,7 @@ interface UploadFileFieldProps {
   customerView: boolean;
   customerConfirm: boolean;
   professionalView: boolean;
+  professionalConfirm: boolean;
 }
 
 export function UploadDocumentField({
@@ -34,6 +35,7 @@ export function UploadDocumentField({
   customerView,
   customerConfirm,
   professionalView,
+  professionalConfirm,
 }: UploadFileFieldProps) {
   const [file, setFile] = useState<File | undefined>();
   const [documentHistory, setDocumentHistory] = useState<
@@ -92,36 +94,39 @@ export function UploadDocumentField({
     <>
       {documentId && latestDoc && (
         <>
-          {!customerView || (!professionalView && <p>Currently uploaded: </p>)}
+          {!customerView && !professionalView && !customerConfirm && (
+            <p>Currently uploaded: </p>
+          )}
 
           <FileField
             document={latestDoc}
             onDelete={handleHistoryDelete}
             customerConfirm={customerConfirm}
+            professionalConfirm={professionalConfirm}
           />
         </>
       )}
       <Form.Group controlId="register-user-upload-document" className="my-3">
         <InputGroup hasValidation>
-          {!customerConfirm ||
-            (professionalView && (
-              <>
-                <Form.Control
-                  type="file"
-                  isInvalid={!!documentError || !!error}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setFile(e.target.files![0])
-                  }
-                />
-                <Button
-                  variant={documentHistory ? "warning" : "primary"}
-                  disabled={!file}
-                  onClick={handleFileUpload}
-                >
-                  {documentHistory ? "Update" : "Upload"}
-                </Button>
-              </>
-            ))}
+          {((customerView && !customerConfirm) ||
+            (professionalView && !professionalConfirm)) && (
+            <>
+              <Form.Control
+                type="file"
+                isInvalid={!!documentError || !!error}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setFile(e.target.files![0])
+                }
+              />
+              <Button
+                variant={documentHistory ? "warning" : "primary"}
+                disabled={!file}
+                onClick={handleFileUpload}
+              >
+                {documentHistory ? "Update" : "Upload"}
+              </Button>
+            </>
+          )}
 
           <Form.Control.Feedback type="invalid">
             {documentError || error}
@@ -144,6 +149,7 @@ export function UploadDocumentField({
                       document={document}
                       onDelete={() => handleVersionDelete(index)}
                       customerConfirm={customerConfirm}
+                      professionalConfirm={professionalConfirm}
                     />
                   ),
                 )}
@@ -159,9 +165,15 @@ interface FileFieldProps {
   document: ReducedDocumentMetadata;
   onDelete?: (documentId: number) => void;
   customerConfirm: boolean;
+  professionalConfirm: boolean;
 }
 
-function FileField({ document, onDelete, customerConfirm }: FileFieldProps) {
+function FileField({
+  document,
+  onDelete,
+  customerConfirm,
+  professionalConfirm,
+}: FileFieldProps) {
   return (
     <div className="my-2">
       <span className="mx-3 my-auto">
@@ -176,7 +188,7 @@ function FileField({ document, onDelete, customerConfirm }: FileFieldProps) {
         >
           View
         </Button>
-        {!customerConfirm && (
+        {!customerConfirm && !professionalConfirm && (
           <Button
             variant="danger"
             onClick={() => onDelete?.(document.historyId)}

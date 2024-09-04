@@ -424,6 +424,24 @@ export default function ViewJobOfferDetails() {
       {jobOffer?.offerStatus === "CONSOLIDATED" && (
         <>
           <Button
+            variant="warning"
+            onClick={() => {
+              //setJobProposalDetailModalShow(true);
+
+              let selected: Candidate = {
+                id: jobOffer.professional.id,
+                name: jobOffer.professional.contactInfo.name,
+                surname: jobOffer.professional.contactInfo.surname,
+                cvDocument: jobOffer?.professional.cvDocument,
+              };
+              setSelectedCandidate(selected);
+              setJobProposalDetailModalShow(true);
+            }}
+            className="me-2"
+          >
+            Show Job Proposal
+          </Button>
+          <Button
             style={{ marginRight: 10 }}
             variant="success"
             onClick={() => {

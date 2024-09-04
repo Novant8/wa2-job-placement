@@ -467,6 +467,18 @@ export function loadJobProposalDocument(
     body: JSON.stringify(documentId),
   });
 }
+export function loadJobProposalSignedDocument(
+  proposalId: number | undefined,
+  documentId: number | null,
+): Promise<JobProposal> {
+  return customFetch(`/crm/API/jobProposals/${proposalId}/signedDocument`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(documentId),
+  });
+}
 
 const url: string = "http://localhost:8080";
 

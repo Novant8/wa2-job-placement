@@ -324,7 +324,9 @@ export default function ViewJobOfferDetailProfessional() {
           </>
         )}
 
-        {jobOffer?.offerStatus === "CANDIDATE_PROPOSAL" && (
+        {["CANDIDATE_PROPOSAL", "CONSOLIDATED"].some(
+          (state) => jobOffer?.offerStatus == state,
+        ) && (
           <Container className="mt-5">
             <Button
               variant="warning"

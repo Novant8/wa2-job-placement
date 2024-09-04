@@ -116,4 +116,11 @@ class JobProposalController(private val jobProposalService: JobProposalService) 
     fun loadDocument (@PathVariable("proposalId") proposalId: Long,@RequestBody documentId: Long?): JobProposalDTO{
         return jobProposalService.loadDocument(proposalId,documentId)
     }
+
+    @Operation(summary = "Load a Professional Signed Document for the Job Proposal ")
+    @PreAuthorize("hasAnyRole('customer', 'professional' )")
+    @PutMapping("{proposalId}/signedDocument")
+    fun loadSignedDocument (@PathVariable("proposalId") proposalId: Long,@RequestBody documentId: Long?): JobProposalDTO{
+        return jobProposalService.loadSignedDocument(proposalId,documentId)
+    }
 }

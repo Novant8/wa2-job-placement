@@ -601,6 +601,7 @@ export default function EditAccountForm() {
               customerView={false}
               customerConfirm={false}
               professionalView={false}
+              professionalConfirm={false}
             />
           </div>
           <div className="my-2">
