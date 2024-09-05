@@ -93,8 +93,11 @@ services:
     build: ./CommunicationManager
     networks:
       - keycloak
+      - prometheus
+      - kfk-net
     ports:
       - "8083:8083"
+
 
   document-store:
     build: ./DocumentStore

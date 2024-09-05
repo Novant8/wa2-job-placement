@@ -80,7 +80,7 @@ class SecurityConfig(val crr: ClientRegistrationRepository) {
         return httpSecurity
             .authorizeHttpRequests {
                 it.requestMatchers("/ui/edit-account").authenticated()
-                it.requestMatchers("/ui/**", "/", "/me","/logout").permitAll()
+                it.requestMatchers("/ui/**", "/", "/me","/logout","/actuator/**").permitAll()
                 it.anyRequest().authenticated()
             }
             .oauth2Login {

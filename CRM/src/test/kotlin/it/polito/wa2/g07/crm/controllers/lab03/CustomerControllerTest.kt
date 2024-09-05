@@ -270,7 +270,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
                 }
                 ProfessionalDTO(
                     2L,
-                        contactDTO, "TO", setOf("Ita"),20.0,EmploymentState.UNEMPLOYED,null
+                        contactDTO, "TO", setOf("Ita"),20.0,EmploymentState.UNEMPLOYED,null,null
 
                 )
             }
@@ -504,7 +504,7 @@ class CustomerControllerTest(@Autowired val mockMvc: MockMvc) {
             customer = ReducedCustomerDTO(0L,ReducedContactDTO(0L,"nome","cognome",ContactCategory.CUSTOMER),null),
             requiredSkills = mutableSetOf("test"),
             duration=90,
-            offerStatus = OfferStatus.CREATED,null,null,null)
+            offerStatus = OfferStatus.CREATED,null,null,null,null,null)
 
         @BeforeEach
         fun initMocks(){
