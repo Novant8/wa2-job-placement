@@ -55,7 +55,7 @@ export default function JobProposalModalDetail(props: any) {
     },
   });
 
-  const [professioanlInfo, setProfessionalInfo] = useState<Professional>({
+  const [professionalInfo, setProfessionalInfo] = useState<Professional>({
     id: 0,
     contactInfo: {
       id: 0,
@@ -86,9 +86,9 @@ export default function JobProposalModalDetail(props: any) {
       });
     } else {
       setProfessionalInfo({
-        ...professioanlInfo,
+        ...professionalInfo,
         contactInfo: {
-          ...professioanlInfo.contactInfo,
+          ...professionalInfo.contactInfo,
           [field]: value,
         },
       });
@@ -138,7 +138,7 @@ export default function JobProposalModalDetail(props: any) {
           setProfessionalInfo(professional);
         })
         .catch((err) => console.log(err));
-    }, [me, professioanlInfo.id]);
+    }, [me, professionalInfo.id]);
   }
 
   useEffect(() => {
@@ -299,7 +299,7 @@ export default function JobProposalModalDetail(props: any) {
           onHide={() => setProfessionalProposalConfirmationModalShow(false)}
           proposalId={jobProposal?.id}
           jobOfferId={jobProposal?.jobOffer.id}
-          professionalId={professioanlInfo.id}
+          professionalId={professionalInfo.id}
           setDirty={() => setDirty(true)}
           setProposalOnHide={props.onHide}
         />

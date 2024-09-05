@@ -97,26 +97,10 @@ export default function ViewJobOfferDetails() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [dirty]);
+  }, [me, dirty]);
 
   const handleEditClick = () => {
     setIsEditable(!isEditable);
-  };
-
-  const handleAbortOffer = () => {
-    API.updateJobOfferStatus(jobOfferId, { status: "ABORTED" })
-      .then(() => {})
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  const handleDoneOffer = () => {
-    API.updateJobOfferStatus(jobOfferId, { status: "DONE" })
-      .then(() => {})
-      .catch((err) => {
-        console.log(err);
-      });
   };
 
   const handleSubmit = () => {
@@ -214,7 +198,7 @@ export default function ViewJobOfferDetails() {
         action={modalAction}
         onHide={() => setModalShow(false)}
         jobOffer={jobOffer}
-        setDirty={() => setDirty(false)}
+        setDirty={() => setDirty(true)}
       />
       <Form>
         <Row className="mb-3">

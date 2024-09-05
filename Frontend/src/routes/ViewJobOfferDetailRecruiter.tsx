@@ -65,7 +65,7 @@ export default function ViewJobOfferDetailsRecruiter() {
     setLoading(true);
     API.getJobOfferDetails(jobOfferId)
       .then((data) => {
-        console.log(data);
+        console.log("DATI JOB OFFER Recruiter :" + data);
         setJobOffer(data);
         setDirty(false);
         if (data.offerStatus !== "CREATED") {
@@ -78,7 +78,7 @@ export default function ViewJobOfferDetailsRecruiter() {
 
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [dirty]);
+  }, [dirty, jobOfferId]);
 
   const handleEditClick = () => {
     setIsEditable(!isEditable);

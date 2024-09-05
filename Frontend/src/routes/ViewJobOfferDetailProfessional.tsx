@@ -16,6 +16,7 @@ import * as API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
 import { Customer } from "../types/customer.ts";
 import JobProposalModalDetail from "../components/JobProposalDetailModal.tsx";
+import { Professional } from "../types/professional.ts";
 type Candidate = {
   id: number;
   name: string;
@@ -27,7 +28,7 @@ export default function ViewJobOfferDetailProfessional() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [newSkill, setNewSkill] = useState<string>("");
-  const [userInfo, setUserInfo] = useState<Customer>({
+  const [userInfo, setUserInfo] = useState<Professional>({
     id: 0,
     contactInfo: {
       id: 0,
@@ -37,6 +38,10 @@ export default function ViewJobOfferDetailProfessional() {
       category: "UNKNOWN",
       addresses: [],
     },
+    location: "",
+    skills: [],
+    dailyRate: 0,
+    employmentState: "NOT_AVAILABLE",
   });
   const { jobOfferId } = useParams();
   const { me } = useAuth();
@@ -75,10 +80,11 @@ export default function ViewJobOfferDetailProfessional() {
 
     setLoading(true);
     API.getProfessionalFromCurrentUser()
-      .then((customer) => {
-        setUserInfo(customer);
+      .then((professional) => {
+        setUserInfo(professional);
         API.getJobOfferDetails(jobOfferId)
           .then((data) => {
+            console.log("DATI JOB OFFER PROFESSIONAL :" + data);
             setJobOffer(data);
           })
           .catch(() => {
@@ -87,7 +93,7 @@ export default function ViewJobOfferDetailProfessional() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  });
+  }, [me, userInfo.id, jobOfferId]);
 
   const handleEditClick = () => {
     setIsEditable(!isEditable);
