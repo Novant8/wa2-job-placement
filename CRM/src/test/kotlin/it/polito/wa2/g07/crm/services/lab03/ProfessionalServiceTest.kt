@@ -136,6 +136,7 @@ class ProfessionalServiceTest {
                 setOf("mockSkill1","mockSkill2"),
                 100.0,
                 EmploymentState.UNEMPLOYED,
+                null,
                 "mockNotes"
             )
             Assertions.assertEquals(result,expectedDTO)
@@ -176,7 +177,8 @@ class ProfessionalServiceTest {
                 setOf("mockSkill1","mockSkill2"),
                 100.0,
                 EmploymentState.UNEMPLOYED,
-                null
+                null,
+                notes = null
             )
             Assertions.assertEquals(result,expectedDTO)
             verify { professionalRepository.save(any(Professional::class)) }
@@ -487,6 +489,7 @@ class ProfessionalServiceTest {
                 20.0,
                 EmploymentState.UNEMPLOYED,
 
+                null,
                 null
             )
 
@@ -565,6 +568,7 @@ class ProfessionalServiceTest {
                 mockProfessional.skills,
                 mockProfessional.dailyRate,
                 mockProfessional.employmentState,
+                null,
                 notes
             )
             Assertions.assertEquals(result,expectedDTO)
@@ -590,6 +594,7 @@ class ProfessionalServiceTest {
                 mockProfessional.skills,
                 mockProfessional.dailyRate,
                 mockProfessional.employmentState,
+                null,
                 mockProfessional.notes
             )
             Assertions.assertEquals(result,expectedDTO)
@@ -615,6 +620,7 @@ class ProfessionalServiceTest {
                 skills,
                 mockProfessional.dailyRate,
                 mockProfessional.employmentState,
+                null,
                 mockProfessional.notes
             )
             Assertions.assertEquals(result,expectedDTO)
@@ -640,6 +646,7 @@ class ProfessionalServiceTest {
                 mockProfessional.skills,
                 dailyRate,
                 mockProfessional.employmentState,
+                null,
                 mockProfessional.notes
             )
             Assertions.assertEquals(result,expectedDTO)
@@ -664,6 +671,7 @@ class ProfessionalServiceTest {
                 mockProfessional.skills,
                 mockProfessional.dailyRate,
                 employmentState,
+                null,
                 mockProfessional.notes
             )
             Assertions.assertEquals(result,expectedDTO)
