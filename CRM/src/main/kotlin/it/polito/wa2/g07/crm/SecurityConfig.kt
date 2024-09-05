@@ -8,10 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.oauth2.jwt.JwtDecoder
-import org.springframework.security.oauth2.jwt.JwtDecoders
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
-
 import org.springframework.security.web.SecurityFilterChain
 
 @Configuration
@@ -19,25 +16,15 @@ import org.springframework.security.web.SecurityFilterChain
 class SecurityConfig {
     private val logger: Logger = LoggerFactory.getLogger(SecurityConfig::class.java)
 
-    @Bean
     fun jwtAuthenticationConverter() : JwtAuthenticationConverter {
         val converter = JwtAuthenticationConverter()
         converter.setJwtGrantedAuthoritiesConverter{ jwt ->
 
             logger.info("TOKEN JWT. ${jwt}")
 
-            val resourceAccess = jwt.claims["resource_access"]
-            if(resourceAccess !is Map<*, *>) {
-                error("resource_access is not a map")
-            }
-            val crmClient = resourceAccess["crmclient"]
-            if(crmClient !is Map<*, *>) {
-                error("crm_client is not a map")
-            }
-            val roles = crmClient["roles"]
-            if(roles !is Collection<*>) {
-                error("roles is not a collection")
-            }
+            val resourceAccess = jwt.claims["resource_access"] as? Map<*, *>
+            val crmClient = resourceAccess?.get("crmclient") as? Map<*, *>
+            val roles = crmClient?.get("roles") as? Collection<*> ?: listOf<SimpleGrantedAuthority>()
             roles
                 .map { "ROLE_$it" }
                 .map { SimpleGrantedAuthority(it) }
@@ -55,7 +42,9 @@ class SecurityConfig {
                 it.anyRequest().authenticated()
             }
             .oauth2ResourceServer {
-                it.jwt { it.jwtAuthenticationConverter(jwtAuthenticationConverter()) }
+                it.jwt { jwt ->
+                    jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
+                }
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .csrf { it.disable() }

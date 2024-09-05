@@ -55,12 +55,12 @@ class SecurityConfig(val crr: ClientRegistrationRepository) {
             "operator" to "http://localhost:8080/"
         )
 
-        fun getRolesFromAuthentication(authentication: Authentication?): Collection<String>? {
-            val oAuth2AuthenticationToken = authentication as? OAuth2AuthenticationToken ?: return null
-            val resourceAccess = oAuth2AuthenticationToken.principal.attributes["resource_access"] as? Map<*, *> ?: return null
-            val crmClient = resourceAccess["crmclient"] as? Map<*, *> ?: return null
-            val roles = crmClient["roles"] as? Collection<*>
-            return roles?.map { it.toString() }
+        fun getRolesFromAuthentication(authentication: Authentication?): Collection<String> {
+            val oAuth2AuthenticationToken = authentication as? OAuth2AuthenticationToken
+            val resourceAccess = oAuth2AuthenticationToken?.principal?.attributes?.get("resource_access") as? Map<*, *>
+            val crmClient = resourceAccess?.get("crmclient") as? Map<*, *>
+            val roles = crmClient?.get("roles") as? Collection<*> ?: listOf<String>()
+            return roles.map { it.toString() }
         }
     }
 
@@ -70,7 +70,7 @@ class SecurityConfig(val crr: ClientRegistrationRepository) {
             it.setPostLogoutRedirectUri("http://localhost:8080/") }
 
     fun authSuccessHandler() = AuthenticationSuccessHandler { _, response, authentication ->
-        val roles = getRolesFromAuthentication(authentication) ?: return@AuthenticationSuccessHandler
+        val roles = getRolesFromAuthentication(authentication)
         val redirectLink = roles.firstNotNullOfOrNull { ROLE_REDIRECT_MAP[it] } ?: "http://localhost:8080/ui/edit-account"
         response.sendRedirect(redirectLink)
     }
@@ -115,8 +115,6 @@ class SpaCsrfTokenRequestHandler : CsrfTokenRequestAttributeHandler(){
     }
 
     override fun resolveCsrfTokenValue(request: HttpServletRequest, csrfToken: CsrfToken): String? {
-        val d = csrfToken as DefaultCsrfToken
-
         return if(StringUtils.hasText(request.getHeader(csrfToken.headerName) )){
             super.resolveCsrfTokenValue(request,csrfToken)
         }else{
