@@ -1,0 +1,24 @@
+scrape_configs:
+  - job_name: 'spring-boot-application-apigateway'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s # This can be adjusted based on our needs
+    static_configs:
+      - targets: ['api-gateway:8080']
+
+  - job_name: 'spring-boot-application-document-store'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    static_configs:
+      - targets: [ 'document-store:8081' ]
+
+  - job_name: 'spring-boot-application-crm'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    static_configs:
+      - targets: [ 'crm:8082' ]
+
+  - job_name: 'spring-boot-application-communication-manager'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    static_configs:
+      - targets: [ 'comm-manager:8083' ]

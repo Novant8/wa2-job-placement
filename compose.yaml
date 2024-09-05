@@ -1,0 +1,198 @@
+services:
+  keycloak:
+    build: ./keycloak-spi-kafka
+    ports:
+      - '9090:8080'
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: password
+      PROXY_ADDRESS_FORWARDING: true
+      KEYCLOAK_FRONTEND_URL: http://localhost:9090
+    volumes:
+      - ./ApiGateway/keycloak:/opt/keycloak/data/import
+    command: start-dev --import-realm
+    networks:
+      - kfk-net
+      - keycloak
+    healthcheck:
+      test: timeout 10s bash -c ':> /dev/tcp/localhost/8080'
+      interval: 10s
+      timeout: 1s 
+      retries: 10
+
+  kafka:
+    image: 'bitnami/kafka:3.7'
+    hostname: kafka
+    volumes:
+      - kafkaData:/bitnami
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:29092,CONTROLLER://:9093,PLAINTEXT_HOST://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:29092,PLAINTEXT_HOST://kafka:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+    networks:
+      - kfk-net
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "9091:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    networks:
+      - kfk-net
+
+  api-gateway:
+    build: ./ApiGateway
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    network_mode: host
+    restart: on-failure
+
+  frontend:
+    build: ./Frontend
+    ports:
+      - "5173:5173"
+
+  crm:
+    build: ./CRM
+    depends_on:
+      - crm-db
+      - kafka
+    ports:
+      - "8082:8082"
+    networks:
+      - crm
+      - keycloak
+      - prometheus
+      - kfk-net
+    restart: on-failure
+
+  crm-db:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=mydatabase'
+      - 'POSTGRES_PASSWORD=secret'
+      - 'POSTGRES_USER=myuser'
+    volumes:
+      - crmData:/var/lib/postgresql/data
+    networks:
+      - crm
+
+  comm-manager:
+    build: ./CommunicationManager
+    networks:
+      - keycloak
+    ports:
+      - "8083:8083"
+
+  document-store:
+    build: ./DocumentStore
+    depends_on:
+      - document-store-db
+    ports:
+      - "8081:8081"
+    networks:
+      - document-store
+      - prometheus
+      - kfk-net
+
+  document-store-db:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=mydatabase'
+      - 'POSTGRES_PASSWORD=secret'
+      - 'POSTGRES_USER=myuser'
+    volumes:
+      - documentStoreData:/var/lib/postgresql/data
+    networks:
+      - document-store
+
+  monitoring:
+    build: ./Monitoring
+    depends_on:
+      - monitoring-db
+    networks:
+      - monitoring
+      - kfk-net
+      - keycloak
+    ports:
+      - "8084:8084"
+
+  monitoring-db:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=mydatabase'
+      - 'POSTGRES_PASSWORD=secret'
+      - 'POSTGRES_USER=myuser'
+    volumes:
+      - monitoringData:/var/lib/postgresql/data
+    networks:
+      - monitoring
+
+  prometheus:
+    image: 'prom/prometheus'
+    ports:
+      - '9095:9090'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./Monitoring/config_prometheus_docker/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./Monitoring/config_prometheus_docker/web.yml:/etc/prometheus/web.yml
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.config.file=/etc/prometheus/web.yml
+    networks:
+      - monitoring
+      - prometheus
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    depends_on:
+      - keycloak
+      - prometheus
+    user: "$UID:$GID"
+    ports:
+      - "3000:3000"
+    volumes:
+      #provisioning
+      - ./Monitoring/config_grafana_docker/datasources.yml:/etc/grafana/provisioning/datasources/prometheus.yml
+      #grafana config file
+      - ./Monitoring/config_grafana_docker/grafana.ini:/etc/grafana/grafana.ini
+      - ./Monitoring/config_grafana/grafana/:/var/lib/grafana/:rw
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - monitoring
+
+networks:
+  crm:
+    driver: bridge
+  kfk-net:
+    driver: bridge
+  keycloak:
+    driver: bridge
+  document-store:
+    driver: bridge
+  monitoring:
+    driver: bridge
+  prometheus:
+    driver: bridge
+
+volumes:
+  kafkaData:
+  keycloakSPIKafka:
+  documentStoreData:
+  crmData:
+  monitoringData:
