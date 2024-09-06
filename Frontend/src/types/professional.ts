@@ -3,14 +3,14 @@ import { Contact, ReducedContact } from "./contact.ts";
 export type UserSkill = string;
 export type EmploymentState = "UNEMPLOYED" | "EMPLOYED" | "NOT_AVAILABLE";
 export interface Professional {
-    id: number;
-    contactInfo: Contact;
-    location: string;
-    skills: UserSkill[];
-    dailyRate: number;
-    employmentState: EmploymentState;
-    cvDocument?: number;
-    notes?: string;
+  id: number;
+  contactInfo: Contact;
+  location: string;
+  skills: UserSkill[];
+  dailyRate: number;
+  employmentState: EmploymentState;
+  cvDocument?: number;
+  notes?: string;
 }
 
 export interface ReducedProfessional {
@@ -19,6 +19,7 @@ export interface ReducedProfessional {
   location: string;
   skills: UserSkill[];
   employmentState: EmploymentState;
+  cvDocument?: number;
 }
 export type CreateProfessionalReduced = Pick<
   Professional,

@@ -7,19 +7,16 @@ export default function ConfirmationModal(props: any) {
   const handleAcceptDecline = (status: JobOfferUpdateStatus) => {
     if (!props.jobOffer) return;
 
-    /*const jobOfferUpdateStatus: JobOfferUpdateStatus = {
-      status: status,
-    };*/
-
     API.updateJobOfferStatus(props.jobOffer.id, status)
       .then(() => {
         //navigate(`/crm/RecruiterJobOffer/${props.jobOffer.id}`);
-        props.onHide;
+        props.setDirty();
+        props.onHide();
       })
       .catch((error) => {
         console.log(error);
-      })
-      .finally(() => props.setDirty);
+      });
+    //.finally(() => );
   };
 
   return (

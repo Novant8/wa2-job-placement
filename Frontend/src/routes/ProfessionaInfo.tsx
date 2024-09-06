@@ -104,12 +104,18 @@ export default function ProfessionaInfo() {
   }
 
   const notDoneOffers = jobOffers.filter(
-    (offer) => offer.offerStatus !== "DONE",
+    (offer) =>
+      offer.offerStatus.toString() !== "DONE" &&
+      offer.offerStatus.toString() !== "ABORT",
   );
 
   console.log(notDoneOffers);
 
-  const doneOffers = jobOffers.filter((offer) => offer.offerStatus === "DONE");
+  const doneOffers = jobOffers.filter(
+    (offer) =>
+      offer.offerStatus.toString() == "DONE" ||
+      offer.offerStatus.toString() == "ABORT",
+  );
 
   return (
     <>
@@ -260,7 +266,11 @@ export default function ProfessionaInfo() {
                       <strong>Description:</strong> {offer.description} &nbsp;
                       <strong>Status:</strong> {offer.offerStatus}&nbsp;
                       <strong>Professional:</strong>{" "}
-                      {offer.professional ? offer.professional : "N/A"}
+                      {offer.professional
+                        ? offer.professional.contactInfo.name +
+                          " " +
+                          offer.professional.contactInfo.surname
+                        : "N/A"}
                     </Card.Text>
 
                     <Button

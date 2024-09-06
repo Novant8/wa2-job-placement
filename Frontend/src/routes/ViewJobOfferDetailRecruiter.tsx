@@ -23,11 +23,13 @@ import JobProposalModal from "../components/JobProposalModal.tsx";
 import JobProposalModalDetail from "../components/JobProposalDetailModal.tsx";
 import { ReducedProfessional } from "../types/professional.ts";
 import { JobOfferUpdateStatus } from "../types/JobOffer.ts";
+import { ApiError } from "../../API.tsx";
 
 type Candidate = {
   id: number;
   name: string;
   surname: string;
+  cvDocument?: number;
 };
 export default function ViewJobOfferDetailsRecruiter() {
   const [isEditable, setIsEditable] = useState(false);
@@ -50,8 +52,10 @@ export default function ViewJobOfferDetailsRecruiter() {
     id: 0,
     name: "",
     surname: "",
+    cvDocument: null,
   });
   const [notesLoading, setNotesLoading] = useState(false);
+  const [documentError, setDocumentError] = useState("");
 
   const { jobOfferId } = useParams();
   //const { me } = useAuth();
@@ -61,7 +65,7 @@ export default function ViewJobOfferDetailsRecruiter() {
     setLoading(true);
     API.getJobOfferDetails(jobOfferId)
       .then((data) => {
-        console.log(data);
+        console.log("DATI JOB OFFER Recruiter :" + data);
         setJobOffer(data);
         setDirty(false);
         if (data.offerStatus !== "CREATED") {
@@ -74,7 +78,7 @@ export default function ViewJobOfferDetailsRecruiter() {
 
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [dirty]);
+  }, [dirty, jobOfferId]);
 
   const handleEditClick = () => {
     setIsEditable(!isEditable);
@@ -123,6 +127,16 @@ export default function ViewJobOfferDetailsRecruiter() {
         setError("Failed to update job offer");
       })
       .finally(() => setNotesLoading(false));
+  }
+  function handleViewDocument(documentId: number) {
+    setDocumentError("");
+    API.getDocumentHistory(documentId)
+      .then((history) => {
+        let document = history.versions[0];
+        const url = `/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`;
+        window.open(url, "_blank");
+      })
+      .catch((err: ApiError) => setDocumentError(err.message));
   }
 
   const handleInputChange = (field: keyof JobOffer, value: any) => {
@@ -427,6 +441,7 @@ export default function ViewJobOfferDetailsRecruiter() {
                                 id: candidate.id,
                                 name: candidate.contactInfo.name,
                                 surname: candidate.contactInfo.surname,
+                                cvDocument: candidate.cvDocument,
                               };
                               setSelectedCandidate(selected);
                               setJobProposalModalShow(true);
@@ -442,6 +457,7 @@ export default function ViewJobOfferDetailsRecruiter() {
                                 id: candidate.id,
                                 name: candidate.contactInfo.name,
                                 surname: candidate.contactInfo.surname,
+                                cvDocument: candidate.cvDocument,
                               };
                               setSelectedCandidate(selected);
                               setRemoveCandidateModalShow(true);
@@ -452,7 +468,10 @@ export default function ViewJobOfferDetailsRecruiter() {
                           </Button>
                           <Button
                             variant="primary"
-                            //onClick={() => handleCandidateAction("download", candidate.id)}
+                            disabled={!candidate.cvDocument}
+                            onClick={() =>
+                              handleViewDocument(candidate.cvDocument)
+                            }
                           >
                             Download CV
                           </Button>
@@ -483,43 +502,7 @@ export default function ViewJobOfferDetailsRecruiter() {
                         <br />
                         Skills: {jobOffer.professional.skills.join(", ")}
                       </Card.Text>
-                      {/*
-                    <Button
-                      variant="success"
-                      //onClick={() => handleCandidateAction("eligible", candidate.id)}
 
-                      onClick={() => {
-                        let selected: Candidate = {
-                          id: jobOffer.professional.id,
-                          name: jobOffer.professional.contactInfo.name,
-                          surname: jobOffer.professional.contactInfo.surname,
-                        };
-                        setSelectedCandidate(selected);
-                        setJobProposalModalShow(true);
-                      }}
-                      className="me-2"
-                    >
-                      Eligible Candidate
-                    </Button>
-                    */}
-
-                      {/*
-                    <Button
-                      variant="danger"
-                      onClick={() => {
-                        let selected: Candidate = {
-                          id: jobOffer.professional.id,
-                          name: jobOffer.professional.contactInfo.name,
-                          surname: jobOffer.professional.contactInfo.surname,
-                        };
-                        setSelectedCandidate(selected);
-                        setRemoveCandidateModalShow(true);
-                      }}
-                      className="me-2"
-                    >
-                      Remove Candidate
-                    </Button>
-                    */}
                       <Button
                         variant="warning"
                         onClick={() => {
@@ -529,6 +512,7 @@ export default function ViewJobOfferDetailsRecruiter() {
                             id: jobOffer.professional.id,
                             name: jobOffer.professional.contactInfo.name,
                             surname: jobOffer.professional.contactInfo.surname,
+                            cvDocument: jobOffer?.professional.cvDocument,
                           };
                           setSelectedCandidate(selected);
                           setJobProposalDetailModalShow(true);
@@ -540,7 +524,10 @@ export default function ViewJobOfferDetailsRecruiter() {
 
                       <Button
                         variant="primary"
-                        //onClick={() => handleCandidateAction("download", candidate.id)}
+                        disabled={!jobOffer?.professional.cvDocument}
+                        onClick={() =>
+                          handleViewDocument(jobOffer?.professional.cvDocument)
+                        }
                       >
                         Download CV
                       </Button>
@@ -559,6 +546,30 @@ export default function ViewJobOfferDetailsRecruiter() {
               Abort Job Offer
             </Button>
           </>
+        )}
+        {jobOffer?.offerStatus === "CONSOLIDATED" && (
+          <Container>
+            <Row>
+              <Col>
+                <Button
+                  variant="warning"
+                  onClick={() => {
+                    let selected: Candidate = {
+                      id: jobOffer.professional.id,
+                      name: jobOffer.professional.contactInfo.name,
+                      surname: jobOffer.professional.contactInfo.surname,
+                      cvDocument: jobOffer?.professional.cvDocument,
+                    };
+                    setSelectedCandidate(selected);
+                    setJobProposalDetailModalShow(true);
+                  }}
+                  className="me-2"
+                >
+                  Show Job Proposal
+                </Button>
+              </Col>
+            </Row>
+          </Container>
         )}
 
         {jobOffer?.offerStatus === "SELECTION_PHASE" && (

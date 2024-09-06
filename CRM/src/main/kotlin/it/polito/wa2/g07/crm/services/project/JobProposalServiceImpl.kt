@@ -94,4 +94,12 @@ class JobProposalServiceImpl (
         proposal.documentId = documentId;
         return proposalRepository.save(proposal).toJobProposalDTO()
     }
+
+    @Transactional
+    override fun loadSignedDocument(proposalId: Long, documentId: Long?): JobProposalDTO {
+        val proposal = proposalRepository.findById(proposalId).orElseThrow { EntityNotFoundException("The proposal with ID $proposalId is not found") }
+
+        proposal.professionalSignedContract = documentId;
+        return proposalRepository.save(proposal).toJobProposalDTO()
+    }
 }
