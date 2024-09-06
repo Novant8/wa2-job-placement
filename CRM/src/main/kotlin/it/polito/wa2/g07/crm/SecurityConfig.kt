@@ -51,7 +51,7 @@ class SecurityConfig {
     fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         return httpSecurity
             .authorizeHttpRequests {
-                it.requestMatchers("/actuator/**").permitAll()
+                it.requestMatchers("/actuator/**","API/messages/**").permitAll()
                 it.anyRequest().authenticated()
             }
             .oauth2ResourceServer {

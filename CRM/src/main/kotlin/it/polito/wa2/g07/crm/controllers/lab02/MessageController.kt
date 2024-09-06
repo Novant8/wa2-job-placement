@@ -81,7 +81,7 @@ class MessageController (private val messageService: MessageService
     ])
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("","/")
-    @PreAuthorize("hasAnyRole('operator', 'manager','customer')")
+   
     fun createNewMessage(@RequestBody @Valid  msg: MessageCreateDTO): MessageDTO? {
        // sender, channel, subject, body
         val channel = try {
