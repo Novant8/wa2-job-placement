@@ -92,7 +92,7 @@ export default function updateMessageStatusModal(props: any) {
               handleAcceptDecline({ status: "READ", comments: comment });
             }}
           >
-            Processing
+            Read
           </Button>
         ) : (
           ""
