@@ -11,6 +11,8 @@ import {
   Tab,
   Tabs,
 } from "react-bootstrap";
+import UpdateMessageStatusModal from "./UpdateMessageStatusModal.tsx";
+
 export default function MessagesView() {
   const { me } = useAuth();
   const [messages, setMessages] = useState({});
@@ -19,7 +21,10 @@ export default function MessagesView() {
   const [pageable, setPageable] = useState<Pageable | null>(null);
   const [totalPages, setTotalPages] = useState<number | null>(null);
   const [status, setStatus] = useState<string | undefined>("RECEIVED");
-
+  const [selected, setSelected] = useState<Message | null>(null);
+  const [modalAction, setModalAction] = useState<string>("");
+  const [modalStatusShow, setModalStatusShow] = useState<boolean>(false);
+  const [dirty, setDirty] = useState<boolean>(false);
   type MessageAccordionProps = {
     msg: Message;
   };
@@ -44,13 +49,56 @@ export default function MessagesView() {
             <div>
               Date of the message: {props.msg.creationTimestamp?.toString()}
             </div>
+            {props.msg.lastEvent.status !== "DONE" &&
+              props.msg.lastEvent.status !== "PROCESSING" &&
+              props.msg.lastEvent.status !== "DISCARDED" &&
+              props.msg.lastEvent.status !== "FAILED" && (
+                <>
+                  <Button
+                    className="primary mt-3"
+                    variant={"warning"}
+                    style={{ marginRight: 10 }}
+                    onClick={() => {
+                      setModalAction("processing");
+                      setSelected(props.msg);
+                      setModalStatusShow(true);
+                    }}
+                  >
+                    Mark as Processing
+                  </Button>
+                </>
+              )}
+            {props.msg.lastEvent.status !== "DONE" &&
+              props.msg.lastEvent.status !== "DISCARDED" &&
+              props.msg.lastEvent.status !== "FAILED" && (
+                <Button
+                  className="primary mt-3"
+                  variant={"success"}
+                  style={{ marginRight: 10 }}
+                  onClick={() => {
+                    setModalAction("done");
+                    setSelected(props.msg);
+                    setModalStatusShow(true);
+                  }}
+                >
+                  Mark as Done
+                </Button>
+              )}
 
-            <Button
-              className="primary mt-3"
-              onClick={() => console.log("manage")}
-            >
-              Manage
-            </Button>
+            {props.msg.lastEvent.status !== "DISCARDED" &&
+              props.msg.lastEvent.status !== "FAILED" && (
+                <Button
+                  className="primary mt-3"
+                  variant={"danger"}
+                  onClick={() => {
+                    setModalAction("discard");
+                    setSelected(props.msg);
+                    setModalStatusShow(true);
+                  }}
+                >
+                  Discard Message
+                </Button>
+              )}
           </Accordion.Body>
         </Accordion.Item>
       </div>
@@ -94,11 +142,12 @@ export default function MessagesView() {
         setError(err);
       })
       .finally(() => setLoading(false));
-  }, [status]);
+  }, [status, dirty]);
 
+  //TODO: remove this useEffect
   useEffect(() => {
     console.log(messages);
-  }, [messages, status]);
+  }, [messages, status, dirty]);
 
   if (error) {
     return (
@@ -111,6 +160,14 @@ export default function MessagesView() {
 
   return (
     <Container className="text-center mt-5">
+      <UpdateMessageStatusModal
+        show={modalStatusShow}
+        action={modalAction}
+        onHide={() => setModalStatusShow(false)}
+        message={selected}
+        setDirty={() => setDirty(true)}
+      />
+
       <h4>Messages</h4>
       <Tabs
         defaultActiveKey="received"

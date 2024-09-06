@@ -24,10 +24,10 @@ export interface LocalDateTime {
   nano: number | null;
 }
 
-export interface MessageEventDTO {
+export interface MessageEventInterface {
   status: MessageStatus;
-  timestamp: LocalDateTime | string | null;
-  comments: string | null;
+  timestamp?: LocalDateTime | string | null;
+  comments?: string | null;
 }
 
 export interface Message {
@@ -40,7 +40,7 @@ export interface Message {
   body: string;
   priority: number;
   creationTimestamp: LocalDateTime | string | null;
-  lastEvent: MessageEventDTO;
+  lastEvent: MessageEventInterface;
 }
 
 export interface MessageCreate {

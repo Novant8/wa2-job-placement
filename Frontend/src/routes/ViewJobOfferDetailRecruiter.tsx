@@ -183,7 +183,7 @@ export default function ViewJobOfferDetailsRecruiter() {
         action={modalAction}
         onHide={() => setModalShow(false)}
         jobOffer={jobOffer}
-        setDirty={() => setDirty(false)}
+        setDirty={() => setDirty(true)}
       />
 
       <RemoveCandidateModal
