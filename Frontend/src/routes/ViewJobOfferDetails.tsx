@@ -67,7 +67,7 @@ export default function ViewJobOfferDetails() {
   }
 
   useEffect(() => {
-    if (!me || userInfo.id > 0) return;
+    if (!me /*|| userInfo.id > 0*/) return;
 
     const registeredRole = me.roles.find((role) =>
       ["customer", "professional"].includes(role),
@@ -201,6 +201,8 @@ export default function ViewJobOfferDetails() {
         onHide={() => setModalShow(false)}
         jobOffer={jobOffer}
         setDirty={() => setDirty(false)}
+        customerId={userInfo.id}
+        customerInfo={userInfo}
       />
       <Form>
         <Row className="mb-3">

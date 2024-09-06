@@ -41,7 +41,7 @@ export default function JobProposalModalDetail(props: any) {
     },
   });
 
-  const [professioanlInfo, setProfessionalInfo] = useState<Professional>({
+  const [professionalInfo, setProfessionalInfo] = useState<Professional>({
     id: 0,
     contactInfo: {
       id: 0,
@@ -72,9 +72,9 @@ export default function JobProposalModalDetail(props: any) {
       });
     } else {
       setProfessionalInfo({
-        ...professioanlInfo,
+        ...professionalInfo,
         contactInfo: {
-          ...professioanlInfo.contactInfo,
+          ...professionalInfo.contactInfo,
           [field]: value,
         },
       });
@@ -124,7 +124,7 @@ export default function JobProposalModalDetail(props: any) {
           setProfessionalInfo(professional);
         })
         .catch((err) => console.log(err));
-    }, [me, professioanlInfo.id]);
+    }, [me, professionalInfo.id]);
   }
 
   useEffect(() => {
@@ -197,6 +197,7 @@ export default function JobProposalModalDetail(props: any) {
           customerId={customerInfo.id}
           customerInfo={customerInfo}
           proposalId={jobProposal?.id}
+          jobOffer={jobProposal?.jobOffer}
           jobOfferId={jobProposal?.jobOffer.id}
           candidateId={jobProposal?.professional.id}
           setDirty={() => setDirty(true)}
@@ -210,9 +211,15 @@ export default function JobProposalModalDetail(props: any) {
           action={modalAction}
           onHide={() => setProfessionalProposalConfirmationModalShow(false)}
           proposalId={jobProposal?.id}
+          jobOffer={jobProposal?.jobOffer}
           jobOfferId={jobProposal?.jobOffer.id}
-          professionalId={professioanlInfo.id}
+          professionalId={jobProposal?.professional.id}
+          candidateId={jobProposal?.professional.id}
+          professionalInfo={jobProposal?.professional}
           setDirty={() => setDirty(true)}
+          setProfessionalJobOfferDirty={() => {
+            props.setProfessionalJobOfferDirty;
+          }}
           setProposalOnHide={props.onHide}
         />
       )}

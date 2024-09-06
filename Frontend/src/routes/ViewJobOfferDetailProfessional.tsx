@@ -27,6 +27,7 @@ export default function ViewJobOfferDetailProfessional() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [newSkill, setNewSkill] = useState<string>("");
+  const [dirty, setDirty] = useState<boolean>(false);
   const [userInfo, setUserInfo] = useState<Customer>({
     id: 0,
     contactInfo: {
@@ -62,7 +63,7 @@ export default function ViewJobOfferDetailProfessional() {
   }
 
   useEffect(() => {
-    if (!me || userInfo.id > 0) return;
+    if (!me /*|| userInfo.id > 0*/) return;
 
     const registeredRole = me.roles.find((role) =>
       ["customer", "professional"].includes(role),
@@ -87,7 +88,7 @@ export default function ViewJobOfferDetailProfessional() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  });
+  }, [dirty]);
 
   const handleEditClick = () => {
     setIsEditable(!isEditable);
@@ -171,6 +172,7 @@ export default function ViewJobOfferDetailProfessional() {
         onHide={() => setJobProposalDetailModalShow(false)}
         jobOfferId={jobOffer?.id}
         professionalId={selectedCandidate.id}
+        setProfessionalJobOfferDirty={() => setDirty(true)}
       />
       <Form>
         <Row className="mb-3">
