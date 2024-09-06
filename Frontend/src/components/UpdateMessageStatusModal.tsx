@@ -1,9 +1,14 @@
 import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
 import { MessageEventInterface } from "../types/message.ts";
+import { InputGroup } from "react-bootstrap";
+import { useState } from "react";
 
 export default function updateMessageStatusModal(props: any) {
+  const [comment, setComment] = useState("");
+
   const handleAcceptDecline = (msgEvent: MessageEventInterface) => {
     if (!props.message) return;
 
@@ -39,13 +44,23 @@ export default function updateMessageStatusModal(props: any) {
                 ? "Are you sure that you want to put this message in processing"
                 : ""}
         </p>
+
+        <InputGroup>
+          <InputGroup.Text>Insert comment</InputGroup.Text>
+          <Form.Control
+            as="textarea"
+            aria-label="Insert comment"
+            onChange={(e) => setComment(e.target.value)}
+          />
+        </InputGroup>
       </Modal.Body>
+
       <Modal.Footer>
         {props.action === "done" ? (
           <Button
             variant="success"
             onClick={() => {
-              handleAcceptDecline({ status: "DONE" });
+              handleAcceptDecline({ status: "DONE", comments: comment });
             }}
           >
             Done
@@ -54,7 +69,7 @@ export default function updateMessageStatusModal(props: any) {
           <Button
             variant="danger"
             onClick={() => {
-              handleAcceptDecline({ status: "DISCARDED" });
+              handleAcceptDecline({ status: "DISCARDED", comments: comment });
             }}
           >
             Discard
@@ -63,7 +78,7 @@ export default function updateMessageStatusModal(props: any) {
           <Button
             variant="warning"
             onClick={() => {
-              handleAcceptDecline({ status: "PROCESSING" });
+              handleAcceptDecline({ status: "PROCESSING", comments: comment });
             }}
           >
             Processing
