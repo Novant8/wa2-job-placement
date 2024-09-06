@@ -200,7 +200,7 @@ export default function ViewJobOfferDetails() {
         action={modalAction}
         onHide={() => setModalShow(false)}
         jobOffer={jobOffer}
-        setDirty={() => setDirty(false)}
+        setDirty={() => setDirty(true)}
         customerId={userInfo.id}
         customerInfo={userInfo}
       />

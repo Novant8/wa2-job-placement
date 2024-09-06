@@ -166,7 +166,10 @@ export default function MessagesView() {
         console.log(err);
         setError(err);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        setDirty(false);
+      });
   }, [status, dirty]);
 
   //TODO: remove this useEffect
