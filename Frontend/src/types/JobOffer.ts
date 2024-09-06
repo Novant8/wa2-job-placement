@@ -13,7 +13,7 @@ export interface ReducedJobOffer {
   id: number;
   description: string;
   offerStatus: JobOfferStatus;
-  professional: string | null;
+  professional: ReducedProfessional | null;
 }
 
 export interface JobOfferResponse {

@@ -38,6 +38,7 @@ export default function ProfessionalAcceptDeclineProposalModal(props: any) {
             status: "CONSOLIDATED",
           }).catch((err) => console.log(err));
         }
+        props.setProfessionalDirty();
         props.onHide();
       })
       .catch((err) => {

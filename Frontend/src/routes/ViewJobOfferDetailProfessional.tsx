@@ -27,6 +27,7 @@ export default function ViewJobOfferDetailProfessional() {
   const [jobOffer, setJobOffer] = useState<JobOffer>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [dirty, setDirty] = useState(false);
   const [newSkill, setNewSkill] = useState<string>("");
   const [userInfo, setUserInfo] = useState<Professional>({
     id: 0,
@@ -93,7 +94,7 @@ export default function ViewJobOfferDetailProfessional() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [me, userInfo.id, jobOfferId]);
+  }, [me, dirty]);
 
   const handleEditClick = () => {
     setIsEditable(!isEditable);
@@ -177,6 +178,7 @@ export default function ViewJobOfferDetailProfessional() {
         onHide={() => setJobProposalDetailModalShow(false)}
         jobOfferId={jobOffer?.id}
         professionalId={selectedCandidate.id}
+        setProfessionalDirty={() => setDirty(true)}
       />
       <Form>
         <Row className="mb-3">

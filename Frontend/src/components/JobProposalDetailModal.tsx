@@ -288,7 +288,6 @@ export default function JobProposalModalDetail(props: any) {
           jobOfferId={jobProposal?.jobOffer.id}
           candidateId={jobProposal?.professional.id}
           setDirty={() => setDirty(true)}
-          setCustomerJobOfferDirty={props.setCustomerJobOfferDirty}
           setProposalOnHide={props.onHide}
         />
       )}
@@ -302,6 +301,7 @@ export default function JobProposalModalDetail(props: any) {
           professionalId={professionalInfo.id}
           setDirty={() => setDirty(true)}
           setProposalOnHide={props.onHide}
+          setProfessionalDirty={props.setProfessionalDirty}
         />
       )}
       <Modal.Header closeButton>
