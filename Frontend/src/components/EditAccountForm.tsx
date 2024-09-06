@@ -600,7 +600,7 @@ export default function EditAccountForm() {
               onDelete={deleteResume}
               customerView={false}
               customerConfirm={false}
-              professionalView={false}
+              professionalView={true}
               professionalConfirm={false}
             />
           </div>

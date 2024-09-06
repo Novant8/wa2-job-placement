@@ -67,7 +67,7 @@ export default function ViewJobOfferDetailProfessional() {
   }
 
   useEffect(() => {
-    if (!me || userInfo.id > 0) return;
+    if (!me) return;
 
     const registeredRole = me.roles.find((role) =>
       ["customer", "professional"].includes(role),
