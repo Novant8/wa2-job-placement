@@ -42,7 +42,9 @@ export default function updateMessageStatusModal(props: any) {
               ? "Are you sure that you to discard this message"
               : props.action === "processing"
                 ? "Are you sure that you want to put this message in processing"
-                : ""}
+                : props.action === "read"
+                  ? "Are you sure that you want to put this message in read"
+                  : ""}
         </p>
 
         <InputGroup>
@@ -79,6 +81,15 @@ export default function updateMessageStatusModal(props: any) {
             variant="warning"
             onClick={() => {
               handleAcceptDecline({ status: "PROCESSING", comments: comment });
+            }}
+          >
+            Processing
+          </Button>
+        ) : props.action === "read" ? (
+          <Button
+            variant="info"
+            onClick={() => {
+              handleAcceptDecline({ status: "READ", comments: comment });
             }}
           >
             Processing

@@ -49,10 +49,27 @@ export default function MessagesView() {
             <div>
               Date of the message: {props.msg.creationTimestamp?.toString()}
             </div>
+
+            {props.msg.lastEvent.status === "RECEIVED" && (
+              <Button
+                className="primary mt-3"
+                variant={"info"}
+                style={{ marginRight: 10 }}
+                onClick={() => {
+                  setModalAction("read");
+                  setSelected(props.msg);
+                  setModalStatusShow(true);
+                }}
+              >
+                Mark as Read
+              </Button>
+            )}
+
             {props.msg.lastEvent.status !== "DONE" &&
               props.msg.lastEvent.status !== "PROCESSING" &&
               props.msg.lastEvent.status !== "DISCARDED" &&
-              props.msg.lastEvent.status !== "FAILED" && (
+              props.msg.lastEvent.status !== "FAILED" &&
+              props.msg.lastEvent.status !== "RECEIVED" && (
                 <>
                   <Button
                     className="primary mt-3"
@@ -68,9 +85,11 @@ export default function MessagesView() {
                   </Button>
                 </>
               )}
+
             {props.msg.lastEvent.status !== "DONE" &&
               props.msg.lastEvent.status !== "DISCARDED" &&
-              props.msg.lastEvent.status !== "FAILED" && (
+              props.msg.lastEvent.status !== "FAILED" &&
+              props.msg.lastEvent.status !== "RECEIVED" && (
                 <Button
                   className="primary mt-3"
                   variant={"success"}
@@ -86,7 +105,8 @@ export default function MessagesView() {
               )}
 
             {props.msg.lastEvent.status !== "DISCARDED" &&
-              props.msg.lastEvent.status !== "FAILED" && (
+              props.msg.lastEvent.status !== "FAILED" &&
+              props.msg.lastEvent.status !== "RECEIVED" && (
                 <Button
                   className="primary mt-3"
                   variant={"danger"}
