@@ -28,6 +28,8 @@ export default function EditableField<N extends string, T extends FormControlPro
 
     useEffect(() => {
         setError(initError || "");
+        if(initError && initError.length > 0)
+            setEditing(true);
     }, [ initError ])
 
     function handleChange(e: ChangeEvent<HTMLInputElement>) {
@@ -58,7 +60,7 @@ export default function EditableField<N extends string, T extends FormControlPro
                     label &&
                     <Form.Label>{label}</Form.Label>
                 }
-                <InputGroup>
+                <InputGroup hasValidation>
                     <Form.Control
                         type={type}
                         name="ssn"
@@ -85,8 +87,8 @@ export default function EditableField<N extends string, T extends FormControlPro
                                     </>
                         }
                     </InputGroup.Text>
+                    <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
                 </InputGroup>
-                <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
             </Form.Group>
         </Form>
     )

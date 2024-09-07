@@ -164,7 +164,8 @@ export default function EditAccountForm() {
     function updateUserSkills(skills: UserSkill[], index: number) {
         loadingSubmit.professional.skills[index] = true;
         setLoadingSubmit({ ...loadingSubmit });
-        setLoadingSubmit({ ...loadingSubmit });
+        errors.professional.skills[index] = "";
+        setErrors({ ...errors });
 
         const professionalInfo = userInfo as ProfessionalUserInfo
         API.updateProfessionalSkills(professionalInfo.professional.id, skills)
@@ -220,6 +221,7 @@ export default function EditAccountForm() {
     async function updateUserCategory(category: ContactCategory) {
         if(category == "UNKNOWN") return;
         setLoadingSubmit({ ...loadingSubmit, category: true })
+        setErrors({ ...errors, category: "" })
         try {
             if (category === "PROFESSIONAL") {
                 const {contactInfo, ...professional} = await API.bindContactToProfessional(userInfo.id, {
@@ -518,6 +520,7 @@ export default function EditAccountForm() {
                                     showDelete
                                     onDelete={() => removeUserSkill(i)}
                                     onCancel={() => handleCancelSkill(i)}
+                                    validate={skill => skill.length > 0}
                                 />
                             ))
                         }
