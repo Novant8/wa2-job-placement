@@ -1,5 +1,3 @@
-import { Address } from "./address.ts";
-
 export type MessageChannel =
   | "EMAIL"
   | "PHONE_CALL"

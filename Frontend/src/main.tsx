@@ -16,6 +16,7 @@ import ProfessionaInfo from "./routes/ProfessionaInfo.tsx";
 import ViewJobOfferDetailProfessional from "./routes/ViewJobOfferDetailProfessional.tsx";
 import { useAuth } from "./contexts/auth.tsx";
 import { useEffect } from "react";
+import SendEmail from "./routes/SendEmail.tsx";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { me } = useAuth(); // Ottieni lo stato di autenticazione
@@ -70,6 +71,10 @@ const router = createBrowserRouter(
         {
           path: "/crm/ProfessionalJobOffer/:jobOfferId",
           element: <ViewJobOfferDetailProfessional />,
+        },
+        {
+          path: "/communication-manager",
+          element: <SendEmail />,
         },
       ],
     },

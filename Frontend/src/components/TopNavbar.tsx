@@ -21,7 +21,9 @@ export default function TopNavbar() {
             ) && (
               <>
                 <Nav.Link onClick={() => navigate("/crm")}>CRM</Nav.Link>
-                <Nav.Link href="#pricing">Send Email</Nav.Link>
+                <Nav.Link onClick={() => navigate("/communication-manager")}>
+                  Send Email
+                </Nav.Link>
               </>
             )}
             {me.roles.includes("manager") && (

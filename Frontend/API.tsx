@@ -620,6 +620,15 @@ export async function getProfessionals(
       });
   });
 }
+export async function sendEmail(msg: sendEmail): Promise<any> {
+  return customFetch(`/communication-manager/API/emails`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(msg),
+  });
+}
 
 export async function getJobOfferRecruiter(
   token: string | undefined,
