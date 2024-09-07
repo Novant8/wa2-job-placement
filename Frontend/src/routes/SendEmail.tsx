@@ -1,4 +1,5 @@
 import {
+  Accordion,
   Button,
   Card,
   Col,
@@ -8,13 +9,13 @@ import {
   Row,
   Spinner,
 } from "react-bootstrap";
-import { useEffect, useState } from "react";
-import { ContactCategory } from "../types/contact.ts";
+import React, { useEffect, useState } from "react";
 import * as API from "../../API.tsx";
-import { sendEmail } from "../../API.tsx";
 import { sendEmailStruct } from "../types/sendEmail.ts";
 import { useAuth } from "../contexts/auth.tsx";
 import { EmailAddress, getAddressType } from "../types/address.ts";
+import AddressBook from "../components/AddressBook.tsx";
+import { BiMailSend } from "react-icons/bi";
 
 interface EmailContacts {
   id: String;
@@ -26,11 +27,15 @@ interface EmailContacts {
 
 export default function SendEmail() {
   const [loading, setLoading] = useState(true);
-  const [emailAddr, setEmailAddr] = useState("");
+  const [EmailAddr, setEmailAddr] = useState<string[]>([""]);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
-  const [emailContacts, setEmailContacts] = useState([]);
+
+  const [emailContactsCust, setEmailContactsCust] = useState([]);
+  const [emailContactsProf, setemailContactsProf] = useState([]);
+  const [emailContactsGen, setemailContactsGen] = useState([]);
+
   const { me } = useAuth();
   useEffect(() => {
     const fetchProfessionals = async () => {
@@ -49,7 +54,7 @@ export default function SendEmail() {
         // Transform the fetched data into emailContacts
         const contacts = professionalDetails.map((item) => {
           return {
-            id: "P" + item.id,
+            id: item.id,
             name: item.contactInfo.name,
             surname: item.contactInfo.surname,
             role: "PROFESSIONAL",
@@ -59,8 +64,40 @@ export default function SendEmail() {
           };
         });
 
-        // Update state
-        setEmailContacts((prevContacts) => {
+        setemailContactsProf((prevContacts) => {
+          // Avoid adding duplicates
+          const existingIds = new Set(prevContacts.map((c) => c.id));
+          const uniqueContacts = contacts.filter((c) => !existingIds.has(c.id));
+          return [...prevContacts, ...uniqueContacts];
+        });
+      } catch (error) {
+        console.error("Error fetching professionals:", error);
+      }
+    };
+    const fetchUknown = async () => {
+      try {
+        const token = me?.xsrfToken;
+        if (!token) return;
+
+        // Fetch professionals in parallel
+        const { content: Contact } = await API.getUnknowContacts(token);
+        const ContactDetails = await Promise.all(
+          Contact.map((p) => API.getContactById(p.id)),
+        );
+        // Transform the fetched data into emailContacts
+        const contacts = ContactDetails.map((item) => {
+          return {
+            id: item.id,
+            name: item.name,
+            surname: item.surname,
+            role: "UNKNOWN",
+            address: item.addresses
+              .filter((a) => getAddressType(a) === "EMAIL")
+              .map((a) => (a as EmailAddress).email),
+          };
+        });
+
+        setemailContactsGen((prevContacts) => {
           // Avoid adding duplicates
           const existingIds = new Set(prevContacts.map((c) => c.id));
           const uniqueContacts = contacts.filter((c) => !existingIds.has(c.id));
@@ -97,7 +134,7 @@ export default function SendEmail() {
         });
 
         // Update state
-        setEmailContacts((prevContacts) => {
+        setEmailContactsCust((prevContacts) => {
           // Avoid adding duplicates
           const existingIds = new Set(prevContacts.map((c) => c.id));
           const uniqueContacts = contacts.filter((c) => !existingIds.has(c.id));
@@ -107,79 +144,194 @@ export default function SendEmail() {
         console.error("Error fetching professionals:", error);
       }
     };
+
     fetchProfessionals();
     fetchCustomer();
+    fetchUknown();
   }, [me?.xsrfToken]);
 
-  const handleSendEmail = () => {
-    // Simulate sending an email
-    setSending(true);
-    const msg: sendEmailStruct = {
-      to: emailAddr, // Assuming email is a variable holding the recipient's email address
-      subject: subject, // You can replace this with a dynamic subject
-      body: message, // Assuming message is a variable holding the email body
-    };
+  const handleEmailAddrChange = (index: number, value: string) => {
+    const newSubject = [...EmailAddr];
+    newSubject[index] = value;
+    setEmailAddr(newSubject);
+  };
 
-    API.sendEmail(msg)
-      .then(() => {
+  const handleAddEmailAddr = () => {
+    setEmailAddr([...EmailAddr, ""]);
+  };
+  const handleAddEmailAddrWithAddress = (addr) => {
+    if (EmailAddr[0] == "" && EmailAddr.length == 1) {
+      setEmailAddr([addr]);
+    } else {
+      setEmailAddr([...EmailAddr, addr]);
+    }
+  };
+
+  const handleRemoveEmailAddr = (index: number) => {
+    const newSubject = EmailAddr.filter((_, i) => i !== index);
+    setEmailAddr(newSubject);
+  };
+  const handleSendEmail = async () => {
+    // Simulate sending an email
+
+    setSending(true);
+
+    try {
+      // Create an array of promises for sending emails
+
+      const listOfEmails = Array.from(
+        new Set(EmailAddr.filter((e) => e != "")),
+      );
+      if (listOfEmails.length == 0) {
+        alert(`No Email Address inserted!`);
         setSending(false);
-        alert(`Email sent to ${emailAddr}!`);
-        setMessage("");
-        setEmailAddr("");
-        setSubject("");
-      })
-      .catch((error) => {
+        return;
+      }
+      if (subject == "") {
+        alert(`No Subject inserted!`);
         setSending(false);
-        alert(`Failed to send email: ${error.message}`);
+        return;
+      }
+      if (message == "") {
+        alert(`No Message inserted!`);
+        setSending(false);
+        return;
+      }
+
+      const emailPromises = listOfEmails.map((addr) => {
+        const msg: sendEmailStruct = {
+          to: addr,
+          subject: subject,
+          body: message,
+        };
+        return API.sendEmail(msg); // Return the promise
       });
+
+      // Wait for all emails to be sent
+      await Promise.all(emailPromises);
+
+      setSending(false);
+      alert(`All emails sent successfully!`);
+      setMessage("");
+      setSubject("");
+      setEmailAddr([""]);
+    } catch (error) {
+      setSending(false);
+      alert(`Failed to send one or more emails`);
+    }
   };
 
   return (
     <Container fluid>
       <Row>
-        {/* Column 1: List of Contacts */}
         <Col>
-          {emailContacts.length > 0 ? (
-            emailContacts.map((item) => (
-              <Card key={item.id} className="mb-4">
-                <Card.Body>
-                  <Card.Title>
-                    {item.name} {item.surname}
-                  </Card.Title>
-                  <ListGroup className="list-group-flush">
-                    {item.address.map((a, index) => (
-                      <ListGroup.Item
-                        className="list-group-item-action"
-                        key={index}
-                      >
-                        <Button onClick={() => setEmailAddr(a)}>+ </Button> {a}
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                </Card.Body>
-              </Card>
-            ))
-          ) : (
-            <p>No items to display</p>
-          )}
+          <Card>
+            <Card.Body>
+              <Card.Title>Send an email</Card.Title>
+              <Card.Text>
+                In this section, a recruiter can send an email to a customer or
+                professional.
+              </Card.Text>
+            </Card.Body>
+          </Card>
         </Col>
-
-        {/* Column 2: Form */}
-        <Col>
+      </Row>
+      <Row>
+        {/* Column 1: List of Contacts */}
+        <Col md={4}>
+          <Accordion>
+            <Accordion.Header>Professional's Address Book</Accordion.Header>
+            <Accordion.Body>
+              {emailContactsProf.length > 0 ? (
+                emailContactsProf.map((item) => (
+                  <AddressBook
+                    item={item}
+                    handleAddEmailAddrWithAddress={
+                      handleAddEmailAddrWithAddress
+                    }
+                  />
+                ))
+              ) : (
+                <p>No items to display</p>
+              )}
+            </Accordion.Body>
+          </Accordion>
+          <Accordion>
+            <Accordion.Header>Customer's Address Book</Accordion.Header>
+            <Accordion.Body>
+              {emailContactsCust.length > 0 ? (
+                emailContactsCust.map((item) => (
+                  <AddressBook
+                    item={item}
+                    handleAddEmailAddrWithAddress={
+                      handleAddEmailAddrWithAddress
+                    }
+                  />
+                ))
+              ) : (
+                <p>No items to display</p>
+              )}
+            </Accordion.Body>
+          </Accordion>
+          <Accordion>
+            <Accordion.Header>Generic's Address Book</Accordion.Header>
+            <Accordion.Body>
+              {emailContactsGen.length > 0 ? (
+                emailContactsGen.map((item) => (
+                  <AddressBook
+                    item={item}
+                    handleAddEmailAddrWithAddress={
+                      handleAddEmailAddrWithAddress
+                    }
+                  />
+                ))
+              ) : (
+                <p>No items to display</p>
+              )}
+            </Accordion.Body>
+          </Accordion>
+        </Col>
+        <Col md={8}>
           <Form>
-            <Form.Group className="mb-8" controlId="emailInput">
-              <Form.Label>Email address</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="name@example.com"
-                value={emailAddr}
-                onChange={(e) => setEmailAddr(e.target.value)}
-              />
+            <Form.Group controlId="Subject(s)">
+              <Form.Label>Email Addresses</Form.Label>
+              {EmailAddr.map((email, index) => (
+                <Row key={index}>
+                  <Col>
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter a new email address"
+                      value={email}
+                      onChange={(e) =>
+                        handleEmailAddrChange(index, e.target.value)
+                      }
+                      required
+                    />
+                  </Col>
+                  <Col xs="auto">
+                    <Button
+                      variant="danger"
+                      onClick={() => handleRemoveEmailAddr(index)}
+                    >
+                      Remove
+                    </Button>
+                  </Col>
+                </Row>
+              ))}
+              <Button
+                variant="outline-info"
+                className="mt-2"
+                onClick={handleAddEmailAddr}
+              >
+                Add Email
+              </Button>
             </Form.Group>
+
             <Form.Group className="mb-8" controlId="subjectInput">
               <Form.Label>Subject</Form.Label>
               <Form.Control
                 type="text"
+                placeholder={"Type the subject of your mail"}
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
               />
@@ -195,11 +347,7 @@ export default function SendEmail() {
               />
             </Form.Group>
 
-            <Button
-              variant="primary"
-              onClick={handleSendEmail}
-              disabled={sending || !emailAddr || !message}
-            >
+            <Button variant="primary" onClick={handleSendEmail}>
               {sending ? (
                 <>
                   <Spinner
@@ -212,24 +360,12 @@ export default function SendEmail() {
                   Sending...
                 </>
               ) : (
-                "Send Email"
+                <>
+                  <BiMailSend /> {"Send Email"}
+                </>
               )}
             </Button>
           </Form>
-        </Col>
-      </Row>
-
-      <Row>
-        <Col>
-          <Card style={{ width: "18rem" }} className="mb-12">
-            <Card.Body>
-              <Card.Title>Send an email</Card.Title>
-              <Card.Text>
-                In this section, a recruiter can send an email to a customer or
-                professional.
-              </Card.Text>
-            </Card.Body>
-          </Card>
         </Col>
       </Row>
     </Container>

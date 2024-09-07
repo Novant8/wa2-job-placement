@@ -266,6 +266,12 @@ export function updateProfessionalField<T extends ProfessionalField>(
     body: JSON.stringify({ [field]: value }),
   });
 }
+export function getContactById(
+  contactId: number | undefined,
+): Promise<Customer> {
+  return customFetch(`/crm/API/contacts/${contactId}`);
+}
+
 export function getCustomerById(
   customerId: number | undefined,
 ): Promise<Customer> {
@@ -541,6 +547,48 @@ export async function getMessagges(
           response
             .json()
             .then((prof) => resolve(prof))
+            .catch(() => {
+              reject({ error: "Cannot parse server response." });
+            });
+        } else {
+          response
+            .json()
+            .then((message) => {
+              reject(message);
+            })
+            .catch(() => {
+              reject({ error: "Cannot parse server response." });
+            });
+        }
+      })
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      });
+  });
+}
+export async function getUnknowContacts(
+  token: string | undefined,
+): Promise<any> {
+  return new Promise((resolve, reject) => {
+    let endpoint = url + "/crm/API/contacts";
+    const params = new URLSearchParams();
+    params.append("category", "UNKNOWN");
+    const queryString = params.toString();
+    if (queryString) {
+      endpoint += "?" + queryString;
+    }
+    fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-XSRF-TOKEN": `${token}`,
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          response
+            .json()
+            .then((cont) => resolve(cont))
             .catch(() => {
               reject({ error: "Cannot parse server response." });
             });
