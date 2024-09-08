@@ -70,7 +70,9 @@ class JobOfferServiceTest {
                 id=0L,
                 professional = null,
                 value = null,
-                offerStatus = OfferStatus.CREATED
+                offerStatus = OfferStatus.CREATED,
+                candidates = emptyList(),
+                refusedCandidates = emptyList()
             )
             val result = service.createJobOffer(mockCustomer.customerId,createJobOfferDTO)
             assertEquals(result, expectedDto)

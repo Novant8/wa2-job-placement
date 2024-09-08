@@ -82,6 +82,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
         setOf("Public Speaking", "Team working", "C Programming"),
         100.0,
         EmploymentState.UNEMPLOYED,
+        null,
         "TestNotes23"
     )
 
@@ -372,6 +373,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                     mockProfessionalDTO.skills,
                     mockProfessionalDTO.dailyRate,
                     mockProfessionalDTO.employmentState,
+                    null,
                     notes
 
                 )
@@ -386,6 +388,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                     mockProfessionalDTO.skills,
                     mockProfessionalDTO.dailyRate,
                     mockProfessionalDTO.employmentState,
+                    null,
                     mockProfessionalDTO.notes
 
                 )
@@ -400,6 +403,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                     mockProfessionalDTO.skills,
                     dailyRate,
                     mockProfessionalDTO.employmentState,
+                    null,
                     mockProfessionalDTO.notes
 
                 )
@@ -414,6 +418,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                     mockProfessionalDTO.skills,
                     mockProfessionalDTO.dailyRate,
                     employmentState,
+                    null,
                     mockProfessionalDTO.notes
 
                 )
@@ -428,6 +433,7 @@ class ProfessionalControllerTest(@Autowired val mockMvc: MockMvc) {
                     skills,
                     mockProfessionalDTO.dailyRate,
                     mockProfessionalDTO.employmentState,
+                    null,
                     mockProfessionalDTO.notes
 
                 )

@@ -71,7 +71,7 @@ class DocumentController(private val documentService: DocumentService) {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/","",consumes = ["multipart/form-data"])
-    @PreAuthorize("hasAnyRole('operator', 'manager', 'professional')")
+    @PreAuthorize("hasAnyRole('operator', 'manager', 'professional','customer')")
     fun saveDocument(
         @RequestPart("document") document: MultipartFile,
         authentication: Authentication?

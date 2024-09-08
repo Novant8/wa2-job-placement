@@ -17,7 +17,13 @@ import { Address, getAddressType } from "./src/types/address.ts";
 import Cookies from "js-cookie";
 import { CustomerFilter } from "./src/types/customerFilter.ts";
 import { JobProposal } from "./src/types/JobProposal.ts";
-import {DocumentHistory, DocumentMetadata} from "./src/types/documents.ts";
+import { DocumentHistory, DocumentMetadata } from "./src/types/documents.ts";
+import {
+  Message,
+  MessageCreate,
+  MessageEventInterface,
+} from "./src/types/message.ts";
+import { Pageable } from "./src/types/Pageable.ts";
 
 interface ErrorResponseBody {
   type: string;
@@ -246,7 +252,7 @@ export function removeAddressFromContact(
   );
 }
 
-export type ProfessionalField = "dailyRate" | "location" | "cvDocument"
+export type ProfessionalField = "dailyRate" | "location" | "cvDocument";
 
 export function updateProfessionalField<T extends ProfessionalField>(
   professionalId: number,
@@ -261,6 +267,12 @@ export function updateProfessionalField<T extends ProfessionalField>(
     body: JSON.stringify({ [field]: value }),
   });
 }
+export function getContactById(
+  contactId: number | undefined,
+): Promise<Customer> {
+  return customFetch(`/crm/API/contacts/${contactId}`);
+}
+
 export function getCustomerById(
   customerId: number | undefined,
 ): Promise<Customer> {
@@ -271,19 +283,27 @@ export function getProfessionalById(
 ): Promise<Professional> {
   return customFetch(`/crm/API/professionals/${professionalId}`);
 }
-export function getCustomers(filter?: CustomerFilter): Promise<any> {
+export function getCustomers(
+  filter?: CustomerFilter,
+  page?: Object,
+): Promise<any> {
   let endpoint = "/crm/API/customers";
 
-  if (filter) {
+  if (filter || page) {
     const params = new URLSearchParams();
 
-    if (filter.fullName) params.append("fullName", filter.fullName);
+    if (filter && filter.fullName) params.append("fullName", filter.fullName);
 
-    if (filter.email) params.append("email", filter.email);
+    if (filter && filter.email) params.append("email", filter.email);
 
-    if (filter.telephone) params.append("telephone", filter.telephone);
+    if (filter && filter.telephone)
+      params.append("telephone", filter.telephone);
 
-    if (filter.address) params.append("address", filter.address);
+    if (filter && filter.address) params.append("address", filter.address);
+
+    if (page && (page?.pageNumber == 0 || page?.pageNumber))
+      params.append("page", String(page.pageNumber));
+    if (page && page?.pageSize) params.append("size", String(page.pageSize));
 
     const queryString = params.toString();
 
@@ -358,12 +378,12 @@ export function removeCandidate(
 }
 
 export function uploadDocument(document: File): Promise<DocumentMetadata> {
-    const formData = new FormData();
-    formData.append("document", document, document.name);
-    return customFetch(`/upload/document`, {
-        method: "POST",
-        body: formData
-    })
+  const formData = new FormData();
+  formData.append("document", document, document.name);
+  return customFetch(`/upload/document`, {
+    method: "POST",
+    body: formData,
+  });
 }
 export function createJobProposal(
   customerId: number | undefined,
@@ -378,13 +398,16 @@ export function createJobProposal(
   );
 }
 
-export function updateDocument(historyId: number, document: File): Promise<DocumentMetadata> {
+export function updateDocument(
+  historyId: number,
+  document: File,
+): Promise<DocumentMetadata> {
   const formData = new FormData();
   formData.append("document", document, document.name);
   return customFetch(`/upload/document/${historyId}`, {
     method: "PUT",
-    body: formData
-  })
+    body: formData,
+  });
 }
 
 export function getJobProposalbyId(
@@ -393,16 +416,26 @@ export function getJobProposalbyId(
   return customFetch(`/crm/API/jobProposals/${proposalId}`);
 }
 
-export function getDocumentHistory(historyId: number): Promise<DocumentHistory> {
+export function getDocumentHistory(
+  historyId: number,
+): Promise<DocumentHistory> {
   return customFetch(`/document-store/API/documents/${historyId}/history`);
 }
 
 export function deleteDocumentHistory(historyId: number): Promise<void> {
-    return customFetch(`/document-store/API/documents/${historyId}`, { method: "DELETE" })
+  return customFetch(`/document-store/API/documents/${historyId}`, {
+    method: "DELETE",
+  });
 }
 
-export function deleteDocumentVersion(historyId: number, versionId: number): Promise<void> {
-    return customFetch(`/document-store/API/documents/${historyId}/version/${versionId}`, { method: "DELETE" })
+export function deleteDocumentVersion(
+  historyId: number,
+  versionId: number,
+): Promise<void> {
+  return customFetch(
+    `/document-store/API/documents/${historyId}/version/${versionId}`,
+    { method: "DELETE" },
+  );
 }
 export function getJobProposalbyOfferAndProfessional(
   offerId: number | undefined,
@@ -442,30 +475,178 @@ export function professionalConfirmDeclineJobProposal(
   );
 }
 
+export function loadJobProposalDocument(
+  proposalId: number | undefined,
+  documentId: number | null,
+): Promise<JobProposal> {
+  return customFetch(`/crm/API/jobProposals/${proposalId}/document`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(documentId),
+  });
+}
+export function loadJobProposalSignedDocument(
+  proposalId: number | undefined,
+  documentId: number | null,
+): Promise<JobProposal> {
+  return customFetch(`/crm/API/jobProposals/${proposalId}/signedDocument`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(documentId),
+  });
+}
+
+export function createMessage(msg: MessageCreate): Promise<number> {
+  return customFetch(`/crm/API/messages`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(msg),
+  });
+}
+
+export function updateMessagestatus(
+  idMessage: number | undefined,
+  messageEvent: MessageEventInterface | undefined,
+): Promise<any> {
+  return customFetch(`/crm/API/messages/${idMessage}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(messageEvent),
+  });
+}
+
 const url: string = "http://localhost:8080";
+
+export async function getMessagges(
+  token: string | undefined,
+  filterBy?: string | undefined,
+): Promise<any> {
+  return new Promise((resolve, reject) => {
+    let endpoint = url + "/crm/API/messages";
+
+    if (filterBy) {
+      const params = new URLSearchParams();
+
+      if (filterBy) {
+        params.append("filterBy", filterBy);
+      }
+
+      const queryString = params.toString();
+      if (queryString) {
+        endpoint += "?" + queryString;
+      }
+    }
+    fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-XSRF-TOKEN": `${token}`,
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          response
+            .json()
+            .then((prof) => resolve(prof))
+            .catch(() => {
+              reject({ error: "Cannot parse server response." });
+            });
+        } else {
+          response
+            .json()
+            .then((message) => {
+              reject(message);
+            })
+            .catch(() => {
+              reject({ error: "Cannot parse server response." });
+            });
+        }
+      })
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      });
+  });
+}
+export async function getUnknowContacts(
+  token: string | undefined,
+  page?: Pageable | undefined,
+): Promise<any> {
+  return new Promise((resolve, reject) => {
+    let endpoint = url + "/crm/API/contacts";
+    const params = new URLSearchParams();
+    params.append("category", "UNKNOWN");
+    if (page?.pageNumber == 0 || page?.pageNumber)
+      params.append("page", String(page.pageNumber));
+    if (page?.pageSize) params.append("size", String(page.pageSize));
+    const queryString = params.toString();
+    if (queryString) {
+      endpoint += "?" + queryString;
+    }
+    fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-XSRF-TOKEN": `${token}`,
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          response
+            .json()
+            .then((cont) => resolve(cont))
+            .catch(() => {
+              reject({ error: "Cannot parse server response." });
+            });
+        } else {
+          response
+            .json()
+            .then((message) => {
+              reject(message);
+            })
+            .catch(() => {
+              reject({ error: "Cannot parse server response." });
+            });
+        }
+      })
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      });
+  });
+}
 
 export async function getProfessionals(
   token: string | undefined,
-  filterDTO?: ProfessionalFilter,
+  filterDTO?: ProfessionalFilter | undefined,
+  page?: Pageable | undefined,
 ): Promise<any> {
   return new Promise((resolve, reject) => {
     let endpoint = url + "/crm/API/professionals";
 
-    if (filterDTO) {
+    if (filterDTO || page) {
       const params = new URLSearchParams();
 
-      if (filterDTO.skills && filterDTO.skills.length > 0) {
+      if (filterDTO?.skills && filterDTO?.skills.length > 0) {
         params.append("skills", filterDTO.skills.join(","));
       }
 
-      if (filterDTO.location) {
+      if (filterDTO?.location) {
         params.append("location", filterDTO.location);
       }
 
-      if (filterDTO.employmentState) {
+      if (filterDTO?.employmentState) {
         params.append("employmentState", filterDTO.employmentState);
       }
-
+      if (page?.pageNumber == 0 || page?.pageNumber)
+        params.append("page", String(page.pageNumber));
+      if (page?.pageSize) params.append("size", String(page.pageSize));
       const queryString = params.toString();
       if (queryString) {
         endpoint += "?" + queryString;
@@ -501,6 +682,15 @@ export async function getProfessionals(
       .catch(() => {
         reject({ error: "Cannot communicate with the server." });
       });
+  });
+}
+export async function sendEmail(msg: sendEmail): Promise<any> {
+  return customFetch(`/communication-manager/API/emails`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(msg),
   });
 }
 

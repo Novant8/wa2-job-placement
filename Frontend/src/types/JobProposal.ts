@@ -11,4 +11,5 @@ export interface JobProposal {
   documentId: number | null;
   status: JobProposalStatus;
   customerConfirmation: boolean;
+  professionalSignedContract: number | null;
 }

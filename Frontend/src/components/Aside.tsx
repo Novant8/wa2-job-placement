@@ -6,6 +6,7 @@ enum SelectedItem {
   CreateJobOffer = "CreateJobOffer",
   Professionals = "Professionals",
   Customers = "Customers",
+  Messages = "Messages",
 }
 
 interface AsideProps {
@@ -48,8 +49,15 @@ export default function Aside({ onSelect }: AsideProps) {
             <ListGroup.Item
               action
               onClick={() => onSelect(SelectedItem.Customers)}
+              style={{ marginBottom: 20 }}
             >
               Customers
+            </ListGroup.Item>
+            <ListGroup.Item
+              action
+              onClick={() => onSelect(SelectedItem.Messages)}
+            >
+              Messages
             </ListGroup.Item>
           </>
         )}
@@ -64,10 +72,17 @@ export default function Aside({ onSelect }: AsideProps) {
             </ListGroup.Item>
 
             <ListGroup.Item
+              style={{ marginBottom: 20 }}
               action
               onClick={() => onSelect(SelectedItem.Customers)}
             >
               Customers
+            </ListGroup.Item>
+            <ListGroup.Item
+              action
+              onClick={() => onSelect(SelectedItem.Messages)}
+            >
+              Messages
             </ListGroup.Item>
           </>
         )}

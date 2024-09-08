@@ -97,6 +97,7 @@ class JobOfferServiceImpl(
     @Transactional
     override fun updateJobOfferStatus(jobOfferId: Long, jobOfferUpdateStatusDTO: JobOfferUpdateStatusDTO): JobOfferDTO {
         val jobOffer = jobOfferRepository.findById(jobOfferId).orElseThrow{ EntityNotFoundException("Job offer with ID $jobOfferId was not found.") }
+        logger.info("Status job offer : "+ jobOfferUpdateStatusDTO.status)
 
         if(!jobOffer.status.canUpdateTo(jobOfferUpdateStatusDTO.status)) {
             throw InvalidParamsException("Job offer #$jobOfferId cannot be updated to status ${jobOfferUpdateStatusDTO.status}")

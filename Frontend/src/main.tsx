@@ -1,7 +1,11 @@
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  useNavigate,
+} from "react-router-dom";
 import Homepage from "./routes/Homepage.tsx";
 import Crm from "./routes/Crm.tsx";
 import EditAccount from "./routes/EditAccount.tsx";
@@ -10,6 +14,22 @@ import ViewJobOfferDetailsRecruiter from "./routes/ViewJobOfferDetailRecruiter.t
 import CustomerInfo from "./routes/CustomerInfo.tsx";
 import ProfessionaInfo from "./routes/ProfessionaInfo.tsx";
 import ViewJobOfferDetailProfessional from "./routes/ViewJobOfferDetailProfessional.tsx";
+import { useAuth } from "./contexts/auth.tsx";
+import { useEffect } from "react";
+import SendEmail from "./routes/SendEmail.tsx";
+
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const { me } = useAuth(); // Ottieni lo stato di autenticazione
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (me?.principal) {
+      navigate("/crm");
+    }
+  }, [me, navigate]);
+
+  return !me?.principal ? children : null;
+};
 
 const router = createBrowserRouter(
   [
@@ -18,7 +38,11 @@ const router = createBrowserRouter(
       children: [
         {
           path: "/",
-          element: <Homepage />,
+          element: (
+            <ProtectedRoute>
+              <Homepage />
+            </ProtectedRoute>
+          ),
         },
         {
           path: "/crm",
@@ -47,6 +71,10 @@ const router = createBrowserRouter(
         {
           path: "/crm/ProfessionalJobOffer/:jobOfferId",
           element: <ViewJobOfferDetailProfessional />,
+        },
+        {
+          path: "/communication-manager",
+          element: <SendEmail />,
         },
       ],
     },

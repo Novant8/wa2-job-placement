@@ -100,13 +100,6 @@ export default function SelectCandidateModal(props: any) {
   //const [skills, setSkills] = useState("");
   const [skills, setSkills] = useState<string[]>([]); // Array di skill
 
-  //TODO: REMOVE THIS USE EFFECT
-  useEffect(() => {
-    console.log("PROFESSIONAL" + JSON.stringify(professional));
-    console.log("JOB OFFER" + JSON.stringify(props.jobOffer));
-  }, [professional, props.jobOffer]);
-  console.log(props.jobOffer.refusedCandidates);
-
   useEffect(() => {
     const token = me?.xsrfToken;
 

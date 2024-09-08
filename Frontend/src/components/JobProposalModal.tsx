@@ -30,7 +30,7 @@ export default function JobProposalModal(props: any) {
         console.log(error);
       })
       .finally(() => {
-        props.setDirty(true);
+        props.setDirty();
         props.onHide();
       });
   };

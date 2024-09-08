@@ -41,6 +41,7 @@ class MessageController (private val messageService: MessageService
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @GetMapping("","/")
     fun getMessages(
         @RequestParam("filterBy", required = false)
@@ -51,7 +52,7 @@ class MessageController (private val messageService: MessageService
         filterByStr: List<String>? = null,
 
         @ParameterObject pageable: Pageable
-    ):Page<ReducedMessageDTO>{
+    ):Page<MessageDTO> /*ReducedMessageDTO*/{
 
         if (filterByStr == null  ){  return messageService.getMessages(null,pageable = pageable)}
         if (filterByStr.isEmpty() ) {  throw InvalidParamsException("'$filterByStr' is not a valid filter. Possible filters: ${MessageStatus.entries}.") }
@@ -80,7 +81,7 @@ class MessageController (private val messageService: MessageService
     ])
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("","/")
-    @PreAuthorize("hasAnyRole('operator', 'manager')")
+   
     fun createNewMessage(@RequestBody @Valid  msg: MessageCreateDTO): MessageDTO? {
        // sender, channel, subject, body
         val channel = try {

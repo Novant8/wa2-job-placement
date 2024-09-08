@@ -23,11 +23,13 @@ import JobProposalModal from "../components/JobProposalModal.tsx";
 import JobProposalModalDetail from "../components/JobProposalDetailModal.tsx";
 import { ReducedProfessional } from "../types/professional.ts";
 import { JobOfferUpdateStatus } from "../types/JobOffer.ts";
+import { ApiError } from "../../API.tsx";
 
 type Candidate = {
   id: number;
   name: string;
   surname: string;
+  cvDocument?: number;
 };
 export default function ViewJobOfferDetailsRecruiter() {
   const [isEditable, setIsEditable] = useState(false);
@@ -37,7 +39,7 @@ export default function ViewJobOfferDetailsRecruiter() {
   const [error, setError] = useState<string | null>(null);
   const [newSkill, setNewSkill] = useState<string>("");
   const [modalShow, setModalShow] = useState<boolean>(false);
-  const [modalAction, setModalAction] = useState("");
+  const [modalAction, setModalAction] = useState<string>("");
   const [dirty, setDirty] = useState(false);
   const [jobProposalModalShow, setJobProposalModalShow] =
     useState<boolean>(false);
@@ -50,8 +52,10 @@ export default function ViewJobOfferDetailsRecruiter() {
     id: 0,
     name: "",
     surname: "",
+    cvDocument: null,
   });
   const [notesLoading, setNotesLoading] = useState(false);
+  const [documentError, setDocumentError] = useState("");
 
   const { jobOfferId } = useParams();
   //const { me } = useAuth();
@@ -61,7 +65,7 @@ export default function ViewJobOfferDetailsRecruiter() {
     setLoading(true);
     API.getJobOfferDetails(jobOfferId)
       .then((data) => {
-        console.log(data);
+        console.log("DATI JOB OFFER Recruiter :" + data);
         setJobOffer(data);
         setDirty(false);
         if (data.offerStatus !== "CREATED") {
@@ -74,7 +78,7 @@ export default function ViewJobOfferDetailsRecruiter() {
 
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [dirty]);
+  }, [dirty, jobOfferId]);
 
   const handleEditClick = () => {
     setIsEditable(!isEditable);
@@ -123,6 +127,16 @@ export default function ViewJobOfferDetailsRecruiter() {
         setError("Failed to update job offer");
       })
       .finally(() => setNotesLoading(false));
+  }
+  function handleViewDocument(documentId: number) {
+    setDocumentError("");
+    API.getDocumentHistory(documentId)
+      .then((history) => {
+        let document = history.versions[0];
+        const url = `/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`;
+        window.open(url, "_blank");
+      })
+      .catch((err: ApiError) => setDocumentError(err.message));
   }
 
   const handleInputChange = (field: keyof JobOffer, value: any) => {
@@ -183,6 +197,7 @@ export default function ViewJobOfferDetailsRecruiter() {
         action={modalAction}
         onHide={() => setModalShow(false)}
         jobOffer={jobOffer}
+        setDirty={() => setDirty(true)}
       />
 
       <RemoveCandidateModal
@@ -400,156 +415,182 @@ export default function ViewJobOfferDetailsRecruiter() {
 
         {jobOffer?.candidates?.length > 0 &&
           jobOffer?.offerStatus === "SELECTION_PHASE" && (
-            <Container className="mt-5">
-              <h2>Candidates</h2>
-              <Row>
-                {jobOffer?.candidates.map((candidate) => (
-                  <Col md={12} key={candidate.id} className="mb-4">
-                    <Card>
-                      <Card.Body>
-                        <Card.Title>{`${candidate.contactInfo.name} ${candidate.contactInfo.surname}`}</Card.Title>
-                        <Card.Subtitle className="mb-2 text-muted">
-                          Location: {candidate.location}
-                        </Card.Subtitle>
-                        <Card.Text>
-                          Employment State: {candidate.employmentState}
-                          <br />
-                          Skills: {candidate.skills.join(", ")}
-                        </Card.Text>
-                        <Button
-                          variant="success"
-                          //onClick={() => handleCandidateAction("eligible", candidate.id)}
+            <>
+              <Container className="mt-5">
+                <h2>Candidates</h2>
+                <Row>
+                  {jobOffer?.candidates.map((candidate) => (
+                    <Col md={12} key={candidate.id} className="mb-4">
+                      <Card>
+                        <Card.Body>
+                          <Card.Title>{`${candidate.contactInfo.name} ${candidate.contactInfo.surname}`}</Card.Title>
+                          <Card.Subtitle className="mb-2 text-muted">
+                            Location: {candidate.location}
+                          </Card.Subtitle>
+                          <Card.Text>
+                            Employment State: {candidate.employmentState}
+                            <br />
+                            Skills: {candidate.skills.join(", ")}
+                          </Card.Text>
+                          <Button
+                            variant="success"
+                            //onClick={() => handleCandidateAction("eligible", candidate.id)}
 
-                          onClick={() => {
-                            let selected: Candidate = {
-                              id: candidate.id,
-                              name: candidate.contactInfo.name,
-                              surname: candidate.contactInfo.surname,
-                            };
-                            setSelectedCandidate(selected);
-                            setJobProposalModalShow(true);
-                          }}
-                          className="me-2"
-                        >
-                          Eligible Candidate
-                        </Button>
-                        <Button
-                          variant="danger"
-                          onClick={() => {
-                            let selected: Candidate = {
-                              id: candidate.id,
-                              name: candidate.contactInfo.name,
-                              surname: candidate.contactInfo.surname,
-                            };
-                            setSelectedCandidate(selected);
-                            setRemoveCandidateModalShow(true);
-                          }}
-                          className="me-2"
-                        >
-                          Remove Candidate
-                        </Button>
-                        <Button
-                          variant="primary"
-                          //onClick={() => handleCandidateAction("download", candidate.id)}
-                        >
-                          Download CV
-                        </Button>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
-            </Container>
+                            onClick={() => {
+                              let selected: Candidate = {
+                                id: candidate.id,
+                                name: candidate.contactInfo.name,
+                                surname: candidate.contactInfo.surname,
+                                cvDocument: candidate.cvDocument,
+                              };
+                              setSelectedCandidate(selected);
+                              setJobProposalModalShow(true);
+                            }}
+                            className="me-2"
+                          >
+                            Eligible Candidate
+                          </Button>
+                          <Button
+                            variant="danger"
+                            onClick={() => {
+                              let selected: Candidate = {
+                                id: candidate.id,
+                                name: candidate.contactInfo.name,
+                                surname: candidate.contactInfo.surname,
+                                cvDocument: candidate.cvDocument,
+                              };
+                              setSelectedCandidate(selected);
+                              setRemoveCandidateModalShow(true);
+                            }}
+                            className="me-2"
+                          >
+                            Remove Candidate
+                          </Button>
+                          <Button
+                            variant="primary"
+                            disabled={!candidate.cvDocument}
+                            onClick={() =>
+                              handleViewDocument(candidate.cvDocument)
+                            }
+                          >
+                            Download CV
+                          </Button>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              </Container>
+            </>
           )}
 
         {jobOffer?.offerStatus === "CANDIDATE_PROPOSAL" && (
-          <Container className="mt-5">
-            <h2>Proposed Professional</h2>
+          <>
+            <Container className="mt-5">
+              <h2>Proposed Professional</h2>
+              <Row>
+                <Col md={12} key={jobOffer.professional.id} className="mb-4">
+                  <Card>
+                    <Card.Body>
+                      <Card.Title>{`${jobOffer.professional.contactInfo.name} ${jobOffer.professional.contactInfo.surname}`}</Card.Title>
+                      <Card.Subtitle className="mb-2 text-muted">
+                        Location: {jobOffer.professional.location}
+                      </Card.Subtitle>
+                      <Card.Text>
+                        Employment State:{" "}
+                        {jobOffer.professional.employmentState}
+                        <br />
+                        Skills: {jobOffer.professional.skills.join(", ")}
+                      </Card.Text>
+
+                      <Button
+                        variant="warning"
+                        onClick={() => {
+                          //setJobProposalDetailModalShow(true);
+
+                          let selected: Candidate = {
+                            id: jobOffer.professional.id,
+                            name: jobOffer.professional.contactInfo.name,
+                            surname: jobOffer.professional.contactInfo.surname,
+                            cvDocument: jobOffer?.professional.cvDocument,
+                          };
+                          setSelectedCandidate(selected);
+                          setJobProposalDetailModalShow(true);
+                        }}
+                        className="me-2"
+                      >
+                        Show Job Proposal
+                      </Button>
+
+                      <Button
+                        variant="primary"
+                        disabled={!jobOffer?.professional.cvDocument}
+                        onClick={() =>
+                          handleViewDocument(jobOffer?.professional.cvDocument)
+                        }
+                      >
+                        Download CV
+                      </Button>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </Container>
+            <Button
+              variant="danger"
+              onClick={() => {
+                setModalAction("abort");
+                setModalShow(true);
+              }}
+            >
+              Abort Job Offer
+            </Button>
+          </>
+        )}
+        {jobOffer?.offerStatus === "CONSOLIDATED" && (
+          <Container>
             <Row>
-              <Col md={12} key={jobOffer.professional.id} className="mb-4">
-                <Card>
-                  <Card.Body>
-                    <Card.Title>{`${jobOffer.professional.contactInfo.name} ${jobOffer.professional.contactInfo.surname}`}</Card.Title>
-                    <Card.Subtitle className="mb-2 text-muted">
-                      Location: {jobOffer.professional.location}
-                    </Card.Subtitle>
-                    <Card.Text>
-                      Employment State: {jobOffer.professional.employmentState}
-                      <br />
-                      Skills: {jobOffer.professional.skills.join(", ")}
-                    </Card.Text>
-                    {/*
-                    <Button
-                      variant="success"
-                      //onClick={() => handleCandidateAction("eligible", candidate.id)}
-
-                      onClick={() => {
-                        let selected: Candidate = {
-                          id: jobOffer.professional.id,
-                          name: jobOffer.professional.contactInfo.name,
-                          surname: jobOffer.professional.contactInfo.surname,
-                        };
-                        setSelectedCandidate(selected);
-                        setJobProposalModalShow(true);
-                      }}
-                      className="me-2"
-                    >
-                      Eligible Candidate
-                    </Button>
-                    */}
-
-                    {/*
-                    <Button
-                      variant="danger"
-                      onClick={() => {
-                        let selected: Candidate = {
-                          id: jobOffer.professional.id,
-                          name: jobOffer.professional.contactInfo.name,
-                          surname: jobOffer.professional.contactInfo.surname,
-                        };
-                        setSelectedCandidate(selected);
-                        setRemoveCandidateModalShow(true);
-                      }}
-                      className="me-2"
-                    >
-                      Remove Candidate
-                    </Button>
-                    */}
-                    <Button
-                      variant="warning"
-                      onClick={() => {
-                        //setJobProposalDetailModalShow(true);
-
-                        let selected: Candidate = {
-                          id: jobOffer.professional.id,
-                          name: jobOffer.professional.contactInfo.name,
-                          surname: jobOffer.professional.contactInfo.surname,
-                        };
-                        setSelectedCandidate(selected);
-                        setJobProposalDetailModalShow(true);
-                      }}
-                      className="me-2"
-                    >
-                      Show Job Proposal
-                    </Button>
-
-                    <Button
-                      variant="primary"
-                      //onClick={() => handleCandidateAction("download", candidate.id)}
-                    >
-                      Download CV
-                    </Button>
-                  </Card.Body>
-                </Card>
+              <Col>
+                <Button
+                  variant="warning"
+                  onClick={() => {
+                    let selected: Candidate = {
+                      id: jobOffer.professional.id,
+                      name: jobOffer.professional.contactInfo.name,
+                      surname: jobOffer.professional.contactInfo.surname,
+                      cvDocument: jobOffer?.professional.cvDocument,
+                    };
+                    setSelectedCandidate(selected);
+                    setJobProposalDetailModalShow(true);
+                  }}
+                  className="me-2"
+                >
+                  Show Job Proposal
+                </Button>
               </Col>
             </Row>
           </Container>
         )}
 
         {jobOffer?.offerStatus === "SELECTION_PHASE" && (
-          <Button variant="warning" onClick={() => setCandidateModalShow(true)}>
-            Propose Professional
-          </Button>
+          <>
+            <Button
+              variant="warning"
+              onClick={() => setCandidateModalShow(true)}
+              style={{ marginRight: 10 }}
+            >
+              Propose Professional
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                setModalAction("abort");
+                setModalShow(true);
+              }}
+            >
+              Abort Job Offer
+            </Button>
+          </>
         )}
       </Form>
     </>

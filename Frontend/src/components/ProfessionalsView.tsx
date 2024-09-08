@@ -68,11 +68,8 @@ function ProfessionalAccordion(props: ProfessionalAccordionProps) {
 }
 export default function ProfessionalsView() {
   const { me } = useAuth();
-
   const [professional, setProfessional] = useState({});
-
   const [location, setLocation] = useState("");
-  //const [skills, setSkills] = useState("");
   const [skills, setSkills] = useState<string[]>([]); // Array di skill
   const [employmentState, setEmploymentState] = useState("");
 
@@ -161,17 +158,10 @@ export default function ProfessionalsView() {
 
         {professional?.content?.length > 0 ? (
           <Accordion>
-            {
-              /*candidates && candidates.content.map((e) =>
-                            <ProfessionalAccordion key={e.id} prof={e}/>*/
-              professional &&
-                professional.content?.map(
-                  (e) => <ProfessionalAccordion key={e.id} prof={e} />,
-
-                  /* candidates && filteredCandidates.map((e) =>
-                                 <ProfessionalAccordion key={e.id} prof={e}/>*/
-                )
-            }
+            {professional &&
+              professional.content?.map((e) => (
+                <ProfessionalAccordion key={e.id} prof={e} />
+              ))}
           </Accordion>
         ) : (
           <div>There no candidates matching the filters</div>

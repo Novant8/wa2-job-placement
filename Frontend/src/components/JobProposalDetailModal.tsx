@@ -3,13 +3,17 @@ import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
 import { useEffect, useState } from "react";
 import { JobProposal } from "../types/JobProposal.ts";
-import { useAuth } from "../contexts/auth.tsx";
+import { useAuth, UserRole } from "../contexts/auth.tsx";
 
 import CustomerAcceptDeclineProposalModal from "./CustomerAcceptDeclineProposalModal.tsx";
 import { Customer } from "../types/customer.ts";
 import { Contact, ContactCategory } from "../types/contact.ts";
 import ProfessionalAcceptDeclineProposalModal from "./ProfessionalAcceptDeclineProposalModal.tsx";
 import { Professional } from "../types/professional.ts";
+import { UploadDocumentField } from "./UploadDocumentField.tsx";
+import { ApiError, loadJobProposalSignedDocument } from "../../API.tsx";
+import { Accordion, ButtonGroup, Spinner } from "react-bootstrap";
+import { DocumentHistory } from "../types/documents.ts";
 
 export default function JobProposalModalDetail(props: any) {
   const [jobProposal, setJobProposal] = useState<JobProposal>();
@@ -22,6 +26,21 @@ export default function JobProposalModalDetail(props: any) {
     professionalProposalConfirmationModalShow,
     setProfessionalProposalConfirmationModalShow,
   ] = useState<boolean>(false);
+
+  const [loadingDocument, setLoadingDocument] = useState(false);
+  const [loadingSignedDocument, setLoadingSignedDocument] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorDocument, setErrorDocument] = useState("");
+  const [errorSignedDocument, setErrorSignedDocument] = useState("");
+  const [documentHistory, setDocumentHistory] = useState<
+    DocumentHistory | undefined
+  >();
+  const [signedDocumentHistory, setSignedDocumentHistory] = useState<
+    DocumentHistory | undefined
+  >();
+  const [customerConfirm, setCustomerConfirm] = useState(
+    jobProposal?.customerConfirmation,
+  );
   const { me } = useAuth();
   const [dirty, setDirty] = useState<boolean>(false);
   const [customerInfo, setCustomerInfo] = useState<Customer>({
@@ -36,7 +55,7 @@ export default function JobProposalModalDetail(props: any) {
     },
   });
 
-  const [professioanlInfo, setProfessionalInfo] = useState<Professional>({
+  const [professionalInfo, setProfessionalInfo] = useState<Professional>({
     id: 0,
     contactInfo: {
       id: 0,
@@ -67,9 +86,9 @@ export default function JobProposalModalDetail(props: any) {
       });
     } else {
       setProfessionalInfo({
-        ...professioanlInfo,
+        ...professionalInfo,
         contactInfo: {
-          ...professioanlInfo.contactInfo,
+          ...professionalInfo.contactInfo,
           [field]: value,
         },
       });
@@ -119,12 +138,12 @@ export default function JobProposalModalDetail(props: any) {
           setProfessionalInfo(professional);
         })
         .catch((err) => console.log(err));
-    }, [me, professioanlInfo.id]);
+    }, [me, professionalInfo.id]);
   }
 
   useEffect(() => {
     if (props.professionalId === 0) return;
-
+    setLoading(true);
     API.getJobProposalbyOfferAndProfessional(
       props.jobOfferId,
       props.professionalId,
@@ -132,10 +151,126 @@ export default function JobProposalModalDetail(props: any) {
       .then((data) => {
         console.log(data);
         setJobProposal(data);
+        setCustomerConfirm(data.customerConfirmation);
+        if (data.documentId) {
+          API.getDocumentHistory(data.documentId).then((history) => {
+            setDocumentHistory(history);
+          });
+        }
+
+        if (data.professionalSignedContract) {
+          API.getDocumentHistory(data.professionalSignedContract).then(
+            (history) => {
+              setSignedDocumentHistory(history);
+            },
+          );
+        }
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(() => {
+        setDirty(false);
+        setLoading(false);
+      });
   }, [props.professionalId, dirty]);
 
+  function uploadOrUpdateContract(document: File) {
+    if (!jobProposal) return;
+
+    let promise;
+    if (jobProposal.documentId)
+      promise = API.updateDocument(jobProposal.documentId, document);
+    else promise = API.uploadDocument(document);
+
+    const prevDocument = jobProposal.documentId;
+    setJobProposal({ ...jobProposal, documentId: null });
+    setLoadingDocument(true);
+    promise
+      .then((document) => {
+        API.loadJobProposalDocument(jobProposal.id, document.historyId).then(
+          (proposal) => {
+            setJobProposal(proposal);
+            setDirty(true);
+          },
+        );
+      })
+      .catch((err) => {
+        setJobProposal({ ...jobProposal, documentId: prevDocument });
+        setErrorDocument(err);
+      })
+      .finally(() => {
+        setLoadingDocument(false);
+      });
+  }
+
+  function uploadOrUpdateSignedContract(document: File) {
+    if (!jobProposal) return;
+
+    let promise;
+    if (jobProposal.professionalSignedContract)
+      promise = API.updateDocument(
+        jobProposal.professionalSignedContract,
+        document,
+      );
+    else promise = API.uploadDocument(document);
+
+    const prevDocument = jobProposal.professionalSignedContract;
+    setJobProposal({ ...jobProposal, professionalSignedContract: null });
+    setLoadingSignedDocument(true);
+    promise
+      .then((document) => {
+        API.loadJobProposalSignedDocument(
+          jobProposal.id,
+          document.historyId,
+        ).then((proposal) => {
+          setJobProposal(proposal);
+          setDirty(true);
+        });
+      })
+      .catch((err) => {
+        setJobProposal({
+          ...jobProposal,
+          professionalSignedContract: prevDocument,
+        });
+        setErrorSignedDocument(err);
+      })
+      .finally(() => {
+        setLoadingSignedDocument(false);
+      });
+  }
+
+  function deleteContract(documentId: number) {
+    if (!jobProposal) return;
+    setLoadingDocument(true);
+    API.loadJobProposalDocument(jobProposal.id, null)
+      .then((proposal) => {
+        setJobProposal(proposal);
+        API.deleteDocumentHistory(documentId);
+        setDirty(true);
+      })
+      .catch((err) => {
+        console.log(err);
+        setErrorDocument(err);
+      })
+      .finally(() => setLoadingDocument(false));
+  }
+  function deleteSignedContract(documentId: number) {
+    if (!jobProposal) return;
+    setLoadingSignedDocument(true);
+    API.loadJobProposalSignedDocument(jobProposal.id, null)
+      .then((proposal) => {
+        setJobProposal(proposal);
+        API.deleteDocumentHistory(documentId);
+        setDirty(true);
+      })
+      .catch((err) => {
+        console.log(err);
+        setErrorSignedDocument(err);
+      })
+      .finally(() => setLoadingSignedDocument(false));
+  }
+  if (loading) {
+    return <Spinner />;
+  }
   return (
     <Modal
       {...props}
@@ -149,11 +284,11 @@ export default function JobProposalModalDetail(props: any) {
           action={modalAction}
           onHide={() => setCustomerProposalConfirmationModalShow(false)}
           customerId={customerInfo.id}
+          customerInfo={customerInfo}
           proposalId={jobProposal?.id}
           jobOfferId={jobProposal?.jobOffer.id}
           candidateId={jobProposal?.professional.id}
           setDirty={() => setDirty(true)}
-          setCustomerJobOfferDirty={props.setCustomerJobOfferDirty}
           setProposalOnHide={props.onHide}
         />
       )}
@@ -164,9 +299,10 @@ export default function JobProposalModalDetail(props: any) {
           onHide={() => setProfessionalProposalConfirmationModalShow(false)}
           proposalId={jobProposal?.id}
           jobOfferId={jobProposal?.jobOffer.id}
-          professionalId={professioanlInfo.id}
+          professionalId={professionalInfo.id}
           setDirty={() => setDirty(true)}
           setProposalOnHide={props.onHide}
+          setProfessionalDirty={props.setProfessionalDirty}
         />
       )}
       <Modal.Header closeButton>
@@ -219,6 +355,7 @@ export default function JobProposalModalDetail(props: any) {
                   <Button
                     variant="success"
                     style={{ marginRight: 10 }}
+                    disabled={!jobProposal.documentId}
                     onClick={() => {
                       setModalAction("accept");
                       setCustomerProposalConfirmationModalShow(true);
@@ -319,6 +456,7 @@ export default function JobProposalModalDetail(props: any) {
                 <Button
                   variant="success"
                   style={{ marginRight: 10 }}
+                  disabled={!jobProposal.professionalSignedContract}
                   onClick={() => {
                     setModalAction("accept");
                     setProfessionalProposalConfirmationModalShow(true);
@@ -344,24 +482,181 @@ export default function JobProposalModalDetail(props: any) {
 
         <p>
           Contract:{" "}
-          {jobProposal?.documentId ? (
-            <Button variant="info">Download Job Contract</Button>
-          ) : (
-            "No contract yet submitted "
+          {me?.roles.includes("customer") && (
+            <>
+              <UploadDocumentField
+                documentId={jobProposal?.documentId}
+                loading={loadingDocument}
+                error={errorDocument}
+                onUpload={uploadOrUpdateContract}
+                onDelete={deleteContract}
+                customerView={true}
+                customerConfirm={customerConfirm ? customerConfirm : false}
+                professionalView={false}
+                professionalConfirm={false}
+              />
+              {jobProposal?.documentId ? (
+                ""
+              ) : (
+                <p>
+                  No contract yet submitted, upload it if you want to accept the
+                  Job Proposal
+                </p>
+              )}
+            </>
           )}
+          {me?.roles.includes("professional") && (
+            <>
+              <UploadDocumentField
+                documentId={jobProposal?.documentId}
+                loading={loadingDocument}
+                error={errorDocument}
+                onUpload={uploadOrUpdateContract}
+                onDelete={deleteContract}
+                customerView={false}
+                customerConfirm={customerConfirm ? customerConfirm : false}
+                professionalView={false}
+                professionalConfirm={false}
+              />
+              {jobProposal?.documentId ? (
+                ""
+              ) : (
+                <p>
+                  No contract yet submitted, upload it if you want to accept the
+                  Job Proposal
+                </p>
+              )}
+            </>
+          )}
+          {["operator", "manager"].some((role) =>
+            me?.roles.includes(role as UserRole),
+          ) &&
+            (jobProposal?.documentId ? (
+              <>
+                <div className="my-2">
+                  <span className="mx-3 my-auto">
+                    <strong>{documentHistory?.versions[0].name}</strong>
+                  </span>
+                  <ButtonGroup>
+                    <Button
+                      variant="primary"
+                      as="a"
+                      href={`/document-store/API/documents/${documentHistory?.versions[0].historyId}/version/${documentHistory?.versions[0].versionId}/data`}
+                      target="_blank"
+                    >
+                      View
+                    </Button>
+                  </ButtonGroup>
+                </div>
+                {documentHistory && documentHistory.versions.length > 1 && (
+                  <Accordion>
+                    <Accordion.Item eventKey="0">
+                      <Accordion.Header>Show all versions</Accordion.Header>
+                      <Accordion.Body>
+                        {documentHistory.versions.map((document) => {
+                          return (
+                            <div className="my-2">
+                              <span className="mx-3 my-auto">
+                                <strong>{document.name}</strong>
+                              </span>
+                              <ButtonGroup>
+                                <Button
+                                  variant="primary"
+                                  as="a"
+                                  href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
+                                  target="_blank"
+                                >
+                                  View
+                                </Button>
+                              </ButtonGroup>
+                            </div>
+                          );
+                        })}
+                      </Accordion.Body>
+                    </Accordion.Item>
+                  </Accordion>
+                )}
+              </>
+            ) : (
+              "No contract yet submitted "
+            ))}
         </p>
+
+        {me?.roles.includes("professional") &&
+          jobProposal?.customerConfirmation && (
+            <p>
+              Upload signed contract:{" "}
+              <UploadDocumentField
+                documentId={jobProposal?.professionalSignedContract}
+                loading={loadingSignedDocument}
+                error={errorSignedDocument}
+                onUpload={uploadOrUpdateSignedContract}
+                onDelete={deleteSignedContract}
+                customerView={false}
+                customerConfirm={false}
+                professionalView={true}
+                professionalConfirm={jobProposal?.status == "ACCEPTED"}
+              />
+            </p>
+          )}
+
+        {["operator", "manager", "customer"].some((role) =>
+          me?.roles.includes(role as UserRole),
+        ) &&
+          jobProposal?.customerConfirmation && (
+            <div>
+              <p>Signed Contract:</p>
+              {jobProposal?.professionalSignedContract ? (
+                <div className="my-2">
+                  <span className="mx-3 my-auto">
+                    <strong>{signedDocumentHistory?.versions[0].name}</strong>
+                  </span>
+                  <ButtonGroup>
+                    <Button
+                      variant="primary"
+                      as="a"
+                      href={`/document-store/API/documents/${signedDocumentHistory?.versions[0].historyId}/version/${signedDocumentHistory?.versions[0].versionId}/data`}
+                      target="_blank"
+                    >
+                      View
+                    </Button>
+                  </ButtonGroup>
+                </div>
+              ) : (
+                "No contract yet submitted"
+              )}
+
+              {signedDocumentHistory &&
+                signedDocumentHistory.versions.length > 1 && (
+                  <Accordion>
+                    <Accordion.Item eventKey="0">
+                      <Accordion.Header>Show all versions</Accordion.Header>
+                      <Accordion.Body>
+                        {signedDocumentHistory.versions.map((document) => (
+                          <div className="my-2" key={document.versionId}>
+                            <span className="mx-3 my-auto">
+                              <strong>{document.name}</strong>
+                            </span>
+                            <ButtonGroup>
+                              <Button
+                                variant="primary"
+                                as="a"
+                                href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
+                                target="_blank"
+                              >
+                                View
+                              </Button>
+                            </ButtonGroup>
+                          </div>
+                        ))}
+                      </Accordion.Body>
+                    </Accordion.Item>
+                  </Accordion>
+                )}
+            </div>
+          )}
       </Modal.Body>
-      <Modal.Footer>
-        <Button
-          variant="warning"
-          onClick={() => {
-            props.onHide();
-            //handleAcceptDecline("CANDIDATE_PROPOSAL", props.candidate.id);
-          }}
-        >
-          Close
-        </Button>
-      </Modal.Footer>
+      <Modal.Footer />
     </Modal>
   );
 }
