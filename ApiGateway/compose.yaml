@@ -33,7 +33,7 @@ services:
     networks:
       - kfk-net
   kafka-ui:
-    container_name: kafka-ui
+
     image: provectuslabs/kafka-ui:latest
     ports:
       - "9091:8080"

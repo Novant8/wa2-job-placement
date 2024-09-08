@@ -1,6 +1,6 @@
 import CreateJobOffer from "./CreateJobOffer.tsx";
 import ProfessionalsView from "./ProfessionalsView.tsx";
-import CustomerRelationshipManagement from "./CustomersView.tsx";
+import CustomerRelationshipManagement from "../routes/CustomersView.tsx";
 import ViewCustomerJobOffer from "./ViewCustomerJobOffer.tsx";
 import ViewRecruiterJobOffer from "./ViewRecruiterJobOffer.tsx";
 import { useAuth } from "../contexts/auth.tsx";

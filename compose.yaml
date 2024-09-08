@@ -1,6 +1,7 @@
 services:
   keycloak:
     build: ./keycloak-spi-kafka
+    image: waii2024g07/keycloack-kafka:latest
     ports:
       - '9090:8080'
     environment:
@@ -51,6 +52,7 @@ services:
 
   api-gateway:
     build: ./ApiGateway
+    image: waii2024g07/apigateway:latest
     depends_on:
       keycloak:
         condition: service_healthy
@@ -61,11 +63,13 @@ services:
 
   frontend:
     build: ./Frontend
+    image: waii2024g07/frontend:latest
     ports:
       - "5173:5173"
 
   crm:
     build: ./CRM
+    image: waii2024g07/crm:latest
     depends_on:
       - crm-db
       - kafka
@@ -91,6 +95,7 @@ services:
 
   comm-manager:
     build: ./CommunicationManager
+    image: waii2024g07/communicationmanager:latest
     networks:
       - keycloak
       - prometheus
@@ -101,6 +106,7 @@ services:
 
   document-store:
     build: ./DocumentStore
+    image: waii2024g07/documentstore:latest
     depends_on:
       - document-store-db
     ports:
@@ -123,6 +129,7 @@ services:
 
   monitoring:
     build: ./Monitoring
+    image: waii2024g07/monitoring:latest
     depends_on:
       - monitoring-db
     networks:

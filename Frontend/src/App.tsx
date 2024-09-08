@@ -9,7 +9,6 @@ function App() {
   return (
     <React.StrictMode>
       <AuthContextProvider>
-        <TopNavbar />
         <Outlet />
       </AuthContextProvider>
     </React.StrictMode>

@@ -1,34 +1,18 @@
-import {Card} from "react-bootstrap";
-import {CiUser} from "react-icons/ci";
-import {useAuth} from "../contexts/auth.tsx";
-import './Homepage.css'
+import { Card } from "react-bootstrap";
+import { CiUser } from "react-icons/ci";
+import { useAuth } from "../contexts/auth.tsx";
+import "./Homepage.css";
+import HomePageNotLoggedIn from "../components/HomePageNotLoggedIn.tsx";
+import HomePageLoggedIn from "../components/HomePageLoggedIn.tsx";
+import TopNavbar from "../components/TopNavbar.tsx";
+import Aside from "../components/Aside.tsx";
 
 export default function Homepage() {
-    const { me } = useAuth()
+  const { me } = useAuth();
 
-    return (
-        <Card style={{ width: '23rem' }}>
-            <Card.Body>
-                {me?.principal != null ?
-                    <Card.Title><CiUser  size={30}/>{me?.name} {me?.surname}</Card.Title>
-                :
-                    <Card.Title><CiUser  size={30}/>Anonymous User</Card.Title>}
-                {me?.principal != null ?
-                    <>
-                        <Card.Text>
-                            Roles: {me?.roles?.join(", ")}
-                        </Card.Text>
-                        <Card.Text>
-                            Email: {me?.email}
-                        </Card.Text>
-
-                    </>
-                    :
-                    <Card.Text>
-                        Login to display User's information
-                    </Card.Text>
-                }
-            </Card.Body>
-        </Card>
-    )
+  return (
+    <>
+      {me?.principal == null ? <HomePageNotLoggedIn /> : <HomePageLoggedIn />}
+    </>
+  );
 }

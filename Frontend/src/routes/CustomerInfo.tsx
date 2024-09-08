@@ -21,6 +21,8 @@ import {
 } from "../types/address.ts";
 import EditableField from "../components/EditableField.tsx";
 import { updateCustomerNotes } from "../../API.tsx";
+import Sidebar from "../components/Sidebar.tsx";
+import EditAccountForm from "../components/EditAccountForm.tsx";
 
 export default function CustomerInfo() {
   const navigate = useNavigate();
@@ -145,7 +147,6 @@ export default function CustomerInfo() {
           }
         })}
       </Row>
-
       <Row className="pb-3" style={{ borderBottom: "dotted grey 1px" }}>
         <EditableField
           label="Notes"
@@ -153,7 +154,7 @@ export default function CustomerInfo() {
           initValue={customer.notes || ""}
           loading={notesLoading}
           validate={(value) => value.trim().length > 0}
-          onEdit={(field, val) => updateNotes(val)}
+          onEdit={(_field, val) => updateNotes(val)}
         />
       </Row>
       <Row className="mt-3 pb-3" style={{ borderBottom: "dotted grey 1px" }}>

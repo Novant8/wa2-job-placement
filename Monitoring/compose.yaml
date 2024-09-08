@@ -14,7 +14,6 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: grafana
     user: "$UID:$GID"
     ports:
       - "3000:3000"

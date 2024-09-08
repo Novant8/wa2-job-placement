@@ -17,19 +17,21 @@ import ViewJobOfferDetailProfessional from "./routes/ViewJobOfferDetailProfessio
 import { useAuth } from "./contexts/auth.tsx";
 import { useEffect } from "react";
 import SendEmail from "./routes/SendEmail.tsx";
+import TopNavbar from "./components/TopNavbar.tsx";
+import CustomersView from "./routes/CustomersView.tsx";
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+/*const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { me } = useAuth(); // Ottieni lo stato di autenticazione
   const navigate = useNavigate();
 
-  useEffect(() => {
+   useEffect(() => {
     if (me?.principal) {
-      navigate("/crm");
+      navigate("/ui");
     }
   }, [me, navigate]);
-
+  console.log(!me?.principal);
   return !me?.principal ? children : null;
-};
+};*/
 
 const router = createBrowserRouter(
   [
@@ -39,27 +41,37 @@ const router = createBrowserRouter(
         {
           path: "/",
           element: (
-            <ProtectedRoute>
-              <Homepage />
-            </ProtectedRoute>
+            // <ProtectedRoute>
+            <Homepage />
+            // </ProtectedRoute>
           ),
         },
         {
           path: "/crm",
-          element: <Crm />,
+          element: (
+            <>
+              <TopNavbar />
+              <Crm />
+            </>
+          ),
         },
         {
           path: "/edit-account",
           element: <EditAccount />,
         },
         {
-          path: "/crm/jobOffer/:jobOfferId",
-          element: <ViewJobOfferDetails />,
+          path: "/crm/customers/",
+          element: <CustomersView />,
         },
         {
           path: "/crm/customers/:customerId",
           element: <CustomerInfo />,
         },
+        {
+          path: "/crm/jobOffer/:jobOfferId",
+          element: <ViewJobOfferDetails />,
+        },
+
         {
           path: "/crm/professionals/:professionalId",
           element: <ProfessionaInfo />,
