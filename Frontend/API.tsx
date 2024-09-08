@@ -52,7 +52,7 @@ export class ApiError extends Error {
 }
 
 function isErrorResponseBody(body: any): body is ErrorResponseBody {
-  return body.hasOwnProperty("");
+  return body.hasOwnProperty("title") && body.hasOwnProperty("detail");
 }
 
 function getCSRFCookie(): string {
@@ -86,7 +86,7 @@ async function customFetch(
     );
   } else {
     const errorBody = (await res.json()) as ErrorResponseBody;
-    const message = `Server responded with: ${isErrorResponseBody(errorBody) ? errorBody.title : "Generic error"}`;
+    const message = `Server responded with ${isErrorResponseBody(errorBody) ? `${errorBody.title}: ${errorBody.detail}` : "Generic error"}`;
     throw new ApiError(message);
   }
 }

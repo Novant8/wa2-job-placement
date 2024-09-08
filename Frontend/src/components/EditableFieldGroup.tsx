@@ -30,14 +30,23 @@ export interface EditableFieldGroupProps {
 export default function EditableFieldGroup({ title, groupName, showDelete, initEdit, fields, loading, onEdit, onDelete, onCancel }: EditableFieldGroupProps) {
     const [ editing, setEditing ] = useState(initEdit || false);
     const [ values, setValues ] = useState(fields.map(field => field.value));
+    const [ errors, setErrors ] = useState(fields.map(field => field.error));
 
     useEffect(() => {
         setValues(fields.map(field => field.value));
+
+        const errors = fields.map(field => field.error);
+        setErrors(errors);
+        if(errors.some(error => error && error.length > 0))
+            setEditing(true);
     }, [ fields ]);
 
     function handleChange(e: ChangeEvent<HTMLInputElement>) {
-        values[fields.findIndex(field => field.name == e.target.name)] = e.target.value;
+        const fieldIndex = fields.findIndex(field => field.name == e.target.name)
+        values[fieldIndex] = e.target.value;
         setValues([ ...values ]);
+        errors[fieldIndex] = ""
+        setErrors([ ...errors ]);
     }
 
     function cancelEdit() {
@@ -86,18 +95,18 @@ export default function EditableFieldGroup({ title, groupName, showDelete, initE
                     {
                         fields
                             .map((field, index) => ({ ...field, value: values[index] }))
-                            .map(({ name, label, type, value, error }, index) => (
+                            .map(({ name, label, type, value }, index) => (
                                 <Form.Group key={`field-group-${index}`} controlId={`register-user-address-${index}-country`} className="my-2">
                                     <Form.Label>{ label }</Form.Label>
                                     <Form.Control
                                         name={name}
                                         type={type}
                                         value={value}
-                                        isInvalid={!!error}
+                                        isInvalid={!!errors[index]}
                                         onChange={handleChange}
                                         disabled={loading || !editing}
                                     />
-                                    <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+                                    <Form.Control.Feedback type="invalid">{errors[index]}</Form.Control.Feedback>
                                 </Form.Group>
                             ))
                     }

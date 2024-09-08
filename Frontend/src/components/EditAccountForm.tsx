@@ -184,10 +184,11 @@ export default function EditAccountForm() {
     });
   }
 
-  function updateUserSkills(skills: UserSkill[], index: number) {
-    loadingSubmit.professional.skills[index] = true;
-    setLoadingSubmit({ ...loadingSubmit });
-    setLoadingSubmit({ ...loadingSubmit });
+    function updateUserSkills(skills: UserSkill[], index: number) {
+        loadingSubmit.professional.skills[index] = true;
+        setLoadingSubmit({ ...loadingSubmit });
+        errors.professional.skills[index] = "";
+        setErrors({ ...errors });
 
     const professionalInfo = userInfo as ProfessionalUserInfo;
     API.updateProfessionalSkills(professionalInfo.professional.id, skills)
@@ -241,29 +242,29 @@ export default function EditAccountForm() {
     updateUserSkills(updatedSkills, index);
   }
 
-  async function updateUserCategory(category: ContactCategory) {
-    if (category == "UNKNOWN") return;
-    setLoadingSubmit({ ...loadingSubmit, category: true });
-    try {
-      if (category === "PROFESSIONAL") {
-        const { contactInfo, ...professional } =
-          await API.bindContactToProfessional(userInfo.id, {
-            location: "",
-            skills: [],
-            dailyRate: 0,
-          });
-        await refreshToken();
-        setUserInfo({ ...contactInfo, professional });
-      } else {
-        const { contactInfo } = await API.bindContactToCustomer(userInfo.id);
-        setUserInfo(contactInfo);
-      }
-    } catch (err: any) {
-      if (err instanceof ApiError)
-        setErrors({ ...errors, category: err.message });
+    async function updateUserCategory(category: ContactCategory) {
+        if(category == "UNKNOWN") return;
+        setLoadingSubmit({ ...loadingSubmit, category: true })
+        setErrors({ ...errors, category: "" })
+        try {
+            if (category === "PROFESSIONAL") {
+                const {contactInfo, ...professional} = await API.bindContactToProfessional(userInfo.id, {
+                    location: "",
+                    skills: [],
+                    dailyRate: 0
+                });
+                await refreshToken();
+                setUserInfo({...contactInfo, professional});
+            } else {
+                const {contactInfo} = await API.bindContactToCustomer(userInfo.id);
+                setUserInfo(contactInfo);
+            }
+        } catch (err: any) {
+            if(err instanceof ApiError)
+                setErrors({ ...errors, category: err.message });
+        }
+        setLoadingSubmit({ ...loadingSubmit, category: false });
     }
-    setLoadingSubmit({ ...loadingSubmit, category: false });
-  }
 
   function updateContactField(field: SingleUpdatableField, value: string) {
     setErrors({ ...errors, [field]: "" });
@@ -618,6 +619,7 @@ export default function EditAccountForm() {
                 showDelete
                 onDelete={() => removeUserSkill(i)}
                 onCancel={() => handleCancelSkill(i)}
+                validate={skill => skill.length > 0}
               />
             ))}
             <Button variant="light" onClick={addUserSkill}>
