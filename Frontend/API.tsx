@@ -23,6 +23,7 @@ import {
   MessageCreate,
   MessageEventInterface,
 } from "./src/types/message.ts";
+import { Pageable } from "./src/types/Pageable.ts";
 
 interface ErrorResponseBody {
   type: string;
@@ -282,19 +283,27 @@ export function getProfessionalById(
 ): Promise<Professional> {
   return customFetch(`/crm/API/professionals/${professionalId}`);
 }
-export function getCustomers(filter?: CustomerFilter): Promise<any> {
+export function getCustomers(
+  filter?: CustomerFilter,
+  page?: Object,
+): Promise<any> {
   let endpoint = "/crm/API/customers";
 
-  if (filter) {
+  if (filter || page) {
     const params = new URLSearchParams();
 
-    if (filter.fullName) params.append("fullName", filter.fullName);
+    if (filter && filter.fullName) params.append("fullName", filter.fullName);
 
-    if (filter.email) params.append("email", filter.email);
+    if (filter && filter.email) params.append("email", filter.email);
 
-    if (filter.telephone) params.append("telephone", filter.telephone);
+    if (filter && filter.telephone)
+      params.append("telephone", filter.telephone);
 
-    if (filter.address) params.append("address", filter.address);
+    if (filter && filter.address) params.append("address", filter.address);
+
+    if (page && (page?.pageNumber == 0 || page?.pageNumber))
+      params.append("page", String(page.pageNumber));
+    if (page && page?.pageSize) params.append("size", String(page.pageSize));
 
     const queryString = params.toString();
 
@@ -568,11 +577,15 @@ export async function getMessagges(
 }
 export async function getUnknowContacts(
   token: string | undefined,
+  page?: Pageable | undefined,
 ): Promise<any> {
   return new Promise((resolve, reject) => {
     let endpoint = url + "/crm/API/contacts";
     const params = new URLSearchParams();
     params.append("category", "UNKNOWN");
+    if (page?.pageNumber == 0 || page?.pageNumber)
+      params.append("page", String(page.pageNumber));
+    if (page?.pageSize) params.append("size", String(page.pageSize));
     const queryString = params.toString();
     if (queryString) {
       endpoint += "?" + queryString;
@@ -611,26 +624,29 @@ export async function getUnknowContacts(
 
 export async function getProfessionals(
   token: string | undefined,
-  filterDTO?: ProfessionalFilter,
+  filterDTO?: ProfessionalFilter | undefined,
+  page?: Pageable | undefined,
 ): Promise<any> {
   return new Promise((resolve, reject) => {
     let endpoint = url + "/crm/API/professionals";
 
-    if (filterDTO) {
+    if (filterDTO || page) {
       const params = new URLSearchParams();
 
-      if (filterDTO.skills && filterDTO.skills.length > 0) {
+      if (filterDTO?.skills && filterDTO?.skills.length > 0) {
         params.append("skills", filterDTO.skills.join(","));
       }
 
-      if (filterDTO.location) {
+      if (filterDTO?.location) {
         params.append("location", filterDTO.location);
       }
 
-      if (filterDTO.employmentState) {
+      if (filterDTO?.employmentState) {
         params.append("employmentState", filterDTO.employmentState);
       }
-
+      if (page?.pageNumber == 0 || page?.pageNumber)
+        params.append("page", String(page.pageNumber));
+      if (page?.pageSize) params.append("size", String(page.pageSize));
       const queryString = params.toString();
       if (queryString) {
         endpoint += "?" + queryString;
