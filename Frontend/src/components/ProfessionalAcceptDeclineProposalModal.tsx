@@ -1,9 +1,14 @@
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
+import { MessageCreate } from "../types/message.ts";
+import { useEffect } from "react";
 
 export default function ProfessionalAcceptDeclineProposalModal(props: any) {
-  const handleAcceptDecline = (professionalConfirm: boolean) => {
+  const handleAcceptDecline = (
+    professionalConfirm: boolean,
+    msg: MessageCreate,
+  ) => {
     if (!props.proposalId) return;
 
     API.professionalConfirmDeclineJobProposal(
@@ -24,7 +29,7 @@ export default function ProfessionalAcceptDeclineProposalModal(props: any) {
                     props.professionalId,
                   )
                     .then(() => {
-                      props.setCustomerJobOfferDirty(true);
+                      props.setProfessionalJobOfferDirty(true); //setCustomerJobOfferDirty(true);
                     })
                     .catch((err) => {
                       console.log(err);
@@ -45,6 +50,11 @@ export default function ProfessionalAcceptDeclineProposalModal(props: any) {
         console.log(err);
       })
       .finally(() => {
+        API.createMessage(msg)
+          .then(() => {})
+          .catch((err) => {
+            console.log(err);
+          });
         props.setDirty();
         props.setProposalOnHide();
       });
@@ -74,7 +84,28 @@ export default function ProfessionalAcceptDeclineProposalModal(props: any) {
           <Button
             variant="success"
             onClick={() => {
-              handleAcceptDecline(true);
+              handleAcceptDecline(true, {
+                sender: {
+                  email: props.professionalInfo.contactInfo.addresses?.find(
+                    (address: { email?: string }) => address.email,
+                  )?.email,
+                },
+                channel: "EMAIL",
+                subject:
+                  "Proposal id: " +
+                  props.proposalId +
+                  " accepted by the professional",
+                body:
+                  "Proposal id: " +
+                  props.proposalId +
+                  " accepted by the professional id: " +
+                  props.professionalId +
+                  " name: " +
+                  props.professionalInfo.contactInfo.name +
+                  " for the job offer " +
+                  props.jobOffer.description +
+                  " now the job offer is CONSOLIDATED",
+              });
             }}
           >
             Accept
@@ -83,7 +114,27 @@ export default function ProfessionalAcceptDeclineProposalModal(props: any) {
           <Button
             variant="danger"
             onClick={() => {
-              handleAcceptDecline(false);
+              handleAcceptDecline(false, {
+                sender: {
+                  email: props.professionalInfo.contactInfo.addresses?.find(
+                    (address: { email?: string }) => address.email,
+                  )?.email,
+                },
+                channel: "EMAIL",
+                subject:
+                  "Proposal id: " +
+                  props.proposalId +
+                  " declined by the professional",
+                body:
+                  "Proposal id: " +
+                  props.proposalId +
+                  " accepted by the professional id: " +
+                  props.professionalId +
+                  " name: " +
+                  props.professionalInfo.contactInfo.name +
+                  " for the job offer " +
+                  props.jobOffer.description,
+              });
             }}
           >
             Decline

@@ -199,6 +199,8 @@ export default function ViewJobOfferDetails() {
         onHide={() => setModalShow(false)}
         jobOffer={jobOffer}
         setDirty={() => setDirty(true)}
+        customerId={userInfo.id}
+        customerInfo={userInfo}
       />
       <Form>
         <Row className="mb-3">

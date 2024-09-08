@@ -45,6 +45,13 @@ export default function MessagesView() {
               Last Event: {props.msg.lastEvent.status} on{" "}
               {props.msg.lastEvent.timestamp?.toString()}
             </div>
+            {}
+            <div>
+              Comment:{" "}
+              {props.msg.lastEvent.comments
+                ? props.msg.lastEvent.comments
+                : "N/A"}
+            </div>
             <div>Channel:{props.msg.channel}</div>
             <div>
               Date of the message: {props.msg.creationTimestamp?.toString()}
@@ -104,21 +111,19 @@ export default function MessagesView() {
                 </Button>
               )}
 
-            {props.msg.lastEvent.status !== "DISCARDED" &&
-              props.msg.lastEvent.status !== "FAILED" &&
-              props.msg.lastEvent.status !== "RECEIVED" && (
-                <Button
-                  className="primary mt-3"
-                  variant={"danger"}
-                  onClick={() => {
-                    setModalAction("discard");
-                    setSelected(props.msg);
-                    setModalStatusShow(true);
-                  }}
-                >
-                  Discard Message
-                </Button>
-              )}
+            {props.msg.lastEvent.status === "READ" && (
+              <Button
+                className="primary mt-3"
+                variant={"danger"}
+                onClick={() => {
+                  setModalAction("discard");
+                  setSelected(props.msg);
+                  setModalStatusShow(true);
+                }}
+              >
+                Discard Message
+              </Button>
+            )}
           </Accordion.Body>
         </Accordion.Item>
       </div>
@@ -161,7 +166,10 @@ export default function MessagesView() {
         console.log(err);
         setError(err);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        setDirty(false);
+      });
   }, [status, dirty]);
 
   //TODO: remove this useEffect
