@@ -1,5 +1,5 @@
 import { useAuth } from "../contexts/auth.tsx";
-import ViewJobOfferDetailProfessional from "./ViewJobOfferDetailProfessional.tsx";
+import ViewJobOfferDetailProfessional from "../components/ViewJobOfferDetailProfessional.tsx";
 import ViewCustomerJobOffer from "../components/ViewCustomerJobOffer.tsx";
 import CreateJobOffer from "../components/CreateJobOffer.tsx";
 import ViewProfessionalJobOffer from "../components/ViewProfessionalJobOffer.tsx";

@@ -9,18 +9,19 @@ import {
 import Homepage from "./routes/Homepage.tsx";
 import Crm from "./routes/Crm.tsx";
 import EditAccount from "./routes/EditAccount.tsx";
-import ViewJobOfferDetails from "./routes/ViewJobOfferDetails.tsx";
-import ViewJobOfferDetailsRecruiter from "./routes/ViewJobOfferDetailRecruiter.tsx";
+
+import ViewJobOfferDetailsRecruiter from "./components/ViewJobOfferDetailRecruiter.tsx";
 import CustomerInfo from "./routes/CustomerInfo.tsx";
 import ProfessionaInfo from "./routes/ProfessionaInfo.tsx";
-import ViewJobOfferDetailProfessional from "./routes/ViewJobOfferDetailProfessional.tsx";
-import { useAuth } from "./contexts/auth.tsx";
-import { useEffect } from "react";
+import ViewJobOfferDetailProfessional from "./components/ViewJobOfferDetailProfessional.tsx";
+
 import SendEmail from "./routes/SendEmail.tsx";
 import TopNavbar from "./components/TopNavbar.tsx";
 import CustomersView from "./routes/CustomersView.tsx";
-import ViewCustomerJobOffer from "./components/ViewCustomerJobOffer.tsx";
+
 import JobOffer from "./routes/JobOffer.tsx";
+import ViewJobOfferDetails from "./routes/ViewJobOfferDetails.tsx";
+import ProfessionalsView from "./routes/ProfessionalsView.tsx";
 
 /*const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { me } = useAuth(); // Ottieni lo stato di autenticazione
@@ -74,10 +75,13 @@ const router = createBrowserRouter(
           element: <JobOffer />,
         },
         {
-          path: "/crm/job-offer/:jobOfferId",
+          path: "/crm/job-offers/:jobOfferId",
           element: <ViewJobOfferDetails />,
         },
-
+        {
+          path: "/crm/professionals/",
+          element: <ProfessionalsView />,
+        },
         {
           path: "/crm/professionals/:professionalId",
           element: <ProfessionaInfo />,

@@ -201,10 +201,7 @@ export default function ViewRecruiterJobOffer() {
                   : "N/A"}
               </Card.Text>
 
-              <Button
-                variant="primary"
-                onClick={() => navigate(`RecruiterJobOffer/${offer.id}`)}
-              >
+              <Button variant="primary" onClick={() => navigate(`${offer.id}`)}>
                 View
               </Button>
             </Card.Body>

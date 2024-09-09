@@ -11,16 +11,16 @@ import {
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { JobOffer, JobOfferCreate, JobOfferStatus } from "../types/JobOffer.ts";
-import ConfirmationModal from "../components/ConfirmationModal.tsx";
+import ConfirmationModal from "./ConfirmationModal.tsx";
 
 import * as API from "../../API.tsx";
 
-import EditableField from "../components/EditableField.tsx";
+import EditableField from "./EditableField.tsx";
 
-import SelectCandidateModal from "../components/SelectCandidateModal.tsx";
-import RemoveCandidateModal from "../components/RemoveCandidateModal.tsx";
-import JobProposalModal from "../components/JobProposalModal.tsx";
-import JobProposalModalDetail from "../components/JobProposalDetailModal.tsx";
+import SelectCandidateModal from "./SelectCandidateModal.tsx";
+import RemoveCandidateModal from "./RemoveCandidateModal.tsx";
+import JobProposalModal from "./JobProposalModal.tsx";
+import JobProposalModalDetail from "./JobProposalDetailModal.tsx";
 import { ReducedProfessional } from "../types/professional.ts";
 import { JobOfferUpdateStatus } from "../types/JobOffer.ts";
 import { ApiError } from "../../API.tsx";
@@ -99,7 +99,7 @@ export default function ViewJobOfferDetailsRecruiter() {
     API.updateJobOffer(jobOfferId, updatedJobOffer)
       .then(() => {
         setIsEditable(false);
-        navigate(`/crm/RecruiterJobOffer/${jobOfferId}`);
+        navigate(`${jobOfferId}`);
       })
       .catch(() => {
         setError("Failed to update job offer");
@@ -121,7 +121,7 @@ export default function ViewJobOfferDetailsRecruiter() {
 
     API.updateJobOffer(jobOfferId, updatedJobOffer)
       .then(() => {
-        navigate(`/crm/RecruiterJobOffer/${jobOfferId}`);
+        navigate(`${jobOfferId}`);
       })
       .catch(() => {
         setError("Failed to update job offer");

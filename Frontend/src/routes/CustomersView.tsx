@@ -69,25 +69,14 @@ function CustomerCard(props: CustomerAccordionProps) {
             ) : (
               ""
             )}
-
-            <div>Notes: {customer.notes ? props.cust.notes : "No notes"}</div>
-            {customer.contactInfo?.addresses.map((address) => {
-              if (isEmailAddress(address)) {
-                return <div key={address.id}>Email: {address.email}</div>;
-              } else if (isPhoneAddress(address)) {
-                return (
-                  <div key={address.id}>Telephone: {address.phoneNumber}</div>
-                );
-              }
-            })}
+            {customer.notes ? props.cust.notes : ""}
           </Col>
           <Col>
             <Button
-              className="primary mt-3"
+              className="primary "
               onClick={() => navigate(`${customer.id}`)}
             >
-              {" "}
-              View Details{" "}
+              View Details
             </Button>
           </Col>
         </Row>

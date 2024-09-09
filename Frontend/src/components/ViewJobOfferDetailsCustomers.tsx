@@ -15,21 +15,28 @@ import { Contact, ContactCategory } from "../types/contact.ts";
 import * as API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
 import { Customer } from "../types/customer.ts";
-import JobProposalModalDetail from "../components/JobProposalDetailModal.tsx";
-import { Professional } from "../types/professional.ts";
+import JobProposalModalDetail from "./JobProposalDetailModal.tsx";
+import ConfirmationModal from "./ConfirmationModal.tsx";
+import { set } from "js-cookie";
+import { ApiError } from "../../API.tsx";
+import Sidebar from "./Sidebar.tsx";
 type Candidate = {
   id: number;
   name: string;
   surname: string;
+  cvDocument?: number;
 };
-export default function ViewJobOfferDetailProfessional() {
+export default function ViewJobOfferDetailsCustomers() {
   const [isEditable, setIsEditable] = useState(false);
   const [jobOffer, setJobOffer] = useState<JobOffer>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [dirty, setDirty] = useState(false);
   const [newSkill, setNewSkill] = useState<string>("");
-  const [userInfo, setUserInfo] = useState<Professional>({
+  const [dirty, setDirty] = useState(false);
+  const [modalShow, setModalShow] = useState<boolean>(false);
+  const [modalAction, setModalAction] = useState<string>("");
+  const [documentError, setDocumentError] = useState("");
+  const [userInfo, setUserInfo] = useState<Customer>({
     id: 0,
     contactInfo: {
       id: 0,
@@ -39,10 +46,6 @@ export default function ViewJobOfferDetailProfessional() {
       category: "UNKNOWN",
       addresses: [],
     },
-    location: "",
-    skills: [],
-    dailyRate: 0,
-    employmentState: "NOT_AVAILABLE",
   });
   const { jobOfferId } = useParams();
   const { me } = useAuth();
@@ -53,6 +56,7 @@ export default function ViewJobOfferDetailProfessional() {
     id: 0,
     name: "",
     surname: "",
+    cvDocument: null,
   });
   function updateInfoField<K extends keyof Contact>(
     field: K,
@@ -80,13 +84,13 @@ export default function ViewJobOfferDetailProfessional() {
       );
 
     setLoading(true);
-    API.getProfessionalFromCurrentUser()
-      .then((professional) => {
-        setUserInfo(professional);
+    API.getCustomerFromCurrentUser()
+      .then((customer) => {
+        setUserInfo(customer);
         API.getJobOfferDetails(jobOfferId)
           .then((data) => {
-            console.log("DATI JOB OFFER PROFESSIONAL :" + data);
             setJobOffer(data);
+            setDirty(false);
           })
           .catch(() => {
             setError("Failed to fetch job offer details");
@@ -113,7 +117,7 @@ export default function ViewJobOfferDetailProfessional() {
     API.updateJobOffer(jobOfferId, updatedJobOffer)
       .then(() => {
         setIsEditable(false);
-        navigate(`/crm/jobOffer/${jobOfferId}`);
+        navigate();
       })
       .catch(() => {
         setError("Failed to update job offer");
@@ -154,6 +158,16 @@ export default function ViewJobOfferDetailProfessional() {
       requiredSkills: updatedSkills,
     });
   };
+  function handleViewDocument(documentId: number) {
+    setDocumentError("");
+    API.getDocumentHistory(documentId)
+      .then((history) => {
+        let document = history.versions[0];
+        const url = `/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`;
+        window.open(url, "_blank");
+      })
+      .catch((err: ApiError) => setDocumentError(err.message));
+  }
 
   if (loading) {
     return (
@@ -178,7 +192,14 @@ export default function ViewJobOfferDetailProfessional() {
         onHide={() => setJobProposalDetailModalShow(false)}
         jobOfferId={jobOffer?.id}
         professionalId={selectedCandidate.id}
-        setProfessionalDirty={() => setDirty(true)}
+        setCustomerJobOfferDirty={() => setDirty(true)}
+      />
+      <ConfirmationModal
+        show={modalShow}
+        action={modalAction}
+        onHide={() => setModalShow(false)}
+        jobOffer={jobOffer}
+        setDirty={() => setDirty(true)}
       />
       <Form>
         <Row className="mb-3">
@@ -332,28 +353,8 @@ export default function ViewJobOfferDetailProfessional() {
           </>
         )}
 
-        {["CANDIDATE_PROPOSAL", "CONSOLIDATED"].some(
-          (state) => jobOffer?.offerStatus == state,
-        ) && (
+        {jobOffer?.offerStatus === "CANDIDATE_PROPOSAL" && (
           <Container className="mt-5">
-            <Button
-              variant="warning"
-              onClick={() => {
-                //setJobProposalDetailModalShow(true);
-
-                let selected: Candidate = {
-                  id: jobOffer.professional.id,
-                  name: jobOffer.professional.contactInfo.name,
-                  surname: jobOffer.professional.contactInfo.surname,
-                };
-                setSelectedCandidate(selected);
-                setJobProposalDetailModalShow(true);
-              }}
-              className="me-2"
-            >
-              Show Job Proposal
-            </Button>
-            {/*
             <h2>Proposed Professional</h2>
             <Row>
               <Col md={12} key={jobOffer.professional.id} className="mb-4">
@@ -369,8 +370,6 @@ export default function ViewJobOfferDetailProfessional() {
                       Skills: {jobOffer.professional.skills.join(", ")}
                     </Card.Text>
 
-
-
                     <Button
                       variant="warning"
                       onClick={() => {
@@ -380,6 +379,7 @@ export default function ViewJobOfferDetailProfessional() {
                           id: jobOffer.professional.id,
                           name: jobOffer.professional.contactInfo.name,
                           surname: jobOffer.professional.contactInfo.surname,
+                          cvDocument: jobOffer?.professional.cvDocument,
                         };
                         setSelectedCandidate(selected);
                         setJobProposalDetailModalShow(true);
@@ -391,7 +391,10 @@ export default function ViewJobOfferDetailProfessional() {
 
                     <Button
                       variant="primary"
-                      //onClick={() => handleCandidateAction("download", candidate.id)}
+                      disabled={!jobOffer?.professional.cvDocument}
+                      onClick={() =>
+                        handleViewDocument(jobOffer?.professional.cvDocument)
+                      }
                     >
                       Download CV
                     </Button>
@@ -399,10 +402,52 @@ export default function ViewJobOfferDetailProfessional() {
                 </Card>
               </Col>
             </Row>
-        */}
           </Container>
         )}
       </Form>
+
+      {jobOffer?.offerStatus === "CONSOLIDATED" && (
+        <>
+          <Button
+            variant="warning"
+            onClick={() => {
+              //setJobProposalDetailModalShow(true);
+
+              let selected: Candidate = {
+                id: jobOffer.professional.id,
+                name: jobOffer.professional.contactInfo.name,
+                surname: jobOffer.professional.contactInfo.surname,
+                cvDocument: jobOffer?.professional.cvDocument,
+              };
+              setSelectedCandidate(selected);
+              setJobProposalDetailModalShow(true);
+            }}
+            className="me-2"
+          >
+            Show Job Proposal
+          </Button>
+          <Button
+            style={{ marginRight: 10 }}
+            variant="success"
+            onClick={() => {
+              setModalAction("done");
+              setModalShow(true);
+            }}
+          >
+            Make Job Offer Done
+          </Button>
+
+          <Button
+            variant="danger"
+            onClick={() => {
+              setModalAction("abort");
+              setModalShow(true);
+            }}
+          >
+            Abort Job Offer
+          </Button>
+        </>
+      )}
     </>
   );
 }

@@ -9,13 +9,14 @@ import { ReducedJobOffer } from "../types/JobOffer.ts";
 import { useNavigate } from "react-router-dom";
 import CreateJobOffer from "./CreateJobOffer.tsx";
 import { CiCircleInfo } from "react-icons/ci";
+import PaginationCustom from "./PaginationCustom.tsx";
 
 export default function ViewCustomerJobOffer() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
-  const [pageable, setPageable] = useState<Pageable | null>(null);
-  const [totalPages, setTotalPages] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
   const { me } = useAuth();
   const navigate = useNavigate();
 
@@ -44,7 +45,7 @@ export default function ViewCustomerJobOffer() {
   }
 
   useEffect(() => {
-    if (!me || userInfo.id > 0) return;
+    if (!me) return;
 
     const registeredRole = me.roles.find((role) =>
       ["customer", "professional"].includes(role),
@@ -55,15 +56,19 @@ export default function ViewCustomerJobOffer() {
         registeredRole.toUpperCase() as ContactCategory,
       );
 
+    let paging = {
+      pageNumber: page - 1,
+      pageSize: 1,
+    };
     setLoading(true);
     API.getCustomerFromCurrentUser()
       .then((customer) => {
         setUserInfo(customer);
-        API.getCustomerJobOffers(customer.id)
+        API.getCustomerJobOffers(customer.id, paging)
           .then((data) => {
+            setJobOffers([]);
             setJobOffers(data.content);
-            setPageable(data.pageable);
-            setTotalPages(data.totalPages);
+            setTotalPage(data.totalPages);
           })
           .catch(() => {
             setError("Failed to fetch job offers");
@@ -71,7 +76,7 @@ export default function ViewCustomerJobOffer() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [me, userInfo.id]);
+  }, [me, userInfo.id, page]);
 
   if (loading) {
     return (
@@ -141,24 +146,14 @@ export default function ViewCustomerJobOffer() {
                   : "N/A"}
               </Card.Text>
 
-              <Button
-                variant="primary"
-                onClick={() => navigate(`jobOffer/${offer.id}`)}
-              >
+              <Button variant="primary" onClick={() => navigate(`${offer.id}`)}>
                 View
               </Button>
             </Card.Body>
           </Card>
         </Row>
       ))}
-
-      {pageable && (
-        <div className="mt-4">
-          <p>
-            Page {pageable.pageNumber + 1} of {totalPages}
-          </p>
-        </div>
-      )}
+      <PaginationCustom setPage={setPage} page={page} totalPage={totalPage} />
     </Container>
   );
 }

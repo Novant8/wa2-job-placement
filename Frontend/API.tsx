@@ -136,8 +136,21 @@ export function getJobOfferDetails(
 
 export function getCustomerJobOffers(
   customerId: number,
+  page?: Pageable | undefined,
 ): Promise<JobOfferResponse> {
-  return customFetch(`/crm/API/joboffers?customerId=${customerId}`);
+  const params = new URLSearchParams();
+  let endpoint = "/crm/API/joboffers";
+  params.append("customerId", customerId);
+  if (page && (page?.pageNumber == 0 || page?.pageNumber))
+    params.append("page", String(page.pageNumber));
+  if (page && page?.pageSize) params.append("size", String(page.pageSize));
+
+  const queryString = params.toString();
+
+  if (queryString) {
+    endpoint += "?" + queryString;
+  }
+  return customFetch(endpoint);
 }
 
 export function getProfessionalJobOffer(
@@ -625,7 +638,7 @@ export async function getUnknowContacts(
 export async function getProfessionals(
   token: string | undefined,
   filterDTO?: ProfessionalFilter | undefined,
-  page?: Pageable | undefined,
+  page?: {} | undefined,
 ): Promise<any> {
   return new Promise((resolve, reject) => {
     let endpoint = url + "/crm/API/professionals";

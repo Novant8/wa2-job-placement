@@ -28,7 +28,7 @@ import { FaCircleArrowLeft } from "react-icons/fa6";
 export default function CustomerInfo() {
   const navigate = useNavigate();
   const { customerId } = useParams();
-
+  const { me } = useAuth();
   const [notesLoading, setNotesLoading] = useState(false);
 
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
@@ -76,7 +76,7 @@ export default function CustomerInfo() {
 
     API.updateCustomerNotes(customerIdNumber, notes)
       .then((customer) => setCustomer(customer))
-      .catch((error) => setError(error))
+      .catch((error) => setError("Error occured when updating Customer Notes"))
       .finally(() => setNotesLoading(false));
   }
 
@@ -123,20 +123,16 @@ export default function CustomerInfo() {
             </Button>
             <br />
             <Card>
-              <Card.Title as="h2" className={"px-1 pt-5"}>
-                {customer.contactInfo?.name +
-                  "\t" +
-                  customer.contactInfo?.surname}
-              </Card.Title>
+              <Card.Header>
+                <Card.Title as="h2">
+                  {customer.contactInfo?.name +
+                    "\t" +
+                    customer.contactInfo?.surname}
+                </Card.Title>
+              </Card.Header>
               <Card.Body>
-                <Row
-                  className="pb-3"
-                  style={{ borderBottom: "dotted grey 1px" }}
-                >
-                  <h1></h1>
-                </Row>
-                <Row className="mt-3" style={{ justifyContent: "center" }}>
-                  <Col sm={6}>
+                <Row>
+                  <Col>
                     <h3>Contacts</h3>
                   </Col>
                 </Row>
@@ -184,28 +180,31 @@ export default function CustomerInfo() {
                     }
                   })}
                 </Row>
-                <Row
-                  className="pb-3"
-                  style={{ borderBottom: "dotted grey 1px" }}
-                >
-                  <EditableField
-                    label="Notes"
-                    name="Notes"
-                    initValue={customer.notes || ""}
-                    loading={notesLoading}
-                    validate={(value) => value.trim().length > 0}
-                    onEdit={(_field, val) => updateNotes(val)}
-                  />
+                <Row style={{ borderBottom: "dotted grey 1px" }}>
+                  {me?.roles.includes("operator") ||
+                  me?.roles.includes("manager") ? (
+                    <EditableField
+                      label="Notes"
+                      name="Notes"
+                      initValue={customer.notes || ""}
+                      loading={notesLoading}
+                      validate={(value) => value.trim().length > 0}
+                      onEdit={(field, val) => updateNotes(val)}
+                    />
+                  ) : (
+                    <>
+                      <h3>Notes</h3>
+
+                      <div> {customer.notes}</div>
+                    </>
+                  )}
                 </Row>
-                <Row
-                  className="mt-3 pb-3"
-                  style={{ borderBottom: "dotted grey 1px" }}
-                >
+                <Row>
                   <h3> Active Job Offer</h3>
                   {notDoneOffers.length > 0 ? (
                     <>
                       {notDoneOffers.map((offer) => (
-                        <Row key={offer.id} xs={12} className="mb-4">
+                        <Row key={offer.id} xs={11} className="mm-4">
                           <Card>
                             <Card.Body>
                               <Card.Title>Job Offer ID: {offer.id}</Card.Title>
@@ -225,12 +224,9 @@ export default function CustomerInfo() {
                               <Button
                                 variant="primary"
                                 onClick={() =>
-                                  navigate(
-                                    `/crm/RecruiterJobOffer/${offer.id}`,
-                                    {
-                                      replace: true,
-                                    },
-                                  )
+                                  navigate(`/crm/job-offers/${offer.id}`, {
+                                    replace: true,
+                                  })
                                 }
                               >
                                 View

@@ -1,5 +1,5 @@
 import CreateJobOffer from "./CreateJobOffer.tsx";
-import ProfessionalsView from "./ProfessionalsView.tsx";
+import ProfessionalsView from "../routes/ProfessionalsView.tsx";
 import CustomerRelationshipManagement from "../routes/CustomersView.tsx";
 import ViewCustomerJobOffer from "./ViewCustomerJobOffer.tsx";
 import ViewRecruiterJobOffer from "./ViewRecruiterJobOffer.tsx";

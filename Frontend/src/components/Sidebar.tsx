@@ -35,7 +35,7 @@ export default function Sidebar() {
           action
           onClick={() => navigate("/communication-manager")}
         >
-          Manage Profile
+          Send Email
         </ListGroup.Item>
       </ListGroup>
 
