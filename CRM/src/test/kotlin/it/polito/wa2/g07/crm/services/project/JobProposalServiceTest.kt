@@ -12,6 +12,7 @@ import it.polito.wa2.g07.crm.entities.lab03.*
 import it.polito.wa2.g07.crm.entities.project.JobProposal
 import it.polito.wa2.g07.crm.entities.project.ProposalStatus
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
+import it.polito.wa2.g07.crm.exceptions.JobProposalValidationException
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.repositories.lab03.JobOfferRepository
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
@@ -306,9 +307,17 @@ class JobProposalServiceTest {
 
         @Test
         fun customerConfirm (){
+            mockJobProposal.documentId = 1L
             val result = service.customerConfirmDecline(mockJobProposal.proposalID,mockCustomer.customerId, true)
             assertEquals(result,mockJobProposal.toJobProposalDTO())
             verify { jobProposalRepository.save(any(JobProposal::class)) }
+        }
+        @Test
+        fun customerConfirm_Error (){
+          assertThrows<JobProposalValidationException> {
+              service.customerConfirmDecline(mockJobProposal.proposalID,mockCustomer.customerId, true)
+          }
+            verify (exactly = 0){ jobProposalRepository.save(any(JobProposal::class)) }
         }
 
         @Test
@@ -340,6 +349,9 @@ class JobProposalServiceTest {
 
         @Test
         fun professionalConfirm (){
+            mockJobProposal.customerConfirm = true
+            mockJobProposal.documentId = 1L
+            mockJobProposal.professionalSignedContract= 1L
             val result = service.professionalConfirmDecline(mockJobProposal.proposalID,mockProfessional.professionalId, true)
             assertEquals(result,mockJobProposal.toJobProposalDTO())
             verify { jobProposalRepository.save(any(JobProposal::class)) }
@@ -347,6 +359,7 @@ class JobProposalServiceTest {
 
         @Test
         fun professionalDecline (){
+            mockJobProposal.customerConfirm = true
             val result = service.professionalConfirmDecline(mockJobProposal.proposalID,mockProfessional.professionalId, false)
             assertEquals(result,mockJobProposal.toJobProposalDTO())
             verify { jobProposalRepository.save(any(JobProposal::class)) }
@@ -396,12 +409,14 @@ class JobProposalServiceTest {
 
         @Test
         fun loadSignedDocument (){
+            mockJobProposal.documentId= 1L
             val result = service.loadSignedDocument(mockJobProposal.proposalID, 1L )
             assertEquals(result,mockJobProposal.toJobProposalDTO())
             verify { jobProposalRepository.save(any(JobProposal::class)) }
         }
         @Test
         fun loadSignedDocumentNull (){
+            mockJobProposal.documentId= 1L
             val result = service.loadSignedDocument(mockJobProposal.proposalID, null )
             assertEquals(result,mockJobProposal.toJobProposalDTO())
             verify { jobProposalRepository.save(any(JobProposal::class)) }

@@ -7,6 +7,7 @@ import it.polito.wa2.g07.crm.dtos.project.toJobProposalDTO
 import it.polito.wa2.g07.crm.entities.project.JobProposal
 import it.polito.wa2.g07.crm.entities.project.ProposalStatus
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
+import it.polito.wa2.g07.crm.exceptions.JobProposalValidationException
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.repositories.lab03.JobOfferRepository
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
@@ -56,6 +57,10 @@ class JobProposalServiceImpl (
         val proposal = proposalRepository.findById(proposalId).orElseThrow { EntityNotFoundException("The proposal with ID $proposalId is not found") }
         if(proposal.customer.customerId != customerId)
             throw EntityNotFoundException("The customer does not belong to this proposal")
+
+        else if (proposal.documentId == null && customerConfirm ){
+            throw JobProposalValidationException("The customer must upload a contract before accept the proposal ")
+        }
         else
         {
             proposal.customerConfirm = customerConfirm
@@ -73,6 +78,12 @@ class JobProposalServiceImpl (
         val proposal = proposalRepository.findById(proposalId).orElseThrow { EntityNotFoundException("The proposal with ID $proposalId is not found") }
         if(proposal.professional.professionalId != professionalId)
             throw EntityNotFoundException("The professional does not belong to this proposal")
+        else if (!proposal.customerConfirm){
+            throw JobProposalValidationException("The professional cannot accept the proposal before the customer has done so.")
+        }
+        else if (proposal.professionalSignedContract == null && professionalConfirm ){
+            throw JobProposalValidationException("The professional must upload a signed contract before accept the proposal ")
+        }
         else
         {
 
@@ -98,7 +109,9 @@ class JobProposalServiceImpl (
     @Transactional
     override fun loadSignedDocument(proposalId: Long, documentId: Long?): JobProposalDTO {
         val proposal = proposalRepository.findById(proposalId).orElseThrow { EntityNotFoundException("The proposal with ID $proposalId is not found") }
-
+        if (proposal.documentId == null ){
+            throw JobProposalValidationException("The professional cannot upload the contract before the customer has done so")
+        }
         proposal.professionalSignedContract = documentId;
         return proposalRepository.save(proposal).toJobProposalDTO()
     }

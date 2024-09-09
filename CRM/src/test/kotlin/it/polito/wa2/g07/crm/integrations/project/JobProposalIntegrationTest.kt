@@ -284,6 +284,13 @@ class JobProposalIntegrationTest :CrmApplicationTests(){
         @Test
         fun customerConfirm(){
             val body = "true"
+            val documentId = 1L
+
+
+            mockMvc.put("/API/jobProposals/${jobProposal.proposalID}/document"){
+                contentType = MediaType.APPLICATION_JSON
+                content = documentId
+            }
 
             mockMvc.put("/API/jobProposals/${jobProposal.proposalID}/${customer.customerId}"){
                 contentType = MediaType.APPLICATION_JSON
@@ -291,15 +298,30 @@ class JobProposalIntegrationTest :CrmApplicationTests(){
             }
                 .andExpect {
                     status { isOk() }
-                    content {
-                        content { jsonPath("$.customer.id") {value(customer.customerId)} }
-                        content { jsonPath("$.professional.id") {value(professional.professionalId)} }
-                        content { jsonPath("$.jobOffer.id") {value(jobOffer.offerId)} }
-                        content { jsonPath("$.documentId") {value(jobProposal.documentId)} }
-                        content { jsonPath("$.status") {value(jobProposal.status.toString())} }
-                        content { jsonPath("$.customerConfirmation") {value(true)} }
-                        content { jsonPath("$.professionalSignedContract") {value(jobProposal.professionalSignedContract)} }
-                    }
+
+                    content { jsonPath("$.customer.id") {value(customer.customerId)} }
+                    content { jsonPath("$.professional.id") {value(professional.professionalId)} }
+                    content { jsonPath("$.jobOffer.id") {value(jobOffer.offerId)} }
+                    content { jsonPath("$.documentId") {value(documentId)} }
+                    content { jsonPath("$.status") {value(jobProposal.status.toString())} }
+                    content { jsonPath("$.customerConfirmation") {value(true)} }
+                    content { jsonPath("$.professionalSignedContract") {value(jobProposal.professionalSignedContract)} }
+
+                }
+        }
+
+        @Test
+        fun customerConfirm_Error(){
+            val body = "true"
+
+
+            mockMvc.put("/API/jobProposals/${jobProposal.proposalID}/${customer.customerId}"){
+                contentType = MediaType.APPLICATION_JSON
+                content = body
+            }
+                .andExpect {
+                    status { isUnprocessableEntity() }
+
                 }
         }
 
@@ -352,22 +374,57 @@ class JobProposalIntegrationTest :CrmApplicationTests(){
 
         @Test
         fun professionalConfirm(){
-            val body = "true"
+            val bodyProfessional = "true"
 
+            val body = "true"
+            val documentId = 1L
+
+            val signedContract = 1L
+
+
+            mockMvc.put("/API/jobProposals/${jobProposal.proposalID}/document"){
+                contentType = MediaType.APPLICATION_JSON
+                content = documentId
+            }
+
+            mockMvc.put("/API/jobProposals/${jobProposal.proposalID}/${customer.customerId}"){
+                contentType = MediaType.APPLICATION_JSON
+                content = body
+            }
+
+            mockMvc.put("/API/jobProposals/${jobProposal.proposalID}/signedDocument"){
+                contentType = MediaType.APPLICATION_JSON
+                content = signedContract
+            }
 
             mockMvc.put("/API/jobProposals/professional/${jobProposal.proposalID}/${professional.professionalId}"){
                 contentType = MediaType.APPLICATION_JSON
-                content = body
+                content = bodyProfessional
             }
                 .andExpect {
                     status { isOk() }
                     content { jsonPath("$.customer.id") {value(customer.customerId)} }
                     content { jsonPath("$.professional.id") {value(professional.professionalId)} }
                     content { jsonPath("$.jobOffer.id") {value(jobOffer.offerId)} }
-                    content { jsonPath("$.documentId") {value(jobProposal.documentId)} }
+                    content { jsonPath("$.documentId") {value(documentId)} }
                     content { jsonPath("$.status") {value(ProposalStatus.ACCEPTED.toString())} }
-                    content { jsonPath("$.customerConfirmation") {value(false)} }
-                    content { jsonPath("$.professionalSignedContract") {value(jobProposal.professionalSignedContract)} }
+                    content { jsonPath("$.customerConfirmation") {value(true)} }
+                    content { jsonPath("$.professionalSignedContract") {value(signedContract)} }
+
+                }
+        }
+
+        @Test
+        fun professionalConfirm_Error(){
+            val bodyProfessional = "true"
+
+
+            mockMvc.put("/API/jobProposals/professional/${jobProposal.proposalID}/${professional.professionalId}"){
+                contentType = MediaType.APPLICATION_JSON
+                content = bodyProfessional
+            }
+                .andExpect {
+                    status { isUnprocessableEntity() }
 
                 }
         }
@@ -376,6 +433,18 @@ class JobProposalIntegrationTest :CrmApplicationTests(){
         fun professionalDecline(){
             val body = "false"
 
+            val bodyCustomer = "true"
+            val documentId = 1L
+
+            mockMvc.put("/API/jobProposals/${jobProposal.proposalID}/document"){
+                contentType = MediaType.APPLICATION_JSON
+                content = documentId
+            }
+
+            mockMvc.put("/API/jobProposals/${jobProposal.proposalID}/${customer.customerId}"){
+                contentType = MediaType.APPLICATION_JSON
+                content = bodyCustomer
+            }
 
             mockMvc.put("/API/jobProposals/professional/${jobProposal.proposalID}/${professional.professionalId}"){
                 contentType = MediaType.APPLICATION_JSON
@@ -386,9 +455,9 @@ class JobProposalIntegrationTest :CrmApplicationTests(){
                     content { jsonPath("$.customer.id") {value(customer.customerId)} }
                     content { jsonPath("$.professional.id") {value(professional.professionalId)} }
                     content { jsonPath("$.jobOffer.id") {value(jobOffer.offerId)} }
-                    content { jsonPath("$.documentId") {value(jobProposal.documentId)} }
+                    content { jsonPath("$.documentId") {value(documentId)} }
                     content { jsonPath("$.status") {value(ProposalStatus.DECLINED.toString())} }
-                    content { jsonPath("$.customerConfirmation") {value(false)} }
+                    content { jsonPath("$.customerConfirmation") {value(true)} }
                     content { jsonPath("$.professionalSignedContract") {value(jobProposal.professionalSignedContract)} }
 
                 }
@@ -482,7 +551,13 @@ class JobProposalIntegrationTest :CrmApplicationTests(){
         @Test
         fun loadSignedDocument (){
             val signedDocumentId = 1L
+            val documentId = 1L
 
+
+            mockMvc.put("/API/jobProposals/${jobProposal.proposalID}/document"){
+                contentType = MediaType.APPLICATION_JSON
+                content = documentId
+            }
 
             mockMvc.put("/API/jobProposals/${jobProposal.proposalID}/signedDocument"){
                 contentType = MediaType.APPLICATION_JSON
@@ -493,7 +568,7 @@ class JobProposalIntegrationTest :CrmApplicationTests(){
                     content { jsonPath("$.customer.id") {value(customer.customerId)} }
                     content { jsonPath("$.professional.id") {value(professional.professionalId)} }
                     content { jsonPath("$.jobOffer.id") {value(jobOffer.offerId)} }
-                    content { jsonPath("$.documentId") {value(jobProposal.documentId)} }
+                    content { jsonPath("$.documentId") {value(documentId)} }
                     content { jsonPath("$.status") {value(ProposalStatus.CREATED.toString())} }
                     content { jsonPath("$.customerConfirmation") {value(false)} }
                     content { jsonPath("$.professionalSignedContract") {value(signedDocumentId)} }
@@ -502,9 +577,29 @@ class JobProposalIntegrationTest :CrmApplicationTests(){
         }
 
         @Test
+        fun loadSignedDocument_Error (){
+            val signedDocumentId = 1L
+
+            mockMvc.put("/API/jobProposals/${jobProposal.proposalID}/signedDocument"){
+                contentType = MediaType.APPLICATION_JSON
+                content = signedDocumentId
+            }
+                .andExpect {
+                    status { isUnprocessableEntity() }
+                }
+        }
+
+        @Test
         fun loadSignedDocumentNull (){
             val signedDocumentId = null
 
+            val documentId = 1L
+
+
+            mockMvc.put("/API/jobProposals/${jobProposal.proposalID}/document"){
+                contentType = MediaType.APPLICATION_JSON
+                content = documentId
+            }
 
             mockMvc.put("/API/jobProposals/${jobProposal.proposalID}/signedDocument"){
                 contentType = MediaType.APPLICATION_JSON
@@ -515,7 +610,7 @@ class JobProposalIntegrationTest :CrmApplicationTests(){
                     content { jsonPath("$.customer.id") {value(customer.customerId)} }
                     content { jsonPath("$.professional.id") {value(professional.professionalId)} }
                     content { jsonPath("$.jobOffer.id") {value(jobOffer.offerId)} }
-                    content { jsonPath("$.documentId") {value(jobProposal.documentId)} }
+                    content { jsonPath("$.documentId") {value(documentId)} }
                     content { jsonPath("$.status") {value(ProposalStatus.CREATED.toString())} }
                     content { jsonPath("$.customerConfirmation") {value(false)} }
                     content { jsonPath("$.professionalSignedContract") {value(signedDocumentId)} }
