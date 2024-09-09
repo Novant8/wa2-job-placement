@@ -116,7 +116,7 @@ export default function ViewJobOfferDetails() {
     API.updateJobOffer(jobOfferId, updatedJobOffer)
       .then(() => {
         setIsEditable(false);
-        navigate(`/crm/jobOffer/${jobOfferId}`);
+        navigate(`/crm/job-offer/${jobOfferId}`);
       })
       .catch(() => {
         setError("Failed to update job offer");

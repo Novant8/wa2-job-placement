@@ -17,15 +17,15 @@ export default function Sidebar() {
           <span className="text-muted">{me?.roles?.join(", ")}</span>
         </ListGroup.Item>
         <ListGroup.Item action onClick={() => navigate("/")}>
-          <CiHome size={24} /> Homepage
+          <CiHome size={20} /> Homepage
         </ListGroup.Item>
         <ListGroup.Item action onClick={() => navigate("/edit-account")}>
           Manage Profile
         </ListGroup.Item>
-        <ListGroup.Item action onClick={() => navigate("/jobOffers")}>
+        <ListGroup.Item action onClick={() => navigate("/crm/job-offers")}>
           Job Offers
         </ListGroup.Item>
-        <ListGroup.Item action onClick={() => navigate("/professionals")}>
+        <ListGroup.Item action onClick={() => navigate("/crm/professionals")}>
           Professionals
         </ListGroup.Item>
         <ListGroup.Item action onClick={() => navigate("/crm/customers")}>

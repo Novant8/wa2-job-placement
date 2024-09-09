@@ -7,6 +7,8 @@ import { Contact, ContactCategory } from "../types/contact.ts";
 import { Pageable } from "../types/Pageable.ts";
 import { ReducedJobOffer } from "../types/JobOffer.ts";
 import { useNavigate } from "react-router-dom";
+import CreateJobOffer from "./CreateJobOffer.tsx";
+import { CiCircleInfo } from "react-icons/ci";
 
 export default function ViewCustomerJobOffer() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
@@ -86,10 +88,42 @@ export default function ViewCustomerJobOffer() {
       </Container>
     );
   }
-
+  function addJobOffer(j) {
+    setJobOffers([...jobOffers, j]);
+  }
   return (
-    <Container className="mt-5">
-      <h1>Job Offers</h1>
+    <Container>
+      <Card>
+        <Card.Header>
+          <Card.Title>Create a New Job Offer</Card.Title>
+        </Card.Header>
+        <Card.Body className="d-flex">
+          <CiCircleInfo size={30} color={"green"} /> In this section, you can
+          add a new job offer to our system, enabling recruiters to find and
+          select the most qualified professionals.
+        </Card.Body>
+
+        <Card className={"m-2"}>
+          <Card.Body>
+            <CreateJobOffer addJobOffer={addJobOffer} />
+          </Card.Body>
+        </Card>
+      </Card>
+      <br />
+      <Card className="my-3">
+        <Card.Header>
+          <Card.Title>Job Offers List</Card.Title>
+        </Card.Header>
+        <Card.Body>
+          <div className="d-flex">
+            <CiCircleInfo size={30} color="green" className="me-2" />
+            <span>
+              In this section, you can view your job offers and track their
+              progress.
+            </span>
+          </div>
+        </Card.Body>
+      </Card>
 
       {jobOffers.map((offer) => (
         <Row key={offer.id} xs={12} className="mb-4">

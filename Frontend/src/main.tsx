@@ -19,6 +19,8 @@ import { useEffect } from "react";
 import SendEmail from "./routes/SendEmail.tsx";
 import TopNavbar from "./components/TopNavbar.tsx";
 import CustomersView from "./routes/CustomersView.tsx";
+import ViewCustomerJobOffer from "./components/ViewCustomerJobOffer.tsx";
+import JobOffer from "./routes/JobOffer.tsx";
 
 /*const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { me } = useAuth(); // Ottieni lo stato di autenticazione
@@ -68,7 +70,11 @@ const router = createBrowserRouter(
           element: <CustomerInfo />,
         },
         {
-          path: "/crm/jobOffer/:jobOfferId",
+          path: "/crm/job-offers/",
+          element: <JobOffer />,
+        },
+        {
+          path: "/crm/job-offer/:jobOfferId",
           element: <ViewJobOfferDetails />,
         },
 

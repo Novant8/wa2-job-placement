@@ -11,18 +11,21 @@ import {
   Col,
   Alert,
   Button,
+  Card,
+  Pagination,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 import { Customer } from "../types/customer.ts";
 import { isEmailAddress, isPhoneAddress } from "../types/address.ts";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar.tsx";
+import { CiCircleInfo, CiSearch } from "react-icons/ci";
 
 export type CustomerAccordionProps = {
   cust: Customer;
 };
 
-function CustomerAccordion(props: CustomerAccordionProps) {
+function CustomerCard(props: CustomerAccordionProps) {
   const navigate = useNavigate();
   const [formError, setFormError] = useState("");
   const [customer, setCustomer] = useState<Customer>({
@@ -51,40 +54,45 @@ function CustomerAccordion(props: CustomerAccordionProps) {
     );
   }
   return (
-    <div>
-      <Accordion.Item eventKey={props.cust?.id?.toString()}>
-        <Accordion.Header>
-          {customer.contactInfo?.name} {customer.contactInfo?.surname}
-        </Accordion.Header>
-        <Accordion.Body>
-          {props.cust.contactInfo.ssn ? (
-            <div>SSN: {customer.contactInfo.ssn}</div>
-          ) : (
-            ""
-          )}
+    <Card>
+      <Card.Body>
+        <Row>
+          <Col>
+            <b>
+              {" "}
+              {customer.contactInfo?.name} {customer.contactInfo?.surname}
+            </b>
+          </Col>
+          <Col>
+            {props.cust.contactInfo.ssn ? (
+              <div>SSN: {customer.contactInfo.ssn}</div>
+            ) : (
+              ""
+            )}
 
-          <div>Notes: {customer.notes ? props.cust.notes : "No notes"}</div>
-
-          {customer.contactInfo?.addresses.map((address) => {
-            if (isEmailAddress(address)) {
-              return <div key={address.id}>Email: {address.email}</div>;
-            } else if (isPhoneAddress(address)) {
-              return (
-                <div key={address.id}>Telephone: {address.phoneNumber}</div>
-              );
-            }
-          })}
-
-          <Button
-            className="primary mt-3"
-            onClick={() => navigate(`${customer.id}`)}
-          >
-            {" "}
-            View Details{" "}
-          </Button>
-        </Accordion.Body>
-      </Accordion.Item>
-    </div>
+            <div>Notes: {customer.notes ? props.cust.notes : "No notes"}</div>
+            {customer.contactInfo?.addresses.map((address) => {
+              if (isEmailAddress(address)) {
+                return <div key={address.id}>Email: {address.email}</div>;
+              } else if (isPhoneAddress(address)) {
+                return (
+                  <div key={address.id}>Telephone: {address.phoneNumber}</div>
+                );
+              }
+            })}
+          </Col>
+          <Col>
+            <Button
+              className="primary mt-3"
+              onClick={() => navigate(`${customer.id}`)}
+            >
+              {" "}
+              View Details{" "}
+            </Button>
+          </Col>
+        </Row>
+      </Card.Body>
+    </Card>
   );
 }
 
@@ -96,7 +104,8 @@ export default function CustomersView() {
   const [email, setEmail] = useState("");
   const [telephone, setTelephone] = useState("");
   const [address, setAddress] = useState("");
-
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
   useEffect(() => {
     const filter = {
       fullName: fullName,
@@ -104,14 +113,20 @@ export default function CustomersView() {
       telephone: telephone,
       address: address,
     };
-    API.getCustomers(filter)
+    let paging = {
+      pageNumber: page - 1,
+      pageSize: 1,
+    };
+    API.getCustomers(filter, paging)
       .then((customer) => {
+        setCustomers({});
+        setTotalPage(customer.totalPages);
         setCustomers(customer);
       })
       .catch((err) => {
         console.log(err);
       });
-  }, [fullName, address, email, telephone]);
+  }, [fullName, address, email, telephone, page]);
 
   //TODO: remove this useEffect
   useEffect(() => {
@@ -123,89 +138,133 @@ export default function CustomersView() {
     <>
       <Container fluid>
         <Row>
-          <Col xs={3}>
+          <Col xs={2}>
             <Sidebar />
           </Col>
           <Col xs>
-            <h1 className="mb-5">Customer Search</h1>
             <Container>
+              <Card>
+                <Card.Title>Customers Research Tool</Card.Title>
+                <Card.Body>
+                  <CiCircleInfo size={30} color={"green"} /> In this section,
+                  you can explore customers enrolled in our system, allowing you
+                  to search for any customer that meets your specific needs
+                </Card.Body>
+              </Card>
+              <br />
               {/* Search Filters */}
-              <Row className="mb-4">
-                <Col md={6}>
-                  <InputGroup className="mb-3">
-                    <InputGroup.Text id="full-name">
-                      <Icon.PersonVcardFill className="mx-1" /> Full Name
-                    </InputGroup.Text>
-                    <Form.Control
-                      placeholder="Search Full Name"
-                      aria-label="Search Customer Full Name"
-                      aria-describedby="full-name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                    />
-                  </InputGroup>
-                </Col>
+              <Card>
+                <Card.Title>
+                  <CiSearch size={30} />
+                  Find by ...
+                </Card.Title>
+                <Row className="mb-4  pt-5 px-4">
+                  <Col md={6}>
+                    <InputGroup className="mb-3">
+                      <InputGroup.Text id="full-name">
+                        <Icon.PersonVcardFill className="mx-1" /> Full Name
+                      </InputGroup.Text>
+                      <Form.Control
+                        placeholder="Search Full Name"
+                        aria-label="Search Customer Full Name"
+                        aria-describedby="full-name"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                      />
+                    </InputGroup>
+                  </Col>
 
-                <Col md={6}>
-                  <InputGroup className="mb-3">
-                    <InputGroup.Text id="address">
-                      <Icon.House className="mx-1" /> Address
-                    </InputGroup.Text>
-                    <Form.Control
-                      placeholder="Search Address"
-                      aria-label="Search Customer Address"
-                      aria-describedby="address"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                    />
-                  </InputGroup>
-                </Col>
-              </Row>
+                  <Col md={6}>
+                    <InputGroup className="mb-3">
+                      <InputGroup.Text id="address">
+                        <Icon.House className="mx-1" /> Address
+                      </InputGroup.Text>
+                      <Form.Control
+                        placeholder="Search Address"
+                        aria-label="Search Customer Address"
+                        aria-describedby="address"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                      />
+                    </InputGroup>
+                  </Col>
+                </Row>
 
-              <Row className="mb-4">
-                <Col md={6}>
-                  <InputGroup className="mb-3">
-                    <InputGroup.Text id="email">
-                      <Icon.Envelope className="mx-1" /> Email
-                    </InputGroup.Text>
-                    <Form.Control
-                      placeholder="Search Email"
-                      aria-label="Search Customer Email"
-                      aria-describedby="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </InputGroup>
-                </Col>
+                <Row className="mb-4 px-4">
+                  <Col md={6}>
+                    <InputGroup className="mb-3">
+                      <InputGroup.Text id="email">
+                        <Icon.Envelope className="mx-1" /> Email
+                      </InputGroup.Text>
+                      <Form.Control
+                        placeholder="Search Email"
+                        aria-label="Search Customer Email"
+                        aria-describedby="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </InputGroup>
+                  </Col>
 
-                <Col md={6}>
-                  <InputGroup className="mb-3">
-                    <InputGroup.Text id="telephone">
-                      <Icon.Telephone className="mx-1" /> Telephone
-                    </InputGroup.Text>
-                    <Form.Control
-                      placeholder="Search Telephone"
-                      aria-label="Search Customer Telephone"
-                      aria-describedby="telephone"
-                      value={telephone}
-                      onChange={(e) => setTelephone(e.target.value)}
-                    />
-                  </InputGroup>
-                </Col>
-              </Row>
-
+                  <Col md={6}>
+                    <InputGroup className="mb-3">
+                      <InputGroup.Text id="telephone">
+                        <Icon.Telephone className="mx-1" /> Telephone
+                      </InputGroup.Text>
+                      <Form.Control
+                        placeholder="Search Telephone"
+                        aria-label="Search Customer Telephone"
+                        aria-describedby="telephone"
+                        value={telephone}
+                        onChange={(e) => setTelephone(e.target.value)}
+                      />
+                    </InputGroup>
+                  </Col>
+                </Row>
+              </Card>
               {/* Customer List */}
-              {customers?.content?.length > 0 ? (
-                <Accordion>
-                  {customers.content.map((customer) => (
-                    <CustomerAccordion key={customer.id} cust={customer} />
-                  ))}
-                </Accordion>
-              ) : (
-                <div className="text-center">
-                  No customers matching the filters
-                </div>
-              )}
+              <br />
+              <Card>
+                <Card.Title> Customer's List</Card.Title>
+                <Card.Body>
+                  {customers?.content?.length > 0 ? (
+                    customers.content.map((customer) => (
+                      <>
+                        <CustomerCard key={customer.id} cust={customer} />
+                        <br />
+                      </>
+                    ))
+                  ) : (
+                    <div className="text-center">
+                      No customers matching the filters
+                    </div>
+                  )}
+
+                  <Pagination
+                    className={
+                      " d-flex justify-content-center align-items-center"
+                    }
+                  >
+                    <Pagination.First onClick={() => setPage(1)} />
+                    <Pagination.Prev
+                      onClick={() => {
+                        if (page - 1 >= 1) {
+                          setPage(page - 1);
+                        }
+                      }}
+                    />
+                    <Pagination.Item>{`Page ${page} of ${totalPage}`}</Pagination.Item>
+                    <Pagination.Next
+                      onClick={() => {
+                        if (page + 1 <= totalPage) {
+                          setPage(page + 1);
+                        }
+                      }}
+                    />
+                    <Pagination.Last onClick={() => setPage(totalPage)} />
+                  </Pagination>
+                </Card.Body>
+              </Card>
             </Container>
           </Col>
         </Row>

@@ -1,14 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { Form, Button, Row, Col, Spinner, Alert } from "react-bootstrap";
+import {
+  Form,
+  Button,
+  Row,
+  Col,
+  Spinner,
+  Alert,
+  InputGroup,
+} from "react-bootstrap";
 import * as API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
 import { Customer } from "../types/customer.ts";
 import { Contact, ContactCategory } from "../types/contact.ts";
+import { addJobOffer } from "../../API.tsx";
+import * as Icon from "react-bootstrap-icons";
+import { MdDelete } from "react-icons/md";
 
-export default function CreateJobOffer() {
+export default function CreateJobOffer(props) {
   const [loadingForm, setLoadingForm] = useState(true);
   const [description, setDescription] = useState("");
-  const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
+  const [requiredSkills, setRequiredSkills] = useState<string[]>([""]);
   const [duration, setDuration] = useState<number | "">("");
   const [notes, setNotes] = useState("");
   const { me } = useAuth();
@@ -86,13 +97,13 @@ export default function CreateJobOffer() {
     };
 
     API.addJobOffer(jobOffer, userInfo.id)
-      .then(() => {
+      .then((j) => {
         setDescription("");
-        setRequiredSkills([]);
+        setRequiredSkills([""]);
         setDuration("");
         setNotes("");
         setSuccessMessage("Job Offer created successfully!");
-
+        props.addJobOffer(j);
         setTimeout(() => {
           setSuccessMessage("");
         }, 3000);
@@ -120,84 +131,121 @@ export default function CreateJobOffer() {
 
   return (
     <div className="mx-auto">
-      <h1>Create Job Offer</h1>
-      {successMessage && (
-        <Alert
-          variant="success"
-          dismissible // Abilita la chiusura manuale
-          onClose={handleCloseSuccessMessage} // Chiamata quando l'utente chiude l'alert
-        >
-          {successMessage}
-        </Alert>
-      )}
       <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="jobDescription" className="mb-1">
-          <Form.Label>Job Description</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Enter job description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-        </Form.Group>
-        <Form.Group controlId="requiredSkills" className="mb-3 mt-2">
-          <Form.Label className="me-3">Required Skills</Form.Label>
-          {requiredSkills.map((skill, index) => (
-            <Row key={index} className="mb-">
-              <Col>
+        <Row>
+          <Col xs={9}>
+            {" "}
+            <Form.Group controlId="jobDescription" className="mb-1">
+              <InputGroup className="mb-3">
+                <InputGroup.Text id="jobDescription">
+                  <Icon.PersonWorkspace className="mx-1" /> Job Description
+                </InputGroup.Text>
                 <Form.Control
                   type="text"
-                  placeholder="Enter a required skill"
-                  value={skill}
-                  onChange={(e) => handleSkillChange(index, e.target.value)}
+                  placeholder="Enter job description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   required
                 />
-              </Col>
-              <Col xs="auto">
-                <Button
-                  variant="danger"
-                  onClick={() => handleRemoveSkill(index)}
-                >
-                  Remove
-                </Button>
-              </Col>
-            </Row>
-          ))}
-          <Button
-            variant="outline-info"
-            className="mt-2"
-            onClick={handleAddSkill}
-          >
-            Add Skill
-          </Button>
-        </Form.Group>
-        <Form.Group controlId="jobDuration" className="mb-3">
-          <Form.Label>Duration (in month)</Form.Label>
-          <Form.Control
-            type="number"
-            placeholder="Enter job duration"
-            value={duration}
-            onChange={(e) =>
-              setDuration(e.target.value === "" ? "" : parseInt(e.target.value))
-            }
-            required
-            min={1}
-          />
-        </Form.Group>
-        <Form.Group controlId="jobNotes" className="mb-3">
-          <Form.Label>Notes</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            placeholder="Enter any additional notes"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-        </Form.Group>
+              </InputGroup>
+            </Form.Group>
+          </Col>
+          <Col xs={3}>
+            <Form.Group controlId="jobDuration" className="mb-3">
+              <InputGroup className="mb-3">
+                <InputGroup.Text id="duration">
+                  <Icon.Calendar className="mx-1" /> Duration (Months)
+                </InputGroup.Text>
+                <Form.Control
+                  type="number"
+                  placeholder="0"
+                  value={duration}
+                  onChange={(e) =>
+                    setDuration(
+                      e.target.value === "" ? "" : parseInt(e.target.value),
+                    )
+                  }
+                  required
+                  min={1}
+                />
+              </InputGroup>
+            </Form.Group>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Form.Group controlId="requiredSkills" className="mb-3 mt-2">
+              {requiredSkills.map((skill, index) => (
+                <Row key={index} className="mb-">
+                  <Col>
+                    <InputGroup className="mb-3">
+                      <InputGroup.Text id="duration">
+                        <Icon.Award className="mx-1" /> Skill
+                      </InputGroup.Text>
+                      <Form.Control
+                        type="text"
+                        placeholder="Enter a required skill"
+                        value={skill}
+                        onChange={(e) =>
+                          handleSkillChange(index, e.target.value)
+                        }
+                        required
+                      />
+                      {requiredSkills.length > 1 ? (
+                        <MdDelete
+                          size={25}
+                          role="button"
+                          onClick={() => handleRemoveSkill(index)}
+                        />
+                      ) : (
+                        <></>
+                      )}
+                    </InputGroup>
+                  </Col>
+                </Row>
+              ))}
+
+              <Button
+                variant="outline-info"
+                className="mt-2"
+                onClick={handleAddSkill}
+              >
+                Add Skill
+              </Button>
+            </Form.Group>
+          </Col>
+          <Col>
+            {" "}
+            <Form.Group controlId="jobNotes" className="mb-3">
+              <InputGroup className="mb-3">
+                <InputGroup.Text id="duration">
+                  <Icon.Pencil className="mx-1" /> Notes
+                </InputGroup.Text>
+
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  placeholder="Enter any additional notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                />
+              </InputGroup>
+            </Form.Group>
+          </Col>
+        </Row>
+
         <Button variant="primary" type="submit">
           Create
         </Button>
+        {successMessage && (
+          <Alert
+            variant="success"
+            dismissible // Abilita la chiusura manuale
+            onClose={handleCloseSuccessMessage} // Chiamata quando l'utente chiude l'alert
+          >
+            {successMessage}
+          </Alert>
+        )}
       </Form>
     </div>
   );
