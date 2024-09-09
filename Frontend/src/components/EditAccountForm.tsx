@@ -486,43 +486,49 @@ export default function EditAccountForm() {
     );
   }
 
+  const showSelectRole = !me?.roles.some(role => [ "manager", "operator" ].includes(role));
+
   return (
     <div>
       <h2>Basic Information</h2>
       <hr />
-      {loadingSubmit.category ? (
-        <Spinner size="sm" />
-      ) : (
-        <Form.Group controlId="register-user-userType" className="my-2">
-          <Form.Label>
-            I'm a... <span className="text-danger">*</span>
-          </Form.Label>
-          <Form.Select
-            name="category"
-            onChange={(e) =>
-              updateUserCategory(e.target.value as ContactCategory)
-            }
-            disabled={userInfo.category !== "UNKNOWN" || loadingSubmit.category}
-            value={userInfo.category}
-            isInvalid={!!errors.category}
-          >
-            {userInfo.category === "UNKNOWN" ? (
-              <>
-                <option value="UNKNOWN">Select...</option>
-                <option value="CUSTOMER">Customer</option>
-                <option value="PROFESSIONAL">Professional</option>
-              </>
-            ) : (
-              <option value={userInfo.category}>
-                {firstUpper(userInfo.category)}
-              </option>
-            )}
-          </Form.Select>
-          <Form.Control.Feedback type="invalid">
-            {errors.category}
-          </Form.Control.Feedback>
-        </Form.Group>
-      )}
+      {
+        showSelectRole && (
+          loadingSubmit.category ? (
+              <Spinner size="sm" />
+          ) : (
+            <Form.Group controlId="register-user-userType" className="my-2">
+              <Form.Label>
+                I'm a... <span className="text-danger">*</span>
+              </Form.Label>
+              <Form.Select
+                name="category"
+                onChange={(e) =>
+                    updateUserCategory(e.target.value as ContactCategory)
+                }
+                disabled={userInfo.category !== "UNKNOWN" || loadingSubmit.category}
+                value={userInfo.category}
+                isInvalid={!!errors.category}
+              >
+                {userInfo.category === "UNKNOWN" ? (
+                  <>
+                    <option value="UNKNOWN">Select...</option>
+                    <option value="CUSTOMER">Customer</option>
+                    <option value="PROFESSIONAL">Professional</option>
+                  </>
+                ) : (
+                  <option value={userInfo.category}>
+                    {firstUpper(userInfo.category)}
+                  </option>
+                )}
+              </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                {errors.category}
+              </Form.Control.Feedback>
+            </Form.Group>
+          )
+        )
+      }
       <Row>
         <Col sm={6}>
           <EditableField
