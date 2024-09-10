@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Container, Row, Spinner } from "react-bootstrap";
+import { Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
 import * as API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
 import { Customer } from "../types/customer.ts";
@@ -8,8 +8,11 @@ import { Pageable } from "../types/Pageable.ts";
 import { ReducedJobOffer } from "../types/JobOffer.ts";
 import { useNavigate } from "react-router-dom";
 import CreateJobOffer from "./CreateJobOffer.tsx";
-import { CiCircleInfo } from "react-icons/ci";
+import { CiCircleInfo, CiZoomIn } from "react-icons/ci";
 import PaginationCustom from "./PaginationCustom.tsx";
+import JobOfferBadge from "./JobOfferBadge.tsx";
+import ListJobOffer from "./CardJobOffer.tsx";
+import CardJobOffer from "./CardJobOffer.tsx";
 
 export default function ViewCustomerJobOffer() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
@@ -17,6 +20,7 @@ export default function ViewCustomerJobOffer() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
+
   const { me } = useAuth();
   const navigate = useNavigate();
 
@@ -58,7 +62,7 @@ export default function ViewCustomerJobOffer() {
 
     let paging = {
       pageNumber: page - 1,
-      pageSize: 1,
+      pageSize: 5,
     };
     setLoading(true);
     API.getCustomerFromCurrentUser()
@@ -98,62 +102,16 @@ export default function ViewCustomerJobOffer() {
   }
   return (
     <Container>
-      <Card>
-        <Card.Header>
-          <Card.Title>Create a New Job Offer</Card.Title>
-        </Card.Header>
-        <Card.Body className="d-flex">
-          <CiCircleInfo size={30} color={"green"} /> In this section, you can
-          add a new job offer to our system, enabling recruiters to find and
-          select the most qualified professionals.
-        </Card.Body>
-
-        <Card className={"m-2"}>
-          <Card.Body>
-            <CreateJobOffer addJobOffer={addJobOffer} />
-          </Card.Body>
-        </Card>
-      </Card>
-      <br />
-      <Card className="my-3">
-        <Card.Header>
-          <Card.Title>Job Offers List</Card.Title>
-        </Card.Header>
-        <Card.Body>
-          <div className="d-flex">
-            <CiCircleInfo size={30} color="green" className="me-2" />
-            <span>
-              In this section, you can view your job offers and track their
-              progress.
-            </span>
-          </div>
-        </Card.Body>
-      </Card>
-
-      {jobOffers.map((offer) => (
-        <Row key={offer.id} xs={12} className="mb-4">
-          <Card>
-            <Card.Body>
-              <Card.Title>Job Offer ID: {offer.id}</Card.Title>
-              <Card.Text>
-                <strong>Description:</strong> {offer.description} &nbsp;
-                <strong>Status:</strong> {offer.offerStatus}&nbsp;
-                <strong>Professional:</strong>{" "}
-                {offer.professional
-                  ? offer.professional.contactInfo.name +
-                    " " +
-                    offer.professional.contactInfo.surname
-                  : "N/A"}
-              </Card.Text>
-
-              <Button variant="primary" onClick={() => navigate(`${offer.id}`)}>
-                View
-              </Button>
-            </Card.Body>
-          </Card>
-        </Row>
-      ))}
-      <PaginationCustom setPage={setPage} page={page} totalPage={totalPage} />
+      <CardJobOffer
+        offers={jobOffers}
+        page={page}
+        setPage={setPage}
+        totalPage={totalPage}
+        cardInfo={
+          "In this section, you can view your job offers and track their progress."
+        }
+        cardTitle={"Job Offers List"}
+      />
     </Container>
   );
 }

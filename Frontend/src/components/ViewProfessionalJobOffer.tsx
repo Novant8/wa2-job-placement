@@ -7,15 +7,20 @@ import { Contact, ContactCategory } from "../types/contact.ts";
 import { Pageable } from "../types/Pageable.ts";
 import { ReducedJobOffer } from "../types/JobOffer.ts";
 import { useNavigate } from "react-router-dom";
+import { CiCircleInfo } from "react-icons/ci";
+import ListJobOffer from "./CardJobOffer.tsx";
+import PaginationCustom from "./PaginationCustom.tsx";
+import CardJobOffer from "./CardJobOffer.tsx";
 
 export default function ViewProfessionalJobOffer() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
-  const [pageable, setPageable] = useState<Pageable | null>(null);
-  const [totalPages, setTotalPages] = useState<number | null>(null);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { me } = useAuth();
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
 
   const [userInfo, setUserInfo] = useState<Customer>({
     id: 0,
@@ -59,9 +64,9 @@ export default function ViewProfessionalJobOffer() {
         setUserInfo(customer);
         API.getProfessionalJobOffer(customer.id)
           .then((data) => {
+            setJobOffers([]);
             setJobOffers(data.content);
-            setPageable(data.pageable);
-            setTotalPages(data.totalPages);
+            setTotalPage(data.totalPages);
           })
           .catch(() => {
             setError("Failed to fetch job offers");
@@ -69,7 +74,7 @@ export default function ViewProfessionalJobOffer() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [me, userInfo.id]);
+  }, [me, userInfo.id, page]);
 
   if (loading) {
     return (
@@ -88,43 +93,18 @@ export default function ViewProfessionalJobOffer() {
   }
 
   return (
-    <Container className="mt-5">
-      <h1>Job Offers</h1>
-
-      {jobOffers.map((offer) => (
-        <Row key={offer.id} xs={12} className="mb-4">
-          <Card>
-            <Card.Body>
-              <Card.Title>Job Offer ID: {offer.id}</Card.Title>
-              <Card.Text>
-                <strong>Description:</strong> {offer.description} &nbsp;
-                <strong>Status:</strong> {offer.offerStatus}&nbsp;
-                <strong>Professional:</strong>{" "}
-                {offer.professional
-                  ? offer.professional.contactInfo.name +
-                    " " +
-                    offer.professional.contactInfo.surname
-                  : "N/A"}
-              </Card.Text>
-
-              <Button
-                variant="primary"
-                onClick={() => navigate(`ProfessionalJobOffer/${offer.id}`)}
-              >
-                View
-              </Button>
-            </Card.Body>
-          </Card>
-        </Row>
-      ))}
-
-      {pageable && (
-        <div className="mt-4">
-          <p>
-            Page {pageable.pageNumber + 1} of {totalPages}
-          </p>
-        </div>
-      )}
+    <Container>
+      <br />
+      <CardJobOffer
+        offers={jobOffers}
+        page={page}
+        setPage={setPage}
+        totalPage={totalPage}
+        cardInfo={
+          "In this section, you can view the job offers that has been selected for you and track their progress."
+        }
+        cardTitle={"Job Offers List"}
+      />
     </Container>
   );
 }

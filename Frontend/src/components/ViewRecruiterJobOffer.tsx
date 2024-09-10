@@ -13,6 +13,7 @@ import { useAuth } from "../contexts/auth.tsx";
 import { Pageable } from "../types/Pageable.ts";
 import { ReducedJobOffer } from "../types/JobOffer.ts";
 import { useNavigate } from "react-router-dom";
+import ListJobOffer from "./CardJobOffer.tsx";
 //import * as Icon from "react-bootstrap-icons";
 
 export default function ViewRecruiterJobOffer() {
@@ -186,36 +187,8 @@ export default function ViewRecruiterJobOffer() {
       </InputGroup>
 
       {jobOffers.map((offer) => (
-        <Row key={offer.id} xs={12} className="mb-4">
-          <Card>
-            <Card.Body>
-              <Card.Title>Job Offer ID: {offer.id}</Card.Title>
-              <Card.Text>
-                <strong>Description:</strong> {offer.description} &nbsp;
-                <strong>Status:</strong> {offer.offerStatus}&nbsp;
-                <strong>Professional:</strong>{" "}
-                {offer.professional
-                  ? offer.professional.contactInfo.name +
-                    " " +
-                    offer.professional.contactInfo.surname
-                  : "N/A"}
-              </Card.Text>
-
-              <Button variant="primary" onClick={() => navigate(`${offer.id}`)}>
-                View
-              </Button>
-            </Card.Body>
-          </Card>
-        </Row>
+        <ListJobOffer key={offer.id} offer={offer} />
       ))}
-
-      {pageable && (
-        <div className="mt-4">
-          <p>
-            Page {pageable.pageNumber + 1} of {totalPages}
-          </p>
-        </div>
-      )}
     </Container>
   );
 }

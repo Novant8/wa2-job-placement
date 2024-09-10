@@ -13,6 +13,7 @@ export interface ReducedJobOffer {
   id: number;
   description: string;
   offerStatus: JobOfferStatus;
+  customer: ReducedCustomer | null;
   professional: ReducedProfessional | null;
 }
 

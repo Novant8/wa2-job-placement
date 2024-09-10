@@ -134,25 +134,6 @@ export function getJobOfferDetails(
   return customFetch(`/crm/API/joboffers/${jobOfferId}`);
 }
 
-export function getCustomerJobOffers(
-  customerId: number,
-  page?: Pageable | undefined,
-): Promise<JobOfferResponse> {
-  const params = new URLSearchParams();
-  let endpoint = "/crm/API/joboffers";
-  params.append("customerId", customerId);
-  if (page && (page?.pageNumber == 0 || page?.pageNumber))
-    params.append("page", String(page.pageNumber));
-  if (page && page?.pageSize) params.append("size", String(page.pageSize));
-
-  const queryString = params.toString();
-
-  if (queryString) {
-    endpoint += "?" + queryString;
-  }
-  return customFetch(endpoint);
-}
-
 export function getProfessionalJobOffer(
   professionalId: number,
 ): Promise<JobOfferResponse> {
@@ -707,65 +688,38 @@ export async function sendEmail(msg: sendEmail): Promise<any> {
   });
 }
 
-export async function getJobOfferRecruiter(
-  token: string | undefined,
+export async function getJobOffers(
+  page: {} | undefined,
   filterDTO?: JobOfferFilter,
 ): Promise<any> {
-  return new Promise((resolve, reject) => {
-    let endpoint = url + "/crm/API/joboffers";
+  let endpoint = url + "/crm/API/joboffers";
 
-    if (filterDTO) {
-      const params = new URLSearchParams();
+  if (filterDTO || page) {
+    const params = new URLSearchParams();
 
-      if (filterDTO.professionalId) {
-        params.append("professionalId", filterDTO.professionalId);
-      }
-
-      if (filterDTO.status) {
-        params.append("status", filterDTO.status);
-      }
-
-      if (filterDTO.customerId) {
-        params.append("customerId", filterDTO.customerId);
-      }
-
-      const queryString = params.toString();
-      if (queryString) {
-        endpoint += "?" + queryString;
-        console.log(endpoint);
-      }
+    if (filterDTO?.professionalId) {
+      params.append("professionalId", filterDTO.professionalId);
     }
 
-    fetch(endpoint, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": `${token}`,
-      },
-    })
-      .then((response) => {
-        if (response.ok) {
-          response
-            .json()
-            .then((prof) => resolve(prof))
-            .catch(() => {
-              reject({ error: "Cannot parse server response." });
-            });
-        } else {
-          response
-            .json()
-            .then((message) => {
-              reject(message);
-            })
-            .catch(() => {
-              reject({ error: "Cannot parse server response." });
-            });
-        }
-      })
-      .catch(() => {
-        reject({ error: "Cannot communicate with the server." });
-      });
-  });
+    if (filterDTO?.status) {
+      params.append("status", filterDTO.status);
+    }
+
+    if (filterDTO?.customerId) {
+      params.append("customerId", filterDTO.customerId);
+    }
+    if (page && (page?.pageNumber == 0 || page?.pageNumber))
+      params.append("page", String(page.pageNumber));
+    if (page && page?.pageSize) params.append("size", String(page.pageSize));
+
+    const queryString = params.toString();
+    if (queryString) {
+      endpoint += "?" + queryString;
+      console.log(endpoint);
+    }
+  }
+
+  return customFetch(endpoint);
 }
 
 const API = {

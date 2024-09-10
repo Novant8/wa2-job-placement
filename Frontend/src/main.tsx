@@ -3,6 +3,7 @@ import App from "./App.tsx";
 import "./index.css";
 import {
   createBrowserRouter,
+  Link,
   RouterProvider,
   useNavigate,
 } from "react-router-dom";
@@ -22,19 +23,36 @@ import CustomersView from "./routes/CustomersView.tsx";
 import JobOffer from "./routes/JobOffer.tsx";
 import ViewJobOfferDetails from "./routes/ViewJobOfferDetails.tsx";
 import ProfessionalsView from "./routes/ProfessionalsView.tsx";
+import { useAuth } from "./contexts/auth.tsx";
+import { useEffect } from "react";
+import { Button } from "react-bootstrap";
 
-/*const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const { me } = useAuth(); // Ottieni lo stato di autenticazione
+const NotLoggedView = () => {
   const navigate = useNavigate();
+  return (
+    <>
+      <div>Generic Error</div>
+      <div>
+        You cannot access this resources. Check your account rights or contact
+        the administrator
+      </div>
+      <div>
+        <Link onClick={() => navigate("/")}>Back to the homepage</Link>
+      </div>
+    </>
+  );
+};
 
-   useEffect(() => {
-    if (me?.principal) {
-      navigate("/ui");
-    }
-  }, [me, navigate]);
-  console.log(!me?.principal);
-  return !me?.principal ? children : null;
-};*/
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const { me } = useAuth(); // Ottieni lo stato di autenticazione
+  return me?.principal ? (
+    children
+  ) : (
+    <>
+      <NotLoggedView />
+    </>
+  );
+};
 
 const router = createBrowserRouter(
   [
@@ -43,11 +61,7 @@ const router = createBrowserRouter(
       children: [
         {
           path: "/",
-          element: (
-            // <ProtectedRoute>
-            <Homepage />
-            // </ProtectedRoute>
-          ),
+          element: <Homepage />,
         },
         {
           path: "/crm",
@@ -64,11 +78,19 @@ const router = createBrowserRouter(
         },
         {
           path: "/crm/customers/",
-          element: <CustomersView />,
+          element: (
+            <ProtectedRoute>
+              <CustomersView />
+            </ProtectedRoute>
+          ),
         },
         {
           path: "/crm/customers/:customerId",
-          element: <CustomerInfo />,
+          element: (
+            <ProtectedRoute>
+              <CustomerInfo />
+            </ProtectedRoute>
+          ),
         },
         {
           path: "/crm/job-offers/",

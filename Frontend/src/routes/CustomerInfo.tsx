@@ -24,6 +24,8 @@ import { updateCustomerNotes } from "../../API.tsx";
 import Sidebar from "../components/Sidebar.tsx";
 import EditAccountForm from "../components/EditAccountForm.tsx";
 import { FaCircleArrowLeft } from "react-icons/fa6";
+import CardJobOffer from "../components/CardJobOffer.tsx";
+import { JobOfferFilter } from "../types/JobOfferFilter.ts";
 
 export default function CustomerInfo() {
   const navigate = useNavigate();
@@ -34,6 +36,9 @@ export default function CustomerInfo() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+
   const [customer, setCustomer] = useState<Customer>({
     id: 0,
     contactInfo: {
@@ -54,13 +59,20 @@ export default function CustomerInfo() {
     API.getCustomerById(customerIdNumber)
       .then((customer) => {
         setCustomer(customer);
-        API.getCustomerJobOffers(customer.id)
+        let paging = {
+          pageNumber: page - 1,
+          pageSize: 5,
+        };
+        let filter: JobOfferFilter = {
+          customerId: customer.id,
+        };
+        API.getJobOffers(paging, filter)
           .then((data) => {
+            setJobOffers([]);
+
             setJobOffers(data.content);
-            /*
-                    setPageable(data.pageable);
-                    setTotalPages(data.totalPages);
-                    */
+
+            setTotalPage(data.totalPages);
           })
           .catch(() => {
             setError("Failed to fetch job offers");
@@ -68,7 +80,7 @@ export default function CustomerInfo() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [customer.id]);
+  }, [page]);
 
   function updateNotes(notes: string) {
     const customerIdNumber = customerId ? Number(customerId) : undefined;
@@ -95,17 +107,6 @@ export default function CustomerInfo() {
       </Container>
     );
   }
-
-  const notDoneOffers = jobOffers.filter(
-    (offer) =>
-      offer.offerStatus.toString() !== "DONE" &&
-      offer.offerStatus.toString() !== "ABORT",
-  );
-  const doneOffers = jobOffers.filter(
-    (offer) =>
-      offer.offerStatus.toString() == "DONE" ||
-      offer.offerStatus.toString() == "ABORT",
-  );
 
   return (
     <>
@@ -199,90 +200,18 @@ export default function CustomerInfo() {
                     </>
                   )}
                 </Row>
-                <Row>
-                  <h3> Active Job Offer</h3>
-                  {notDoneOffers.length > 0 ? (
-                    <>
-                      {notDoneOffers.map((offer) => (
-                        <Row key={offer.id} xs={11} className="mm-4">
-                          <Card>
-                            <Card.Body>
-                              <Card.Title>Job Offer ID: {offer.id}</Card.Title>
-                              <Card.Text>
-                                <strong>Description:</strong>{" "}
-                                {offer.description} &nbsp;
-                                <strong>Status:</strong> {offer.offerStatus}
-                                &nbsp;
-                                <strong>Professional:</strong>{" "}
-                                {offer.professional
-                                  ? offer.professional.contactInfo.name +
-                                    " " +
-                                    offer.professional.contactInfo.surname
-                                  : "N/A"}
-                              </Card.Text>
 
-                              <Button
-                                variant="primary"
-                                onClick={() =>
-                                  navigate(`/crm/job-offers/${offer.id}`, {
-                                    replace: true,
-                                  })
-                                }
-                              >
-                                View
-                              </Button>
-                            </Card.Body>
-                          </Card>
-                        </Row>
-                      ))}
-                    </>
-                  ) : (
-                    <p>No Active job offers available.</p>
-                  )}
-                </Row>
-                <Row className="mt-3 pb-3">
-                  <h3> Completed Job Offer</h3>
-                  {doneOffers.length > 0 ? (
-                    <>
-                      {doneOffers.map((offer) => (
-                        <Row key={offer.id} xs={12} className="mb-4">
-                          <Card>
-                            <Card.Body>
-                              <Card.Title>Job Offer ID: {offer.id}</Card.Title>
-                              <Card.Text>
-                                <strong>Description:</strong>{" "}
-                                {offer.description} &nbsp;
-                                <strong>Status:</strong> {offer.offerStatus}
-                                &nbsp;
-                                <strong>Professional:</strong>{" "}
-                                {offer.professional
-                                  ? offer.professional.contactInfo.name +
-                                    " " +
-                                    offer.professional.contactInfo.surname
-                                  : "N/A"}
-                              </Card.Text>
-
-                              <Button
-                                variant="primary"
-                                onClick={() =>
-                                  navigate(
-                                    `/crm/RecruiterJobOffer/${offer.id}`,
-                                    {
-                                      replace: true,
-                                    },
-                                  )
-                                }
-                              >
-                                View
-                              </Button>
-                            </Card.Body>
-                          </Card>
-                        </Row>
-                      ))}
-                    </>
-                  ) : (
-                    <p>No completed job offers available.</p>
-                  )}
+                <Row className="m-2">
+                  <CardJobOffer
+                    page={page}
+                    setPage={setPage}
+                    totalPage={totalPage}
+                    cardInfo={
+                      "In this section you can consult all the job offers created by the customers "
+                    }
+                    cardTitle={"Job Offers"}
+                    offers={jobOffers}
+                  />
                 </Row>
               </Card.Body>
             </Card>
