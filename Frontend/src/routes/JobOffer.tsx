@@ -4,9 +4,10 @@ import ViewCustomerJobOffer from "../components/ViewCustomerJobOffer.tsx";
 import CreateJobOffer from "../components/CreateJobOffer.tsx";
 import ViewProfessionalJobOffer from "../components/ViewProfessionalJobOffer.tsx";
 import { useEffect } from "react";
-import { Col, Container, Row } from "react-bootstrap";
+import { Card, Col, Container, Row } from "react-bootstrap";
 import Sidebar from "../components/Sidebar.tsx";
 import ViewRecruiterJobOffer from "../components/ViewRecruiterJobOffer.tsx";
+import { CiCircleInfo } from "react-icons/ci";
 
 export default function JobOffer() {
   const { me } = useAuth();

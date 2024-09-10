@@ -39,17 +39,10 @@ export default function CardJobOffer(props) {
             <Card.Body>
               <Row className="align-items-center">
                 <Col xs={3}>
-                  <strong>Customer: </strong>{" "}
                   {offer.customer.contactInfo.name +
                     " " +
                     offer.customer.contactInfo.surname}
                   <br />
-                  <strong>Professional: </strong>
-                  {offer.professional
-                    ? offer.professional.contactInfo.name +
-                      " " +
-                      offer.professional.contactInfo.surname
-                    : "N/A"}
                 </Col>
                 <Col
                   xs={6}
@@ -61,7 +54,14 @@ export default function CardJobOffer(props) {
                   xs={2}
                   className="border border-left-0  border-top-0 border-bottom-0 p-2 "
                 >
-                  <JobOfferBadge status={offer.offerStatus} />
+                  <JobOfferBadge status={offer.offerStatus} /> <br />
+                  {offer.professional ? (
+                    offer.professional.contactInfo.name +
+                    " " +
+                    offer.professional.contactInfo.surname
+                  ) : (
+                    <></>
+                  )}
                 </Col>
                 <Col xs={1}>
                   <CiZoomIn

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   Button,
   Card,
+  Col,
   Container,
   Form,
   InputGroup,
@@ -14,12 +15,15 @@ import { Pageable } from "../types/Pageable.ts";
 import { ReducedJobOffer } from "../types/JobOffer.ts";
 import { useNavigate } from "react-router-dom";
 import ListJobOffer from "./CardJobOffer.tsx";
+import CardJobOffer from "./CardJobOffer.tsx";
+import { CiCircleInfo, CiSearch } from "react-icons/ci";
+import * as Icon from "react-bootstrap-icons";
+import JobOfferBadge from "./JobOfferBadge.tsx";
 //import * as Icon from "react-bootstrap-icons";
 
 export default function ViewRecruiterJobOffer() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
-  const [pageable, setPageable] = useState<Pageable | null>(null);
-  const [totalPages, setTotalPages] = useState<number | null>(null);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { me } = useAuth();
@@ -27,10 +31,31 @@ export default function ViewRecruiterJobOffer() {
   const [status, setStatus] = useState("");
   const [customerId, setCustomerId] = useState("");
   const navigate = useNavigate();
-
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
   const [mappedProfessional, setMappedProfessional] = useState<OptionItem[]>(
     [],
   );
+  let statuses = [
+    "DONE",
+    "CANDIDATE_PROPOSAL",
+    "ABORTED",
+    "CONSOLIDATED",
+    "CREATED",
+  ];
+  const [checkedItems, setCheckedItems] = useState(
+    statuses.reduce((acc, status) => {
+      acc[status] = true;
+      return acc;
+    }, {}),
+  );
+
+  const handleCheckboxChange = (status) => {
+    setCheckedItems((prevState) => ({
+      ...prevState,
+      [status]: !prevState[status], // Toggle the checked state for the clicked checkbox
+    }));
+  };
   const [mappedCustomer, setMappedCustomer] = useState<OptionItem[]>([]);
 
   interface OptionItem {
@@ -94,28 +119,35 @@ export default function ViewRecruiterJobOffer() {
 
   useEffect(() => {
     const token = me?.xsrfToken;
+    console.log(checkedItems);
+
+    const filteredCheckedItems = Object.entries(checkedItems)
+      .filter(([status, isChecked]) => isChecked)
+      .map(([status]) => status);
 
     const filterDTO = {
       professionalId: professionalId,
-      status: status,
+      status: filteredCheckedItems,
       customerId: customerId,
     };
-    console.log(filterDTO);
 
+    const paging = {
+      pageNumber: page - 1,
+      pageSize: 5,
+    };
     setLoading(true);
-    API.getJobOfferRecruiter(token, filterDTO)
+    API.getJobOffers(paging, filterDTO)
       .then((data) => {
-        console.log(data.content);
         setJobOffers(data.content);
-        setPageable(data.pageable);
-        setTotalPages(data.totalPages);
+
+        setTotalPage(data.totalPages);
       })
       .catch((err) => {
         console.log(err);
         setError("Failed to fetch job offers");
       })
       .finally(() => setLoading(false));
-  }, [professionalId, status, customerId]);
+  }, [professionalId, checkedItems, customerId, page]);
 
   if (loading) {
     return (
@@ -135,60 +167,105 @@ export default function ViewRecruiterJobOffer() {
 
   return (
     <Container className="mt-5">
-      <h1>Job Offers</h1>
-      <InputGroup className="mb-3">
-        <Form.Select
-          aria-label="Search Offer Status"
-          value={status}
-          name="status"
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="">Select Offer Status</option>
-          {/* Opzione di default */}
-          <option value="CREATED">CREATED</option>
-          <option value="SELECTION_PHASE">SELECTION PHASE</option>
-          <option value="CANDIDATE_PROPOSAL">CANDIDATE PROPOSAL</option>
-          <option value="CONSOLIDATED">CONSOLIDATED</option>
-          <option value="DONE">DONE</option>
-          <option value="ABORTED">ABORTED</option>
-        </Form.Select>
-      </InputGroup>
+      <Card>
+        <Card.Title>Job Offers Tool</Card.Title>
+        <Card.Body>
+          <CiCircleInfo size={30} color={"green"} /> In this section, you can
+          efficiently manage your job offers by filtering and sorting them to
+          quickly find the ones that best match your criteria. Utilize the
+          filtering options to narrow down your search, and easily handle
+          multiple offers to stay organized and make informed decisions.
+        </Card.Body>
+      </Card>
+      <br />
+      <Card>
+        <Card.Title>
+          <CiSearch size={30} />
+          Find by ...
+        </Card.Title>
+        <Row className="mb-4  pt-5 px-4">
+          <Col md={2} className="border">
+            Status
+            {statuses.map((status, index) => (
+              <>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <Form.Check
+                    inline
+                    name={`group-${index}`}
+                    type={"checkbox"}
+                    id={`inline-checkbox-${index}`}
+                    checked={checkedItems[status]}
+                    onChange={() => handleCheckboxChange(status)}
+                  />
+                  <JobOfferBadge status={status} />
+                </div>
+              </>
+            ))}
+          </Col>
 
-      <InputGroup className="mb-3">
-        {/*<Icon.Briefcase/>*/}
-        <Form.Select
-          value={professionalId}
-          onChange={(e) => setProfessionalId(e.target.value)}
-        >
-          <option value="">Select Professional</option>
-          {/* Opzione di default */}
-          {mappedProfessional.map((prof) => (
-            <option key={prof.id} value={prof.id}>
-              {prof.fullName}
-            </option>
-          ))}
-        </Form.Select>
-      </InputGroup>
+          <Col md={8}>
+            <InputGroup className="mb-3">
+              <InputGroup.Text id="address">
+                <Icon.Briefcase className="mx-1" /> Professional
+              </InputGroup.Text>
 
-      <InputGroup style={{ marginBottom: 20 }}>
-        {/*<Icon.Buildings/>*/}
-        <Form.Select
-          value={customerId}
-          onChange={(e) => setCustomerId(e.target.value)}
-        >
-          <option value=""> Select Customer</option>
-          {/* Opzione di default */}
-          {mappedCustomer.map((cust) => (
-            <option key={cust.id} value={cust.id}>
-              {cust.fullName}
-            </option>
-          ))}
-        </Form.Select>
-      </InputGroup>
+              <Form.Select
+                value={professionalId}
+                onChange={(e) => setProfessionalId(e.target.value)}
+              >
+                <option value="">Select Professional</option>
+                {/* Opzione di default */}
+                {mappedProfessional.map((prof) => (
+                  <option key={prof.id} value={prof.id}>
+                    {prof.fullName}
+                  </option>
+                ))}
+              </Form.Select>
+            </InputGroup>
+            <InputGroup style={{ marginBottom: 20 }}>
+              <InputGroup.Text id="address">
+                <Icon.Buildings className="mx-1" /> Customer
+              </InputGroup.Text>
 
-      {jobOffers.map((offer) => (
-        <ListJobOffer key={offer.id} offer={offer} />
-      ))}
+              <Form.Select
+                value={customerId}
+                onChange={(e) => setCustomerId(e.target.value)}
+              >
+                <option value=""> Select Customer</option>
+                {/* Opzione di default */}
+                {mappedCustomer.map((cust) => (
+                  <option key={cust.id} value={cust.id}>
+                    {cust.fullName}
+                  </option>
+                ))}
+              </Form.Select>
+            </InputGroup>
+          </Col>
+        </Row>
+
+        <Row className="mb-4 px-4">
+          <Col md={6}></Col>
+
+          <Col md={6}></Col>
+        </Row>
+      </Card>
+      <br />
+      <CardJobOffer
+        page={page}
+        setPage={setPage}
+        totalPage={totalPage}
+        offers={jobOffers}
+        cardTitle={"Job Offers"}
+        cardInfo={
+          "Here all the job offers in the system, ready to be processed"
+        }
+      />
     </Container>
   );
 }

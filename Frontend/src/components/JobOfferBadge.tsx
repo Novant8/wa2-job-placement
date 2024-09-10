@@ -26,7 +26,9 @@ export default function JobOfferBadge(props) {
           ABORTED
         </Badge>
       ) : (
-        <div>Error status</div>
+        <Badge pill bg="danger">
+          SELECTION_PHASE
+        </Badge>
       )}
     </>
   );

@@ -64,11 +64,16 @@ export default function ViewCustomerJobOffer() {
       pageNumber: page - 1,
       pageSize: 5,
     };
+
     setLoading(true);
     API.getCustomerFromCurrentUser()
       .then((customer) => {
         setUserInfo(customer);
-        API.getCustomerJobOffers(customer.id, paging)
+        let filter = {
+          customerId: customer.id,
+        };
+
+        API.getJobOffers(paging, filter)
           .then((data) => {
             setJobOffers([]);
             setJobOffers(data.content);
