@@ -14,12 +14,12 @@ export default function updateMessageStatusModal(props: any) {
 
     API.updateMessagestatus(props.message.id, msgEvent)
       .then(() => {
-        props.onHide;
+        props.onHide();
       })
       .catch((error) => {
         console.log(error);
       })
-      .finally(() => props.setDirty);
+      .finally(() => props.setDirty());
   };
 
   return (
@@ -92,7 +92,7 @@ export default function updateMessageStatusModal(props: any) {
               handleAcceptDecline({ status: "READ", comments: comment });
             }}
           >
-            Processing
+            Read
           </Button>
         ) : (
           ""

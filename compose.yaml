@@ -16,9 +16,10 @@ services:
       - kfk-net
       - keycloak
     healthcheck:
-      test: timeout 10s bash -c ':> /dev/tcp/localhost/8080'
-      interval: 10s
-      timeout: 1s 
+      test: bash -c ':> /dev/tcp/localhost/8080'
+      start_period: 10s
+      interval: 5s
+      timeout: 1s
       retries: 10
 
   kafka:
@@ -37,10 +38,19 @@ services:
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
     networks:
       - kfk-net
+    healthcheck:
+      test: kafka-topics.sh --bootstrap-server localhost:9092 --list
+      start_period: 10s
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   kafka-ui:
     container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
+    depends_on:
+      kafka:
+        condition: service_healthy
     ports:
       - "9091:8080"
     environment:
@@ -49,6 +59,12 @@ services:
       DYNAMIC_CONFIG_ENABLED: 'true'
     networks:
       - kfk-net
+    healthcheck:
+      test: wget --spider -q http://localhost:8080/ || exit 1
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   api-gateway:
     build: ./ApiGateway
@@ -57,22 +73,35 @@ services:
       keycloak:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
     network_mode: host
-    restart: on-failure
+    healthcheck:
+      test: wget --spider -q http://localhost:8080/ || exit 1
+      start_period: 5s
+      interval: 5s
+      timeout: 1s
+      retries: 10
 
   frontend:
     build: ./Frontend
     image: waii2024g07/frontend:latest
     ports:
       - "5173:5173"
+    healthcheck:
+      test: wget --spider -q http://localhost:5173/ui || exit 1
+      start_period: 1s
+      interval: 5s
+      timeout: 1s
+      retries: 10
 
   crm:
     build: ./CRM
     image: waii2024g07/crm:latest
     depends_on:
-      - crm-db
-      - kafka
+      crm-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     ports:
       - "8082:8082"
     networks:
@@ -80,7 +109,12 @@ services:
       - keycloak
       - prometheus
       - kfk-net
-    restart: on-failure
+    healthcheck:
+      test: wget --spider -q http://localhost:8082/actuator/health || exit 1
+      start_period: 5s
+      interval: 5s
+      timeout: 1s
+      retries: 10
 
   crm-db:
     image: 'postgres:latest'
@@ -92,6 +126,12 @@ services:
       - crmData:/var/lib/postgresql/data
     networks:
       - crm
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "${POSTGRES_DB}"]
+      start_period: 1s
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   comm-manager:
     build: ./CommunicationManager
@@ -102,19 +142,32 @@ services:
       - kfk-net
     ports:
       - "8083:8083"
+    healthcheck:
+      test: wget --spider -q http://localhost:8083/actuator/health || exit
+      start_period: 20s
+      interval: 5s
+      timeout: 1s
+      retries: 10
 
 
   document-store:
     build: ./DocumentStore
     image: waii2024g07/documentstore:latest
     depends_on:
-      - document-store-db
+      document-store-db:
+        condition: service_healthy
     ports:
       - "8081:8081"
     networks:
       - document-store
       - prometheus
       - kfk-net
+    healthcheck:
+      test: wget --spider -q http://localhost:8081/actuator/health || exit
+      start_period: 20s
+      interval: 5s
+      timeout: 1s
+      retries: 10
 
   document-store-db:
     image: 'postgres:latest'
@@ -126,18 +179,31 @@ services:
       - documentStoreData:/var/lib/postgresql/data
     networks:
       - document-store
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "${POSTGRES_DB}" ]
+      start_period: 1s
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   monitoring:
     build: ./Monitoring
     image: waii2024g07/monitoring:latest
     depends_on:
-      - monitoring-db
+      monitoring-db:
+        condition: service_healthy
     networks:
       - monitoring
       - kfk-net
       - keycloak
     ports:
       - "8084:8084"
+    healthcheck:
+      test: bash -c ':> /dev/tcp/localhost/8084'
+      start_period: 15s
+      interval: 5s
+      timeout: 1s
+      retries: 10
 
   monitoring-db:
     image: 'postgres:latest'
@@ -149,6 +215,12 @@ services:
       - monitoringData:/var/lib/postgresql/data
     networks:
       - monitoring
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "${POSTGRES_DB}" ]
+      start_period: 1s
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   prometheus:
     image: 'prom/prometheus'
@@ -165,13 +237,21 @@ services:
     networks:
       - monitoring
       - prometheus
+    healthcheck:
+      test: wget --spider --server-response -q http://localhost:9090/ 2>&1 >/dev/null | grep "HTTP" || exit 1
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     depends_on:
-      - keycloak
-      - prometheus
+      keycloak:
+        condition: service_healthy
+      prometheus:
+        condition: service_started
     user: "$UID:$GID"
     ports:
       - "3000:3000"
@@ -185,6 +265,12 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - monitoring
+    healthcheck:
+      test: curl -f http://localhost:3000/-/health || exit 1
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 networks:
   crm:

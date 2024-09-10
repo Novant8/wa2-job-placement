@@ -286,6 +286,7 @@ export default function JobProposalModalDetail(props: any) {
           customerId={customerInfo.id}
           customerInfo={customerInfo}
           proposalId={jobProposal?.id}
+          jobOffer={jobProposal?.jobOffer}
           jobOfferId={jobProposal?.jobOffer.id}
           candidateId={jobProposal?.professional.id}
           setDirty={() => setDirty(true)}
@@ -298,9 +299,15 @@ export default function JobProposalModalDetail(props: any) {
           action={modalAction}
           onHide={() => setProfessionalProposalConfirmationModalShow(false)}
           proposalId={jobProposal?.id}
+          jobOffer={jobProposal?.jobOffer}
           jobOfferId={jobProposal?.jobOffer.id}
-          professionalId={professionalInfo.id}
+          professionalId={jobProposal?.professional.id}
+          candidateId={jobProposal?.professional.id}
+          professionalInfo={jobProposal?.professional}
           setDirty={() => setDirty(true)}
+          setProfessionalJobOfferDirty={() => {
+            props.setProfessionalJobOfferDirty;
+          }}
           setProposalOnHide={props.onHide}
           setProfessionalDirty={props.setProfessionalDirty}
         />
