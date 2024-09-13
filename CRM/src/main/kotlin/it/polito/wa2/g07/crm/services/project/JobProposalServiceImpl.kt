@@ -3,7 +3,9 @@ package it.polito.wa2.g07.crm.services.project
 import it.polito.wa2.g07.crm.dtos.lab03.JobOfferDTO
 import it.polito.wa2.g07.crm.dtos.lab03.toJobOfferDTO
 import it.polito.wa2.g07.crm.dtos.project.JobProposalDTO
+import it.polito.wa2.g07.crm.dtos.project.JobProposalKafkaDTO
 import it.polito.wa2.g07.crm.dtos.project.toJobProposalDTO
+import it.polito.wa2.g07.crm.dtos.project.toJobProposalKafkaDTO
 import it.polito.wa2.g07.crm.entities.project.JobProposal
 import it.polito.wa2.g07.crm.entities.project.ProposalStatus
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
@@ -16,6 +18,7 @@ import it.polito.wa2.g07.crm.services.lab03.JobOfferServiceImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.jpa.domain.AbstractPersistable_.id
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.jvm.optionals.getOrElse
@@ -25,7 +28,8 @@ class JobProposalServiceImpl (
     private val jobOfferRepository: JobOfferRepository,
     private val customerRepository: CustomerRepository,
     private val professionalRepository: ProfessionalRepository,
-    private val proposalRepository: JobProposalRepository
+    private val proposalRepository: JobProposalRepository,
+    private val kafkaTemplate: KafkaTemplate<String,JobProposalKafkaDTO>
 ):JobProposalService{
      @Transactional
     override fun createJobProposal(customerId: Long, professionalId: Long, jobOfferId: Long): JobProposalDTO {
@@ -39,6 +43,7 @@ class JobProposalServiceImpl (
          professional.addJobProposal(jobProposal)
 
          logger.info("Created Job Proposal with ID #${jobProposal.proposalID}")
+         kafkaTemplate.send("JOB_PROPOSAL-CREATE",jobProposal.toJobProposalKafkaDTO())
         return proposalRepository.save(jobProposal).toJobProposalDTO()
     }
 
@@ -73,7 +78,7 @@ class JobProposalServiceImpl (
             }else{
                 logger.info("Customer ${proposal.customer.contactInfo.name} ${proposal.customer.contactInfo.surname} has accepted Job Proposal #${proposal.proposalID}")
             }
-
+            kafkaTemplate.send("JOB_PROPOSAL-UPDATE",proposal.toJobProposalKafkaDTO())
             return proposalRepository.save(proposal).toJobProposalDTO()
         }
 
@@ -105,7 +110,7 @@ class JobProposalServiceImpl (
                 logger.info("Professional ${proposal.professional.contactInfo.name} ${proposal.professional.contactInfo.surname} has accepted Job Proposal #${proposal.proposalID}")
             }
 
-
+            kafkaTemplate.send("JOB_PROPOSAL-UPDATE",proposal.toJobProposalKafkaDTO())
             return proposalRepository.save(proposal).toJobProposalDTO()
         }
 
@@ -122,7 +127,7 @@ class JobProposalServiceImpl (
         else
             logger.info("Customer ${proposal.customer.contactInfo.name} ${proposal.customer.contactInfo.surname} has removed the contract from Job Proposal #${proposal.proposalID}")
 
-
+        kafkaTemplate.send("JOB_PROPOSAL-UPDATE",proposal.toJobProposalKafkaDTO())
         return proposalRepository.save(proposal).toJobProposalDTO()
     }
 
@@ -139,6 +144,7 @@ class JobProposalServiceImpl (
             logger.info("Professional ${proposal.professional.contactInfo.name} ${proposal.professional.contactInfo.surname} has removed the contract from Job Proposal #${proposal.proposalID}")
 
         proposal.professionalSignedContract = documentId;
+        kafkaTemplate.send("JOB_PROPOSAL-UPDATE",proposal.toJobProposalKafkaDTO())
         return proposalRepository.save(proposal).toJobProposalDTO()
     }
 
