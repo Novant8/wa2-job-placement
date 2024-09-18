@@ -10,7 +10,7 @@ import {
   Row,
   Spinner,
 } from "react-bootstrap";
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import { useAuth } from "../contexts/auth.tsx";
 import EditableField from "./EditableField.tsx";
 import EditableFieldGroup from "./EditableFieldGroup.tsx";
@@ -503,6 +503,9 @@ export default function EditAccountForm() {
     ["manager", "operator"].includes(role),
   );
 
+  const addingNewAddress = userInfo.addresses.some(address => addressIsEmpty(address))
+  const addingNewSkill = isProfessional(userInfo) && userInfo.professional.skills.some(skill => skill.length === 0)
+
   return (
     <>
       <Card>
@@ -611,6 +614,7 @@ export default function EditAccountForm() {
             <div className="text-center my-2">
               <DropdownButton
                 title="Add new address"
+                disabled={addingNewAddress}
                 id="add-address"
                 variant="light"
                 onSelect={(key) => addAddressField(key as AddressType)}
@@ -654,7 +658,7 @@ export default function EditAccountForm() {
                       validate={(skill) => skill.length > 0}
                     />
                   ))}
-                  <Button variant="light" onClick={addUserSkill}>
+                  <Button variant="light" disabled={addingNewSkill} onClick={addUserSkill}>
                     Add new skill
                   </Button>
                 </div>
