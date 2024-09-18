@@ -100,12 +100,12 @@ function DashboardCustomer() {
   }, [me, page1]);
 
   return (
-    <Container fluid className="my-4">
+    <Container fluid>
       <Row>
-        <Col md={3}>
+        <Col md={2}>
           <Sidebar />
         </Col>
-        <Col md={9}>
+        <Col md={10}>
           <CardJobOffer
             cardTitle={"Candidate to your job"}
             cardInfo={

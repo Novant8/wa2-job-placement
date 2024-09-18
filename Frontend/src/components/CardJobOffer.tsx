@@ -1,5 +1,5 @@
 import { Card, Col, Row } from "react-bootstrap";
-import JobOfferBadge from "./JobOfferBadge.tsx";
+import JobOfferBadge from "./Badges/JobOfferBadge.tsx";
 import { CiCircleInfo, CiZoomIn } from "react-icons/ci";
 import PaginationCustom from "./PaginationCustom.tsx";
 import { useNavigate } from "react-router-dom";

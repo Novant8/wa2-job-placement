@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import CreateJobOffer from "./CreateJobOffer.tsx";
 import { CiCircleInfo, CiZoomIn } from "react-icons/ci";
 import PaginationCustom from "./PaginationCustom.tsx";
-import JobOfferBadge from "./JobOfferBadge.tsx";
+import JobOfferBadge from "./Badges/JobOfferBadge.tsx";
 import ListJobOffer from "./CardJobOffer.tsx";
 import CardJobOffer from "./CardJobOffer.tsx";
 

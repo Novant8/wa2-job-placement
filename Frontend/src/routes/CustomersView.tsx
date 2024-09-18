@@ -143,10 +143,12 @@ export default function CustomersView() {
               <br />
               {/* Search Filters */}
               <Card>
-                <Card.Title>
-                  <CiSearch size={30} />
-                  Find by ...
-                </Card.Title>
+                <Card.Header>
+                  <Card.Title>
+                    <CiSearch size={30} />
+                    Find by ...
+                  </Card.Title>
+                </Card.Header>
                 <Row className="mb-4  pt-5 px-4">
                   <Col md={6}>
                     <InputGroup className="mb-3">
@@ -214,7 +216,9 @@ export default function CustomersView() {
               {/* Customer List */}
               <br />
               <Card>
-                <Card.Title> Customer's List</Card.Title>
+                <Card.Header>
+                  <Card.Title> Customers's List</Card.Title>
+                </Card.Header>
                 <Card.Body>
                   {customers?.content?.length > 0 ? (
                     customers.content.map((customer) => (

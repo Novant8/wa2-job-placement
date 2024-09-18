@@ -18,7 +18,7 @@ import ListJobOffer from "./CardJobOffer.tsx";
 import CardJobOffer from "./CardJobOffer.tsx";
 import { CiCircleInfo, CiSearch } from "react-icons/ci";
 import * as Icon from "react-bootstrap-icons";
-import JobOfferBadge from "./JobOfferBadge.tsx";
+import JobOfferBadge from "./Badges/JobOfferBadge.tsx";
 //import * as Icon from "react-bootstrap-icons";
 
 export default function ViewRecruiterJobOffer() {

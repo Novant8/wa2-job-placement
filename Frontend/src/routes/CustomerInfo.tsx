@@ -112,10 +112,10 @@ export default function CustomerInfo() {
     <>
       <Container fluid>
         <Row>
-          <Col xs={3}>
+          <Col xs={2}>
             <Sidebar />
           </Col>
-          <Col xs>
+          <Col xs={10}>
             <Button
               className="d-flex align-items-center text-sm-start"
               onClick={() => navigate("/crm/customers")}

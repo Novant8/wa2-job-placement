@@ -9,7 +9,7 @@ export default function EditAccount() {
     <>
       <Container fluid>
         <Row>
-          <Col xs={3}>
+          <Col xs={2}>
             <Sidebar />
           </Col>
           <Col xs>

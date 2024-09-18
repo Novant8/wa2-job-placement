@@ -18,75 +18,36 @@ import "react-tagsinput/react-tagsinput.css";
 import "../styles/CandidateManagement.css";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar.tsx";
-import { CiCircleInfo, CiSearch } from "react-icons/ci";
+import { CiCircleInfo, CiSearch, CiZoomIn } from "react-icons/ci";
 import PaginationCustom from "../components/PaginationCustom.tsx";
-
-//TODO: Add pagination
-
-export type ProfessionalAccordionProps = {
-  prof: Professional;
-};
-
-function ProfessionalCard(props: ProfessionalAccordionProps) {
-  const navigate = useNavigate();
-  return (
-    <>
-      <Card>
-        <Card.Body>
-          <Row className={"align-items-center justify-content-center"}>
-            <Col>
-              <b>
-                {props.prof.contactInfo?.name} {props.prof.contactInfo?.surname}
-              </b>
-            </Col>
-            <Col>
-              {props.prof.contactInfo.ssn ? (
-                <div>SSN: {props.prof.contactInfo.ssn}</div>
-              ) : (
-                ""
-              )}
-              {/*TODO: mostrare gli addresses della contact info ???*/}
-              <div>Location: {props.prof.location}</div>
-              <div>
-                Skills:{" "}
-                {props.prof.skills.map((e, index) =>
-                  index == props.prof.skills.length - 1 ? (
-                    props.prof.skills.length > 2 ? (
-                      <span key={index}>,{e}</span>
-                    ) : (
-                      <span key={index}>{e}</span>
-                    )
-                  ) : (
-                    <span key={index}>{e}, </span>
-                  ),
-                )}
-              </div>
-              <div>Employment State:{props.prof.employmentState}</div>
-              {props.prof.notes ? <div>Notes: {props.prof.notes}</div> : ""}
-            </Col>
-            <Col>
-              <Button
-                className="primary mt-3"
-                onClick={() => navigate(`${props.prof?.id}`)}
-              >
-                View Details
-              </Button>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
-    </>
-  );
-}
+import CardProfessional from "../components/ProfessionalCard.tsx";
+import JobOfferBadge from "../components/Badges/JobOfferBadge.tsx";
+import EmploymentBadge from "../components/Badges/EmploymentBadge.tsx";
 
 export default function ProfessionalsView() {
   const { me } = useAuth();
   const [professional, setProfessional] = useState({});
   const [location, setLocation] = useState("");
   const [skills, setSkills] = useState<string[]>([]); // Array di skill
-  const [employmentState, setEmploymentState] = useState("");
+
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
+
+  let statuses = ["EMPLOYED", "UNEMPLOYED"];
+  const [checkedItems, setCheckedItems] = useState(
+    statuses.reduce((acc, status) => {
+      acc[status] = true;
+      return acc;
+    }, {}),
+  );
+
+  const handleCheckboxChange = (status) => {
+    setCheckedItems((prevState) => ({
+      ...prevState,
+      [status]: !prevState[status], // Toggle the checked state for the clicked checkbox
+    }));
+  };
+
   useEffect(() => {
     const token = me?.xsrfToken;
     API.getProfessionals(token)
@@ -100,15 +61,32 @@ export default function ProfessionalsView() {
 
   useEffect(() => {
     const token = me?.xsrfToken;
+    const filteredCheckedItems = Object.entries(checkedItems)
+      .filter(([status, isChecked]) => isChecked)
+      .map(([status]) => status);
+    //workaround
+    let filterDTO = {};
+    if (filteredCheckedItems.length == 2) {
+      filterDTO = {
+        location: location,
+        skills: skills,
+      };
+    } else {
+      filterDTO = {
+        location: location,
+        skills: skills,
+        employmentState: filteredCheckedItems,
+      };
+    }
+    if (filteredCheckedItems.length == 0) {
+      setTotalPage(0);
+      setProfessional([]);
+      return;
+    }
 
-    const filterDTO = {
-      location: location,
-      skills: skills,
-      employmentState: employmentState,
-    };
     let paging = {
       pageNumber: page - 1,
-      pageSize: 1,
+      pageSize: 5,
     };
     API.getProfessionals(token, filterDTO, paging)
       .then((prof) => {
@@ -118,7 +96,7 @@ export default function ProfessionalsView() {
       .catch((err) => {
         console.log(err);
       });
-  }, [location, skills, employmentState, page]);
+  }, [location, skills, page, checkedItems]);
 
   //TODO: remove this useEffect
   useEffect(() => {
@@ -147,65 +125,89 @@ export default function ProfessionalsView() {
               </Card>
               <br />
               <Card>
-                <Card.Title>
-                  <CiSearch size={30} />
-                  Find by ...
-                </Card.Title>
+                <Card.Header>
+                  <Card.Title>
+                    <CiSearch size={30} />
+                    Find by ...
+                  </Card.Title>
+                </Card.Header>
                 <Card.Body>
-                  <InputGroup className="mb-3">
-                    <InputGroup.Text id="basic-addon1">
-                      <Icon.Geo /> Location
-                    </InputGroup.Text>
-                    <Form.Control
-                      placeholder="Search Location"
-                      aria-label="Search Professional"
-                      aria-describedby="basic-addon1"
-                      value={location}
-                      name="location"
-                      onChange={(e) => setLocation(e.target.value)}
-                    />
-                  </InputGroup>
+                  <Row className={"align-items-center justify-content-center"}>
+                    <Col md={2}>
+                      Status
+                      {statuses.map((status, index) => (
+                        <>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "10px",
+                            }}
+                          >
+                            <Form.Check
+                              inline
+                              name={`group-${index}`}
+                              type={"checkbox"}
+                              id={`inline-checkbox-${index}`}
+                              checked={checkedItems[status]}
+                              onChange={() => handleCheckboxChange(status)}
+                            />
+                            <EmploymentBadge status={status} />
+                          </div>
+                        </>
+                      ))}
+                    </Col>
+                    <Col>
+                      <InputGroup className="mb-3">
+                        <InputGroup.Text id="basic-addon1">
+                          <Icon.Geo /> Location
+                        </InputGroup.Text>
+                        <Form.Control
+                          placeholder="Search Location"
+                          aria-label="Search Professional"
+                          aria-describedby="basic-addon1"
+                          value={location}
+                          name="location"
+                          onChange={(e) => setLocation(e.target.value)}
+                        />
+                      </InputGroup>
+                    </Col>
 
-                  <InputGroup className="mb-3">
-                    <InputGroup.Text id="basic-addon1">
-                      <Icon.ListColumnsReverse /> Skills
-                    </InputGroup.Text>
+                    <Col>
+                      <InputGroup className="mb-3">
+                        <InputGroup.Text id="basic-addon1">
+                          <Icon.ListColumnsReverse /> Skills
+                        </InputGroup.Text>
 
-                    <div style={{ flex: 1 }}>
-                      <TagsInput
-                        value={skills}
-                        onChange={(tags: any) => setSkills(tags)}
-                        inputProps={{ placeholder: "Add a skill" }}
-                        className="tags-input"
-                      />
-                    </div>
-                  </InputGroup>
-
-                  <InputGroup className="mb-3">
-                    <Form.Select
-                      aria-label="Search Employment State"
-                      value={employmentState}
-                      name="employment"
-                      onChange={(e) => setEmploymentState(e.target.value)}
-                    >
-                      <option value="">Select Employment State</option>{" "}
-                      {/* Opzione di default */}
-                      <option value="UNEMPLOYED">UNEMPLOYED</option>
-                      <option value="EMPLOYED">EMPLOYED</option>
-                    </Form.Select>
-                  </InputGroup>
+                        <div style={{ flex: 1 }}>
+                          <TagsInput
+                            value={skills}
+                            onChange={(tags: any) => setSkills(tags)}
+                            inputProps={{ placeholder: "Add a skill" }}
+                            className="tags-input"
+                          />
+                        </div>
+                      </InputGroup>
+                    </Col>
+                  </Row>
                 </Card.Body>
               </Card>
               <br />
               <Card>
-                <Card.Title> Professional's List</Card.Title>
+                <Card.Header>
+                  <Card.Title> Professionals's List</Card.Title>
+                </Card.Header>
+
                 <Card.Body>
                   {professional?.content?.length > 0 ? (
                     professional.content?.map((e) => (
-                      <ProfessionalCard key={e.id} prof={e} />
+                      <>
+                        <CardProfessional key={e.id} prof={e} />
+                        <br />
+                      </>
                     ))
                   ) : (
-                    <div>There no candidates matching the filters</div>
+                    <div>There no professionals matching the filters</div>
                   )}
                 </Card.Body>
                 <PaginationCustom
