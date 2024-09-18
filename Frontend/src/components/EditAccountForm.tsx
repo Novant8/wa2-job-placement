@@ -6,6 +6,7 @@ import {
   Dropdown,
   DropdownButton,
   Form,
+  InputGroup,
   Row,
   Spinner,
 } from "react-bootstrap";
@@ -28,6 +29,16 @@ import {
 import * as API from "../../API.tsx";
 import { ApiError, ProfessionalField } from "../../API.tsx";
 import { UploadDocumentField } from "./UploadDocumentField.tsx";
+import {
+  BsBuildings,
+  BsCash,
+  BsEnvelope, BsGeo,
+  BsGlobeAmericas, BsHouse,
+  BsMap,
+  BsPersonGear,
+  BsPersonVcardFill,
+  BsTelephone,
+} from "react-icons/bs";
 
 type ProfessionalUserInfo = Contact &
   Omit<Professional, "contact" | "notes"> & {
@@ -507,35 +518,37 @@ export default function EditAccountForm() {
               <Spinner size="sm" />
             ) : (
               <Form.Group controlId="register-user-userType" className="my-2">
-                <Form.Label>
-                  I'm a... <span className="text-danger">*</span>
-                </Form.Label>
-                <Form.Select
-                  name="category"
-                  onChange={(e) =>
-                    updateUserCategory(e.target.value as ContactCategory)
-                  }
-                  disabled={
-                    userInfo.category !== "UNKNOWN" || loadingSubmit.category
-                  }
-                  value={userInfo.category}
-                  isInvalid={!!errors.category}
-                >
-                  {userInfo.category === "UNKNOWN" ? (
-                    <>
-                      <option value="UNKNOWN">Select...</option>
-                      <option value="CUSTOMER">Customer</option>
-                      <option value="PROFESSIONAL">Professional</option>
-                    </>
-                  ) : (
-                    <option value={userInfo.category}>
-                      {firstUpper(userInfo.category)}
-                    </option>
-                  )}
-                </Form.Select>
-                <Form.Control.Feedback type="invalid">
-                  {errors.category}
-                </Form.Control.Feedback>
+                  <InputGroup hasValidation>
+                    <InputGroup.Text>
+                      <BsPersonGear /> Role
+                    </InputGroup.Text>
+                    <Form.Select
+                      name="category"
+                      onChange={(e) =>
+                        updateUserCategory(e.target.value as ContactCategory)
+                      }
+                      disabled={
+                        userInfo.category !== "UNKNOWN" || loadingSubmit.category
+                      }
+                      value={userInfo.category}
+                      isInvalid={!!errors.category}
+                    >
+                      {userInfo.category === "UNKNOWN" ? (
+                        <>
+                          <option value="UNKNOWN">Select...</option>
+                          <option value="CUSTOMER">Customer</option>
+                          <option value="PROFESSIONAL">Professional</option>
+                        </>
+                      ) : (
+                        <option value={userInfo.category}>
+                          {firstUpper(userInfo.category)}
+                        </option>
+                      )}
+                    </Form.Select>
+                    <Form.Control.Feedback type="invalid">
+                      {errors.category}
+                    </Form.Control.Feedback>
+                  </InputGroup>
               </Form.Group>
             ))}
 
@@ -545,7 +558,7 @@ export default function EditAccountForm() {
             <Row>
               <Col sm={6}>
                 <EditableField
-                  label="Name"
+                  label={<><BsPersonVcardFill className="mx-1" /> Name</>}
                   name="name"
                   initValue={userInfo.name}
                   loading={loadingSubmit.name}
@@ -558,7 +571,7 @@ export default function EditAccountForm() {
               </Col>
               <Col sm={6}>
                 <EditableField
-                  label="Surname"
+                  label={<><BsPersonVcardFill className="mx-1" /> Surname</>}
                   name="surname"
                   initValue={userInfo.surname}
                   loading={loadingSubmit.surname}
@@ -571,7 +584,7 @@ export default function EditAccountForm() {
               </Col>
             </Row>
             <EditableField
-              label="SSN"
+              label={<><BsPersonVcardFill className="mx-1" /> SSN</>}
               name="ssn"
               initValue={userInfo.ssn || ""}
               loading={loadingSubmit.ssn as boolean}
@@ -650,7 +663,7 @@ export default function EditAccountForm() {
                 <EditableField
                   type="text"
                   name="location"
-                  label="Location"
+                  label={<><BsGeo className="mx-1" /> Location</>}
                   initValue={userInfo.professional.location}
                   loading={loadingSubmit.professional.location}
                   onEdit={(name, value) => updateProfessionalField(name, value)}
@@ -658,7 +671,7 @@ export default function EditAccountForm() {
                 <EditableField
                   type="number"
                   name="dailyRate"
-                  label="Daily Rate"
+                  label={<><BsCash className="mx-1" /> Daily Rate</>}
                   initValue={userInfo.professional.dailyRate}
                   loading={loadingSubmit.professional.dailyRate}
                   onEdit={(name, value) => updateProfessionalField(name, value)}
@@ -707,7 +720,7 @@ function AddressFieldGroup({
         fields={[
           {
             name: "email",
-            label: "Email",
+            label: <><BsEnvelope className="mx-1" /> Email</>,
             type: "text",
             value: address.email,
             error: emailErrors?.email,
@@ -732,7 +745,7 @@ function AddressFieldGroup({
         fields={[
           {
             name: "phoneNumber",
-            label: "Phone Number",
+            label: <><BsTelephone className="mx-1" /> Phone Number</>,
             type: "text",
             value: address.phoneNumber,
             error: phoneErrors?.phoneNumber,
@@ -757,28 +770,28 @@ function AddressFieldGroup({
         fields={[
           {
             name: "street",
-            label: "Street",
+            label: <><BsHouse className="mx-1" /> Street</>,
             type: "text",
             value: address.street,
             error: dwellingErrors?.street,
           },
           {
             name: "city",
-            label: "City",
+            label: <><BsBuildings className="mx-1" /> City</>,
             type: "text",
             value: address.city,
             error: dwellingErrors?.city,
           },
           {
             name: "district",
-            label: "District",
+            label: <><BsMap className="mx-1" /> District</>,
             type: "text",
             value: address.district,
             error: dwellingErrors?.district,
           },
           {
             name: "country",
-            label: "Country",
+            label: <><BsGlobeAmericas className="mx-1" /> Country</>,
             type: "text",
             value: address.country,
             error: dwellingErrors?.country,

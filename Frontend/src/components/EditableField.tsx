@@ -1,11 +1,11 @@
-import {ChangeEvent, FormEvent, useEffect, useState} from "react";
+import {ChangeEvent, FormEvent, ReactElement, useEffect, useState} from "react";
 import {Form, FormControlProps, InputGroup, Spinner} from "react-bootstrap";
 import {MdCheck, MdClose, MdDelete, MdEdit} from "react-icons/md";
 
 export interface EditableFieldProps<N extends string, V extends FormControlProps["value"]> {
     name: N;
     type?: string;
-    label?: string;
+    label?: string | ReactElement;
     initValue: V;
     initEdit?: boolean;
     showDelete?: boolean;
@@ -56,11 +56,11 @@ export default function EditableField<N extends string, T extends FormControlPro
     return (
         <Form onSubmit={handleEdit}>
             <Form.Group controlId="register-user-ssn" className="my-2">
-                {
-                    label &&
-                    <Form.Label>{label}</Form.Label>
-                }
                 <InputGroup hasValidation>
+                    {
+                        label &&
+                        <InputGroup.Text>{label}</InputGroup.Text>
+                    }
                     <Form.Control
                         type={type}
                         name="ssn"

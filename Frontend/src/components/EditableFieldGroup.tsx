@@ -1,11 +1,11 @@
-import {Card, Form, FormControlProps, Spinner} from "react-bootstrap";
-import {ChangeEvent, FormEvent, useEffect, useState} from "react";
+import {Card, Form, FormControlProps, InputGroup, Spinner} from "react-bootstrap";
+import {ChangeEvent, FormEvent, ReactElement, useEffect, useState} from "react";
 import {MdCheck, MdClose, MdDelete, MdEdit} from "react-icons/md";
 
 export interface FormFields {
     id?: number;
     name: string;
-    label: string;
+    label: string | ReactElement;
     type: FormControlProps["type"];
     value: FormControlProps["value"];
     error?: string;
@@ -74,19 +74,19 @@ export default function EditableFieldGroup({ title, groupName, showDelete, initE
                 <div>
                     {
                         loading ? <Spinner size="sm" /> :
-                        editing ?
-                            <>
-                                <MdCheck color="green" size={24} role="button" onClick={() => handleEdit()} />
-                                <MdClose color="red" size={24} role="button" onClick={cancelEdit} />
-                            </>
-                            :
-                            <>
-                                {
-                                    showDelete &&
+                            editing ?
+                                <>
+                                    <MdCheck color="green" size={24} role="button" onClick={() => handleEdit()} />
+                                    <MdClose color="red" size={24} role="button" onClick={cancelEdit} />
+                                </>
+                                :
+                                <>
+                                    {
+                                        showDelete &&
                                         <MdDelete size={24} role="button" onClick={handleDelete} />
-                                }
-                                <MdEdit size={24} role="button" onClick={() => setEditing(true)} />
-                            </>
+                                    }
+                                    <MdEdit size={24} role="button" onClick={() => setEditing(true)} />
+                                </>
                     }
                 </div>
             </Card.Header>
@@ -97,16 +97,18 @@ export default function EditableFieldGroup({ title, groupName, showDelete, initE
                             .map((field, index) => ({ ...field, value: values[index] }))
                             .map(({ name, label, type, value }, index) => (
                                 <Form.Group key={`field-group-${index}`} controlId={`register-user-address-${index}-country`} className="my-2">
-                                    <Form.Label>{ label }</Form.Label>
-                                    <Form.Control
-                                        name={name}
-                                        type={type}
-                                        value={value}
-                                        isInvalid={!!errors[index]}
-                                        onChange={handleChange}
-                                        disabled={loading || !editing}
-                                    />
-                                    <Form.Control.Feedback type="invalid">{errors[index]}</Form.Control.Feedback>
+                                    <InputGroup hasValidation>
+                                        <InputGroup.Text>{ label }</InputGroup.Text>
+                                        <Form.Control
+                                            name={name}
+                                            type={type}
+                                            value={value}
+                                            isInvalid={!!errors[index]}
+                                            onChange={handleChange}
+                                            disabled={loading || !editing}
+                                        />
+                                        <Form.Control.Feedback type="invalid">{errors[index]}</Form.Control.Feedback>
+                                    </InputGroup>
                                 </Form.Group>
                             ))
                     }
