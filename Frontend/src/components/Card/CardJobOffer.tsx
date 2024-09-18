@@ -3,8 +3,18 @@ import JobOfferBadge from "../Badges/JobOfferBadge.tsx";
 import { CiCircleInfo, CiZoomIn } from "react-icons/ci";
 import PaginationCustom from "../PaginationCustom.tsx";
 import { useNavigate } from "react-router-dom";
+import { ReducedJobOffer } from "../../types/JobOffer.ts";
 
-export default function CardJobOffer(props) {
+export type CardJobOfferProps = {
+  offers: ReducedJobOffer[];
+  page: number;
+  setPage: (n: number) => void;
+  totalPage: number;
+  cardTitle: string;
+  cardInfo: string;
+};
+
+export default function CardJobOffer(props: CardJobOfferProps) {
   let offers = props.offers;
   let page = props.page;
   let setPage = props.setPage;
@@ -39,9 +49,9 @@ export default function CardJobOffer(props) {
             <Card.Body>
               <Row className="align-items-center">
                 <Col xs={3}>
-                  {offer.customer.contactInfo.name +
+                  {offer.customer?.contactInfo.name +
                     " " +
-                    offer.customer.contactInfo.surname}
+                    offer.customer?.contactInfo.surname}
                   <br />
                 </Col>
                 <Col

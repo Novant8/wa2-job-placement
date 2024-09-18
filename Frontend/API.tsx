@@ -18,12 +18,10 @@ import Cookies from "js-cookie";
 import { CustomerFilter } from "./src/types/customerFilter.ts";
 import { JobProposal } from "./src/types/JobProposal.ts";
 import { DocumentHistory, DocumentMetadata } from "./src/types/documents.ts";
-import {
-  Message,
-  MessageCreate,
-  MessageEventInterface,
-} from "./src/types/message.ts";
+import { MessageCreate, MessageEventInterface } from "./src/types/message.ts";
 import { Pageable } from "./src/types/Pageable.ts";
+import { Page } from "./src/types/page.ts";
+import { sendEmailStruct } from "./src/types/sendEmail.ts";
 
 interface ErrorResponseBody {
   type: string;
@@ -90,10 +88,11 @@ async function customFetch(
     throw new ApiError(message);
   }
 }
+
 export function addJobOffer(
   job: JobOfferCreate,
   customerId: number,
-): Promise<number> {
+): Promise<JobOffer> {
   return customFetch(`/crm/API/customers/${customerId}/job-offers`, {
     method: "POST",
     headers: {
@@ -102,6 +101,7 @@ export function addJobOffer(
     body: JSON.stringify(job),
   });
 }
+
 export function updateJobOffer(
   jobOfferId: string | undefined,
   job: JobOfferCreate,
@@ -139,9 +139,11 @@ export function getProfessionalJobOffer(
 ): Promise<JobOfferResponse> {
   return customFetch(`/crm/API/joboffers?professionalId=${professionalId}`);
 }
+
 export function getProfessionalFromCurrentUser(): Promise<Professional> {
   return customFetch("/crm/API/professionals/user/me");
 }
+
 export function getCustomerFromCurrentUser(): Promise<Customer> {
   return customFetch("/crm/API/customers/user/me");
 }
@@ -261,6 +263,7 @@ export function updateProfessionalField<T extends ProfessionalField>(
     body: JSON.stringify({ [field]: value }),
   });
 }
+
 export function getContactById(
   contactId: number | undefined,
 ): Promise<Customer> {
@@ -272,14 +275,16 @@ export function getCustomerById(
 ): Promise<Customer> {
   return customFetch(`/crm/API/customers/${customerId}`);
 }
+
 export function getProfessionalById(
   professionalId: number | undefined,
 ): Promise<Professional> {
   return customFetch(`/crm/API/professionals/${professionalId}`);
 }
+
 export function getCustomers(
   filter?: CustomerFilter,
-  page?: Object,
+  page?: Page,
 ): Promise<any> {
   let endpoint = "/crm/API/customers";
 
@@ -379,6 +384,7 @@ export function uploadDocument(document: File): Promise<DocumentMetadata> {
     body: formData,
   });
 }
+
 export function createJobProposal(
   customerId: number | undefined,
   jobOfferId: number | undefined,
@@ -431,6 +437,7 @@ export function deleteDocumentVersion(
     { method: "DELETE" },
   );
 }
+
 export function getJobProposalbyOfferAndProfessional(
   offerId: number | undefined,
   professionalId: number | undefined,
@@ -481,6 +488,7 @@ export function loadJobProposalDocument(
     body: JSON.stringify(documentId),
   });
 }
+
 export function loadJobProposalSignedDocument(
   proposalId: number | undefined,
   documentId: number | null,
@@ -569,6 +577,7 @@ export async function getMessagges(
       });
   });
 }
+
 export async function getUnknowContacts(
   token: string | undefined,
   page?: Pageable | undefined,
@@ -619,7 +628,7 @@ export async function getUnknowContacts(
 export async function getProfessionals(
   token: string | undefined,
   filterDTO?: ProfessionalFilter | undefined,
-  page?: {} | undefined,
+  page?: Page | undefined,
 ): Promise<any> {
   return new Promise((resolve, reject) => {
     let endpoint = url + "/crm/API/professionals";
@@ -678,7 +687,8 @@ export async function getProfessionals(
       });
   });
 }
-export async function sendEmail(msg: sendEmail): Promise<any> {
+
+export async function sendEmail(msg: sendEmailStruct): Promise<any> {
   return customFetch(`/communication-manager/API/emails`, {
     method: "POST",
     headers: {
@@ -689,7 +699,7 @@ export async function sendEmail(msg: sendEmail): Promise<any> {
 }
 
 export async function getJobOffers(
-  page: {} | undefined,
+  page: Page | undefined,
   filterDTO?: JobOfferFilter,
 ): Promise<any> {
   let endpoint = url + "/crm/API/joboffers";

@@ -1,32 +1,22 @@
-import { /*React,*/ useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
-import {
-  Accordion,
-  Container,
-  InputGroup,
-  Form,
-  Button,
-  Col,
-  Card,
-  Row,
-} from "react-bootstrap";
+import { Card, Col, Container, Form, InputGroup, Row } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
-import { Professional } from "../types/professional.ts";
 import TagsInput from "react-tagsinput";
 import "react-tagsinput/react-tagsinput.css";
 import "../styles/CandidateManagement.css";
-import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar.tsx";
-import { CiCircleInfo, CiSearch, CiZoomIn } from "react-icons/ci";
+import { CiCircleInfo, CiSearch } from "react-icons/ci";
 import PaginationCustom from "../components/PaginationCustom.tsx";
 import CardProfessional from "../components/Card/ProfessionalCard.tsx";
-import JobOfferBadge from "../components/Badges/JobOfferBadge.tsx";
 import EmploymentBadge from "../components/Badges/EmploymentBadge.tsx";
+import { ProfessionalFilter } from "../types/professionalFilter.ts";
+import { ReducedProfessional } from "../types/professional.ts";
 
 export default function ProfessionalsView() {
   const { me } = useAuth();
-  const [professional, setProfessional] = useState({});
+  const [professional, setProfessional] = useState<ReducedProfessional[]>([]);
   const [location, setLocation] = useState("");
   const [skills, setSkills] = useState<string[]>([]); // Array di skill
 
@@ -35,13 +25,13 @@ export default function ProfessionalsView() {
 
   let statuses = ["EMPLOYED", "UNEMPLOYED"];
   const [checkedItems, setCheckedItems] = useState(
-    statuses.reduce((acc, status) => {
+    statuses.reduce((acc: { [key: string]: boolean }, status: string) => {
       acc[status] = true;
       return acc;
     }, {}),
   );
 
-  const handleCheckboxChange = (status) => {
+  const handleCheckboxChange = (status: string) => {
     setCheckedItems((prevState) => ({
       ...prevState,
       [status]: !prevState[status], // Toggle the checked state for the clicked checkbox
@@ -52,7 +42,7 @@ export default function ProfessionalsView() {
     const token = me?.xsrfToken;
     API.getProfessionals(token)
       .then((prof) => {
-        setProfessional(prof);
+        setProfessional(prof.content);
       })
       .catch((err) => {
         console.log(err);
@@ -62,20 +52,21 @@ export default function ProfessionalsView() {
   useEffect(() => {
     const token = me?.xsrfToken;
     const filteredCheckedItems = Object.entries(checkedItems)
-      .filter(([status, isChecked]) => isChecked)
+      .filter(([_status, isChecked]) => isChecked)
       .map(([status]) => status);
     //workaround
-    let filterDTO = {};
+    let filterDTO: ProfessionalFilter;
     if (filteredCheckedItems.length == 2) {
       filterDTO = {
         location: location,
         skills: skills,
+        employmentState: undefined,
       };
     } else {
       filterDTO = {
         location: location,
         skills: skills,
-        employmentState: filteredCheckedItems,
+        employmentState: filteredCheckedItems.toString(),
       };
     }
     if (filteredCheckedItems.length == 0) {
@@ -199,8 +190,8 @@ export default function ProfessionalsView() {
                 </Card.Header>
 
                 <Card.Body>
-                  {professional?.content?.length > 0 ? (
-                    professional.content?.map((e) => (
+                  {professional?.length > 0 ? (
+                    professional?.map((e: ReducedProfessional) => (
                       <>
                         <CardProfessional key={e.id} prof={e} />
                         <br />

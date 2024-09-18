@@ -1,7 +1,8 @@
-import { Button, Card, Carousel, Col, Container, Row } from "react-bootstrap";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
 
 import { CiLogin } from "react-icons/ci";
 import { useAuth } from "../contexts/auth.tsx";
+
 export default function HomePageNotLoggedIn() {
   return (
     <div>
@@ -32,7 +33,7 @@ const HeroSection = () => {
           <Button
             size="lg"
             variant={"info"}
-            onClick={() => (window.location.href = me?.loginUrl)}
+            onClick={() => (window.location.href = me?.loginUrl as string)}
           >
             <CiLogin size={24} /> Login/Register{" "}
           </Button>
@@ -63,7 +64,7 @@ const ServicesSection = () => {
 
               <Button
                 variant="primary"
-                onClick={() => (window.location.href = me?.loginUrl)}
+                onClick={() => (window.location.href = me?.loginUrl as string)}
               >
                 Find Jobs Now
               </Button>
@@ -85,7 +86,7 @@ const ServicesSection = () => {
               </Card.Text>
               <Button
                 variant="primary"
-                onClick={() => (window.location.href = me?.loginUrl)}
+                onClick={() => (window.location.href = me?.loginUrl as string)}
               >
                 Find Candidates Now
               </Button>

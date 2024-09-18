@@ -2,7 +2,6 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
 import { MessageCreate } from "../types/message.ts";
-import { useEffect } from "react";
 
 export default function ProfessionalAcceptDeclineProposalModal(props: any) {
   const handleAcceptDecline = (

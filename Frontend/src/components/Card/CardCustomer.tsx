@@ -1,40 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Customer } from "../../types/customer.ts";
-import * as API from "../../../API.tsx";
-import { Alert, Button, Card, Col, Row } from "react-bootstrap";
+
+import { Card, Col, Row } from "react-bootstrap";
 import { CustomerAccordionProps } from "../../routes/CustomersView.tsx";
-import EmploymentBadge from "../Badges/EmploymentBadge.tsx";
 import { CiZoomIn } from "react-icons/ci";
 
 export default function CardCustomer(props: CustomerAccordionProps) {
   const navigate = useNavigate();
-  const [formError, setFormError] = useState("");
-  const [customer, setCustomer] = useState<Customer>({
-    id: 0,
-    contactInfo: {
-      id: 0,
-      name: "",
-      surname: "",
-      ssn: "",
-      category: "UNKNOWN",
-      addresses: [],
-    },
-  });
 
-  useEffect(() => {
-    API.getCustomerById(props.cust.id)
-      .then((customer) => setCustomer(customer))
-      .catch((err) => setFormError(err.message));
-  }, []);
-
-  if (formError) {
-    return (
-      <Alert variant="danger">
-        <strong>Error:</strong> {formError}
-      </Alert>
-    );
-  }
   return (
     <Card>
       <Card.Body>

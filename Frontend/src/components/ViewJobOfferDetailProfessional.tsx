@@ -1,22 +1,22 @@
 import { useEffect, useState } from "react";
 import {
-  Form,
   Button,
   Col,
-  Row,
   Container,
-  Spinner,
+  Form,
   InputGroup,
-  Card,
+  Row,
+  Spinner,
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { JobOffer, JobOfferCreate } from "../types/JobOffer.ts";
 import { Contact, ContactCategory } from "../types/contact.ts";
 import * as API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
-import { Customer } from "../types/customer.ts";
+
 import JobProposalModalDetail from "./JobProposalDetailModal.tsx";
 import { Professional } from "../types/professional.ts";
+
 type Candidate = {
   id: number;
   name: string;
@@ -54,6 +54,7 @@ export default function ViewJobOfferDetailProfessional() {
     name: "",
     surname: "",
   });
+
   function updateInfoField<K extends keyof Contact>(
     field: K,
     value: Contact[K],
@@ -85,7 +86,7 @@ export default function ViewJobOfferDetailProfessional() {
         setUserInfo(professional);
         API.getJobOfferDetails(jobOfferId)
           .then((data) => {
-            console.log("DATI JOB OFFER PROFESSIONAL :" + data);
+            console.log("DATA JOB OFFER PROFESSIONAL :" + data);
             setJobOffer(data);
           })
           .catch(() => {
@@ -341,14 +342,15 @@ export default function ViewJobOfferDetailProfessional() {
               variant="warning"
               onClick={() => {
                 //setJobProposalDetailModalShow(true);
-
-                let selected: Candidate = {
-                  id: jobOffer.professional.id,
-                  name: jobOffer.professional.contactInfo.name,
-                  surname: jobOffer.professional.contactInfo.surname,
-                };
-                setSelectedCandidate(selected);
-                setJobProposalDetailModalShow(true);
+                if (jobOffer != undefined) {
+                  let selected: Candidate = {
+                    id: jobOffer?.professional.id,
+                    name: jobOffer?.professional.contactInfo.name,
+                    surname: jobOffer?.professional.contactInfo.surname,
+                  };
+                  setSelectedCandidate(selected);
+                  setJobProposalDetailModalShow(true);
+                }
               }}
               className="me-2"
             >

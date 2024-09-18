@@ -15,7 +15,7 @@ import UpdateMessageStatusModal from "./UpdateMessageStatusModal.tsx";
 
 export default function MessagesView() {
   const { me } = useAuth();
-  const [messages, setMessages] = useState({});
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [pageable, setPageable] = useState<Pageable | null>(null);
@@ -28,6 +28,7 @@ export default function MessagesView() {
   type MessageAccordionProps = {
     msg: Message;
   };
+
   function MessageAccordion(props: MessageAccordionProps) {
     //const navigate = useNavigate();
     return (
@@ -158,7 +159,7 @@ export default function MessagesView() {
     setLoading(true);
     API.getMessagges(token, status)
       .then((msg) => {
-        setMessages(msg);
+        setMessages(msg.content);
         setPageable(msg.pageable);
         setTotalPages(msg.totalPages);
       })
@@ -211,12 +212,10 @@ export default function MessagesView() {
             </Container>
           )}
 
-          {messages?.content?.length > 0 ? (
+          {messages?.length > 0 ? (
             <Accordion>
               {messages &&
-                messages.content?.map((e) => (
-                  <MessageAccordion key={e.id} msg={e} />
-                ))}
+                messages.map((e) => <MessageAccordion key={e.id} msg={e} />)}
             </Accordion>
           ) : (
             <div>There no received messages</div>
@@ -229,12 +228,10 @@ export default function MessagesView() {
             </Container>
           )}
 
-          {messages?.content?.length > 0 ? (
+          {messages?.length > 0 ? (
             <Accordion>
               {messages &&
-                messages.content?.map((e) => (
-                  <MessageAccordion key={e.id} msg={e} />
-                ))}
+                messages.map((e) => <MessageAccordion key={e.id} msg={e} />)}
             </Accordion>
           ) : (
             <div>There no read messages</div>
@@ -247,12 +244,10 @@ export default function MessagesView() {
             </Container>
           )}
 
-          {messages?.content?.length > 0 ? (
+          {messages?.length > 0 ? (
             <Accordion>
               {messages &&
-                messages.content?.map((e) => (
-                  <MessageAccordion key={e.id} msg={e} />
-                ))}
+                messages.map((e) => <MessageAccordion key={e.id} msg={e} />)}
             </Accordion>
           ) : (
             <div>There no processing messages</div>
@@ -265,12 +260,10 @@ export default function MessagesView() {
             </Container>
           )}
 
-          {messages?.content?.length > 0 ? (
+          {messages?.length > 0 ? (
             <Accordion>
               {messages &&
-                messages.content?.map((e) => (
-                  <MessageAccordion key={e.id} msg={e} />
-                ))}
+                messages.map((e) => <MessageAccordion key={e.id} msg={e} />)}
             </Accordion>
           ) : (
             <div>There no done messages</div>
@@ -283,12 +276,10 @@ export default function MessagesView() {
             </Container>
           )}
 
-          {messages?.content?.length > 0 ? (
+          {messages?.length > 0 ? (
             <Accordion>
               {messages &&
-                messages.content?.map((e) => (
-                  <MessageAccordion key={e.id} msg={e} />
-                ))}
+                messages.map((e) => <MessageAccordion key={e.id} msg={e} />)}
             </Accordion>
           ) : (
             <div>There no discarded messages</div>
@@ -301,12 +292,10 @@ export default function MessagesView() {
             </Container>
           )}
 
-          {messages?.content?.length > 0 ? (
+          {messages?.length > 0 ? (
             <Accordion>
               {messages &&
-                messages.content?.map((e) => (
-                  <MessageAccordion key={e.id} msg={e} />
-                ))}
+                messages.map((e) => <MessageAccordion key={e.id} msg={e} />)}
             </Accordion>
           ) : (
             <div>There no failed messages</div>

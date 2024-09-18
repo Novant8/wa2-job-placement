@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import {
-  Form,
   Button,
-  Col,
-  Row,
-  Container,
-  Spinner,
-  InputGroup,
   Card,
+  Col,
+  Container,
+  Form,
+  InputGroup,
+  Row,
+  Spinner,
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { JobOffer, JobOfferCreate, JobOfferStatus } from "../types/JobOffer.ts";
+import { JobOffer, JobOfferCreate } from "../types/JobOffer.ts";
 import ConfirmationModal from "./ConfirmationModal.tsx";
 
 import * as API from "../../API.tsx";
@@ -21,9 +21,6 @@ import SelectCandidateModal from "./SelectCandidateModal.tsx";
 import RemoveCandidateModal from "./RemoveCandidateModal.tsx";
 import JobProposalModal from "./JobProposalModal.tsx";
 import JobProposalModalDetail from "./JobProposalDetailModal.tsx";
-import { ReducedProfessional } from "../types/professional.ts";
-import { JobOfferUpdateStatus } from "../types/JobOffer.ts";
-import { ApiError } from "../../API.tsx";
 
 type Candidate = {
   id: number;
@@ -52,10 +49,9 @@ export default function ViewJobOfferDetailsRecruiter() {
     id: 0,
     name: "",
     surname: "",
-    cvDocument: null,
+    cvDocument: undefined,
   });
   const [notesLoading, setNotesLoading] = useState(false);
-  const [documentError, setDocumentError] = useState("");
 
   const { jobOfferId } = useParams();
   //const { me } = useAuth();
@@ -128,15 +124,15 @@ export default function ViewJobOfferDetailsRecruiter() {
       })
       .finally(() => setNotesLoading(false));
   }
+
   function handleViewDocument(documentId: number) {
-    setDocumentError("");
     API.getDocumentHistory(documentId)
       .then((history) => {
         let document = history.versions[0];
         const url = `/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`;
         window.open(url, "_blank");
       })
-      .catch((err: ApiError) => setDocumentError(err.message));
+      .catch(() => "Error");
   }
 
   const handleInputChange = (field: keyof JobOffer, value: any) => {
@@ -363,7 +359,7 @@ export default function ViewJobOfferDetailsRecruiter() {
           initValue={jobOffer?.notes || ""}
           loading={notesLoading}
           validate={(value) => value.trim().length > 0}
-          onEdit={(field, val) => {
+          onEdit={(_field, val) => {
             updateNotes(val);
           }}
         />
@@ -413,7 +409,8 @@ export default function ViewJobOfferDetailsRecruiter() {
           </>
         )}
 
-        {jobOffer?.candidates?.length > 0 &&
+        {jobOffer?.candidates?.length != undefined &&
+          jobOffer?.candidates?.length > 0 &&
           jobOffer?.offerStatus === "SELECTION_PHASE" && (
             <>
               <Container className="mt-5">
@@ -470,7 +467,9 @@ export default function ViewJobOfferDetailsRecruiter() {
                             variant="primary"
                             disabled={!candidate.cvDocument}
                             onClick={() =>
-                              handleViewDocument(candidate.cvDocument)
+                              candidate.cvDocument != undefined
+                                ? handleViewDocument(candidate.cvDocument)
+                                : null
                             }
                           >
                             Download CV
@@ -526,7 +525,11 @@ export default function ViewJobOfferDetailsRecruiter() {
                         variant="primary"
                         disabled={!jobOffer?.professional.cvDocument}
                         onClick={() =>
-                          handleViewDocument(jobOffer?.professional.cvDocument)
+                          jobOffer?.professional.cvDocument != undefined
+                            ? handleViewDocument(
+                                jobOffer?.professional.cvDocument,
+                              )
+                            : null
                         }
                       >
                         Download CV

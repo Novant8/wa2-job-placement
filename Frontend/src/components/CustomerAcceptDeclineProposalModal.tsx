@@ -5,14 +5,14 @@ import { MessageCreate } from "../types/message.ts";
 
 export default function CustomerAcceptDeclineProposalModal(props: any) {
   /*const testMessage = (msg: MessageCreate) => {
-    API.createMessage(msg)
-      .then(() => {
-        console.log("okay");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };*/
+      API.createMessage(msg)
+        .then(() => {
+          console.log("okay");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };*/
 
   const handleAcceptDecline = (
     customerConfirm: boolean,
@@ -108,19 +108,19 @@ export default function CustomerAcceptDeclineProposalModal(props: any) {
                   props.jobOffer.description,
               });
               /*testMessage({
-                sender: {
-                  email: props.customerInfo.contactInfo.addresses?.find(
-                    (address: { email?: string }) => address.email,
-                  )?.email,
-                },
-                channel: "EMAIL",
-                subject: "proposal id: " + props.proposalId + "accepted",
-                body:
-                  "proposal id: " +
-                  props.proposalId +
-                  "accepted by the customer " +
-                  props.customerId,
-              });*/
+                              sender: {
+                                email: props.customerInfo.contactInfo.addresses?.find(
+                                  (address: { email?: string }) => address.email,
+                                )?.email,
+                              },
+                              channel: "EMAIL",
+                              subject: "proposal id: " + props.proposalId + "accepted",
+                              body:
+                                "proposal id: " +
+                                props.proposalId +
+                                "accepted by the customer " +
+                                props.customerId,
+                            });*/
             }}
           >
             Accept
@@ -152,19 +152,19 @@ export default function CustomerAcceptDeclineProposalModal(props: any) {
               });
               //console.log(props.customerInfo);
               /*testMessage({
-                sender: {
-                  email: props.customerInfo.contactInfo.addresses?.find(
-                    (address: { email?: string }) => address.email,
-                  )?.email,
-                },
-                channel: "EMAIL",
-                subject: "proposal id: " + props.proposalId + "declined",
-                body:
-                  "proposal id: " +
-                  props.proposalId +
-                  "declined by the customer " +
-                  props.customerId,
-              });*/
+                              sender: {
+                                email: props.customerInfo.contactInfo.addresses?.find(
+                                  (address: { email?: string }) => address.email,
+                                )?.email,
+                              },
+                              channel: "EMAIL",
+                              subject: "proposal id: " + props.proposalId + "declined",
+                              body:
+                                "proposal id: " +
+                                props.proposalId +
+                                "declined by the customer " +
+                                props.customerId,
+                            });*/
             }}
           >
             Decline

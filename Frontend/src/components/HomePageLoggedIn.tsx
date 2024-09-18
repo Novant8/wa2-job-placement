@@ -1,27 +1,13 @@
-import {
-  Button,
-  Card,
-  Col,
-  Container,
-  ListGroup,
-  Nav,
-  Navbar,
-  Row,
-} from "react-bootstrap";
-import TopNavbar from "./TopNavbar.tsx";
+import { Button, Card, Col, Container, ListGroup, Row } from "react-bootstrap";
 import { useAuth } from "../contexts/auth.tsx";
 import { useEffect, useState } from "react";
-import Aside from "./Aside.tsx";
-import AsideContent from "./AsideContent.tsx";
-import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar.tsx";
-import { ContactCategory } from "../types/contact.ts";
 import * as API from "../../API.tsx";
 import CardJobOffer from "./Card/CardJobOffer.tsx";
+import { JobOfferFilter } from "../types/JobOfferFilter.ts";
 
 export default function HomePageLoggedIn() {
   const { me } = useAuth();
-  const navigate = useNavigate();
   return (
     <>
       {me?.roles.includes("customer") ? (
@@ -53,9 +39,10 @@ function DashboardCustomer() {
 
     API.getCustomerFromCurrentUser()
       .then((customer) => {
-        let filter = {
-          customerId: customer.id,
-          status: ["CANDIDATE_PROPOSAL"],
+        let filter: JobOfferFilter = {
+          customerId: customer.id.toString(),
+          status: "CANDIDATE_PROPOSAL",
+          professionalId: undefined,
         };
 
         API.getJobOffers(paging, filter)
@@ -65,10 +52,10 @@ function DashboardCustomer() {
             setJobOffers(data.content);
           })
           .catch(() => {
-            setError("Failed to fetch job offers");
+            "Failed to fetch job offers";
           });
       })
-      .catch((err) => setError(err.message));
+      .catch(() => "Error");
   }, [me, page]);
 
   useEffect(() => {
@@ -81,9 +68,10 @@ function DashboardCustomer() {
 
     API.getCustomerFromCurrentUser()
       .then((customer) => {
-        let filter = {
-          customerId: customer.id,
-          status: ["CONSOLIDATED"],
+        let filter: JobOfferFilter = {
+          customerId: customer.id.toString(),
+          status: "CONSOLIDATED",
+          professionalId: undefined,
         };
 
         API.getJobOffers(paging, filter)
@@ -93,10 +81,10 @@ function DashboardCustomer() {
             setJobOffers1(data.content);
           })
           .catch(() => {
-            setError("Failed to fetch job offers");
+            "Failed to fetch job offers";
           });
       })
-      .catch((err) => setError(err.message));
+      .catch(() => "Error");
   }, [me, page1]);
 
   return (

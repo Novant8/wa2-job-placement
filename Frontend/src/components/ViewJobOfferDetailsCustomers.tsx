@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import {
-  Form,
   Button,
-  Col,
-  Row,
-  Container,
-  Spinner,
-  InputGroup,
   Card,
+  Col,
+  Container,
+  Form,
+  InputGroup,
+  Row,
+  Spinner,
 } from "react-bootstrap";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { JobOffer, JobOfferCreate } from "../types/JobOffer.ts";
 import { Contact, ContactCategory } from "../types/contact.ts";
 import * as API from "../../API.tsx";
@@ -17,9 +17,7 @@ import { useAuth } from "../contexts/auth.tsx";
 import { Customer } from "../types/customer.ts";
 import JobProposalModalDetail from "./JobProposalDetailModal.tsx";
 import ConfirmationModal from "./ConfirmationModal.tsx";
-import { set } from "js-cookie";
-import { ApiError } from "../../API.tsx";
-import Sidebar from "./Sidebar.tsx";
+
 type Candidate = {
   id: number;
   name: string;
@@ -35,7 +33,7 @@ export default function ViewJobOfferDetailsCustomers() {
   const [dirty, setDirty] = useState(false);
   const [modalShow, setModalShow] = useState<boolean>(false);
   const [modalAction, setModalAction] = useState<string>("");
-  const [documentError, setDocumentError] = useState("");
+
   const [userInfo, setUserInfo] = useState<Customer>({
     id: 0,
     contactInfo: {
@@ -49,15 +47,15 @@ export default function ViewJobOfferDetailsCustomers() {
   });
   const { jobOfferId } = useParams();
   const { me } = useAuth();
-  const navigate = useNavigate();
   const [jobProposalDetailModalShow, setJobProposalDetailModalShow] =
     useState<boolean>(false);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate>({
     id: 0,
     name: "",
     surname: "",
-    cvDocument: null,
+    cvDocument: undefined,
   });
+
   function updateInfoField<K extends keyof Contact>(
     field: K,
     value: Contact[K],
@@ -117,7 +115,6 @@ export default function ViewJobOfferDetailsCustomers() {
     API.updateJobOffer(jobOfferId, updatedJobOffer)
       .then(() => {
         setIsEditable(false);
-        navigate();
       })
       .catch(() => {
         setError("Failed to update job offer");
@@ -158,15 +155,15 @@ export default function ViewJobOfferDetailsCustomers() {
       requiredSkills: updatedSkills,
     });
   };
+
   function handleViewDocument(documentId: number) {
-    setDocumentError("");
     API.getDocumentHistory(documentId)
       .then((history) => {
         let document = history.versions[0];
         const url = `/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`;
         window.open(url, "_blank");
       })
-      .catch((err: ApiError) => setDocumentError(err.message));
+      .catch(() => "Error");
   }
 
   if (loading) {
@@ -393,7 +390,11 @@ export default function ViewJobOfferDetailsCustomers() {
                       variant="primary"
                       disabled={!jobOffer?.professional.cvDocument}
                       onClick={() =>
-                        handleViewDocument(jobOffer?.professional.cvDocument)
+                        jobOffer?.professional.cvDocument != undefined
+                          ? handleViewDocument(
+                              jobOffer?.professional.cvDocument,
+                            )
+                          : null
                       }
                     >
                       Download CV

@@ -9,6 +9,7 @@ export type JobOfferStatus =
   | "CONSOLIDATED"
   | "DONE"
   | "ABORTED";
+
 export interface ReducedJobOffer {
   id: number;
   description: string;

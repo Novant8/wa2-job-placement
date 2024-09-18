@@ -11,7 +11,6 @@ import { Contact, ContactCategory } from "../types/contact.ts";
 import ProfessionalAcceptDeclineProposalModal from "./ProfessionalAcceptDeclineProposalModal.tsx";
 import { Professional } from "../types/professional.ts";
 import { UploadDocumentField } from "./UploadDocumentField.tsx";
-import { ApiError, loadJobProposalSignedDocument } from "../../API.tsx";
 import { Accordion, ButtonGroup, Spinner } from "react-bootstrap";
 import { DocumentHistory } from "../types/documents.ts";
 
@@ -253,6 +252,7 @@ export default function JobProposalModalDetail(props: any) {
       })
       .finally(() => setLoadingDocument(false));
   }
+
   function deleteSignedContract(documentId: number) {
     if (!jobProposal) return;
     setLoadingSignedDocument(true);
@@ -268,6 +268,7 @@ export default function JobProposalModalDetail(props: any) {
       })
       .finally(() => setLoadingSignedDocument(false));
   }
+
   if (loading) {
     return <Spinner />;
   }

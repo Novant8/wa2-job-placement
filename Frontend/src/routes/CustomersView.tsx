@@ -1,26 +1,23 @@
 import { useEffect, useState } from "react";
 
 import * as API from "../../API.tsx";
-//import {useAuth} from "../contexts/auth.tsx";
+
 import {
-  Accordion,
-  Container,
-  InputGroup,
-  Form,
-  Row,
-  Col,
-  Alert,
-  Button,
   Card,
+  Col,
+  Container,
+  Form,
+  InputGroup,
   Pagination,
+  Row,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 import { Customer } from "../types/customer.ts";
-import { isEmailAddress, isPhoneAddress } from "../types/address.ts";
-import { useNavigate } from "react-router-dom";
+
 import Sidebar from "../components/Sidebar.tsx";
 import { CiCircleInfo, CiSearch } from "react-icons/ci";
 import CardCustomer from "../components/Card/CardCustomer.tsx";
+
 export type CustomerAccordionProps = {
   cust: Customer;
 };
@@ -28,7 +25,7 @@ export type CustomerAccordionProps = {
 export default function CustomersView() {
   //const {me} = useAuth()
 
-  const [customers, setCustomers] = useState({});
+  const [customers, setCustomers] = useState<Customer[]>();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [telephone, setTelephone] = useState("");
@@ -48,9 +45,9 @@ export default function CustomersView() {
     };
     API.getCustomers(filter, paging)
       .then((customer) => {
-        setCustomers({});
+        setCustomers([]);
         setTotalPage(customer.totalPages);
-        setCustomers(customer);
+        setCustomers(customer.content);
       })
       .catch((err) => {
         console.log(err);
@@ -160,10 +157,10 @@ export default function CustomersView() {
                   <Card.Title> Customers's List</Card.Title>
                 </Card.Header>
                 <Card.Body>
-                  {customers?.content?.length > 0 ? (
-                    customers.content.map((customer) => (
+                  {customers && customers.length > 0 ? (
+                    customers.map((c) => (
                       <>
-                        <CardCustomer key={customer.id} cust={customer} />
+                        <CardCustomer key={c.id} cust={c} />
                         <br />
                       </>
                     ))

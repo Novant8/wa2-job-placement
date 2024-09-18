@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
-  Form,
-  Button,
-  Row,
-  Col,
-  Spinner,
   Alert,
+  Button,
+  Col,
+  Form,
   InputGroup,
+  Row,
+  Spinner,
 } from "react-bootstrap";
 import * as API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
@@ -15,8 +15,13 @@ import { Contact, ContactCategory } from "../types/contact.ts";
 
 import * as Icon from "react-bootstrap-icons";
 import { MdDelete } from "react-icons/md";
+import { JobOffer } from "../types/JobOffer.ts";
 
-export default function CreateJobOffer(props) {
+export type CreateJobOfferProps = {
+  addJobOffer: (o: JobOffer) => void;
+};
+
+export default function CreateJobOffer(props: CreateJobOfferProps) {
   const [loadingForm, setLoadingForm] = useState(true);
   const [description, setDescription] = useState("");
   const [requiredSkills, setRequiredSkills] = useState<string[]>([""]);

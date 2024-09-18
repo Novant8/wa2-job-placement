@@ -2,6 +2,7 @@ import { Contact, ReducedContact } from "./contact.ts";
 
 export type UserSkill = string;
 export type EmploymentState = "UNEMPLOYED" | "EMPLOYED" | "NOT_AVAILABLE";
+
 export interface Professional {
   id: number;
   contactInfo: Contact;
@@ -21,6 +22,7 @@ export interface ReducedProfessional {
   employmentState: EmploymentState;
   cvDocument?: number;
 }
+
 export type CreateProfessionalReduced = Pick<
   Professional,
   "location" | "dailyRate" | "skills" | "notes"

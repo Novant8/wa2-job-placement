@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  Button,
   Card,
   Col,
   Container,
@@ -11,15 +10,14 @@ import {
 } from "react-bootstrap";
 import * as API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
-import { Pageable } from "../types/Pageable.ts";
+
 import { ReducedJobOffer } from "../types/JobOffer.ts";
-import { useNavigate } from "react-router-dom";
-import ListJobOffer from "./Card/CardJobOffer.tsx";
+
 import CardJobOffer from "./Card/CardJobOffer.tsx";
 import { CiCircleInfo, CiSearch } from "react-icons/ci";
 import * as Icon from "react-bootstrap-icons";
 import JobOfferBadge from "./Badges/JobOfferBadge.tsx";
-//import * as Icon from "react-bootstrap-icons";
+import { JobOfferFilter } from "../types/JobOfferFilter.ts";
 
 export default function ViewRecruiterJobOffer() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
@@ -28,9 +26,7 @@ export default function ViewRecruiterJobOffer() {
   const [error, setError] = useState<string | null>(null);
   const { me } = useAuth();
   const [professionalId, setProfessionalId] = useState("");
-  const [status, setStatus] = useState("");
   const [customerId, setCustomerId] = useState("");
-  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [mappedProfessional, setMappedProfessional] = useState<OptionItem[]>(
@@ -44,13 +40,13 @@ export default function ViewRecruiterJobOffer() {
     "CREATED",
   ];
   const [checkedItems, setCheckedItems] = useState(
-    statuses.reduce((acc, status) => {
+    statuses.reduce((acc: { [key: string]: boolean }, status: string) => {
       acc[status] = true;
       return acc;
     }, {}),
   );
 
-  const handleCheckboxChange = (status) => {
+  const handleCheckboxChange = (status: string) => {
     setCheckedItems((prevState) => ({
       ...prevState,
       [status]: !prevState[status], // Toggle the checked state for the clicked checkbox
@@ -77,6 +73,7 @@ export default function ViewRecruiterJobOffer() {
     skills: string[];
     employmentState: string;
   }
+
   interface ContentItemCustomer {
     id: number;
     contactInfo: ContactInfo;
@@ -101,8 +98,7 @@ export default function ViewRecruiterJobOffer() {
   }, []);
 
   useEffect(() => {
-    const token = me?.xsrfToken;
-    API.getCustomers(token)
+    API.getCustomers(undefined, undefined)
       .then((customer) => {
         const mappedOptions: OptionItem[] = customer.content.map(
           (item: ContentItemCustomer) => ({
@@ -118,16 +114,15 @@ export default function ViewRecruiterJobOffer() {
   }, []);
 
   useEffect(() => {
-    const token = me?.xsrfToken;
     console.log(checkedItems);
 
     const filteredCheckedItems = Object.entries(checkedItems)
-      .filter(([status, isChecked]) => isChecked)
+      .filter(([_status, isChecked]) => isChecked)
       .map(([status]) => status);
 
-    const filterDTO = {
+    const filterDTO: JobOfferFilter = {
       professionalId: professionalId,
-      status: filteredCheckedItems,
+      status: filteredCheckedItems.toString(),
       customerId: customerId,
     };
 

@@ -8,6 +8,7 @@ import { ReducedJobOffer } from "../types/JobOffer.ts";
 import CreateJobOffer from "./CreateJobOffer.tsx";
 import { CiCircleInfo } from "react-icons/ci";
 import CardJobOffer from "./Card/CardJobOffer.tsx";
+import { JobOfferFilter } from "../types/JobOfferFilter.ts";
 
 export default function ViewCustomerJobOffer() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
@@ -28,6 +29,7 @@ export default function ViewCustomerJobOffer() {
       addresses: [],
     },
   });
+
   function updateInfoField<K extends keyof Contact>(
     field: K,
     value: Contact[K],
@@ -62,8 +64,10 @@ export default function ViewCustomerJobOffer() {
     API.getCustomerFromCurrentUser()
       .then((customer) => {
         setUserInfo(customer);
-        let filter = {
-          customerId: customer.id,
+        let filter: JobOfferFilter = {
+          customerId: customer.id.toString(),
+          professionalId: undefined,
+          status: undefined,
         };
 
         API.getJobOffers(paging, filter)
@@ -95,9 +99,11 @@ export default function ViewCustomerJobOffer() {
       </Container>
     );
   }
+
   function addJobOffer(j: ReducedJobOffer) {
     setJobOffers([...jobOffers, j]);
   }
+
   return (
     <Container>
       <CardJobOffer

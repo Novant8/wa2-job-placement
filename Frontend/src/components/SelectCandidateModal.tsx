@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
 import {
   Accordion,
@@ -23,7 +22,6 @@ export type CandidateAccordionProps = {
 };
 
 function ProfessionalAccordion(props: CandidateAccordionProps) {
-  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
 
   function handleCandidate() {
@@ -54,7 +52,6 @@ function ProfessionalAccordion(props: CandidateAccordionProps) {
           ) : (
             ""
           )}
-          {/*TODO: mostrare gli addresses della contact info ???*/}
           <div>Location: {props.prof.location}</div>
           <div>
             Skills:{" "}
@@ -93,7 +90,7 @@ function ProfessionalAccordion(props: CandidateAccordionProps) {
 
 export default function SelectCandidateModal(props: any) {
   //const navigate = useNavigate();
-  const [professional, setProfessional] = useState({});
+  const [professional, setProfessional] = useState<Professional[] | null>(null);
   const { me } = useAuth();
 
   const [location, setLocation] = useState("");
@@ -111,7 +108,7 @@ export default function SelectCandidateModal(props: any) {
 
     API.getProfessionals(token, filterDTO)
       .then((prof) => {
-        setProfessional(prof);
+        setProfessional(prof.content);
       })
       .catch((err) => {
         console.log(err);
@@ -161,27 +158,23 @@ export default function SelectCandidateModal(props: any) {
             </div>
           </InputGroup>
 
-          {professional?.content?.length > 0 ? (
+          {professional != undefined && professional.length > 0 ? (
             <Accordion>
-              {
-                /*candidates && candidates.content.map((e) =>
-                            <ProfessionalAccordion key={e.id} prof={e}/>*/
-                professional &&
-                  professional.content?.map(
-                    (e) => (
-                      <ProfessionalAccordion
-                        key={e.id}
-                        prof={e}
-                        jobOffer={props.jobOffer}
-                        setDirty={props.setDirty}
-                        onHide={props.onHide}
-                      />
-                    ),
+              {professional &&
+                professional.map(
+                  (e) => (
+                    <ProfessionalAccordion
+                      key={e.id}
+                      prof={e}
+                      jobOffer={props.jobOffer}
+                      setDirty={props.setDirty}
+                      onHide={props.onHide}
+                    />
+                  ),
 
-                    /* candidates && filteredCandidates.map((e) =>
-                                 <ProfessionalAccordion key={e.id} prof={e}/>*/
-                  )
-              }
+                  /* candidates && filteredCandidates.map((e) =>
+                                                   <ProfessionalAccordion key={e.id} prof={e}/>*/
+                )}
             </Accordion>
           ) : (
             <div>There no candidates matching the filters</div>

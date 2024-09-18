@@ -1,12 +1,8 @@
 import * as API from "../../API.tsx";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Customer } from "../types/customer.ts";
 import { ReducedJobOffer } from "../types/JobOffer.ts";
-import { useAuth } from "../contexts/auth.tsx";
-import { Contact, ContactCategory } from "../types/contact.ts";
 import {
-  Alert,
   Button,
   Card,
   Col,
@@ -22,7 +18,6 @@ import {
   isPhoneAddress,
 } from "../types/address.ts";
 import EditableField from "../components/EditableField.tsx";
-import { getProfessionalJobOffer, updateCustomerNotes } from "../../API.tsx";
 import { Professional } from "../types/professional.ts";
 import Sidebar from "../components/Sidebar.tsx";
 import { FaCircleArrowLeft } from "react-icons/fa6";
@@ -72,6 +67,8 @@ export default function ProfessionaInfo() {
         };
         let filter: JobOfferFilter = {
           professionalId: professionalId,
+          customerId: undefined,
+          status: undefined,
         };
         API.getJobOffers(paging, filter)
           .then((data) => {
@@ -257,7 +254,7 @@ export default function ProfessionaInfo() {
                     initValue={professional.notes || ""}
                     loading={notesLoading}
                     validate={(value) => value.trim().length > 0}
-                    onEdit={(field, val) => updateNotes(val)}
+                    onEdit={(_field, val) => updateNotes(val)}
                   />
                 </Row>
 

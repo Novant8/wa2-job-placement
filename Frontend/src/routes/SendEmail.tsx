@@ -1,12 +1,9 @@
 import {
-  Accordion,
   Button,
   Card,
   Col,
   Container,
   Form,
-  ListGroup,
-  Pagination,
   Row,
   Spinner,
 } from "react-bootstrap";
@@ -14,10 +11,12 @@ import React, { useEffect, useState } from "react";
 import * as API from "../../API.tsx";
 import { sendEmailStruct } from "../types/sendEmail.ts";
 import { useAuth } from "../contexts/auth.tsx";
-import { EmailAddress, getAddressType } from "../types/address.ts";
+import { Address, EmailAddress, getAddressType } from "../types/address.ts";
 import { BiMailSend } from "react-icons/bi";
 import AddressBook from "../components/MailAddressBook/AddressBook.tsx";
 import Sidebar from "../components/Sidebar.tsx";
+import { emailContacts } from "../types/emailContacts.ts";
+import { Customer } from "../types/customer.ts";
 
 interface EmailContacts {
   id: String;
@@ -146,20 +145,21 @@ export default function SendEmail() {
       setEmailContactsCust([]);
 
       const customerDetails = await Promise.all(
-        customers.map((c) => API.getCustomerById(c.id)),
+        customers.map((c: Customer) => API.getCustomerById(c.id)),
       );
 
       // Transform the fetched data into emailContacts
       const contacts = customerDetails.map((item) => {
-        return {
+        let contact: emailContacts = {
           id: item.id,
           name: item.contactInfo.name,
           surname: item.contactInfo.surname,
           role: "CUSTOMER",
           address: item.contactInfo.addresses
-            .filter((a) => getAddressType(a) === "EMAIL")
-            .map((a) => (a as EmailAddress).email),
+            .filter((a: Address) => getAddressType(a) === "EMAIL")
+            .map((a: EmailAddress) => a.email),
         };
+        return contact;
       });
 
       // Update state

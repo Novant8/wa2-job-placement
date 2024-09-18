@@ -18,13 +18,13 @@ import { Contact, ContactCategory } from "../types/contact.ts";
 import { Professional, UserSkill } from "../types/professional.ts";
 import {
   Address,
-  EmailAddress,
-  PhoneAddress,
-  DwellingAddress,
   AddressType,
+  DwellingAddress,
+  EmailAddress,
+  isDwellingAddress,
   isEmailAddress,
   isPhoneAddress,
-  isDwellingAddress,
+  PhoneAddress,
 } from "../types/address.ts";
 import * as API from "../../API.tsx";
 import { ApiError, ProfessionalField } from "../../API.tsx";

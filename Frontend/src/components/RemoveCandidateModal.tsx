@@ -1,7 +1,6 @@
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
-import { JobOfferUpdateStatus } from "../types/JobOffer.ts";
 
 export default function RemoveCandidateModal(props: any) {
   const handleRemoveCandidate = () => {

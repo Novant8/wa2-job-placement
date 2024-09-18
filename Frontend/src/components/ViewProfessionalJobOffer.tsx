@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Container, Row, Spinner } from "react-bootstrap";
+import { Container, Spinner } from "react-bootstrap";
 import * as API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
 import { Customer } from "../types/customer.ts";
 import { Contact, ContactCategory } from "../types/contact.ts";
-import { Pageable } from "../types/Pageable.ts";
+
 import { ReducedJobOffer } from "../types/JobOffer.ts";
-import { useNavigate } from "react-router-dom";
-import { CiCircleInfo } from "react-icons/ci";
-import ListJobOffer from "./Card/CardJobOffer.tsx";
-import PaginationCustom from "./PaginationCustom.tsx";
+
 import CardJobOffer from "./Card/CardJobOffer.tsx";
 
 export default function ViewProfessionalJobOffer() {
@@ -18,7 +15,7 @@ export default function ViewProfessionalJobOffer() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { me } = useAuth();
-  const navigate = useNavigate();
+
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
 
@@ -33,6 +30,7 @@ export default function ViewProfessionalJobOffer() {
       addresses: [],
     },
   });
+
   function updateInfoField<K extends keyof Contact>(
     field: K,
     value: Contact[K],

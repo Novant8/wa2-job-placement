@@ -1,9 +1,6 @@
 import { useAuth } from "../contexts/auth.tsx";
 import { Col, Container, Row } from "react-bootstrap";
 import Sidebar from "../components/Sidebar.tsx";
-import ViewCustomerJobOffer from "../components/ViewCustomerJobOffer.tsx";
-import ViewRecruiterJobOffer from "../components/ViewRecruiterJobOffer.tsx";
-import ViewProfessionalJobOffer from "../components/ViewProfessionalJobOffer.tsx";
 import ViewJobOfferDetailsCustomers from "../components/ViewJobOfferDetailsCustomers.tsx";
 import ViewJobOfferDetailsRecruiter from "../components/ViewJobOfferDetailRecruiter.tsx";
 import ViewJobOfferDetailProfessional from "../components/ViewJobOfferDetailProfessional.tsx";

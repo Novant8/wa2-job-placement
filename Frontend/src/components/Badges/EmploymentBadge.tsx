@@ -1,6 +1,10 @@
 import { Badge } from "react-bootstrap";
 
-export default function EmploymentBadge(props) {
+export type EmploymentBadgeProps = {
+  status: string;
+};
+
+export default function EmploymentBadge(props: EmploymentBadgeProps) {
   let status = props.status;
   //"UNEMPLOYED" | "EMPLOYED"
   return (

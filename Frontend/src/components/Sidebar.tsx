@@ -1,7 +1,7 @@
 import { useAuth } from "../contexts/auth.tsx";
 import { useNavigate } from "react-router-dom";
-import { Button, ListGroup, Nav } from "react-bootstrap";
-import { CiHome, CiLogout, CiUser } from "react-icons/ci";
+import { Button, ListGroup } from "react-bootstrap";
+import { CiHome, CiLogout } from "react-icons/ci";
 
 export default function Sidebar() {
   const { me } = useAuth();
@@ -39,7 +39,7 @@ export default function Sidebar() {
         </ListGroup.Item>
       </ListGroup>
 
-      <Button onClick={() => (window.location.href = me?.logoutUrl)}>
+      <Button onClick={() => (window.location.href = me?.logoutUrl as string)}>
         <CiLogout size={24} />
         Logout
       </Button>

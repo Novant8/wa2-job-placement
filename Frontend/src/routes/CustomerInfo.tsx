@@ -4,25 +4,14 @@ import { useEffect, useState } from "react";
 import { Customer } from "../types/customer.ts";
 import { ReducedJobOffer } from "../types/JobOffer.ts";
 import { useAuth } from "../contexts/auth.tsx";
-import { Contact, ContactCategory } from "../types/contact.ts";
-import {
-  Alert,
-  Button,
-  Card,
-  Col,
-  Container,
-  Row,
-  Spinner,
-} from "react-bootstrap";
+import { Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
 import {
   isDwellingAddress,
   isEmailAddress,
   isPhoneAddress,
 } from "../types/address.ts";
 import EditableField from "../components/EditableField.tsx";
-import { updateCustomerNotes } from "../../API.tsx";
 import Sidebar from "../components/Sidebar.tsx";
-import EditAccountForm from "../components/EditAccountForm.tsx";
 import { FaCircleArrowLeft } from "react-icons/fa6";
 import CardJobOffer from "../components/Card/CardJobOffer.tsx";
 import { JobOfferFilter } from "../types/JobOfferFilter.ts";
@@ -64,7 +53,9 @@ export default function CustomerInfo() {
           pageSize: 5,
         };
         let filter: JobOfferFilter = {
-          customerId: customer.id,
+          customerId: customerId,
+          professionalId: undefined,
+          status: undefined,
         };
         API.getJobOffers(paging, filter)
           .then((data) => {
@@ -88,7 +79,7 @@ export default function CustomerInfo() {
 
     API.updateCustomerNotes(customerIdNumber, notes)
       .then((customer) => setCustomer(customer))
-      .catch((error) => setError("Error occured when updating Customer Notes"))
+      .catch(() => setError("Error occured when updating Customer Notes"))
       .finally(() => setNotesLoading(false));
   }
 
@@ -197,7 +188,7 @@ export default function CustomerInfo() {
                       initValue={customer.notes || ""}
                       loading={notesLoading}
                       validate={(value) => value.trim().length > 0}
-                      onEdit={(field, val) => updateNotes(val)}
+                      onEdit={(_field, val) => updateNotes(val)}
                     />
                   ) : (
                     <>

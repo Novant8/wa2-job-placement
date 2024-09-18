@@ -1,6 +1,12 @@
 import { Pagination } from "react-bootstrap";
 
-export default function PaginationCustom(props) {
+export type PaginationCustomProps = {
+  totalPage: number;
+  page: number;
+  setPage: (n: number) => void;
+};
+
+export default function PaginationCustom(props: PaginationCustomProps) {
   return (
     <>
       {props.totalPage < props.page ? (
