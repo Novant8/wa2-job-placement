@@ -24,7 +24,7 @@ import { updateCustomerNotes } from "../../API.tsx";
 import Sidebar from "../components/Sidebar.tsx";
 import EditAccountForm from "../components/EditAccountForm.tsx";
 import { FaCircleArrowLeft } from "react-icons/fa6";
-import CardJobOffer from "../components/CardJobOffer.tsx";
+import CardJobOffer from "../components/Card/CardJobOffer.tsx";
 import { JobOfferFilter } from "../types/JobOfferFilter.ts";
 
 export default function CustomerInfo() {
@@ -116,19 +116,26 @@ export default function CustomerInfo() {
             <Sidebar />
           </Col>
           <Col xs={10}>
-            <Button
-              className="d-flex align-items-center text-sm-start"
-              onClick={() => navigate("/crm/customers")}
-            >
-              <FaCircleArrowLeft /> Back to Customer's List
-            </Button>
-            <br />
             <Card>
               <Card.Header>
                 <Card.Title as="h2">
-                  {customer.contactInfo?.name +
-                    "\t" +
-                    customer.contactInfo?.surname}
+                  <Row className="justify-content-begin">
+                    <Col xs={4}>
+                      <Button
+                        className="d-flex align-items-center text-sm-start"
+                        onClick={() => navigate("/crm/customers")}
+                      >
+                        <FaCircleArrowLeft /> &nbsp; Back
+                      </Button>
+                    </Col>
+                    <Col xs={4}>
+                      <div className="text-center">
+                        {customer.contactInfo?.name +
+                          " " +
+                          customer.contactInfo?.surname}
+                      </div>
+                    </Col>
+                  </Row>
                 </Card.Title>
               </Card.Header>
               <Card.Body>

@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar.tsx";
 import { CiCircleInfo, CiSearch, CiZoomIn } from "react-icons/ci";
 import PaginationCustom from "../components/PaginationCustom.tsx";
-import CardProfessional from "../components/ProfessionalCard.tsx";
+import CardProfessional from "../components/Card/ProfessionalCard.tsx";
 import JobOfferBadge from "../components/Badges/JobOfferBadge.tsx";
 import EmploymentBadge from "../components/Badges/EmploymentBadge.tsx";
 

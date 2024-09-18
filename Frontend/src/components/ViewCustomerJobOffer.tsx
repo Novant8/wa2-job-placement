@@ -11,8 +11,8 @@ import CreateJobOffer from "./CreateJobOffer.tsx";
 import { CiCircleInfo, CiZoomIn } from "react-icons/ci";
 import PaginationCustom from "./PaginationCustom.tsx";
 import JobOfferBadge from "./Badges/JobOfferBadge.tsx";
-import ListJobOffer from "./CardJobOffer.tsx";
-import CardJobOffer from "./CardJobOffer.tsx";
+import ListJobOffer from "./Card/CardJobOffer.tsx";
+import CardJobOffer from "./Card/CardJobOffer.tsx";
 
 export default function ViewCustomerJobOffer() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);

@@ -1,8 +1,8 @@
-import { Professional } from "../types/professional.ts";
+import { Professional } from "../../types/professional.ts";
 import { useNavigate } from "react-router-dom";
 import { Card, Col, Row } from "react-bootstrap";
 import { CiZoomIn } from "react-icons/ci";
-import EmploymentBadge from "./Badges/EmploymentBadge.tsx";
+import EmploymentBadge from "../Badges/EmploymentBadge.tsx";
 
 export type ProfessionalAccordionProps = {
   prof: Professional;

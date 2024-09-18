@@ -12,7 +12,7 @@ import * as API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
 import { Customer } from "../types/customer.ts";
 import { Contact, ContactCategory } from "../types/contact.ts";
-import { addJobOffer } from "../../API.tsx";
+
 import * as Icon from "react-bootstrap-icons";
 import { MdDelete } from "react-icons/md";
 

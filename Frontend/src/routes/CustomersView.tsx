@@ -20,70 +20,10 @@ import { isEmailAddress, isPhoneAddress } from "../types/address.ts";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar.tsx";
 import { CiCircleInfo, CiSearch } from "react-icons/ci";
-
+import CardCustomer from "../components/Card/CardCustomer.tsx";
 export type CustomerAccordionProps = {
   cust: Customer;
 };
-
-function CustomerCard(props: CustomerAccordionProps) {
-  const navigate = useNavigate();
-  const [formError, setFormError] = useState("");
-  const [customer, setCustomer] = useState<Customer>({
-    id: 0,
-    contactInfo: {
-      id: 0,
-      name: "",
-      surname: "",
-      ssn: "",
-      category: "UNKNOWN",
-      addresses: [],
-    },
-  });
-
-  useEffect(() => {
-    API.getCustomerById(props.cust.id)
-      .then((customer) => setCustomer(customer))
-      .catch((err) => setFormError(err.message));
-  }, []);
-
-  if (formError) {
-    return (
-      <Alert variant="danger">
-        <strong>Error:</strong> {formError}
-      </Alert>
-    );
-  }
-  return (
-    <Card>
-      <Card.Body>
-        <Row>
-          <Col>
-            <b>
-              {" "}
-              {customer.contactInfo?.name} {customer.contactInfo?.surname}
-            </b>
-          </Col>
-          <Col>
-            {props.cust.contactInfo.ssn ? (
-              <div>SSN: {customer.contactInfo.ssn}</div>
-            ) : (
-              ""
-            )}
-            {customer.notes ? props.cust.notes : ""}
-          </Col>
-          <Col>
-            <Button
-              className="primary "
-              onClick={() => navigate(`${customer.id}`)}
-            >
-              View Details
-            </Button>
-          </Col>
-        </Row>
-      </Card.Body>
-    </Card>
-  );
-}
 
 export default function CustomersView() {
   //const {me} = useAuth()
@@ -104,7 +44,7 @@ export default function CustomersView() {
     };
     let paging = {
       pageNumber: page - 1,
-      pageSize: 1,
+      pageSize: 5,
     };
     API.getCustomers(filter, paging)
       .then((customer) => {
@@ -223,7 +163,7 @@ export default function CustomersView() {
                   {customers?.content?.length > 0 ? (
                     customers.content.map((customer) => (
                       <>
-                        <CustomerCard key={customer.id} cust={customer} />
+                        <CardCustomer key={customer.id} cust={customer} />
                         <br />
                       </>
                     ))

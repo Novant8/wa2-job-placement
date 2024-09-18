@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar.tsx";
 import { ContactCategory } from "../types/contact.ts";
 import * as API from "../../API.tsx";
-import CardJobOffer from "./CardJobOffer.tsx";
+import CardJobOffer from "./Card/CardJobOffer.tsx";
 
 export default function HomePageLoggedIn() {
   const { me } = useAuth();

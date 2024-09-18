@@ -26,7 +26,7 @@ import { getProfessionalJobOffer, updateCustomerNotes } from "../../API.tsx";
 import { Professional } from "../types/professional.ts";
 import Sidebar from "../components/Sidebar.tsx";
 import { FaCircleArrowLeft } from "react-icons/fa6";
-import CardJobOffer from "../components/CardJobOffer.tsx";
+import CardJobOffer from "../components/Card/CardJobOffer.tsx";
 import { JobOfferFilter } from "../types/JobOfferFilter.ts";
 
 export default function ProfessionaInfo() {

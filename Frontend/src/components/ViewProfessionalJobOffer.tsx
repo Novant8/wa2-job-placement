@@ -8,9 +8,9 @@ import { Pageable } from "../types/Pageable.ts";
 import { ReducedJobOffer } from "../types/JobOffer.ts";
 import { useNavigate } from "react-router-dom";
 import { CiCircleInfo } from "react-icons/ci";
-import ListJobOffer from "./CardJobOffer.tsx";
+import ListJobOffer from "./Card/CardJobOffer.tsx";
 import PaginationCustom from "./PaginationCustom.tsx";
-import CardJobOffer from "./CardJobOffer.tsx";
+import CardJobOffer from "./Card/CardJobOffer.tsx";
 
 export default function ViewProfessionalJobOffer() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
