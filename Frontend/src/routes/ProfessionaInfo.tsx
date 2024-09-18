@@ -25,6 +25,9 @@ import EditableField from "../components/EditableField.tsx";
 import { getProfessionalJobOffer, updateCustomerNotes } from "../../API.tsx";
 import { Professional } from "../types/professional.ts";
 import Sidebar from "../components/Sidebar.tsx";
+import { FaCircleArrowLeft } from "react-icons/fa6";
+import CardJobOffer from "../components/CardJobOffer.tsx";
+import { JobOfferFilter } from "../types/JobOfferFilter.ts";
 
 export default function ProfessionaInfo() {
   const navigate = useNavigate();
@@ -35,6 +38,8 @@ export default function ProfessionaInfo() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
   const [professional, setProfessional] = useState<Professional>({
     id: 0,
     contactInfo: {
@@ -60,13 +65,19 @@ export default function ProfessionaInfo() {
     API.getProfessionalById(professionalIdNumber)
       .then((professional) => {
         setProfessional(professional);
-        API.getProfessionalJobOffer(professional.id)
+
+        let paging = {
+          pageNumber: page - 1,
+          pageSize: 5,
+        };
+        let filter: JobOfferFilter = {
+          professionalId: professionalId,
+        };
+        API.getJobOffers(paging, filter)
           .then((data) => {
+            setJobOffers([]);
             setJobOffers(data.content);
-            /*
-                    setPageable(data.pageable);
-                    setTotalPages(data.totalPages);
-                    */
+            setTotalPage(data.totalPages);
           })
           .catch(() => {
             setError("Failed to fetch job offers");
@@ -104,20 +115,6 @@ export default function ProfessionaInfo() {
     );
   }
 
-  const notDoneOffers = jobOffers.filter(
-    (offer) =>
-      offer.offerStatus.toString() !== "DONE" &&
-      offer.offerStatus.toString() !== "ABORT",
-  );
-
-  console.log(notDoneOffers);
-
-  const doneOffers = jobOffers.filter(
-    (offer) =>
-      offer.offerStatus.toString() == "DONE" ||
-      offer.offerStatus.toString() == "ABORT",
-  );
-
   return (
     <>
       <Container fluid>
@@ -125,195 +122,159 @@ export default function ProfessionaInfo() {
           <Col xs={2}>
             <Sidebar />
           </Col>
-          <Col xs>
-            <Row className="pb-3" style={{ borderBottom: "dotted grey 1px" }}>
-              <h1>
-                {professional?.contactInfo.name +
-                  "\t" +
-                  professional?.contactInfo.surname}
-              </h1>
-            </Row>
-            <Row className="mt-3" style={{ justifyContent: "center" }}>
-              <Col sm={6}>
-                <h3>Contacts</h3>
-              </Col>
-              <Row className="pb-3" style={{ borderBottom: "dotted grey 1px" }}>
-                {professional?.contactInfo?.addresses.map((address) => {
-                  if (isEmailAddress(address)) {
-                    return (
-                      <Col sm={6} key={address.id}>
-                        <b> Email </b>: <br /> {address.email}
-                      </Col>
-                    );
-                  } else if (isPhoneAddress(address)) {
-                    return (
-                      <Col sm={6} key={address.id}>
-                        <b>Telephone</b>: <br />
-                        {address.phoneNumber}
-                      </Col>
-                    );
-                  } else if (isDwellingAddress(address)) {
-                    return (
-                      <Col sm={6} key={address.id}>
-                        <b>Address</b>: <br />
-                        {address.street +
-                          ", " +
-                          address.city +
-                          ", " +
-                          address.district +
-                          address.country}
-                      </Col>
-                    );
-                  }
-                })}
-              </Row>
-            </Row>
+          <Col xs={10}>
+            <Card>
+              <Card.Header>
+                <Card.Title as="h2">
+                  <Row className="justify-content-begin">
+                    <Col xs={4}>
+                      <Button
+                        className="d-flex align-items-center text-sm-start"
+                        onClick={() => navigate("/crm/professionals")}
+                      >
+                        <FaCircleArrowLeft /> &nbsp; Back
+                      </Button>
+                    </Col>
+                    <Col xs={4}>
+                      <div className="text-center">
+                        {professional.contactInfo?.name +
+                          " " +
+                          professional.contactInfo?.surname}
+                      </div>
+                    </Col>
+                  </Row>
+                </Card.Title>
+              </Card.Header>
+              <Card.Body>
+                <Row>
+                  <Col>
+                    <h3>Contacts</h3>
+                  </Col>
+                </Row>
+                <Row
+                  className="pb-3"
+                  style={{ borderBottom: "dotted grey 1px" }}
+                >
+                  <Col sm={4}>
+                    <b>Email</b>
+                  </Col>
+                  <Col sm={4}>
+                    <b>Telephone</b>
+                  </Col>
+                  <Col sm={4}>
+                    <b>Address </b>
+                  </Col>
 
-            <Row
-              className="mt-3"
-              style={{
-                justifyContent: "center",
-                borderBottom: "dotted grey 1px",
-              }}
-            >
-              <Col sm={6}>
-                <h3>Information</h3>
-              </Col>
-              <Row className="mt-3 pb-3">
-                <Col sm={3}>
-                  <b> Location </b>: <br /> {professional?.location}
-                </Col>
-                <Col sm={3}>
-                  <b> SSN </b>: <br />{" "}
-                  {professional?.contactInfo.ssn
-                    ? professional?.contactInfo.ssn
-                    : "N/A"}
-                </Col>
-                <Col sm={3}>
-                  <b> Employment State </b>: <br />{" "}
-                  {professional?.employmentState}
-                </Col>
-                <Col sm={3}>
-                  <b> Daily Rate </b>: <br /> {professional?.dailyRate}
-                </Col>
-              </Row>
-            </Row>
+                  {professional.contactInfo?.addresses.map((address) => {
+                    if (isEmailAddress(address)) {
+                      return (
+                        <Col sm={4} key={address.id}>
+                          {address.email}
+                          <br />
+                        </Col>
+                      );
+                    } else if (isPhoneAddress(address)) {
+                      return (
+                        <Col sm={4} key={address.id}>
+                          {address.phoneNumber}
+                          <br />
+                        </Col>
+                      );
+                    } else if (isDwellingAddress(address)) {
+                      return (
+                        <Col sm={4} key={address.id}>
+                          {address.street +
+                            ", " +
+                            address.city +
+                            ", " +
+                            address.district +
+                            address.country}
+                          <br />
+                        </Col>
+                      );
+                    }
+                  })}
+                </Row>
+                <Row
+                  className="mt-3"
+                  style={{
+                    justifyContent: "center",
+                    borderBottom: "dotted grey 1px",
+                  }}
+                >
+                  <Col sm={6}>
+                    <h3>Information</h3>
+                  </Col>
+                  <Row className="mt-3 pb-3">
+                    <Col sm={3}>
+                      <b> Location </b>: <br /> {professional?.location}
+                    </Col>
+                    <Col sm={3}>
+                      <b> SSN </b>: <br />{" "}
+                      {professional?.contactInfo.ssn
+                        ? professional?.contactInfo.ssn
+                        : "N/A"}
+                    </Col>
+                    <Col sm={3}>
+                      <b> Employment State </b>: <br />{" "}
+                      {professional?.employmentState}
+                    </Col>
+                    <Col sm={3}>
+                      <b> Daily Rate </b>: <br /> {professional?.dailyRate}
+                    </Col>
+                  </Row>
+                </Row>
 
-            <Row
-              className="mt-3"
-              style={{
-                justifyContent: "center",
-                borderBottom: "dotted grey 1px",
-              }}
-            >
-              <h3>Skills</h3>
-              <Form.Group controlId="formRequiredSkills" className="mb-3">
-                {professional.skills.map((skill, index) => (
-                  <InputGroup key={index} className="mb-2">
-                    <Form.Control type="text" value={skill} disabled={true} />
-                  </InputGroup>
-                ))}
-              </Form.Group>
-            </Row>
+                <Row
+                  className="mt-3"
+                  style={{
+                    justifyContent: "center",
+                    borderBottom: "dotted grey 1px",
+                  }}
+                >
+                  <h3>Skills</h3>
+                  <Form.Group controlId="formRequiredSkills" className="mb-3">
+                    {professional.skills.map((skill, index) => (
+                      <InputGroup key={index} className="mb-2">
+                        <Form.Control
+                          type="text"
+                          value={skill}
+                          disabled={true}
+                        />
+                      </InputGroup>
+                    ))}
+                  </Form.Group>
+                </Row>
 
-            <Row
-              className="mt-3 pb-3"
-              style={{ borderBottom: "dotted grey 1px" }}
-            >
-              <h3>Notes</h3>
-              <EditableField
-                label=""
-                name="Notes"
-                initValue={professional.notes || ""}
-                loading={notesLoading}
-                validate={(value) => value.trim().length > 0}
-                onEdit={(field, val) => updateNotes(val)}
-              />
-            </Row>
+                <Row
+                  className="mt-3 pb-3"
+                  style={{ borderBottom: "dotted grey 1px" }}
+                >
+                  <h3>Notes</h3>
+                  <EditableField
+                    label=""
+                    name="Notes"
+                    initValue={professional.notes || ""}
+                    loading={notesLoading}
+                    validate={(value) => value.trim().length > 0}
+                    onEdit={(field, val) => updateNotes(val)}
+                  />
+                </Row>
 
-            <Row
-              className="mt-3 pb-3"
-              style={{ borderBottom: "dotted grey 1px" }}
-            >
-              <h3> Active Job Offer</h3>
-              {notDoneOffers.length > 0 ? (
-                <>
-                  {notDoneOffers.map((offer) => (
-                    <Row key={offer.id} xs={12} className="mb-4">
-                      <Card>
-                        <Card.Body>
-                          <Card.Title>Job Offer ID: {offer.id}</Card.Title>
-                          <Card.Text>
-                            <strong>Description:</strong> {offer.description}{" "}
-                            &nbsp;
-                            <strong>Status:</strong> {offer.offerStatus}&nbsp;
-                            <strong>Professional:</strong>{" "}
-                            {offer.professional
-                              ? offer.professional.contactInfo.name +
-                                " " +
-                                offer.professional.contactInfo.surname
-                              : "N/A"}
-                          </Card.Text>
-
-                          <Button
-                            variant="primary"
-                            onClick={() =>
-                              navigate(`/crm/RecruiterJobOffer/${offer.id}`, {
-                                replace: true,
-                              })
-                            }
-                          >
-                            View
-                          </Button>
-                        </Card.Body>
-                      </Card>
-                    </Row>
-                  ))}
-                </>
-              ) : (
-                <p>No Active job offers available.</p>
-              )}
-            </Row>
-            <Row className="mt-3 pb-3">
-              <h3> Completed Job Offer</h3>
-              {doneOffers.length > 0 ? (
-                <>
-                  {doneOffers.map((offer) => (
-                    <Row key={offer.id} xs={12} className="mb-4">
-                      <Card>
-                        <Card.Body>
-                          <Card.Title>Job Offer ID: {offer.id}</Card.Title>
-                          <Card.Text>
-                            <strong>Description:</strong> {offer.description}{" "}
-                            &nbsp;
-                            <strong>Status:</strong> {offer.offerStatus}&nbsp;
-                            <strong>Professional:</strong>{" "}
-                            {offer.professional
-                              ? offer.professional.contactInfo.name +
-                                " " +
-                                offer.professional.contactInfo.surname
-                              : "N/A"}
-                          </Card.Text>
-
-                          <Button
-                            variant="primary"
-                            onClick={() =>
-                              navigate(`/crm/RecruiterJobOffer/${offer.id}`, {
-                                replace: true,
-                              })
-                            }
-                          >
-                            View
-                          </Button>
-                        </Card.Body>
-                      </Card>
-                    </Row>
-                  ))}
-                </>
-              ) : (
-                <p>No completed job offers available.</p>
-              )}
-            </Row>
+                <Row className="m-2">
+                  <CardJobOffer
+                    page={page}
+                    setPage={setPage}
+                    totalPage={totalPage}
+                    cardInfo={
+                      "In this section you can consult all the job offers where the professional is involved"
+                    }
+                    cardTitle={"Job Offers"}
+                    offers={jobOffers}
+                  />
+                </Row>
+              </Card.Body>
+            </Card>
           </Col>
         </Row>
       </Container>
