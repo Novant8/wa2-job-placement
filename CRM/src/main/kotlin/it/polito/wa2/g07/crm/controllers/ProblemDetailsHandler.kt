@@ -42,6 +42,10 @@ class ProblemDetailsHandler: ResponseEntityExceptionHandler() {
     fun handleContactAssociation(e: ContactAssociationException)=
         ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,e.message!!)
 
+    @ExceptionHandler(JobProposalValidationException::class)
+    fun handleJobProposalValidation(e:JobProposalValidationException)=
+        ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, e.message!!)
+
     override fun handleMethodArgumentNotValid(
         ex: MethodArgumentNotValidException,
         headers: HttpHeaders,

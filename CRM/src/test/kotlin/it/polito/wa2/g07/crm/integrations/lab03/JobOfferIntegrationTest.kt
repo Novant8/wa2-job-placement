@@ -47,7 +47,7 @@ class JobOfferIntegrationTest: CrmApplicationTests() {
     lateinit var objectMapper: ObjectMapper
 
     @Nested
-    inner class RetriveJobOffer {
+    inner class RetrieveJobOffer {
         private var customerID_1 = 0L
         private var jobOfferID_1 = 0L
         private var jobOfferID_2 = 0L

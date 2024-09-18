@@ -3,15 +3,22 @@ package it.polito.wa2.g07.crm.services.project
 import it.polito.wa2.g07.crm.dtos.lab03.JobOfferDTO
 import it.polito.wa2.g07.crm.dtos.lab03.toJobOfferDTO
 import it.polito.wa2.g07.crm.dtos.project.JobProposalDTO
+import it.polito.wa2.g07.crm.dtos.project.JobProposalKafkaDTO
 import it.polito.wa2.g07.crm.dtos.project.toJobProposalDTO
+import it.polito.wa2.g07.crm.dtos.project.toJobProposalKafkaDTO
 import it.polito.wa2.g07.crm.entities.project.JobProposal
 import it.polito.wa2.g07.crm.entities.project.ProposalStatus
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
+import it.polito.wa2.g07.crm.exceptions.JobProposalValidationException
 import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 import it.polito.wa2.g07.crm.repositories.lab03.JobOfferRepository
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
 import it.polito.wa2.g07.crm.repositories.project.JobProposalRepository
+import it.polito.wa2.g07.crm.services.lab03.JobOfferServiceImpl
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.data.jpa.domain.AbstractPersistable_.id
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.jvm.optionals.getOrElse
@@ -21,7 +28,8 @@ class JobProposalServiceImpl (
     private val jobOfferRepository: JobOfferRepository,
     private val customerRepository: CustomerRepository,
     private val professionalRepository: ProfessionalRepository,
-    private val proposalRepository: JobProposalRepository
+    private val proposalRepository: JobProposalRepository,
+    private val kafkaTemplate: KafkaTemplate<String,JobProposalKafkaDTO>
 ):JobProposalService{
      @Transactional
     override fun createJobProposal(customerId: Long, professionalId: Long, jobOfferId: Long): JobProposalDTO {
@@ -34,7 +42,8 @@ class JobProposalServiceImpl (
          customer.addJobProposal(jobProposal);
          professional.addJobProposal(jobProposal)
 
-
+         logger.info("Created Job Proposal with ID #${jobProposal.proposalID}")
+         kafkaTemplate.send("JOB_PROPOSAL-CREATE",jobProposal.toJobProposalKafkaDTO())
         return proposalRepository.save(jobProposal).toJobProposalDTO()
     }
 
@@ -56,11 +65,20 @@ class JobProposalServiceImpl (
         val proposal = proposalRepository.findById(proposalId).orElseThrow { EntityNotFoundException("The proposal with ID $proposalId is not found") }
         if(proposal.customer.customerId != customerId)
             throw EntityNotFoundException("The customer does not belong to this proposal")
+
+        else if (proposal.documentId == null && customerConfirm ){
+            throw JobProposalValidationException("The customer must upload a contract before accept the proposal ")
+        }
         else
         {
             proposal.customerConfirm = customerConfirm
-            if (!customerConfirm)
+            if (!customerConfirm){
                 proposal.status = ProposalStatus.DECLINED
+                logger.info("Customer ${proposal.customer.contactInfo.name} ${proposal.customer.contactInfo.surname} has declined Job Proposal #${proposal.proposalID}")
+            }else{
+                logger.info("Customer ${proposal.customer.contactInfo.name} ${proposal.customer.contactInfo.surname} has accepted Job Proposal #${proposal.proposalID}")
+            }
+            kafkaTemplate.send("JOB_PROPOSAL-UPDATE",proposal.toJobProposalKafkaDTO())
             return proposalRepository.save(proposal).toJobProposalDTO()
         }
 
@@ -73,14 +91,26 @@ class JobProposalServiceImpl (
         val proposal = proposalRepository.findById(proposalId).orElseThrow { EntityNotFoundException("The proposal with ID $proposalId is not found") }
         if(proposal.professional.professionalId != professionalId)
             throw EntityNotFoundException("The professional does not belong to this proposal")
+        else if (!proposal.customerConfirm){
+            throw JobProposalValidationException("The professional cannot accept the proposal before the customer has done so.")
+        }
+        else if (proposal.professionalSignedContract == null && professionalConfirm ){
+            throw JobProposalValidationException("The professional must upload a signed contract before accept the proposal ")
+        }
         else
         {
 
-            if (!professionalConfirm)
+            if (!professionalConfirm){
+                logger.info("Professional ${proposal.professional.contactInfo.name} ${proposal.professional.contactInfo.surname} has declined Job Proposal #${proposal.proposalID}")
                 proposal.status = ProposalStatus.DECLINED
-            else
-                proposal.status= ProposalStatus.ACCEPTED
+            }
 
+            else{
+                proposal.status= ProposalStatus.ACCEPTED
+                logger.info("Professional ${proposal.professional.contactInfo.name} ${proposal.professional.contactInfo.surname} has accepted Job Proposal #${proposal.proposalID}")
+            }
+
+            kafkaTemplate.send("JOB_PROPOSAL-UPDATE",proposal.toJobProposalKafkaDTO())
             return proposalRepository.save(proposal).toJobProposalDTO()
         }
 
@@ -92,14 +122,33 @@ class JobProposalServiceImpl (
         val proposal = proposalRepository.findById(proposalId).orElseThrow { EntityNotFoundException("The proposal with ID $proposalId is not found") }
 
         proposal.documentId = documentId;
+        if (documentId != null )
+          logger.info("Customer ${proposal.customer.contactInfo.name} ${proposal.customer.contactInfo.surname} has upload a new contract for Job Proposal #${proposal.proposalID}")
+        else
+            logger.info("Customer ${proposal.customer.contactInfo.name} ${proposal.customer.contactInfo.surname} has removed the contract from Job Proposal #${proposal.proposalID}")
+
+        kafkaTemplate.send("JOB_PROPOSAL-UPDATE",proposal.toJobProposalKafkaDTO())
         return proposalRepository.save(proposal).toJobProposalDTO()
     }
 
     @Transactional
     override fun loadSignedDocument(proposalId: Long, documentId: Long?): JobProposalDTO {
         val proposal = proposalRepository.findById(proposalId).orElseThrow { EntityNotFoundException("The proposal with ID $proposalId is not found") }
+        if (proposal.documentId == null ){
+            throw JobProposalValidationException("The professional cannot upload the contract before the customer has done so")
+        }
+
+        if (documentId != null )
+            logger.info("Professional ${proposal.professional.contactInfo.name} ${proposal.professional.contactInfo.surname} has upload a new contract for Job Proposal #${proposal.proposalID}")
+        else
+            logger.info("Professional ${proposal.professional.contactInfo.name} ${proposal.professional.contactInfo.surname} has removed the contract from Job Proposal #${proposal.proposalID}")
 
         proposal.professionalSignedContract = documentId;
+        kafkaTemplate.send("JOB_PROPOSAL-UPDATE",proposal.toJobProposalKafkaDTO())
         return proposalRepository.save(proposal).toJobProposalDTO()
+    }
+
+    companion object{
+        val logger: Logger = LoggerFactory.getLogger(JobOfferServiceImpl::class.java)
     }
 }
