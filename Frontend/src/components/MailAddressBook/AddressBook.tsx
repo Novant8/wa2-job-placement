@@ -24,7 +24,9 @@ export default function AddressBook({
         ) : (
           <p>No items to display</p>
         )}
-        <Pagination>
+        <Pagination
+          className={" d-flex justify-content-center align-items-center"}
+        >
           <Pagination.First onClick={() => setPage(1)} />
           <Pagination.Prev
             onClick={() => {

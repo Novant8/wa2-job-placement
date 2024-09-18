@@ -1,6 +1,7 @@
 import {
   Alert,
   Button,
+  Card,
   Col,
   Dropdown,
   DropdownButton,
@@ -184,11 +185,11 @@ export default function EditAccountForm() {
     });
   }
 
-    function updateUserSkills(skills: UserSkill[], index: number) {
-        loadingSubmit.professional.skills[index] = true;
-        setLoadingSubmit({ ...loadingSubmit });
-        errors.professional.skills[index] = "";
-        setErrors({ ...errors });
+  function updateUserSkills(skills: UserSkill[], index: number) {
+    loadingSubmit.professional.skills[index] = true;
+    setLoadingSubmit({ ...loadingSubmit });
+    errors.professional.skills[index] = "";
+    setErrors({ ...errors });
 
     const professionalInfo = userInfo as ProfessionalUserInfo;
     API.updateProfessionalSkills(professionalInfo.professional.id, skills)
@@ -242,29 +243,30 @@ export default function EditAccountForm() {
     updateUserSkills(updatedSkills, index);
   }
 
-    async function updateUserCategory(category: ContactCategory) {
-        if(category == "UNKNOWN") return;
-        setLoadingSubmit({ ...loadingSubmit, category: true })
-        setErrors({ ...errors, category: "" })
-        try {
-            if (category === "PROFESSIONAL") {
-                const {contactInfo, ...professional} = await API.bindContactToProfessional(userInfo.id, {
-                    location: "",
-                    skills: [],
-                    dailyRate: 0
-                });
-                await refreshToken();
-                setUserInfo({...contactInfo, professional});
-            } else {
-                const {contactInfo} = await API.bindContactToCustomer(userInfo.id);
-                setUserInfo(contactInfo);
-            }
-        } catch (err: any) {
-            if(err instanceof ApiError)
-                setErrors({ ...errors, category: err.message });
-        }
-        setLoadingSubmit({ ...loadingSubmit, category: false });
+  async function updateUserCategory(category: ContactCategory) {
+    if (category == "UNKNOWN") return;
+    setLoadingSubmit({ ...loadingSubmit, category: true });
+    setErrors({ ...errors, category: "" });
+    try {
+      if (category === "PROFESSIONAL") {
+        const { contactInfo, ...professional } =
+          await API.bindContactToProfessional(userInfo.id, {
+            location: "",
+            skills: [],
+            dailyRate: 0,
+          });
+        await refreshToken();
+        setUserInfo({ ...contactInfo, professional });
+      } else {
+        const { contactInfo } = await API.bindContactToCustomer(userInfo.id);
+        setUserInfo(contactInfo);
+      }
+    } catch (err: any) {
+      if (err instanceof ApiError)
+        setErrors({ ...errors, category: err.message });
     }
+    setLoadingSubmit({ ...loadingSubmit, category: false });
+  }
 
   function updateContactField(field: SingleUpdatableField, value: string) {
     setErrors({ ...errors, [field]: "" });
@@ -486,173 +488,187 @@ export default function EditAccountForm() {
     );
   }
 
-  const showSelectRole = !me?.roles.some(role => [ "manager", "operator" ].includes(role));
+  const showSelectRole = !me?.roles.some((role) =>
+    ["manager", "operator"].includes(role),
+  );
 
   return (
-    <div>
-      <h2>Basic Information</h2>
-      <hr />
-      {
-        showSelectRole && (
-          loadingSubmit.category ? (
+    <>
+      <Card>
+        <Card.Header>
+          <Card.Title>
+            Details of {userInfo.name} {userInfo.surname}
+          </Card.Title>
+        </Card.Header>
+
+        <Card.Body>
+          {showSelectRole &&
+            (loadingSubmit.category ? (
               <Spinner size="sm" />
-          ) : (
-            <Form.Group controlId="register-user-userType" className="my-2">
-              <Form.Label>
-                I'm a... <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Select
-                name="category"
-                onChange={(e) =>
+            ) : (
+              <Form.Group controlId="register-user-userType" className="my-2">
+                <Form.Label>
+                  I'm a... <span className="text-danger">*</span>
+                </Form.Label>
+                <Form.Select
+                  name="category"
+                  onChange={(e) =>
                     updateUserCategory(e.target.value as ContactCategory)
-                }
-                disabled={userInfo.category !== "UNKNOWN" || loadingSubmit.category}
-                value={userInfo.category}
-                isInvalid={!!errors.category}
-              >
-                {userInfo.category === "UNKNOWN" ? (
-                  <>
-                    <option value="UNKNOWN">Select...</option>
-                    <option value="CUSTOMER">Customer</option>
-                    <option value="PROFESSIONAL">Professional</option>
-                  </>
-                ) : (
-                  <option value={userInfo.category}>
-                    {firstUpper(userInfo.category)}
-                  </option>
-                )}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {errors.category}
-              </Form.Control.Feedback>
-            </Form.Group>
-          )
-        )
-      }
-      <Row>
-        <Col sm={6}>
-          <EditableField
-            label="Name"
-            name="name"
-            initValue={userInfo.name}
-            loading={loadingSubmit.name}
-            error={errors.name}
-            validate={(value) => value.trim().length > 0}
-            onEdit={(field, val) =>
-              updateContactField(field as SingleUpdatableField, val)
-            }
-          />
-        </Col>
-        <Col sm={6}>
-          <EditableField
-            label="Surname"
-            name="surname"
-            initValue={userInfo.surname}
-            loading={loadingSubmit.surname}
-            error={errors.surname}
-            validate={(value) => value.length > 0}
-            onEdit={(field, val) =>
-              updateContactField(field as SingleUpdatableField, val)
-            }
-          />
-        </Col>
-      </Row>
-      <EditableField
-        label="SSN"
-        name="ssn"
-        initValue={userInfo.ssn || ""}
-        loading={loadingSubmit.ssn as boolean}
-        error={errors.ssn}
-        validate={(value) => value?.length > 0}
-        onEdit={(field, val) =>
-          updateContactField(field as SingleUpdatableField, val)
-        }
-      />
-      <h2 className="mt-3">Contact Information</h2>
-      <hr />
-      {userInfo.addresses.map((address, i) => (
-        <AddressFieldGroup
-          key={`address-${i}`}
-          index={i}
-          address={address}
-          errors={errors}
-          loading={loadingSubmit}
-          onEdit={addOrEditAddress}
-          onDelete={removeAddress}
-          onCancel={handleCancelAddress}
-        />
-      ))}
-      <div className="text-center my-2">
-        <DropdownButton
-          title="Add new address"
-          id="add-address"
-          variant="light"
-          onSelect={(key) => addAddressField(key as AddressType)}
-        >
-          <Dropdown.Item eventKey="EMAIL">Email</Dropdown.Item>
-          <Dropdown.Item eventKey="TELEPHONE">Phone Number</Dropdown.Item>
-          <Dropdown.Item eventKey="ADDRESS">Home Address</Dropdown.Item>
-        </DropdownButton>
-      </div>
-      {isProfessional(userInfo) && (
-        <>
-          <div className="my-2">
-            <h3 className="mt-3">Resume</h3>
+                  }
+                  disabled={
+                    userInfo.category !== "UNKNOWN" || loadingSubmit.category
+                  }
+                  value={userInfo.category}
+                  isInvalid={!!errors.category}
+                >
+                  {userInfo.category === "UNKNOWN" ? (
+                    <>
+                      <option value="UNKNOWN">Select...</option>
+                      <option value="CUSTOMER">Customer</option>
+                      <option value="PROFESSIONAL">Professional</option>
+                    </>
+                  ) : (
+                    <option value={userInfo.category}>
+                      {firstUpper(userInfo.category)}
+                    </option>
+                  )}
+                </Form.Select>
+                <Form.Control.Feedback type="invalid">
+                  {errors.category}
+                </Form.Control.Feedback>
+              </Form.Group>
+            ))}
+
+          <div>
             <hr />
-            <UploadDocumentField
-              documentId={userInfo.professional.cvDocument}
-              loading={loadingSubmit.professional.cvDocument}
-              error={errors.professional.cvDocument}
-              onUpload={uploadOrUpdateResume}
-              onDelete={deleteResume}
-              customerView={false}
-              customerConfirm={false}
-              professionalView={true}
-              professionalConfirm={false}
+
+            <Row>
+              <Col sm={6}>
+                <EditableField
+                  label="Name"
+                  name="name"
+                  initValue={userInfo.name}
+                  loading={loadingSubmit.name}
+                  error={errors.name}
+                  validate={(value) => value.trim().length > 0}
+                  onEdit={(field, val) =>
+                    updateContactField(field as SingleUpdatableField, val)
+                  }
+                />
+              </Col>
+              <Col sm={6}>
+                <EditableField
+                  label="Surname"
+                  name="surname"
+                  initValue={userInfo.surname}
+                  loading={loadingSubmit.surname}
+                  error={errors.surname}
+                  validate={(value) => value.length > 0}
+                  onEdit={(field, val) =>
+                    updateContactField(field as SingleUpdatableField, val)
+                  }
+                />
+              </Col>
+            </Row>
+            <EditableField
+              label="SSN"
+              name="ssn"
+              initValue={userInfo.ssn || ""}
+              loading={loadingSubmit.ssn as boolean}
+              error={errors.ssn}
+              validate={(value) => value?.length > 0}
+              onEdit={(field, val) =>
+                updateContactField(field as SingleUpdatableField, val)
+              }
             />
-          </div>
-          <div className="my-2">
-            <h2>Skills</h2>
+
             <hr />
-            {userInfo.professional.skills.map((skill, i) => (
-              <EditableField
-                key={`skill-${i}`}
-                name={`skill-${i}`}
-                initValue={skill}
-                initEdit={skill.trim().length === 0}
-                loading={loadingSubmit.professional.skills[i]}
-                onEdit={(_, value) => updateUserSkill(i, value)}
-                showDelete
-                onDelete={() => removeUserSkill(i)}
-                onCancel={() => handleCancelSkill(i)}
-                validate={skill => skill.length > 0}
+            {userInfo.addresses.map((address, i) => (
+              <AddressFieldGroup
+                key={`address-${i}`}
+                index={i}
+                address={address}
+                errors={errors}
+                loading={loadingSubmit}
+                onEdit={addOrEditAddress}
+                onDelete={removeAddress}
+                onCancel={handleCancelAddress}
               />
             ))}
-            <Button variant="light" onClick={addUserSkill}>
-              Add new skill
-            </Button>
+            <div className="text-center my-2">
+              <DropdownButton
+                title="Add new address"
+                id="add-address"
+                variant="light"
+                onSelect={(key) => addAddressField(key as AddressType)}
+              >
+                <Dropdown.Item eventKey="EMAIL">Email</Dropdown.Item>
+                <Dropdown.Item eventKey="TELEPHONE">Phone Number</Dropdown.Item>
+                <Dropdown.Item eventKey="ADDRESS">Home Address</Dropdown.Item>
+              </DropdownButton>
+            </div>
+            {isProfessional(userInfo) && (
+              <>
+                <div className="my-2">
+                  <h3 className="mt-3">Resume</h3>
+                  <hr />
+                  <UploadDocumentField
+                    documentId={userInfo.professional.cvDocument}
+                    loading={loadingSubmit.professional.cvDocument}
+                    error={errors.professional.cvDocument}
+                    onUpload={uploadOrUpdateResume}
+                    onDelete={deleteResume}
+                    customerView={false}
+                    customerConfirm={false}
+                    professionalView={true}
+                    professionalConfirm={false}
+                  />
+                </div>
+                <div className="my-2">
+                  <h2>Skills</h2>
+                  <hr />
+                  {userInfo.professional.skills.map((skill, i) => (
+                    <EditableField
+                      key={`skill-${i}`}
+                      name={`skill-${i}`}
+                      initValue={skill}
+                      initEdit={skill.trim().length === 0}
+                      loading={loadingSubmit.professional.skills[i]}
+                      onEdit={(_, value) => updateUserSkill(i, value)}
+                      showDelete
+                      onDelete={() => removeUserSkill(i)}
+                      onCancel={() => handleCancelSkill(i)}
+                      validate={(skill) => skill.length > 0}
+                    />
+                  ))}
+                  <Button variant="light" onClick={addUserSkill}>
+                    Add new skill
+                  </Button>
+                </div>
+                <h3>Employment</h3>
+                <hr />
+                <EditableField
+                  type="text"
+                  name="location"
+                  label="Location"
+                  initValue={userInfo.professional.location}
+                  loading={loadingSubmit.professional.location}
+                  onEdit={(name, value) => updateProfessionalField(name, value)}
+                />
+                <EditableField
+                  type="number"
+                  name="dailyRate"
+                  label="Daily Rate"
+                  initValue={userInfo.professional.dailyRate}
+                  loading={loadingSubmit.professional.dailyRate}
+                  onEdit={(name, value) => updateProfessionalField(name, value)}
+                />
+              </>
+            )}
           </div>
-          <h3>Employment</h3>
-          <hr />
-          <EditableField
-            type="text"
-            name="location"
-            label="Location"
-            initValue={userInfo.professional.location}
-            loading={loadingSubmit.professional.location}
-            onEdit={(name, value) => updateProfessionalField(name, value)}
-          />
-          <EditableField
-            type="number"
-            name="dailyRate"
-            label="Daily Rate"
-            initValue={userInfo.professional.dailyRate}
-            loading={loadingSubmit.professional.dailyRate}
-            onEdit={(name, value) => updateProfessionalField(name, value)}
-          />
-        </>
-      )}
-    </div>
+        </Card.Body>
+      </Card>
+    </>
   );
 }
 

@@ -13,7 +13,9 @@ export default function EditAccount() {
             <Sidebar />
           </Col>
           <Col xs>
-            <EditAccountForm />
+            <Container>
+              <EditAccountForm />
+            </Container>
           </Col>
         </Row>
       </Container>

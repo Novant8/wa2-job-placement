@@ -66,10 +66,21 @@ export default function CardJobOffer(props) {
                 <Col xs={1}>
                   <CiZoomIn
                     size={30}
-                    color={"black"}
-                    onMouseOver={(e) => (e.currentTarget.style.color = "blue")} // Hover color
-                    onMouseOut={(e) => (e.currentTarget.style.color = "black")} // Original color
+                    color="black"
+                    style={{
+                      backgroundColor: "white",
+                      borderRadius: "20%", // Makes the background fully rounded
+                      // padding: "10px", // Adds space around the icon inside the circle
+                      transition: "color 0.3s ease, background-color 0.3s ease",
+                    }}
                     onClick={() => navigate(`/crm/job-offers/${offer.id}`)}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.backgroundColor = "#e9ecef";
+                      e.currentTarget.style.cursor = "pointer"; // Optional: change cursor on hover
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.backgroundColor = "white";
+                    }}
                   />
                 </Col>
               </Row>

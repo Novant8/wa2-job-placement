@@ -1,17 +1,12 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
+import { Card, Container, Spinner } from "react-bootstrap";
 import * as API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
 import { Customer } from "../types/customer.ts";
 import { Contact, ContactCategory } from "../types/contact.ts";
-import { Pageable } from "../types/Pageable.ts";
 import { ReducedJobOffer } from "../types/JobOffer.ts";
-import { useNavigate } from "react-router-dom";
 import CreateJobOffer from "./CreateJobOffer.tsx";
-import { CiCircleInfo, CiZoomIn } from "react-icons/ci";
-import PaginationCustom from "./PaginationCustom.tsx";
-import JobOfferBadge from "./Badges/JobOfferBadge.tsx";
-import ListJobOffer from "./Card/CardJobOffer.tsx";
+import { CiCircleInfo } from "react-icons/ci";
 import CardJobOffer from "./Card/CardJobOffer.tsx";
 
 export default function ViewCustomerJobOffer() {
@@ -20,9 +15,7 @@ export default function ViewCustomerJobOffer() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
-
   const { me } = useAuth();
-  const navigate = useNavigate();
 
   const [userInfo, setUserInfo] = useState<Customer>({
     id: 0,
@@ -102,7 +95,7 @@ export default function ViewCustomerJobOffer() {
       </Container>
     );
   }
-  function addJobOffer(j) {
+  function addJobOffer(j: ReducedJobOffer) {
     setJobOffers([...jobOffers, j]);
   }
   return (
@@ -117,6 +110,23 @@ export default function ViewCustomerJobOffer() {
         }
         cardTitle={"Job Offers List"}
       />
+      <br />
+      <Card>
+        <Card.Header>
+          <Card.Title>Create a New Job Offer</Card.Title>
+        </Card.Header>
+        <Card.Body className="d-flex">
+          <CiCircleInfo size={30} color={"green"} /> In this section, you can
+          add a new job offer to our system, enabling recruiters to find and
+          select the most qualified professionals.
+        </Card.Body>
+
+        <Card className={"m-2"}>
+          <Card.Body>
+            <CreateJobOffer addJobOffer={addJobOffer} />
+          </Card.Body>
+        </Card>
+      </Card>
     </Container>
   );
 }

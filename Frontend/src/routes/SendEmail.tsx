@@ -16,7 +16,8 @@ import { sendEmailStruct } from "../types/sendEmail.ts";
 import { useAuth } from "../contexts/auth.tsx";
 import { EmailAddress, getAddressType } from "../types/address.ts";
 import { BiMailSend } from "react-icons/bi";
-import AddressBook from "../components/AddressBook.tsx";
+import AddressBook from "../components/MailAddressBook/AddressBook.tsx";
+import Sidebar from "../components/Sidebar.tsx";
 
 interface EmailContacts {
   id: String;
@@ -96,7 +97,7 @@ export default function SendEmail() {
       if (!token) return;
       let page = {
         pageNumber: pageGen - 1,
-        pageSize: 1,
+        pageSize: 5,
       };
       // Fetch professionals in parallel
       const { totalPages: totalPages, content: Contact } =
@@ -253,125 +254,154 @@ export default function SendEmail() {
   };
 
   return (
-    <Container fluid>
-      <Row>
-        <Col>
-          <Card>
-            <Card.Body>
-              <Card.Title>Send an email</Card.Title>
-              <Card.Text>
-                In this section, a recruiter can send an email to a customer or
-                professional.
-              </Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-      <Row>
-        {/* Column 1: List of Contacts */}
-        <Col md={4}>
-          <AddressBook
-            header="Customer's Address Book"
-            emails={emailContactsCust}
-            setPage={setPageCust}
-            page={pageCust}
-            totalPage={TotalPageCust}
-            handleAddEmailAddrWithAddress={handleAddEmailAddrWithAddress}
-          ></AddressBook>
-          <AddressBook
-            header="Professionals's Address Book"
-            emails={emailContactsProf}
-            setPage={setPageProf}
-            page={pageProf}
-            totalPage={TotalPageProf}
-            handleAddEmailAddrWithAddress={handleAddEmailAddrWithAddress}
-          ></AddressBook>
-          <AddressBook
-            header="Generic User's Address Book"
-            emails={emailContactsGen}
-            setPage={setPageGen}
-            page={pageGen}
-            totalPage={TotalPageGen}
-            handleAddEmailAddrWithAddress={handleAddEmailAddrWithAddress}
-          ></AddressBook>
-        </Col>
-        <Col md={8}>
-          <Form>
-            <Form.Group controlId="Subject(s)">
-              <Form.Label>Email Addresses</Form.Label>
-              {EmailAddr.map((email, index) => (
-                <Row key={index}>
-                  <Col>
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter a new email address"
-                      value={email}
-                      onChange={(e) =>
-                        handleEmailAddrChange(index, e.target.value)
-                      }
-                      required
-                    />
-                  </Col>
-                  <Col xs="auto">
-                    <Button
-                      variant="danger"
-                      onClick={() => handleRemoveEmailAddr(index)}
-                    >
-                      Remove
-                    </Button>
-                  </Col>
-                </Row>
-              ))}
-              <Button
-                variant="outline-info"
-                className="mt-2"
-                onClick={handleAddEmailAddr}
-              >
-                Add Email
-              </Button>
-            </Form.Group>
+    <>
+      <Container fluid>
+        <Row>
+          <Col xs={2}>
+            <Sidebar />
+          </Col>
+          <Col xs={10}>
+            <Container fluid>
+              <Row>
+                <Col>
+                  <Card>
+                    <Card.Body>
+                      <Card.Title>Send an email</Card.Title>
+                      <Card.Text>
+                        In this section, a recruiter can send an email to a
+                        customer or professional.
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+              <br />
+              <Row>
+                {/* Column 1: List of Contacts */}
+                <Col md={4}>
+                  <AddressBook
+                    header="Customer's Address Book"
+                    emails={emailContactsCust}
+                    setPage={setPageCust}
+                    page={pageCust}
+                    totalPage={TotalPageCust}
+                    handleAddEmailAddrWithAddress={
+                      handleAddEmailAddrWithAddress
+                    }
+                  ></AddressBook>
+                  <AddressBook
+                    header="Professionals's Address Book"
+                    emails={emailContactsProf}
+                    setPage={setPageProf}
+                    page={pageProf}
+                    totalPage={TotalPageProf}
+                    handleAddEmailAddrWithAddress={
+                      handleAddEmailAddrWithAddress
+                    }
+                  ></AddressBook>
+                  <AddressBook
+                    header="Generic User's Address Book"
+                    emails={emailContactsGen}
+                    setPage={setPageGen}
+                    page={pageGen}
+                    totalPage={TotalPageGen}
+                    handleAddEmailAddrWithAddress={
+                      handleAddEmailAddrWithAddress
+                    }
+                  ></AddressBook>
+                </Col>
+                <Col md={8}>
+                  <Card>
+                    <Card.Header>
+                      <Card.Title> Email </Card.Title>
+                    </Card.Header>
 
-            <Form.Group className="mb-8" controlId="subjectInput">
-              <Form.Label>Subject</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder={"Type the subject of your mail"}
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-8" controlId="messageTextarea">
-              <Form.Label>Message</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Type your message here..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-              />
-            </Form.Group>
+                    <Card.Body>
+                      <Form>
+                        <Form.Group controlId="Subject(s)">
+                          <Form.Label>Email Addresses</Form.Label>
+                          {EmailAddr.map((email, index) => (
+                            <Row key={index}>
+                              <Col>
+                                <Form.Control
+                                  type="text"
+                                  placeholder="Enter a new email address"
+                                  value={email}
+                                  onChange={(e) =>
+                                    handleEmailAddrChange(index, e.target.value)
+                                  }
+                                  required
+                                />
+                              </Col>
+                              <Col xs="auto">
+                                <Button
+                                  variant="danger"
+                                  onClick={() => handleRemoveEmailAddr(index)}
+                                >
+                                  Remove
+                                </Button>
+                              </Col>
+                            </Row>
+                          ))}
+                          <Button
+                            variant="outline-info"
+                            className="mt-2"
+                            onClick={handleAddEmailAddr}
+                          >
+                            Add Email
+                          </Button>
+                        </Form.Group>
 
-            <Button variant="primary" onClick={handleSendEmail}>
-              {sending ? (
-                <>
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                  />{" "}
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <BiMailSend /> {"Send Email"}
-                </>
-              )}
-            </Button>
-          </Form>
-        </Col>
-      </Row>
-    </Container>
+                        <Form.Group className="mb-8" controlId="subjectInput">
+                          <Form.Label>Subject</Form.Label>
+                          <Form.Control
+                            type="text"
+                            placeholder={"Type the subject of your mail"}
+                            value={subject}
+                            onChange={(e) => setSubject(e.target.value)}
+                          />
+                        </Form.Group>
+                        <Form.Group
+                          className="mb-8"
+                          controlId="messageTextarea"
+                        >
+                          <Form.Label>Message</Form.Label>
+                          <Form.Control
+                            as="textarea"
+                            rows={3}
+                            placeholder="Type your message here..."
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                          />
+                        </Form.Group>
+
+                        <Button variant="primary" onClick={handleSendEmail}>
+                          {sending ? (
+                            <>
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                              />{" "}
+                              Sending...
+                            </>
+                          ) : (
+                            <>
+                              <BiMailSend /> {"Send Email"}
+                            </>
+                          )}
+                        </Button>
+                      </Form>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </Container>
+          </Col>
+        </Row>
+      </Container>
+    </>
   );
 }

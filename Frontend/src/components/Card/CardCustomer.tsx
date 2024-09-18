@@ -66,7 +66,7 @@ export default function CardCustomer(props: CustomerAccordionProps) {
                 // padding: "10px", // Adds space around the icon inside the circle
                 transition: "color 0.3s ease, background-color 0.3s ease",
               }}
-              onClick={() => navigate(`/crm/customer/${props.cust.id}`)}
+              onClick={() => navigate(`/crm/customers/${props.cust.id}`)}
               onMouseOver={(e) => {
                 e.currentTarget.style.backgroundColor = "#e9ecef";
                 e.currentTarget.style.cursor = "pointer"; // Optional: change cursor on hover
