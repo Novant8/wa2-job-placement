@@ -6,6 +6,7 @@ import { Pageable } from "../types/Pageable.ts";
 import {
   Accordion,
   Button,
+  Card,
   Col,
   Container,
   Row,
@@ -16,6 +17,7 @@ import {
 import UpdateMessageStatusModal from "../components/UpdateMessageStatusModal.tsx";
 import { ApiError } from "../../API.tsx";
 import Sidebar from "../components/Sidebar.tsx";
+import { CiCircleInfo } from "react-icons/ci";
 
 export default function MessagesView() {
   const { me } = useAuth();
@@ -37,30 +39,41 @@ export default function MessagesView() {
     //const navigate = useNavigate();
     return (
       <div>
-        <Accordion.Item eventKey={props.msg?.id?.toString()}>
-          <Accordion.Header>{props.msg.subject}</Accordion.Header>
+        <Accordion.Item eventKey={props.msg?.id?.toString()} className="my-2">
+          <Accordion.Header className="d-flex justify-content-between align-items-center">
+            <div>{props.msg.subject}&nbsp; </div>
+            <div style={{ color: "gray", textAlign: "right" }}>
+              {props.msg.sender.email}
+            </div>
+          </Accordion.Header>
+
           <Accordion.Body>
-            {props.msg.sender ? (
-              <div>SENDER: {props.msg.sender.email}</div>
-            ) : (
-              ""
-            )}
-            <div>Message: {props.msg.body}</div>
-            <div>
-              Last Event: {props.msg.lastEvent.status} on{" "}
-              {props.msg.lastEvent.timestamp?.toString()}
-            </div>
+            <Card>
+              <Card.Title>
+                {" "}
+                <Card.Header>
+                  {props.msg.subject} <br />
+                </Card.Header>
+              </Card.Title>
+              <Card.Body className="text-start">
+                <strong> From: </strong>
+                {props.msg.sender.email} {" ("}
+                {props.msg.channel}) Received at{" "}
+                {props.msg.creationTimestamp?.toString()}
+                <hr />
+                <strong>Message: </strong>
+                {props.msg.body}
+                <hr />
+                <strong>Comment:</strong>{" "}
+                {props.msg.lastEvent.comments
+                  ? props.msg.lastEvent.comments
+                  : "N/A"}
+                <hr />
+              </Card.Body>
+            </Card>
+
             {}
-            <div>
-              Comment:{" "}
-              {props.msg.lastEvent.comments
-                ? props.msg.lastEvent.comments
-                : "N/A"}
-            </div>
-            <div>Channel:{props.msg.channel}</div>
-            <div>
-              Date of the message: {props.msg.creationTimestamp?.toString()}
-            </div>
+            <div></div>
 
             {props.msg.lastEvent.status === "RECEIVED" && (
               <Button
@@ -199,7 +212,7 @@ export default function MessagesView() {
             <Sidebar />
           </Col>
           <Col xs={10}>
-            <Container className="text-center mt-5">
+            <Container>
               <UpdateMessageStatusModal
                 show={modalStatusShow}
                 action={modalAction}
@@ -207,131 +220,142 @@ export default function MessagesView() {
                 message={selected}
                 setDirty={() => setDirty(true)}
               />
+              <Card>
+                <Card.Title>Messages Tool</Card.Title>
+                <Card.Body>
+                  <CiCircleInfo size={30} color={"green"} /> In this section,
+                  you can explore all the messages received, allowing you to
+                  process them
+                </Card.Body>
+              </Card>
+              <br />
+              <Card>
+                <Card.Body>
+                  <Tabs
+                    defaultActiveKey="received"
+                    id="justify-tab-example"
+                    className="mb-3"
+                    justify
+                    onSelect={(eventKey) => handleSelect(eventKey)}
+                  >
+                    <Tab eventKey="received" title="Received">
+                      {loading && (
+                        <Container className="text-center mt-5">
+                          <Spinner animation="border" />
+                        </Container>
+                      )}
 
-              <h4>Messages</h4>
-              <Tabs
-                defaultActiveKey="received"
-                id="justify-tab-example"
-                className="mb-3"
-                justify
-                onSelect={(eventKey) => handleSelect(eventKey)}
-              >
-                <Tab eventKey="received" title="Received">
-                  {loading && (
-                    <Container className="text-center mt-5">
-                      <Spinner animation="border" />
-                    </Container>
-                  )}
+                      {messages?.length > 0 ? (
+                        <Accordion>
+                          {messages &&
+                            messages.map((e) => (
+                              <MessageAccordion key={e.id} msg={e} />
+                            ))}
+                        </Accordion>
+                      ) : (
+                        <div>There no received messages</div>
+                      )}
+                    </Tab>
+                    <Tab eventKey="read" title="Read">
+                      {loading && (
+                        <Container className="text-center mt-5">
+                          <Spinner animation="border" />
+                        </Container>
+                      )}
 
-                  {messages?.length > 0 ? (
-                    <Accordion>
-                      {messages &&
-                        messages.map((e) => (
-                          <MessageAccordion key={e.id} msg={e} />
-                        ))}
-                    </Accordion>
-                  ) : (
-                    <div>There no received messages</div>
-                  )}
-                </Tab>
-                <Tab eventKey="read" title="Read">
-                  {loading && (
-                    <Container className="text-center mt-5">
-                      <Spinner animation="border" />
-                    </Container>
-                  )}
+                      {messages?.length > 0 ? (
+                        <Accordion>
+                          {messages &&
+                            messages.map((e) => (
+                              <MessageAccordion key={e.id} msg={e} />
+                            ))}
+                        </Accordion>
+                      ) : (
+                        <div>There no read messages</div>
+                      )}
+                    </Tab>
+                    <Tab eventKey="processing" title="Processing">
+                      {loading && (
+                        <Container className="text-center mt-5">
+                          <Spinner animation="border" />
+                        </Container>
+                      )}
 
-                  {messages?.length > 0 ? (
-                    <Accordion>
-                      {messages &&
-                        messages.map((e) => (
-                          <MessageAccordion key={e.id} msg={e} />
-                        ))}
-                    </Accordion>
-                  ) : (
-                    <div>There no read messages</div>
-                  )}
-                </Tab>
-                <Tab eventKey="processing" title="Processing">
-                  {loading && (
-                    <Container className="text-center mt-5">
-                      <Spinner animation="border" />
-                    </Container>
-                  )}
+                      {messages?.length > 0 ? (
+                        <Accordion>
+                          {messages &&
+                            messages.map((e) => (
+                              <MessageAccordion key={e.id} msg={e} />
+                            ))}
+                        </Accordion>
+                      ) : (
+                        <div>There no processing messages</div>
+                      )}
+                    </Tab>
+                    <Tab eventKey="done" title="Done">
+                      {loading && (
+                        <Container className="text-center mt-5">
+                          <Spinner animation="border" />
+                        </Container>
+                      )}
 
-                  {messages?.length > 0 ? (
-                    <Accordion>
-                      {messages &&
-                        messages.map((e) => (
-                          <MessageAccordion key={e.id} msg={e} />
-                        ))}
-                    </Accordion>
-                  ) : (
-                    <div>There no processing messages</div>
-                  )}
-                </Tab>
-                <Tab eventKey="done" title="Done">
-                  {loading && (
-                    <Container className="text-center mt-5">
-                      <Spinner animation="border" />
-                    </Container>
-                  )}
+                      {messages?.length > 0 ? (
+                        <Accordion>
+                          {messages &&
+                            messages.map((e) => (
+                              <MessageAccordion key={e.id} msg={e} />
+                            ))}
+                        </Accordion>
+                      ) : (
+                        <div>There no done messages</div>
+                      )}
+                    </Tab>
+                    <Tab eventKey="discarded" title="Discarded">
+                      {loading && (
+                        <Container className="text-center mt-5">
+                          <Spinner animation="border" />
+                        </Container>
+                      )}
 
-                  {messages?.length > 0 ? (
-                    <Accordion>
-                      {messages &&
-                        messages.map((e) => (
-                          <MessageAccordion key={e.id} msg={e} />
-                        ))}
-                    </Accordion>
-                  ) : (
-                    <div>There no done messages</div>
-                  )}
-                </Tab>
-                <Tab eventKey="discarded" title="Discarded">
-                  {loading && (
-                    <Container className="text-center mt-5">
-                      <Spinner animation="border" />
-                    </Container>
-                  )}
+                      {messages?.length > 0 ? (
+                        <Accordion>
+                          {messages &&
+                            messages.map((e) => (
+                              <MessageAccordion key={e.id} msg={e} />
+                            ))}
+                        </Accordion>
+                      ) : (
+                        <div>There no discarded messages</div>
+                      )}
+                    </Tab>
+                    <Tab eventKey="failed" title="Failed">
+                      {loading && (
+                        <Container className="text-center mt-5">
+                          <Spinner animation="border" />
+                        </Container>
+                      )}
 
-                  {messages?.length > 0 ? (
-                    <Accordion>
-                      {messages &&
-                        messages.map((e) => (
-                          <MessageAccordion key={e.id} msg={e} />
-                        ))}
-                    </Accordion>
-                  ) : (
-                    <div>There no discarded messages</div>
+                      {messages?.length > 0 ? (
+                        <Accordion>
+                          {messages &&
+                            messages.map((e) => (
+                              <MessageAccordion key={e.id} msg={e} />
+                            ))}
+                        </Accordion>
+                      ) : (
+                        <div>There no failed messages</div>
+                      )}
+                    </Tab>
+                  </Tabs>
+                  {pageable && (
+                    <div className="mt-4">
+                      <p>
+                        Page {pageable.pageNumber + 1} of {totalPages}
+                      </p>
+                    </div>
                   )}
-                </Tab>
-                <Tab eventKey="failed" title="Failed">
-                  {loading && (
-                    <Container className="text-center mt-5">
-                      <Spinner animation="border" />
-                    </Container>
-                  )}
-
-                  {messages?.length > 0 ? (
-                    <Accordion>
-                      {messages &&
-                        messages.map((e) => (
-                          <MessageAccordion key={e.id} msg={e} />
-                        ))}
-                    </Accordion>
-                  ) : (
-                    <div>There no failed messages</div>
-                  )}
-                </Tab>
-              </Tabs>
-              {pageable && (
-                <div className="mt-4">
-                  <p>
-                    Page {pageable.pageNumber + 1} of {totalPages}
-                  </p>
-                </div>
-              )}
+                </Card.Body>
+              </Card>
             </Container>
           </Col>
         </Row>

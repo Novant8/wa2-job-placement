@@ -20,6 +20,7 @@ import { Customer } from "../types/customer.ts";
 import { ReducedProfessional } from "../types/professional.ts";
 import { Contact } from "../types/contact.ts";
 import { useEffect, useState } from "react";
+import { CiCircleInfo } from "react-icons/ci";
 
 export default function SendEmail() {
   const [EmailAddr, setEmailAddr] = useState<string[]>([""]);
@@ -54,7 +55,7 @@ export default function SendEmail() {
       // Fetch professionals in parallel
       let page = {
         pageNumber: pageProf - 1,
-        pageSize: 1,
+        pageSize: 5,
       };
       const { totalPages: totalPages, content: professionals } =
         await API.getProfessionals(token, undefined, page);
@@ -113,10 +114,10 @@ export default function SendEmail() {
       const contacts = ContactDetails.map((item) => {
         let contact: EmailContacts = {
           id: item.id,
-          name: item.contactInfo.name,
-          surname: item.contactInfo.surname,
+          name: item.name,
+          surname: item.surname,
           role: "UKNOWN",
-          address: item.contactInfo.addresses
+          address: item.addresses
             .filter((a: Address) => getAddressType(a) === "EMAIL")
             .map((a: EmailAddress) => a.email),
         };
@@ -131,8 +132,9 @@ export default function SendEmail() {
         const uniqueContacts = contacts.filter((c) => !existingIds.has(c.id));
         return [...prevContacts, ...uniqueContacts];
       });
+      console.log(emailContactsGen);
     } catch (error) {
-      console.error("Error fetching professionals:", error);
+      console.error("Error fetching uknown:", error);
     }
   };
   const fetchCustomer = async () => {
@@ -142,7 +144,7 @@ export default function SendEmail() {
 
       let page = {
         pageNumber: pageCust - 1,
-        pageSize: 1,
+        pageSize: 5,
       };
       // Fetch professionals in parallel
       const { totalPages: totalPages, content: customers } =
@@ -273,11 +275,12 @@ export default function SendEmail() {
               <Row>
                 <Col>
                   <Card>
+                    <Card.Title>Email's sender</Card.Title>
                     <Card.Body>
-                      <Card.Title>Send an email</Card.Title>
                       <Card.Text>
-                        In this section, a recruiter can send an email to a
-                        customer or professional.
+                        <CiCircleInfo size={30} color={"green"} />
+                        In this section, an operator can send an email to
+                        another user.
                       </Card.Text>
                     </Card.Body>
                   </Card>
