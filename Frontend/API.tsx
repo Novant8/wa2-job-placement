@@ -19,7 +19,7 @@ import { CustomerFilter } from "./src/types/customerFilter.ts";
 import { JobProposal } from "./src/types/JobProposal.ts";
 import { DocumentHistory, DocumentMetadata } from "./src/types/documents.ts";
 import { MessageCreate, MessageEventInterface } from "./src/types/message.ts";
-import { Pageable } from "./src/types/Pageable.ts";
+
 import { Page } from "./src/types/page.ts";
 import { sendEmailStruct } from "./src/types/sendEmail.ts";
 
@@ -580,7 +580,7 @@ export async function getMessagges(
 
 export async function getUnknowContacts(
   token: string | undefined,
-  page?: Pageable | undefined,
+  page?: Page | undefined,
 ): Promise<any> {
   return new Promise((resolve, reject) => {
     let endpoint = url + "/crm/API/contacts";

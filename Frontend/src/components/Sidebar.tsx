@@ -37,6 +37,9 @@ export default function Sidebar() {
         >
           Send Email
         </ListGroup.Item>
+        <ListGroup.Item action onClick={() => navigate("/messages")}>
+          Messages Received
+        </ListGroup.Item>
       </ListGroup>
 
       <Button onClick={() => (window.location.href = me?.logoutUrl as string)}>

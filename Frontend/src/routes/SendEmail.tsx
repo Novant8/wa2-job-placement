@@ -7,7 +7,7 @@ import {
   Row,
   Spinner,
 } from "react-bootstrap";
-import React, { useEffect, useState } from "react";
+
 import * as API from "../../API.tsx";
 import { sendEmailStruct } from "../types/sendEmail.ts";
 import { useAuth } from "../contexts/auth.tsx";
@@ -15,28 +15,26 @@ import { Address, EmailAddress, getAddressType } from "../types/address.ts";
 import { BiMailSend } from "react-icons/bi";
 import AddressBook from "../components/MailAddressBook/AddressBook.tsx";
 import Sidebar from "../components/Sidebar.tsx";
-import { emailContacts } from "../types/emailContacts.ts";
+import { EmailContacts } from "../types/emailContacts.ts";
 import { Customer } from "../types/customer.ts";
-
-interface EmailContacts {
-  id: String;
-  name: String;
-  surname: String;
-  role: String;
-  address: Array<String>;
-}
+import { ReducedProfessional } from "../types/professional.ts";
+import { Contact } from "../types/contact.ts";
+import { useEffect, useState } from "react";
 
 export default function SendEmail() {
-  const [loading, setLoading] = useState(true);
   const [EmailAddr, setEmailAddr] = useState<string[]>([""]);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
 
   //save email address of different category
-  const [emailContactsCust, setEmailContactsCust] = useState([]);
-  const [emailContactsProf, setemailContactsProf] = useState([]);
-  const [emailContactsGen, setemailContactsGen] = useState([]);
+  const [emailContactsCust, setEmailContactsCust] = useState<EmailContacts[]>(
+    [],
+  );
+  const [emailContactsProf, setemailContactsProf] = useState<EmailContacts[]>(
+    [],
+  );
+  const [emailContactsGen, setemailContactsGen] = useState<EmailContacts[]>([]);
 
   //Internal address book paging
   const [pageCust, setPageCust] = useState(1);
@@ -64,25 +62,30 @@ export default function SendEmail() {
       setemailContactsProf([]);
       // Fetch professional details in parallel
       const professionalDetails = await Promise.all(
-        professionals.map((p) => API.getProfessionalById(p.id)),
+        professionals.map((p: ReducedProfessional) =>
+          API.getProfessionalById(p.id),
+        ),
       );
 
       // Transform the fetched data into emailContacts
       const contacts = professionalDetails.map((item) => {
-        return {
+        let contact: EmailContacts = {
           id: item.id,
           name: item.contactInfo.name,
           surname: item.contactInfo.surname,
           role: "PROFESSIONAL",
           address: item.contactInfo.addresses
-            .filter((a) => getAddressType(a) === "EMAIL")
-            .map((a) => (a as EmailAddress).email),
+            .filter((a: Address) => getAddressType(a) === "EMAIL")
+            .map((a: EmailAddress) => a.email),
         };
+        return contact;
       });
 
-      setemailContactsProf((prevContacts) => {
+      setemailContactsProf((prevContacts: EmailContacts[]) => {
         // Avoid adding duplicates
-        const existingIds = new Set(prevContacts.map((c) => c.id));
+        const existingIds = new Set(
+          prevContacts.map((c: EmailContacts) => c.id),
+        );
         const uniqueContacts = contacts.filter((c) => !existingIds.has(c.id));
         return [...prevContacts, ...uniqueContacts];
       });
@@ -104,24 +107,27 @@ export default function SendEmail() {
       setTotalPageGen(totalPages);
       setemailContactsGen([]);
       const ContactDetails = await Promise.all(
-        Contact.map((p) => API.getContactById(p.id)),
+        Contact.map((p: Contact) => API.getContactById(p.id)),
       );
       // Transform the fetched data into emailContacts
       const contacts = ContactDetails.map((item) => {
-        return {
-          id: "U" + item.id,
-          name: item.name,
-          surname: item.surname,
-          role: "UNKNOWN",
-          address: item.addresses
-            .filter((a) => getAddressType(a) === "EMAIL")
-            .map((a) => (a as EmailAddress).email),
+        let contact: EmailContacts = {
+          id: item.id,
+          name: item.contactInfo.name,
+          surname: item.contactInfo.surname,
+          role: "UKNOWN",
+          address: item.contactInfo.addresses
+            .filter((a: Address) => getAddressType(a) === "EMAIL")
+            .map((a: EmailAddress) => a.email),
         };
+        return contact;
       });
 
-      setemailContactsGen((prevContacts) => {
+      setemailContactsGen((prevContacts: EmailContacts[]) => {
         // Avoid adding duplicates
-        const existingIds = new Set(prevContacts.map((c) => c.id));
+        const existingIds = new Set(
+          prevContacts.map((c: EmailContacts) => c.id),
+        );
         const uniqueContacts = contacts.filter((c) => !existingIds.has(c.id));
         return [...prevContacts, ...uniqueContacts];
       });
@@ -150,7 +156,7 @@ export default function SendEmail() {
 
       // Transform the fetched data into emailContacts
       const contacts = customerDetails.map((item) => {
-        let contact: emailContacts = {
+        let contact: EmailContacts = {
           id: item.id,
           name: item.contactInfo.name,
           surname: item.contactInfo.surname,
@@ -163,9 +169,11 @@ export default function SendEmail() {
       });
 
       // Update state
-      setEmailContactsCust((prevContacts) => {
+      setEmailContactsCust((prevContacts: EmailContacts[]) => {
         // Avoid adding duplicates
-        const existingIds = new Set(prevContacts.map((c) => c.id));
+        const existingIds = new Set(
+          prevContacts.map((c: EmailContacts) => c.id),
+        );
         const uniqueContacts = contacts.filter((c) => !existingIds.has(c.id));
         return [...prevContacts, ...uniqueContacts];
       });
@@ -192,7 +200,7 @@ export default function SendEmail() {
   const handleAddEmailAddr = () => {
     setEmailAddr([...EmailAddr, ""]);
   };
-  const handleAddEmailAddrWithAddress = (addr) => {
+  const handleAddEmailAddrWithAddress = (addr: string) => {
     if (EmailAddr[0] == "" && EmailAddr.length == 1) {
       setEmailAddr([addr]);
     } else {
@@ -278,6 +286,7 @@ export default function SendEmail() {
               <br />
               <Row>
                 {/* Column 1: List of Contacts */}
+
                 <Col md={4}>
                   <AddressBook
                     header="Customer's Address Book"
@@ -310,6 +319,7 @@ export default function SendEmail() {
                     }
                   ></AddressBook>
                 </Col>
+
                 <Col md={8}>
                   <Card>
                     <Card.Header>

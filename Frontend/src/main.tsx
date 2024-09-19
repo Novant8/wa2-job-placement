@@ -19,6 +19,7 @@ import JobOffer from "./routes/JobOffer.tsx";
 import ViewJobOfferDetails from "./routes/ViewJobOfferDetails.tsx";
 import ProfessionalsView from "./routes/ProfessionalsView.tsx";
 import { useAuth } from "./contexts/auth.tsx";
+import MessagesView from "./routes/MessagesView.tsx";
 
 const NotLoggedView = () => {
   return (
@@ -103,6 +104,10 @@ const router = createBrowserRouter(
         {
           path: "/communication-manager",
           element: <SendEmail />,
+        },
+        {
+          path: "/messages",
+          element: <MessagesView />,
         },
       ],
     },

@@ -1,16 +1,12 @@
 import { Accordion, Pagination } from "react-bootstrap";
 
 import AddressBookRow from "./AddressBookRow.tsx";
-import { Professional } from "../../types/professional.ts";
-import { JobOffer } from "../../types/JobOffer.ts";
 
-import { emailContacts } from "../../types/emailContacts.ts";
+import { EmailContacts } from "../../types/emailContacts.ts";
 
 export type AddressBookProps = {
   header: string;
-  emails: emailContacts[];
-  prof: Professional;
-  jobOffer: JobOffer;
+  emails: EmailContacts[];
   page: number;
   totalPage: number;
   setPage: (page: number) => void;

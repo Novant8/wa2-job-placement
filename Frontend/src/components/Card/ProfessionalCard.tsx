@@ -1,11 +1,11 @@
-import { Professional } from "../../types/professional.ts";
+import { ReducedProfessional } from "../../types/professional.ts";
 import { useNavigate } from "react-router-dom";
 import { Card, Col, Row } from "react-bootstrap";
 import { CiZoomIn } from "react-icons/ci";
 import EmploymentBadge from "../Badges/EmploymentBadge.tsx";
 
 export type ProfessionalAccordionProps = {
-  prof: Professional;
+  prof: ReducedProfessional;
 };
 
 export default function CardProfessional(props: ProfessionalAccordionProps) {
@@ -26,15 +26,7 @@ export default function CardProfessional(props: ProfessionalAccordionProps) {
             <Col className="border border-top-0 border-bottom-0 border-start-0 p-1 ">
               {props.prof.location}
             </Col>
-            <Col className="border border-top-0 border-bottom-0 border-start-0 p-1 ">
-              <Col>
-                {props.prof.notes ? (
-                  <div>Notes: {props.prof.notes}</div>
-                ) : (
-                  <div style={{ color: "gray" }}>No notes</div>
-                )}
-              </Col>
-            </Col>
+
             <Col xs={1}>
               <CiZoomIn
                 size={30}

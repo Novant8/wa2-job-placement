@@ -1,9 +1,9 @@
 import { Button, Card, Col, ListGroup, Row } from "react-bootstrap";
 import { BsFillSendPlusFill } from "react-icons/bs";
-import { emailContacts } from "../../types/emailContacts.ts";
+import { EmailContacts } from "../../types/emailContacts.ts";
 
 export type AddressBookRowProps = {
-  item: emailContacts;
+  item: EmailContacts;
   handleAddEmailAddrWithAddress: (email: string) => void;
 };
 

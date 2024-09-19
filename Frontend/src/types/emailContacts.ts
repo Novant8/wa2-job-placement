@@ -1,4 +1,4 @@
-export interface emailContacts {
+export interface EmailContacts {
   id: number;
   name: string;
   surname: string;
