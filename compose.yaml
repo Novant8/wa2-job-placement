@@ -12,6 +12,7 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: password
       PROXY_ADDRESS_FORWARDING: true
       KEYCLOAK_FRONTEND_URL: http://localhost:9090
+      KC_HEALTH_ENABLED: true
     volumes:
       - ./ApiGateway/keycloak:/opt/keycloak/data/import
     command: start-dev --import-realm
@@ -19,7 +20,8 @@ services:
       - kfk-net
       - keycloak
     healthcheck:
-      test: bash -c ':> /dev/tcp/localhost/8080'
+      # Send a request to http://localhost:9090/health/ready and verify that it responds with a 200 OK
+      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'" ]
       start_period: 60s
       interval: 5s
       timeout: 1s
