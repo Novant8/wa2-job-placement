@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -21,6 +21,7 @@ import { FaCircleArrowLeft } from "react-icons/fa6";
 import * as Icon from "react-bootstrap-icons";
 import JobOfferBadge from "./Badges/JobOfferBadge.tsx";
 import { CiZoomIn } from "react-icons/ci";
+import { MdDelete } from "react-icons/md";
 
 type Candidate = {
   id: number;
@@ -195,7 +196,7 @@ export default function ViewJobOfferDetailsCustomers() {
               <Col xs={4}>
                 <Button
                   className="d-flex align-items-center text-sm-start"
-                  onClick={() => navigate("/crm/job-offers")}
+                  onClick={() => navigate(-1)}
                 >
                   <FaCircleArrowLeft /> &nbsp; Back
                 </Button>
@@ -326,50 +327,61 @@ export default function ViewJobOfferDetailsCustomers() {
             <Row>
               <Col>
                 {isEditable ? (
-                  <>
-                    <Form.Group controlId="formRequiredSkills" className="mb-3">
-                      <Form.Label>Required Skills</Form.Label>
-                      {jobOffer?.requiredSkills.map((skill, index) => (
-                        <InputGroup key={index} className="mb-2">
-                          <Form.Control
-                            type="text"
-                            value={skill}
-                            disabled={!isEditable}
-                            onChange={(e) =>
-                              handleSkillChange(index, e.target.value)
-                            }
-                          />
-                          {isEditable && (
-                            <Button
-                              variant="danger"
-                              onClick={() => handleRemoveSkill(index)}
-                            >
-                              Remove
-                            </Button>
-                          )}
-                        </InputGroup>
-                      ))}
-                      {isEditable && (
-                        <InputGroup className="mb-3">
-                          <Form.Control
-                            type="text"
-                            placeholder="Add new skill"
-                            value={newSkill}
-                            onChange={(e) => setNewSkill(e.target.value)}
-                          />
-                          <Button variant="primary" onClick={handleAddSkill}>
-                            Add
-                          </Button>
-                        </InputGroup>
-                      )}
-                    </Form.Group>
-                  </>
+                  <Form.Group controlId="requiredSkills" className="mb-3 mt-2">
+                    {jobOffer?.requiredSkills.map((skill, index) => (
+                      <Row key={index} className="mb-">
+                        <Col>
+                          <InputGroup className="mb-3">
+                            <InputGroup.Text id="duration">
+                              <Icon.Award className="mx-1" /> Skill
+                            </InputGroup.Text>
+                            <Form.Control
+                              type="text"
+                              placeholder="Enter a required skill"
+                              value={skill}
+                              disabled={!isEditable}
+                              onChange={(e) =>
+                                handleSkillChange(index, e.target.value)
+                              }
+                              required
+                            />
+                            {jobOffer?.requiredSkills.length > 1 &&
+                            isEditable ? (
+                              <MdDelete
+                                size={25}
+                                role="button"
+                                onClick={() => handleRemoveSkill(index)}
+                              />
+                            ) : (
+                              <></>
+                            )}
+                          </InputGroup>
+                        </Col>
+                      </Row>
+                    ))}
+                    {isEditable ? (
+                      <InputGroup className="mb-3">
+                        <InputGroup.Text id="duration">
+                          <Icon.Award className="mx-1" /> Skill
+                        </InputGroup.Text>
+                        <Form.Control
+                          type="text"
+                          placeholder="Add new skill"
+                          value={newSkill}
+                          onChange={(e) => setNewSkill(e.target.value)}
+                        />
+                        <Button variant="primary" onClick={handleAddSkill}>
+                          Add
+                        </Button>
+                      </InputGroup>
+                    ) : (
+                      <></>
+                    )}
+                  </Form.Group>
                 ) : (
                   <>
                     Required Skills :{" "}
-                    {jobOffer?.requiredSkills.map(
-                      (skill, _index) => skill + ", ",
-                    )}{" "}
+                    {jobOffer?.requiredSkills.join(", ").toString()}{" "}
                   </>
                 )}
               </Col>
@@ -378,8 +390,11 @@ export default function ViewJobOfferDetailsCustomers() {
                 {!isEditable ? (
                   <>Notes:{jobOffer?.notes || "N/A"}</>
                 ) : (
-                  <Form.Group controlId="formNotes" className="mb-3">
-                    <Form.Label>Notes</Form.Label>
+                  <InputGroup className="mb-3">
+                    <InputGroup.Text id="duration">
+                      <Icon.Pencil className="mx-1" /> Notes
+                    </InputGroup.Text>
+
                     <Form.Control
                       as="textarea"
                       rows={3}
@@ -389,7 +404,7 @@ export default function ViewJobOfferDetailsCustomers() {
                         handleInputChange("notes", e.target.value)
                       }
                     />
-                  </Form.Group>
+                  </InputGroup>
                 )}
               </Col>
             </Row>
@@ -399,7 +414,11 @@ export default function ViewJobOfferDetailsCustomers() {
                   {isEditable ? "Cancel" : "Edit"}
                 </Button>
                 {isEditable && (
-                  <Button variant="warning" onClick={handleSubmit}>
+                  <Button
+                    variant="success"
+                    className="mx-2"
+                    onClick={handleSubmit}
+                  >
                     Submit
                   </Button>
                 )}

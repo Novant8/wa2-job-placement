@@ -56,13 +56,13 @@ export default function CardJobOffer(props: CardJobOfferProps) {
                 </Col>
                 <Col
                   xs={6}
-                  className="border border-top-0 border-bottom-0 border-end-0 p-1 "
+                  className="border border-top-0 border-bottom-0 border-end-0  "
                 >
                   <strong> {offer.description}</strong>
                 </Col>
                 <Col
                   xs={2}
-                  className="border border-left-0  border-top-0 border-bottom-0 p-2 "
+                  className="border border-left-0  border-top-0 border-bottom-0  p-1"
                 >
                   <JobOfferBadge status={offer.offerStatus} /> <br />
                   {offer.professional ? (

@@ -127,7 +127,7 @@ export default function ProfessionaInfo() {
                     <Col xs={4}>
                       <Button
                         className="d-flex align-items-center text-sm-start"
-                        onClick={() => navigate("/crm/professionals")}
+                        onClick={() => navigate(-1)}
                       >
                         <FaCircleArrowLeft /> &nbsp; Back
                       </Button>
