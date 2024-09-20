@@ -1,7 +1,10 @@
 services:
   keycloak:
     build: ./keycloak-spi-kafka
-    image: waii2024g07/keycloack-kafka:latest
+    image: waii2024g07/keycloak-kafka:latest
+    depends_on:
+      kafka:
+        condition: service_healthy
     ports:
       - '9090:8080'
     environment:
@@ -17,7 +20,7 @@ services:
       - keycloak
     healthcheck:
       test: bash -c ':> /dev/tcp/localhost/8080'
-      start_period: 10s
+      start_period: 60s
       interval: 5s
       timeout: 1s
       retries: 10
@@ -88,7 +91,7 @@ services:
     ports:
       - "5173:5173"
     healthcheck:
-      test: wget --spider -q http://localhost:5173/ui || exit 1
+      test: curl -f http://localhost:5173 || exit 1
       start_period: 1s
       interval: 5s
       timeout: 1s
