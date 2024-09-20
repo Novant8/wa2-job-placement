@@ -4,6 +4,11 @@
     text-align: center;
 }
 
+.container-fluid:not(#homepage) {
+    padding: 2rem;
+    margin-top: 50px;
+}
+
 .logo {
     height: 6em;
     padding: 1.5em;
