@@ -178,8 +178,8 @@ export default function JobProposalModalDetail(props: any) {
 
     let promise;
     if (jobProposal.documentId)
-      promise = API.updateDocument(jobProposal.documentId, document);
-    else promise = API.uploadDocument(document);
+      promise = API.updateDocument(jobProposal.documentId, document, me!);
+    else promise = API.uploadDocument(document, me!);
 
     const prevDocument = jobProposal.documentId;
     setJobProposal({ ...jobProposal, documentId: null });
@@ -210,8 +210,9 @@ export default function JobProposalModalDetail(props: any) {
       promise = API.updateDocument(
         jobProposal.professionalSignedContract,
         document,
+        me!
       );
-    else promise = API.uploadDocument(document);
+    else promise = API.uploadDocument(document, me!);
 
     const prevDocument = jobProposal.professionalSignedContract;
     setJobProposal({ ...jobProposal, professionalSignedContract: null });
