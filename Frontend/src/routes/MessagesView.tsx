@@ -2,7 +2,7 @@ import * as API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
 import { useEffect, useState } from "react";
 import { Message } from "../types/message.ts";
-import { Pageable } from "../types/Pageable.ts";
+
 import {
   Accordion,
   Button,

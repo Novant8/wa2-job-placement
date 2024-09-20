@@ -1,7 +1,7 @@
 import { Badge } from "react-bootstrap";
 
 export type JobOfferBadgeProps = {
-  status: string;
+  status: string | undefined;
 };
 
 export default function JobOfferBadge(props: JobOfferBadgeProps) {

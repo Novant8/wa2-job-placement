@@ -1,12 +1,4 @@
-import {
-  Button,
-  Card,
-  Col,
-  Container,
-  ListGroup,
-  Row,
-  Spinner,
-} from "react-bootstrap";
+import { Button, Card, Col, ListGroup, Row, Spinner } from "react-bootstrap";
 import { useAuth } from "../contexts/auth.tsx";
 import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar.tsx";
@@ -221,7 +213,6 @@ function DashboardOperator() {
       })
       .catch((err) => {
         console.log(err);
-        setError(err);
       })
       .finally(() => {
         setLoading(false);

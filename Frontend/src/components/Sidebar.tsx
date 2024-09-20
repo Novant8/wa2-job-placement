@@ -45,7 +45,7 @@ export default function Sidebar() {
           action
           onClick={() => (window.location.href = "http://localhost:3000")}
         >
-          Monitoring & Analitycs
+          Monitoring & Analytics
         </ListGroup.Item>
       </ListGroup>
 

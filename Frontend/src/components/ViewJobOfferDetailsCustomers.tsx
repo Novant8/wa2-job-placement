@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -203,7 +203,7 @@ export default function ViewJobOfferDetailsCustomers() {
               </Col>
               <Col xs={4}>
                 {isEditable ? (
-                  <InputGroup controlId="formDescription">
+                  <InputGroup>
                     <InputGroup.Text id="formDuration">
                       Description
                     </InputGroup.Text>
@@ -246,7 +246,7 @@ export default function ViewJobOfferDetailsCustomers() {
               </Col>
               <Col>
                 {isEditable ? (
-                  <InputGroup controlId="formDuration">
+                  <InputGroup>
                     <InputGroup.Text id="formDuration">
                       <Icon.Calendar className="mx-1" /> Duration
                     </InputGroup.Text>

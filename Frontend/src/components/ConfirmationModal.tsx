@@ -3,13 +3,15 @@ import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
 import { JobOffer, JobOfferUpdateStatus } from "../types/JobOffer.ts";
 import { MessageCreate } from "../types/message.ts";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { EmailAddress } from "../types/address.ts";
 
 export interface ConfirmationModalProps {
   action: string;
   onHide: () => void;
-  jobOffer: JobOffer;
+  jobOffer: JobOffer | undefined;
   setDirty: () => void;
+  show: boolean;
 }
 export default function ConfirmationModal(props: ConfirmationModalProps) {
   const handleAcceptDecline = (status: JobOfferUpdateStatus) => {
@@ -26,9 +28,41 @@ export default function ConfirmationModal(props: ConfirmationModalProps) {
       });
     //.finally(() => );
   };
+  let [customerMail, setCustomerMail] = useState("");
+  let [professionalMail, setProfessionalMail] = useState("");
+
+  useEffect(() => {
+    API.getCustomerById(props.jobOffer?.customer.id)
+      .then((c) => {
+        setCustomerMail(
+          c.contactInfo?.addresses
+            ?.filter((address): address is EmailAddress => "email" in address)
+            ?.find((emailAddress) => emailAddress.email)?.email || "", // Use empty string as a default value
+        );
+      })
+      .catch((error) => {
+        console.error("Error fetching customer by ID:", error);
+      });
+  }, []);
+  useEffect(() => {
+    if (props.jobOffer?.professional == undefined) return;
+    API.getProfessionalById(props.jobOffer?.professional.id)
+      .then((c) => {
+        setProfessionalMail(
+          c.contactInfo?.addresses
+            ?.filter((address): address is EmailAddress => "email" in address)
+            ?.find((emailAddress) => emailAddress.email)?.email || "", // Use empty string as a default value
+        );
+      })
+      .catch((error) => {
+        console.error("Error fetching professional by ID:", error);
+      });
+  }, []);
 
   useEffect(() => {
     console.log(props);
+    console.log(customerMail);
+    console.log(professionalMail);
   }, [props]);
 
   const handleAcceptDeclineCustomer = (
@@ -37,7 +71,7 @@ export default function ConfirmationModal(props: ConfirmationModalProps) {
   ) => {
     // if (!props.jobOffer) return;
 
-    API.updateJobOfferStatus(props.jobOffer.id.toString(), status)
+    API.updateJobOfferStatus(props.jobOffer?.id.toString(), status)
       .then(() => {
         props.onHide;
       })
@@ -103,24 +137,21 @@ export default function ConfirmationModal(props: ConfirmationModalProps) {
               handleAcceptDeclineCustomer(
                 { status: "ABORTED" },
                 {
-                  sender: { email: "EMAIL_EXAMPLE_MODAL_CONFIRM@XYZ.COM" }, //TODO: here you have a reduced customer with no addresses, retrive a complete customer so you have the addresses
-                  /* email: props.jobOffer.customer.contactInfo.addresses?.find(
-                      (address: { email?: string }) => address.email,
-                    )?.email,*/
+                  sender: { email: customerMail },
                   channel: "EMAIL",
                   subject:
                     "Job Offer id: " +
-                    props.jobOffer.id +
+                    props.jobOffer?.id +
                     " aborted by the customer",
                   body:
                     "Job Offer id: " +
-                    props.jobOffer.id +
+                    props.jobOffer?.id +
                     " name: " +
-                    props.jobOffer.description +
+                    props.jobOffer?.description +
                     " aborted by the customer id: " +
-                    props.jobOffer.customer.id +
+                    props.jobOffer?.customer.id +
                     " name: " +
-                    props.jobOffer.customer.contactInfo.name,
+                    props.jobOffer?.customer.contactInfo.name,
                 },
               );
             }}
@@ -134,24 +165,24 @@ export default function ConfirmationModal(props: ConfirmationModalProps) {
               handleAcceptDeclineCustomer(
                 { status: "DONE" },
                 {
-                  sender: { email: "EMAIL_EXAMPLE_MODAL_CONFIRM@XYZ.COM" }, //TODO: here you have a reduced customer with no addresses, retrive a complete customer so you have the addresses
+                  sender: { email: customerMail },
                   /* email: props.jobOffer.customer.contactInfo.addresses?.find(
                      (address: { email?: string }) => address.email,
                    )?.email,*/
                   channel: "EMAIL",
                   subject:
                     "Job Offer id: " +
-                    props.jobOffer.id +
+                    props.jobOffer?.id +
                     " done by the customer",
                   body:
                     "Job Offer id: " +
-                    props.jobOffer.id +
+                    props.jobOffer?.id +
                     " name: " +
-                    props.jobOffer.description +
+                    props.jobOffer?.description +
                     " put to done by the customer id: " +
-                    props.jobOffer.customer.id +
+                    props.jobOffer?.customer.id +
                     " name: " +
-                    props.jobOffer.customer.contactInfo.name,
+                    props.jobOffer?.customer.contactInfo.name,
                 },
               );
             }}
