@@ -111,10 +111,10 @@ const TestimonialsSection = () => {
                 "JobFind helped me land a role at my dream company. Their
                 services are top-notch!"
               </Card.Text>
-              <Card.Footer className="text-muted">
-                - Jane Doe, Software Engineer
-              </Card.Footer>
             </Card.Body>
+            <Card.Footer className="text-muted">
+              - Jane Doe, Software Engineer
+            </Card.Footer>
           </Card>
         </Col>
         <Col md={4}>
@@ -124,10 +124,10 @@ const TestimonialsSection = () => {
                 "The resume review service really helped me refine my
                 application and stand out."
               </Card.Text>
-              <Card.Footer className="text-muted">
-                - John Smith, Product Manager
-              </Card.Footer>
             </Card.Body>
+            <Card.Footer className="text-muted">
+              - John Smith, Product Manager
+            </Card.Footer>
           </Card>
         </Col>
         <Col md={4}>
@@ -137,10 +137,10 @@ const TestimonialsSection = () => {
                 "I couldn’t have done it without their career counseling. Highly
                 recommend!"
               </Card.Text>
-              <Card.Footer className="text-muted">
-                - Sarah Johnson, Data Analyst
-              </Card.Footer>
             </Card.Body>
+            <Card.Footer className="text-muted">
+              - Sarah Johnson, Data Analyst
+            </Card.Footer>
           </Card>
         </Col>
       </Row>
@@ -159,13 +159,13 @@ const Footer = () => {
             <p>© 2024 JobFind Inc. All rights reserved.</p>
           </Col>
           <Col md={6} className="text-md-right">
-            <a href="#facebook" className="text-light ml-2">
+            <a href="#facebook" className="d-block text-light ml-2">
               Facebook
             </a>
-            <a href="#twitter" className="text-light ml-2">
+            <a href="#twitter" className="d-block text-light ml-2">
               Twitter
             </a>
-            <a href="#linkedin" className="text-light ml-2">
+            <a href="#linkedin" className="d-block text-light ml-2">
               LinkedIn
             </a>
           </Col>
