@@ -9,7 +9,7 @@ import {
   Row,
   Spinner,
 } from "react-bootstrap";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { JobOffer, JobOfferCreate } from "../types/JobOffer.ts";
 import { Contact, ContactCategory } from "../types/contact.ts";
 import * as API from "../../API.tsx";
@@ -17,6 +17,10 @@ import { useAuth } from "../contexts/auth.tsx";
 import { Customer } from "../types/customer.ts";
 import JobProposalModalDetail from "./JobProposalDetailModal.tsx";
 import ConfirmationModal from "./ConfirmationModal.tsx";
+import { FaCircleArrowLeft } from "react-icons/fa6";
+import * as Icon from "react-bootstrap-icons";
+import JobOfferBadge from "./Badges/JobOfferBadge.tsx";
+import { CiZoomIn } from "react-icons/ci";
 
 type Candidate = {
   id: number;
@@ -33,7 +37,7 @@ export default function ViewJobOfferDetailsCustomers() {
   const [dirty, setDirty] = useState(false);
   const [modalShow, setModalShow] = useState<boolean>(false);
   const [modalAction, setModalAction] = useState<string>("");
-
+  const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState<Customer>({
     id: 0,
     contactInfo: {
@@ -184,271 +188,334 @@ export default function ViewJobOfferDetailsCustomers() {
 
   return (
     <>
-      <JobProposalModalDetail
-        show={jobProposalDetailModalShow}
-        onHide={() => setJobProposalDetailModalShow(false)}
-        jobOfferId={jobOffer?.id}
-        professionalId={selectedCandidate.id}
-        setCustomerJobOfferDirty={() => setDirty(true)}
-      />
-      <ConfirmationModal
-        show={modalShow}
-        action={modalAction}
-        onHide={() => setModalShow(false)}
-        jobOffer={jobOffer}
-        setDirty={() => setDirty(true)}
-      />
-      <Form>
-        <Row className="mb-3">
-          <Col>
-            <Form.Group controlId="formJobId">
-              <Form.Label>Job ID</Form.Label>
-              <Form.Control type="text" value={jobOffer?.id} disabled />
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group controlId="formJobStatus">
-              <Form.Label>Status</Form.Label>
-              <Form.Control
-                type="text"
-                value={jobOffer?.offerStatus}
-                disabled
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Form.Group controlId="formDescription" className="mb-3">
-          <Form.Label>Description</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            value={jobOffer?.description || ""}
-            disabled={!isEditable}
-            onChange={(e) => handleInputChange("description", e.target.value)}
-          />
-        </Form.Group>
-
-        <Form.Group controlId="formCustomerInfo" className="mb-3">
-          <Form.Label>Customer Contact Info</Form.Label>
-          <Form.Control
-            type="text"
-            value={`Name: ${jobOffer?.customer.contactInfo.name}`}
-            disabled
-          />
-          <Form.Control
-            type="text"
-            value={`Surname: ${jobOffer?.customer.contactInfo.surname}`}
-            disabled
-          />
-        </Form.Group>
-
-        <Form.Group controlId="formProfessionalInfo" className="mb-3">
-          <Form.Label>Professional Contact Info</Form.Label>
-          <Form.Control
-            type="text"
-            value={`Name: ${jobOffer?.professional?.contactInfo.name || "N/A"}`}
-            disabled
-          />
-          <Form.Control
-            type="text"
-            value={`Surname: ${jobOffer?.professional?.contactInfo.surname || "N/A"}`}
-            disabled
-          />
-          <Form.Control
-            type="text"
-            value={`Location: ${jobOffer?.professional?.location || "N/A"}`}
-            disabled
-          />
-          <Form.Control
-            type="text"
-            value={`Employment State: ${jobOffer?.professional?.employmentState || "N/A"}`}
-            disabled
-          />
-        </Form.Group>
-
-        <Form.Group controlId="formRequiredSkills" className="mb-3">
-          <Form.Label>Required Skills</Form.Label>
-          {jobOffer?.requiredSkills.map((skill, index) => (
-            <InputGroup key={index} className="mb-2">
-              <Form.Control
-                type="text"
-                value={skill}
-                disabled={!isEditable}
-                onChange={(e) => handleSkillChange(index, e.target.value)}
-              />
-              {isEditable && (
+      <Card>
+        <Card.Header>
+          <Card.Title>
+            <Row className="justify-content-begin">
+              <Col xs={4}>
                 <Button
-                  variant="danger"
-                  onClick={() => handleRemoveSkill(index)}
+                  className="d-flex align-items-center text-sm-start"
+                  onClick={() => navigate("/crm/job-offers")}
                 >
-                  Remove
+                  <FaCircleArrowLeft /> &nbsp; Back
                 </Button>
-              )}
-            </InputGroup>
-          ))}
-          {isEditable && (
-            <InputGroup className="mb-3">
-              <Form.Control
-                type="text"
-                placeholder="Add new skill"
-                value={newSkill}
-                onChange={(e) => setNewSkill(e.target.value)}
-              />
-              <Button variant="primary" onClick={handleAddSkill}>
-                Add
-              </Button>
-            </InputGroup>
-          )}
-        </Form.Group>
-
-        <Row className="mb-3">
-          <Col>
-            <Form.Group controlId="formDuration">
-              <Form.Label>Duration</Form.Label>
-              <Form.Control
-                type="text"
-                value={jobOffer?.duration || ""}
-                disabled={!isEditable}
-                onChange={(e) => handleInputChange("duration", e.target.value)}
-              />
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group controlId="formValue">
-              <Form.Label>Value</Form.Label>
-              <Form.Control
-                type="text"
-                value={jobOffer?.value || "N/A"}
-                disabled
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Form.Group controlId="formNotes" className="mb-3">
-          <Form.Label>Notes</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            value={jobOffer?.notes || ""}
-            disabled={!isEditable}
-            onChange={(e) => handleInputChange("notes", e.target.value)}
-          />
-        </Form.Group>
-
-        {jobOffer?.offerStatus === "CREATED" && (
-          <>
-            <Button variant="primary" onClick={handleEditClick}>
-              {isEditable ? "Cancel" : "Edit"}
-            </Button>
-            {isEditable && (
-              <Button variant="warning" onClick={handleSubmit}>
-                Submit
-              </Button>
-            )}
-          </>
-        )}
-
-        {jobOffer?.offerStatus === "CANDIDATE_PROPOSAL" && (
-          <Container className="mt-5">
-            <h2>Proposed Professional</h2>
-            <Row>
-              <Col md={12} key={jobOffer.professional.id} className="mb-4">
-                <Card>
-                  <Card.Body>
-                    <Card.Title>{`${jobOffer.professional.contactInfo.name} ${jobOffer.professional.contactInfo.surname}`}</Card.Title>
-                    <Card.Subtitle className="mb-2 text-muted">
-                      Location: {jobOffer.professional.location}
-                    </Card.Subtitle>
-                    <Card.Text>
-                      Employment State: {jobOffer.professional.employmentState}
-                      <br />
-                      Skills: {jobOffer.professional.skills.join(", ")}
-                    </Card.Text>
-
-                    <Button
-                      variant="warning"
-                      onClick={() => {
-                        //setJobProposalDetailModalShow(true);
-
-                        let selected: Candidate = {
-                          id: jobOffer.professional.id,
-                          name: jobOffer.professional.contactInfo.name,
-                          surname: jobOffer.professional.contactInfo.surname,
-                          cvDocument: jobOffer?.professional.cvDocument,
-                        };
-                        setSelectedCandidate(selected);
-                        setJobProposalDetailModalShow(true);
-                      }}
-                      className="me-2"
-                    >
-                      Show Job Proposal
-                    </Button>
-
-                    <Button
-                      variant="primary"
-                      disabled={!jobOffer?.professional.cvDocument}
-                      onClick={() =>
-                        jobOffer?.professional.cvDocument != undefined
-                          ? handleViewDocument(
-                              jobOffer?.professional.cvDocument,
-                            )
-                          : null
+              </Col>
+              <Col xs={4}>
+                {isEditable ? (
+                  <InputGroup controlId="formDescription">
+                    <InputGroup.Text id="formDuration">
+                      Description
+                    </InputGroup.Text>
+                    <Form.Control
+                      as="input"
+                      value={jobOffer?.description || ""}
+                      disabled={!isEditable}
+                      onChange={(e) =>
+                        handleInputChange("description", e.target.value)
                       }
-                    >
-                      Download CV
-                    </Button>
-                  </Card.Body>
-                </Card>
+                    />
+                  </InputGroup>
+                ) : (
+                  <div className="text-center">{jobOffer?.description}</div>
+                )}
               </Col>
             </Row>
-          </Container>
-        )}
-      </Form>
+          </Card.Title>
+        </Card.Header>
+        <Card.Body>
+          <JobProposalModalDetail
+            show={jobProposalDetailModalShow}
+            onHide={() => setJobProposalDetailModalShow(false)}
+            jobOfferId={jobOffer?.id}
+            professionalId={selectedCandidate.id}
+            setCustomerJobOfferDirty={() => setDirty(true)}
+          />
+          <ConfirmationModal
+            show={modalShow}
+            action={modalAction}
+            onHide={() => setModalShow(false)}
+            jobOffer={jobOffer}
+            setDirty={() => setDirty(true)}
+          />
+          <Form>
+            <Row className="mb-3">
+              <Col>Job ID {jobOffer?.id}</Col>
+              <Col>
+                Status <JobOfferBadge status={jobOffer?.offerStatus} />
+              </Col>
+              <Col>
+                {isEditable ? (
+                  <InputGroup controlId="formDuration">
+                    <InputGroup.Text id="formDuration">
+                      <Icon.Calendar className="mx-1" /> Duration
+                    </InputGroup.Text>
+                    <Form.Control
+                      type="text"
+                      value={jobOffer?.duration || ""}
+                      disabled={!isEditable}
+                      onChange={(e) =>
+                        handleInputChange("duration", e.target.value)
+                      }
+                    />
+                  </InputGroup>
+                ) : (
+                  <>Duration: {jobOffer?.duration} Months</>
+                )}
+              </Col>
+              <Col>Value: {jobOffer?.value || "N/A"} €</Col>
+            </Row>
+            <hr />
+            <Row>
+              <Col>
+                Customer: {jobOffer?.customer.contactInfo.name}{" "}
+                {jobOffer?.customer.contactInfo.surname}{" "}
+                <CiZoomIn
+                  size={20}
+                  color="black"
+                  style={{
+                    backgroundColor: "white",
+                    borderRadius: "20%", // Makes the background fully rounded
+                    // padding: "10px", // Adds space around the icon inside the circle
+                    transition: "color 0.3s ease, background-color 0.3s ease",
+                  }}
+                  onClick={() =>
+                    navigate(`/crm/customers/${jobOffer?.customer.id}`)
+                  }
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = "#e9ecef";
+                    e.currentTarget.style.cursor = "pointer"; // Optional: change cursor on hover
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = "white";
+                  }}
+                />
+              </Col>
+              <Col>
+                Professional :{" "}
+                {jobOffer?.professional?.contactInfo.name || "N/A"}{" "}
+                {jobOffer?.professional?.contactInfo.surname}{" "}
+                {!jobOffer?.professional ? (
+                  <></>
+                ) : (
+                  <CiZoomIn
+                    size={20}
+                    color="black"
+                    style={{
+                      backgroundColor: "white",
+                      borderRadius: "20%", // Makes the background fully rounded
+                      // padding: "10px", // Adds space around the icon inside the circle
+                      transition: "color 0.3s ease, background-color 0.3s ease",
+                    }}
+                    onClick={() =>
+                      navigate(
+                        `/crm/professionals/${jobOffer?.professional.id}`,
+                      )
+                    }
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.backgroundColor = "#e9ecef";
+                      e.currentTarget.style.cursor = "pointer"; // Optional: change cursor on hover
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.backgroundColor = "white";
+                    }}
+                  />
+                )}
+              </Col>
+            </Row>
+            <hr />
+            <Row>
+              <Col>
+                {isEditable ? (
+                  <>
+                    <Form.Group controlId="formRequiredSkills" className="mb-3">
+                      <Form.Label>Required Skills</Form.Label>
+                      {jobOffer?.requiredSkills.map((skill, index) => (
+                        <InputGroup key={index} className="mb-2">
+                          <Form.Control
+                            type="text"
+                            value={skill}
+                            disabled={!isEditable}
+                            onChange={(e) =>
+                              handleSkillChange(index, e.target.value)
+                            }
+                          />
+                          {isEditable && (
+                            <Button
+                              variant="danger"
+                              onClick={() => handleRemoveSkill(index)}
+                            >
+                              Remove
+                            </Button>
+                          )}
+                        </InputGroup>
+                      ))}
+                      {isEditable && (
+                        <InputGroup className="mb-3">
+                          <Form.Control
+                            type="text"
+                            placeholder="Add new skill"
+                            value={newSkill}
+                            onChange={(e) => setNewSkill(e.target.value)}
+                          />
+                          <Button variant="primary" onClick={handleAddSkill}>
+                            Add
+                          </Button>
+                        </InputGroup>
+                      )}
+                    </Form.Group>
+                  </>
+                ) : (
+                  <>
+                    Required Skills :{" "}
+                    {jobOffer?.requiredSkills.map(
+                      (skill, _index) => skill + ", ",
+                    )}{" "}
+                  </>
+                )}
+              </Col>
 
-      {jobOffer?.offerStatus === "CONSOLIDATED" && (
-        <>
-          <Button
-            variant="warning"
-            onClick={() => {
-              //setJobProposalDetailModalShow(true);
+              <Col>
+                {!isEditable ? (
+                  <>Notes:{jobOffer?.notes || "N/A"}</>
+                ) : (
+                  <Form.Group controlId="formNotes" className="mb-3">
+                    <Form.Label>Notes</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      value={jobOffer?.notes || ""}
+                      disabled={!isEditable}
+                      onChange={(e) =>
+                        handleInputChange("notes", e.target.value)
+                      }
+                    />
+                  </Form.Group>
+                )}
+              </Col>
+            </Row>
+            {jobOffer?.offerStatus === "CREATED" && (
+              <>
+                <Button variant="primary" onClick={handleEditClick}>
+                  {isEditable ? "Cancel" : "Edit"}
+                </Button>
+                {isEditable && (
+                  <Button variant="warning" onClick={handleSubmit}>
+                    Submit
+                  </Button>
+                )}
+              </>
+            )}
 
-              let selected: Candidate = {
-                id: jobOffer.professional.id,
-                name: jobOffer.professional.contactInfo.name,
-                surname: jobOffer.professional.contactInfo.surname,
-                cvDocument: jobOffer?.professional.cvDocument,
-              };
-              setSelectedCandidate(selected);
-              setJobProposalDetailModalShow(true);
-            }}
-            className="me-2"
-          >
-            Show Job Proposal
-          </Button>
-          <Button
-            style={{ marginRight: 10 }}
-            variant="success"
-            onClick={() => {
-              setModalAction("done");
-              setModalShow(true);
-            }}
-          >
-            Make Job Offer Done
-          </Button>
+            {jobOffer?.offerStatus === "CANDIDATE_PROPOSAL" && (
+              <>
+                <hr />
+                <Container>
+                  <h4>Proposed Professional</h4>
+                  <Row>
+                    <Col
+                      md={12}
+                      key={jobOffer.professional.id}
+                      className="mb-4"
+                    >
+                      <Card>
+                        <Card.Body>
+                          <Card.Title>{`${jobOffer.professional.contactInfo.name} ${jobOffer.professional.contactInfo.surname}`}</Card.Title>
+                          <Card.Subtitle className="mb-2 text-muted">
+                            Location: {jobOffer.professional.location}
+                          </Card.Subtitle>
+                          <Card.Text>
+                            Employment State:{" "}
+                            {jobOffer.professional.employmentState}
+                            <br />
+                            Skills: {jobOffer.professional.skills.join(", ")}
+                          </Card.Text>
 
-          <Button
-            variant="danger"
-            onClick={() => {
-              setModalAction("abort");
-              setModalShow(true);
-            }}
-          >
-            Abort Job Offer
-          </Button>
-        </>
-      )}
+                          <Button
+                            variant="warning"
+                            onClick={() => {
+                              //setJobProposalDetailModalShow(true);
+
+                              let selected: Candidate = {
+                                id: jobOffer.professional.id,
+                                name: jobOffer.professional.contactInfo.name,
+                                surname:
+                                  jobOffer.professional.contactInfo.surname,
+                                cvDocument: jobOffer?.professional.cvDocument,
+                              };
+                              setSelectedCandidate(selected);
+                              setJobProposalDetailModalShow(true);
+                            }}
+                            className="me-2"
+                          >
+                            Show Job Proposal
+                          </Button>
+
+                          <Button
+                            variant="primary"
+                            disabled={!jobOffer?.professional.cvDocument}
+                            onClick={() =>
+                              jobOffer?.professional.cvDocument != undefined
+                                ? handleViewDocument(
+                                    jobOffer?.professional.cvDocument,
+                                  )
+                                : null
+                            }
+                          >
+                            Download CV
+                          </Button>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  </Row>
+                </Container>
+              </>
+            )}
+          </Form>
+
+          {jobOffer?.offerStatus === "CONSOLIDATED" && (
+            <>
+              <Button
+                variant="warning"
+                onClick={() => {
+                  //setJobProposalDetailModalShow(true);
+
+                  let selected: Candidate = {
+                    id: jobOffer.professional.id,
+                    name: jobOffer.professional.contactInfo.name,
+                    surname: jobOffer.professional.contactInfo.surname,
+                    cvDocument: jobOffer?.professional.cvDocument,
+                  };
+                  setSelectedCandidate(selected);
+                  setJobProposalDetailModalShow(true);
+                }}
+                className="me-2"
+              >
+                Show Job Proposal
+              </Button>
+              <Button
+                style={{ marginRight: 10 }}
+                variant="success"
+                onClick={() => {
+                  setModalAction("done");
+                  setModalShow(true);
+                }}
+              >
+                Make Job Offer Done
+              </Button>
+
+              <Button
+                variant="danger"
+                onClick={() => {
+                  setModalAction("abort");
+                  setModalShow(true);
+                }}
+              >
+                Abort Job Offer
+              </Button>
+            </>
+          )}
+        </Card.Body>
+      </Card>
     </>
   );
 }

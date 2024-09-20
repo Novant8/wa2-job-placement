@@ -1,15 +1,21 @@
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
-import { JobOfferUpdateStatus } from "../types/JobOffer.ts";
+import { JobOffer, JobOfferUpdateStatus } from "../types/JobOffer.ts";
 import { MessageCreate } from "../types/message.ts";
 import { useEffect } from "react";
 
-export default function ConfirmationModal(props: any) {
+export interface ConfirmationModalProps {
+  action: string;
+  onHide: () => void;
+  jobOffer: JobOffer;
+  setDirty: () => void;
+}
+export default function ConfirmationModal(props: ConfirmationModalProps) {
   const handleAcceptDecline = (status: JobOfferUpdateStatus) => {
     if (!props.jobOffer) return;
 
-    API.updateJobOfferStatus(props.jobOffer.id, status)
+    API.updateJobOfferStatus(props.jobOffer.id.toString(), status)
       .then(() => {
         //navigate(`/crm/RecruiterJobOffer/${props.jobOffer.id}`);
         props.setDirty();
@@ -29,9 +35,9 @@ export default function ConfirmationModal(props: any) {
     status: JobOfferUpdateStatus,
     msg: MessageCreate,
   ) => {
-    if (!props.jobOffer) return;
+    // if (!props.jobOffer) return;
 
-    API.updateJobOfferStatus(props.jobOffer.id, status)
+    API.updateJobOfferStatus(props.jobOffer.id.toString(), status)
       .then(() => {
         props.onHide;
       })
@@ -97,11 +103,10 @@ export default function ConfirmationModal(props: any) {
               handleAcceptDeclineCustomer(
                 { status: "ABORTED" },
                 {
-                  sender: {
-                    email: props.customerInfo.contactInfo.addresses?.find(
+                  sender: { email: "EMAIL_EXAMPLE_MODAL_CONFIRM@XYZ.COM" }, //TODO: here you have a reduced customer with no addresses, retrive a complete customer so you have the addresses
+                  /* email: props.jobOffer.customer.contactInfo.addresses?.find(
                       (address: { email?: string }) => address.email,
-                    )?.email,
-                  },
+                    )?.email,*/
                   channel: "EMAIL",
                   subject:
                     "Job Offer id: " +
@@ -113,9 +118,9 @@ export default function ConfirmationModal(props: any) {
                     " name: " +
                     props.jobOffer.description +
                     " aborted by the customer id: " +
-                    props.customerId +
+                    props.jobOffer.customer.id +
                     " name: " +
-                    props.customerInfo.contactInfo.name,
+                    props.jobOffer.customer.contactInfo.name,
                 },
               );
             }}
@@ -129,11 +134,10 @@ export default function ConfirmationModal(props: any) {
               handleAcceptDeclineCustomer(
                 { status: "DONE" },
                 {
-                  sender: {
-                    email: props.customerInfo.contactInfo.addresses?.find(
-                      (address: { email?: string }) => address.email,
-                    )?.email,
-                  },
+                  sender: { email: "EMAIL_EXAMPLE_MODAL_CONFIRM@XYZ.COM" }, //TODO: here you have a reduced customer with no addresses, retrive a complete customer so you have the addresses
+                  /* email: props.jobOffer.customer.contactInfo.addresses?.find(
+                     (address: { email?: string }) => address.email,
+                   )?.email,*/
                   channel: "EMAIL",
                   subject:
                     "Job Offer id: " +
@@ -145,9 +149,9 @@ export default function ConfirmationModal(props: any) {
                     " name: " +
                     props.jobOffer.description +
                     " put to done by the customer id: " +
-                    props.customerId +
+                    props.jobOffer.customer.id +
                     " name: " +
-                    props.customerInfo.contactInfo.name,
+                    props.jobOffer.customer.contactInfo.name,
                 },
               );
             }}

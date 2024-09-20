@@ -38,11 +38,25 @@ const NotLoggedView = () => {
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { me } = useAuth(); // Ottieni lo stato di autenticazione
-  return me?.principal ? (
-    children
-  ) : (
+  const canRenderSendEmail =
+    me?.principal &&
+    children.type == SendEmail &&
+    (me?.roles.includes("operator") || me?.roles.includes("manager"));
+
+  const canRenderMessage =
+    me?.principal &&
+    children.type == MessagesView &&
+    (me?.roles.includes("operator") || me?.roles.includes("manager"));
+
+  return (
     <>
-      <NotLoggedView />
+      {canRenderSendEmail ? (
+        children
+      ) : canRenderMessage ? (
+        children
+      ) : (
+        <NotLoggedView />
+      )}
     </>
   );
 };
@@ -63,19 +77,11 @@ const router = createBrowserRouter(
         },
         {
           path: "/crm/customers/",
-          element: (
-            <ProtectedRoute>
-              <CustomersView />
-            </ProtectedRoute>
-          ),
+          element: <CustomersView />,
         },
         {
           path: "/crm/customers/:customerId",
-          element: (
-            <ProtectedRoute>
-              <CustomerInfo />
-            </ProtectedRoute>
-          ),
+          element: <CustomerInfo />,
         },
         {
           path: "/crm/job-offers/",
@@ -103,11 +109,19 @@ const router = createBrowserRouter(
         },
         {
           path: "/communication-manager",
-          element: <SendEmail />,
+          element: (
+            <ProtectedRoute>
+              <SendEmail />
+            </ProtectedRoute>
+          ),
         },
         {
           path: "/messages",
-          element: <MessagesView />,
+          element: (
+            <ProtectedRoute>
+              <MessagesView />
+            </ProtectedRoute>
+          ),
         },
       ],
     },

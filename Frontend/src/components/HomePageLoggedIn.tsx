@@ -88,7 +88,7 @@ function DashboardCustomer() {
   }, [me, page1]);
 
   return (
-    <Container fluid>
+    <Container>
       <Row>
         <Col md={2}>
           <Sidebar />
@@ -122,12 +122,12 @@ function DashboardCustomer() {
 // Dashboard Main Component
 const DashboardMain = () => {
   return (
-    <Container fluid className="my-4">
+    <Container fluid>
       <Row>
-        <Col md={3}>
+        <Col md={2}>
           <Sidebar />
         </Col>
-        <Col md={9}>
+        <Col md={10}>
           <h2>Dashboard Overview</h2>
 
           {/* Job Applications Card */}

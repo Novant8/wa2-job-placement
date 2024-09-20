@@ -13,7 +13,8 @@ import { Professional } from "../types/professional.ts";
 import { UploadDocumentField } from "./UploadDocumentField.tsx";
 import { Accordion, ButtonGroup, Spinner } from "react-bootstrap";
 import { DocumentHistory } from "../types/documents.ts";
-
+import { TiTick, TiTimes } from "react-icons/ti";
+import { BiSolidHourglass } from "react-icons/bi";
 export default function JobProposalModalDetail(props: any) {
   const [jobProposal, setJobProposal] = useState<JobProposal>();
   const [modalAction, setModalAction] = useState("");
@@ -315,183 +316,51 @@ export default function JobProposalModalDetail(props: any) {
       )}
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          Job Proposal Detail
+          {jobProposal?.jobOffer.description}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <h4>Job Proposal: {jobProposal?.id}</h4>
         <p>
           {" "}
-          Customer:{" "}
+          <strong> Customer:</strong>{" "}
           {jobProposal?.customer.contactInfo.name +
             " " +
             jobProposal?.customer.contactInfo.surname}
-        </p>
-        <p>
-          {" "}
-          Professional:{" "}
+          <br />
+          <strong> Professional:</strong>{" "}
           {jobProposal?.professional.contactInfo.name +
             " " +
             jobProposal?.professional.contactInfo.surname}
         </p>
-        {me?.roles.includes("operator") && (
-          <>
-            <p>
-              {" "}
-              Confirmation by customer:{" "}
-              {jobProposal?.customerConfirmation === false &&
-              jobProposal?.status === "CREATED"
-                ? "The customer has not decided yet"
-                : jobProposal?.customerConfirmation === true
-                  ? "Accepted by the customer"
-                  : jobProposal?.customerConfirmation === false &&
-                      jobProposal?.status === "DECLINED"
-                    ? "Declined by the customer"
-                    : ""}
-            </p>
-          </>
+        <hr />
+        Accepted by the customer:{" "}
+        {jobProposal?.customerConfirmation === false &&
+        jobProposal?.status === "CREATED" ? (
+          <BiSolidHourglass size={20} />
+        ) : jobProposal?.customerConfirmation === true ? (
+          <TiTick size={20} />
+        ) : jobProposal?.customerConfirmation === false &&
+          jobProposal?.status === "DECLINED" ? (
+          <TiTimes size={20} />
+        ) : (
+          ""
         )}
-
-        {me?.roles.includes("customer") && (
-          <>
-            <p>
-              {" "}
-              Confirmation by customer:{" "}
-              {!jobProposal?.customerConfirmation &&
-              jobProposal?.status === "CREATED" ? (
-                <>
-                  <Button
-                    variant="success"
-                    style={{ marginRight: 10 }}
-                    disabled={!jobProposal.documentId}
-                    onClick={() => {
-                      setModalAction("accept");
-                      setCustomerProposalConfirmationModalShow(true);
-                    }}
-                  >
-                    Accept
-                  </Button>
-                  <Button
-                    variant="danger"
-                    onClick={() => {
-                      setModalAction("decline");
-                      setCustomerProposalConfirmationModalShow(true);
-                    }}
-                  >
-                    Decline
-                  </Button>
-                </>
-              ) : jobProposal?.customerConfirmation ? (
-                "You have accepted this professional for the job offer"
-              ) : !jobProposal?.customerConfirmation &&
-                jobProposal?.status === "DECLINED" ? (
-                "You have declined this professional for the job offer"
-              ) : (
-                ""
-              )}
-            </p>
-          </>
-        )}
-        {me?.roles.includes("professional") && (
-          <>
-            <p>
-              {" "}
-              Confirmation by customer:{" "}
-              {jobProposal?.customerConfirmation === false &&
-              jobProposal?.status === "CREATED"
-                ? "The customer has not decided yet"
-                : jobProposal?.customerConfirmation === true
-                  ? "Accepted by the customer"
-                  : jobProposal?.customerConfirmation === false &&
-                      jobProposal?.status === "DECLINED"
-                    ? "Declined by the customer"
-                    : ""}
-            </p>
-          </>
-        )}
-        {me?.roles.includes("operator") && (
-          <>
-            <p>
-              {" "}
-              Accepted by the professional:{" "}
-              {jobProposal?.status === "ACCEPTED"
-                ? "Yes"
-                : jobProposal?.status === "CREATED"
-                  ? "Not yet accepted by the professional"
-                  : "No"}
-            </p>
-          </>
-        )}
-        {me?.roles.includes("customer") && (
-          <>
-            <p>
-              {" "}
-              Accepted by the professional:{" "}
-              {jobProposal?.status === "ACCEPTED"
-                ? "Yes"
-                : jobProposal?.status === "CREATED"
-                  ? "Not yet accepted by the professional"
-                  : "No"}
-            </p>
-          </>
-        )}
-        {me?.roles.includes("manager") && (
-          <p>
-            {" "}
-            Accepted by the professional:{" "}
-            {jobProposal?.status === "ACCEPTED"
-              ? "Yes"
-              : jobProposal?.status === "CREATED"
-                ? "Not yet accepted by the professional"
-                : "No"}
-          </p>
-        )}
-        {me?.roles.includes("professional") && (
-          <p>
-            {" "}
-            Accept the job proposal:{" "}
-            {jobProposal?.status === "ACCEPTED" ? (
-              "You have already accepted this job proposal"
-            ) : jobProposal?.status === "CREATED" &&
-              !jobProposal.customerConfirmation ? (
-              "Not yet accepted by the customer you can't accept it yet"
-            ) : jobProposal?.status === "CREATED" &&
-              !jobProposal.customerConfirmation ? (
-              "You can't accept it because has been declined by the customer"
-            ) : jobProposal?.status === "CREATED" &&
-              jobProposal.customerConfirmation ? (
-              <>
-                <Button
-                  variant="success"
-                  style={{ marginRight: 10 }}
-                  disabled={!jobProposal.professionalSignedContract}
-                  onClick={() => {
-                    setModalAction("accept");
-                    setProfessionalProposalConfirmationModalShow(true);
-                  }}
-                >
-                  Accept
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={() => {
-                    setModalAction("decline");
-                    setProfessionalProposalConfirmationModalShow(true);
-                  }}
-                >
-                  Decline
-                </Button>
-              </>
-            ) : (
-              ""
-            )}
-          </p>
-        )}
-
+        <br />
+        Accepted by the professional:{" "}
+        {jobProposal?.status === "ACCEPTED" ? (
+          <TiTick size={20} />
+        ) : jobProposal?.status === "CREATED" ? (
+          <BiSolidHourglass size={20} />
+        ) : (
+          <TiTimes size={20} />
+        )}{" "}
+        <hr />
         <p>
-          Contract:{" "}
+          {" "}
           {me?.roles.includes("customer") && (
             <>
+              {" "}
+              Contract for the professional:
               <UploadDocumentField
                 documentId={jobProposal?.documentId}
                 loading={loadingDocument}
@@ -503,18 +372,49 @@ export default function JobProposalModalDetail(props: any) {
                 professionalView={false}
                 professionalConfirm={false}
               />
-              {jobProposal?.documentId ? (
-                ""
-              ) : (
-                <p>
-                  No contract yet submitted, upload it if you want to accept the
-                  Job Proposal
-                </p>
-              )}
+            </>
+          )}
+          {me?.roles.includes("customer") && (
+            <>
+              <p>
+                {" "}
+                {!jobProposal?.customerConfirmation &&
+                jobProposal?.status === "CREATED" ? (
+                  <>
+                    For accept the candidate, please upload a contract,
+                    otherwise if you are not interessed in the candidate decline
+                    the offer : <br />
+                    <Button
+                      variant="success"
+                      style={{ marginRight: 10 }}
+                      disabled={!jobProposal.documentId}
+                      onClick={() => {
+                        setModalAction("accept");
+                        setCustomerProposalConfirmationModalShow(true);
+                      }}
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        setModalAction("decline");
+                        setCustomerProposalConfirmationModalShow(true);
+                      }}
+                    >
+                      Decline
+                    </Button>
+                  </>
+                ) : (
+                  <></>
+                )}
+              </p>
             </>
           )}
           {me?.roles.includes("professional") && (
             <>
+              {" "}
+              Contract for the professional:
               <UploadDocumentField
                 documentId={jobProposal?.documentId}
                 loading={loadingDocument}
@@ -526,12 +426,56 @@ export default function JobProposalModalDetail(props: any) {
                 professionalView={false}
                 professionalConfirm={false}
               />
-              {jobProposal?.documentId ? (
-                ""
-              ) : (
+              {me?.roles.includes("professional") &&
+                jobProposal?.customerConfirmation && (
+                  <p>
+                    <hr />
+                    Signed contract by the professional:{" "}
+                    <UploadDocumentField
+                      documentId={jobProposal?.professionalSignedContract}
+                      loading={loadingSignedDocument}
+                      error={errorSignedDocument}
+                      onUpload={uploadOrUpdateSignedContract}
+                      onDelete={deleteSignedContract}
+                      customerView={false}
+                      customerConfirm={false}
+                      professionalView={true}
+                      professionalConfirm={jobProposal?.status == "ACCEPTED"}
+                    />
+                  </p>
+                )}
+              {me?.roles.includes("professional") && (
                 <p>
-                  No contract yet submitted, upload it if you want to accept the
-                  Job Proposal
+                  {" "}
+                  {jobProposal?.status === "CREATED" &&
+                  jobProposal.customerConfirmation ? (
+                    <>
+                      No contract yet submitted, upload it if you want to accept
+                      the Job Proposal:{" "}
+                      <Button
+                        variant="success"
+                        style={{ marginRight: 10 }}
+                        disabled={!jobProposal.professionalSignedContract}
+                        onClick={() => {
+                          setModalAction("accept");
+                          setProfessionalProposalConfirmationModalShow(true);
+                        }}
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        variant="danger"
+                        onClick={() => {
+                          setModalAction("decline");
+                          setProfessionalProposalConfirmationModalShow(true);
+                        }}
+                      >
+                        Decline
+                      </Button>
+                    </>
+                  ) : (
+                    ""
+                  )}
                 </p>
               )}
             </>
@@ -542,6 +486,7 @@ export default function JobProposalModalDetail(props: any) {
             (jobProposal?.documentId ? (
               <>
                 <div className="my-2">
+                  Contract for the professional:
                   <span className="mx-3 my-auto">
                     <strong>{documentHistory?.versions[0].name}</strong>
                   </span>
@@ -589,33 +534,16 @@ export default function JobProposalModalDetail(props: any) {
               "No contract yet submitted "
             ))}
         </p>
-
-        {me?.roles.includes("professional") &&
-          jobProposal?.customerConfirmation && (
-            <p>
-              Upload signed contract:{" "}
-              <UploadDocumentField
-                documentId={jobProposal?.professionalSignedContract}
-                loading={loadingSignedDocument}
-                error={errorSignedDocument}
-                onUpload={uploadOrUpdateSignedContract}
-                onDelete={deleteSignedContract}
-                customerView={false}
-                customerConfirm={false}
-                professionalView={true}
-                professionalConfirm={jobProposal?.status == "ACCEPTED"}
-              />
-            </p>
-          )}
-
         {["operator", "manager", "customer"].some((role) =>
           me?.roles.includes(role as UserRole),
         ) &&
           jobProposal?.customerConfirmation && (
             <div>
-              <p>Signed Contract:</p>
+              <hr />
+              <p></p>
               {jobProposal?.professionalSignedContract ? (
                 <div className="my-2">
+                  Signed contract by the professional:
                   <span className="mx-3 my-auto">
                     <strong>{signedDocumentHistory?.versions[0].name}</strong>
                   </span>
@@ -631,7 +559,7 @@ export default function JobProposalModalDetail(props: any) {
                   </ButtonGroup>
                 </div>
               ) : (
-                "No contract yet submitted"
+                "Signed contract by the professional: No contract yet submitted"
               )}
 
               {signedDocumentHistory &&
