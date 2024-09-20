@@ -18,14 +18,15 @@ import UpdateMessageStatusModal from "../components/UpdateMessageStatusModal.tsx
 import { ApiError } from "../../API.tsx";
 import Sidebar from "../components/Sidebar.tsx";
 import { CiCircleInfo } from "react-icons/ci";
+import PaginationCustom from "../components/PaginationCustom.tsx";
 
 export default function MessagesView() {
   const { me } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<ApiError | null>(null);
-  const [pageable, setPageable] = useState<Pageable | null>(null);
-  const [totalPages, setTotalPages] = useState<number | null>(null);
+  const [page, setPage] = useState<number>(1);
+  const [totalPage, setTotalPage] = useState<number>(1);
   const [status, setStatus] = useState<string | undefined>("RECEIVED");
   const [selected, setSelected] = useState<Message | null>(null);
   const [modalAction, setModalAction] = useState<string>("");
@@ -174,11 +175,17 @@ export default function MessagesView() {
   useEffect(() => {
     const token = me?.xsrfToken;
     setLoading(true);
-    API.getMessagges(token, status)
+
+    let paging = {
+      pageNumber: page - 1,
+      pageSize: 5,
+    };
+
+    API.getMessagges(token, status, paging)
       .then((msg) => {
+        setMessages([]);
         setMessages(msg.content);
-        setPageable(msg.pageable);
-        setTotalPages(msg.totalPages);
+        setTotalPage(msg.totalPages);
       })
       .catch((err) => {
         console.log(err);
@@ -188,13 +195,11 @@ export default function MessagesView() {
         setLoading(false);
         setDirty(false);
       });
-  }, [status, dirty]);
+  }, [status, dirty, page]);
 
-  //TODO: remove this useEffect
   useEffect(() => {
-    console.log(messages);
-  }, [messages, status, dirty]);
-
+    setPage(1);
+  }, [status]);
   if (error) {
     return (
       <Container className="text-center mt-5">
@@ -244,7 +249,6 @@ export default function MessagesView() {
                           <Spinner animation="border" />
                         </Container>
                       )}
-
                       {messages?.length > 0 ? (
                         <Accordion>
                           {messages &&
@@ -255,6 +259,11 @@ export default function MessagesView() {
                       ) : (
                         <div>There no received messages</div>
                       )}
+                      <PaginationCustom
+                        setPage={setPage}
+                        page={page}
+                        totalPage={totalPage}
+                      />
                     </Tab>
                     <Tab eventKey="read" title="Read">
                       {loading && (
@@ -273,6 +282,11 @@ export default function MessagesView() {
                       ) : (
                         <div>There no read messages</div>
                       )}
+                      <PaginationCustom
+                        setPage={setPage}
+                        page={page}
+                        totalPage={totalPage}
+                      />
                     </Tab>
                     <Tab eventKey="processing" title="Processing">
                       {loading && (
@@ -291,6 +305,11 @@ export default function MessagesView() {
                       ) : (
                         <div>There no processing messages</div>
                       )}
+                      <PaginationCustom
+                        setPage={setPage}
+                        page={page}
+                        totalPage={totalPage}
+                      />
                     </Tab>
                     <Tab eventKey="done" title="Done">
                       {loading && (
@@ -309,6 +328,11 @@ export default function MessagesView() {
                       ) : (
                         <div>There no done messages</div>
                       )}
+                      <PaginationCustom
+                        setPage={setPage}
+                        page={page}
+                        totalPage={totalPage}
+                      />
                     </Tab>
                     <Tab eventKey="discarded" title="Discarded">
                       {loading && (
@@ -327,6 +351,11 @@ export default function MessagesView() {
                       ) : (
                         <div>There no discarded messages</div>
                       )}
+                      <PaginationCustom
+                        setPage={setPage}
+                        page={page}
+                        totalPage={totalPage}
+                      />
                     </Tab>
                     <Tab eventKey="failed" title="Failed">
                       {loading && (
@@ -345,15 +374,13 @@ export default function MessagesView() {
                       ) : (
                         <div>There no failed messages</div>
                       )}
+                      <PaginationCustom
+                        setPage={setPage}
+                        page={page}
+                        totalPage={totalPage}
+                      />
                     </Tab>
                   </Tabs>
-                  {pageable && (
-                    <div className="mt-4">
-                      <p>
-                        Page {pageable.pageNumber + 1} of {totalPages}
-                      </p>
-                    </div>
-                  )}
                 </Card.Body>
               </Card>
             </Container>

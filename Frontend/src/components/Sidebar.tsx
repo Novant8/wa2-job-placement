@@ -5,6 +5,7 @@ import { CiHome, CiLogout } from "react-icons/ci";
 
 export default function Sidebar() {
   const { me } = useAuth();
+
   const navigate = useNavigate();
   return (
     <>

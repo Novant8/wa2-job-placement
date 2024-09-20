@@ -414,7 +414,12 @@ export default function JobProposalModalDetail(props: any) {
           {me?.roles.includes("professional") && (
             <>
               {" "}
-              Contract for the professional:
+              Contract for the professional:{" "}
+              {!jobProposal?.customerConfirmation ? (
+                <>Not yet available, Wait for a customer's decisions</>
+              ) : (
+                <></>
+              )}
               <UploadDocumentField
                 documentId={jobProposal?.documentId}
                 loading={loadingDocument}

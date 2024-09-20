@@ -530,17 +530,20 @@ const url: string = "http://localhost:8080";
 export async function getMessagges(
   token: string | undefined,
   filterBy?: string | undefined,
+  page?: Page | undefined,
 ): Promise<any> {
   return new Promise((resolve, reject) => {
     let endpoint = url + "/crm/API/messages";
 
-    if (filterBy) {
+    if (filterBy || page) {
       const params = new URLSearchParams();
 
       if (filterBy) {
         params.append("filterBy", filterBy);
       }
-
+      if (page?.pageNumber == 0 || page?.pageNumber)
+        params.append("page", String(page.pageNumber));
+      if (page?.pageSize) params.append("size", String(page.pageSize));
       const queryString = params.toString();
       if (queryString) {
         endpoint += "?" + queryString;

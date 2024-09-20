@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import API from "../../API.tsx";
 import { useAuth } from "../contexts/auth.tsx";
-import { Card, Col, Container, Form, InputGroup, Row } from "react-bootstrap";
+import {
+  Card,
+  Col,
+  Container,
+  Form,
+  InputGroup,
+  Row,
+  Spinner,
+} from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 import TagsInput from "react-tagsinput";
 import "react-tagsinput/react-tagsinput.css";
@@ -22,7 +30,7 @@ export default function ProfessionalsView() {
 
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
-
+  const [loading, setLoading] = useState(true);
   let statuses = ["EMPLOYED", "UNEMPLOYED"];
   const [checkedItems, setCheckedItems] = useState(
     statuses.reduce((acc: { [key: string]: boolean }, status: string) => {
@@ -50,6 +58,7 @@ export default function ProfessionalsView() {
   }, []);
 
   useEffect(() => {
+    setLoading(true);
     const token = me?.xsrfToken;
     const filteredCheckedItems = Object.entries(checkedItems)
       .filter(([_status, isChecked]) => isChecked)
@@ -82,19 +91,17 @@ export default function ProfessionalsView() {
     API.getProfessionals(token, filterDTO, paging)
       .then((prof) => {
         setTotalPage(prof.totalPages);
-        setProfessional(prof);
+        setProfessional(prof.content);
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
       });
   }, [location, skills, page, checkedItems]);
 
-  //TODO: remove this useEffect
-  useEffect(() => {
-    console.log(professional);
-    console.log(me);
-    //console.log(candidates.content);
-  }, [professional]);
+  if (loading) {
+    return <Spinner />;
+  }
 
   return (
     <>
@@ -174,7 +181,7 @@ export default function ProfessionalsView() {
                           <TagsInput
                             value={skills}
                             onChange={(tags: any) => setSkills(tags)}
-                            inputProps={{ placeholder: "Add a skill" }}
+                            inputProps={{ placeholder: "Search skills" }}
                             className="tags-input"
                           />
                         </div>
