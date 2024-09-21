@@ -38,6 +38,7 @@ export default function ViewRecruiterJobOffer() {
     "ABORTED",
     "CONSOLIDATED",
     "CREATED",
+    "SELECTION_PHASE",
   ];
   const [checkedItems, setCheckedItems] = useState(
     statuses.reduce((acc: { [key: string]: boolean }, status: string) => {
