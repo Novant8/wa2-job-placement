@@ -1,23 +1,9 @@
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
-import { MessageCreate } from "../types/message.ts";
 
 export default function CustomerAcceptDeclineProposalModal(props: any) {
-  /*const testMessage = (msg: MessageCreate) => {
-      API.createMessage(msg)
-        .then(() => {
-          console.log("okay");
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    };*/
-
-  const handleAcceptDecline = (
-    customerConfirm: boolean,
-    msg: MessageCreate,
-  ) => {
+  const handleAcceptDecline = (customerConfirm: boolean) => {
     if (!props.proposalId) return;
 
     API.customerConfirmDeclineJobProposal(
@@ -52,11 +38,6 @@ export default function CustomerAcceptDeclineProposalModal(props: any) {
         console.log(err);
       })
       .finally(() => {
-        API.createMessage(msg)
-          .then(() => {})
-          .catch((err) => {
-            console.log(err);
-          });
         props.setDirty();
         props.setProposalOnHide();
       });
@@ -86,41 +67,7 @@ export default function CustomerAcceptDeclineProposalModal(props: any) {
           <Button
             variant="success"
             onClick={() => {
-              handleAcceptDecline(true, {
-                sender: {
-                  email: props.customerInfo.contactInfo.addresses?.find(
-                    (address: { email?: string }) => address.email,
-                  )?.email,
-                },
-                channel: "EMAIL",
-                subject:
-                  "Proposal id: " +
-                  props.proposalId +
-                  " accepted by the customer",
-                body:
-                  "Proposal id: " +
-                  props.proposalId +
-                  " accepted by the customer id: " +
-                  props.customerId +
-                  " name: " +
-                  props.customerInfo.contactInfo.name +
-                  " for the job offer " +
-                  props.jobOffer.description,
-              });
-              /*testMessage({
-                              sender: {
-                                email: props.customerInfo.contactInfo.addresses?.find(
-                                  (address: { email?: string }) => address.email,
-                                )?.email,
-                              },
-                              channel: "EMAIL",
-                              subject: "proposal id: " + props.proposalId + "accepted",
-                              body:
-                                "proposal id: " +
-                                props.proposalId +
-                                "accepted by the customer " +
-                                props.customerId,
-                            });*/
+              handleAcceptDecline(true);
             }}
           >
             Accept
@@ -129,42 +76,7 @@ export default function CustomerAcceptDeclineProposalModal(props: any) {
           <Button
             variant="danger"
             onClick={() => {
-              handleAcceptDecline(false, {
-                sender: {
-                  email: props.customerInfo.contactInfo.addresses?.find(
-                    (address: { email?: string }) => address.email,
-                  )?.email,
-                },
-                channel: "EMAIL",
-                subject:
-                  "Proposal id: " +
-                  props.proposalId +
-                  " declined by the customer",
-                body:
-                  "Proposal id: " +
-                  props.proposalId +
-                  " declined by the customer id: " +
-                  props.customerId +
-                  " name: " +
-                  props.customerInfo.contactInfo.name +
-                  " for the job offer " +
-                  props.jobOffer.description,
-              });
-              //console.log(props.customerInfo);
-              /*testMessage({
-                              sender: {
-                                email: props.customerInfo.contactInfo.addresses?.find(
-                                  (address: { email?: string }) => address.email,
-                                )?.email,
-                              },
-                              channel: "EMAIL",
-                              subject: "proposal id: " + props.proposalId + "declined",
-                              body:
-                                "proposal id: " +
-                                props.proposalId +
-                                "declined by the customer " +
-                                props.customerId,
-                            });*/
+              handleAcceptDecline(false);
             }}
           >
             Decline

@@ -48,5 +48,27 @@ logging:
       springframework:
         web: DEBUG
 
+gmail-account:
+  application_name: webapp2-2024
+
+gmail:
+  client-id: 314430035121-rn507dgme9vaa9i15hrhdo5u7tsths9g.apps.googleusercontent.com
+  client-secret: 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
+  refresh-token: 1//049ZcWMZqIOUmCgYIARAAGAQSNwF-L9IrJDAMuRsj5a3wP5sKKcEzVUFURNEyS0wf7s8CuqNuwDTNqmRp_hay1ejuFyjUHm-Svhs
+  username: webapp2.2024.g07@gmail.com
+
+camel:
+  component:
+    google-mail-stream:
+      application-name: ${gmail-account.application_name}
+      client-id: ${gmail.client-id}
+      client-secret: ${gmail.client-secret}
+      refresh-token: ${gmail.refresh-token}
+    google-mail:
+      application-name: ${gmail-account.application_name}
+      client-id: ${gmail.client-id}
+      client-secret: ${gmail.client-secret}
+      refresh-token: ${gmail.refresh-token}
+
 management.endpoints.web.exposure.include: '*'
 management.endpoint.health.show.details: always

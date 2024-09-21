@@ -8,8 +8,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import it.polito.wa2.g07.crm.dtos.lab03.*
 import it.polito.wa2.g07.crm.services.lab03.JobOfferService
+import org.apache.camel.ProducerTemplate
 import org.hibernate.Remove
 import org.springdoc.core.annotations.ParameterObject
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.ProblemDetail
@@ -21,8 +24,14 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @EnableMethodSecurity(prePostEnabled = true)
 @RequestMapping("/API/joboffers")
-class JobOfferController(private val jobOfferService: JobOfferService) {
 
+
+class JobOfferController(private val jobOfferService: JobOfferService) {
+    @Autowired
+    private lateinit var producerTemplate: ProducerTemplate
+
+    @Value("\${gmail.username}")
+    private lateinit var from: String
         @Operation(summary = "List all job offers that match the given filters, with paging and sorting")
         @ApiResponses(value=[
             ApiResponse(responseCode = "200"),

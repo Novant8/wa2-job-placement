@@ -162,44 +162,62 @@ export default function ViewJobOfferDetailsRecruiter() {
 
   return (
     <>
-      <ConfirmationModal
-        show={modalShow}
-        action={modalAction}
-        onHide={() => setModalShow(false)}
-        jobOffer={jobOffer}
-        setDirty={() => setDirty(true)}
-      />
+      {modalShow ? (
+        <ConfirmationModal
+          show={modalShow}
+          action={modalAction}
+          onHide={() => setModalShow(false)}
+          jobOffer={jobOffer}
+          setDirty={() => setDirty(true)}
+        />
+      ) : (
+        <></>
+      )}
+      {removeCandidateModalShow ? (
+        <RemoveCandidateModal
+          show={removeCandidateModalShow}
+          onHide={() => setRemoveCandidateModalShow(false)}
+          jobOffer={jobOffer}
+          candidate={selectedCandidate}
+          setDirty={() => setDirty(true)}
+        />
+      ) : (
+        <></>
+      )}
+      {jobProposalModalShow ? (
+        <JobProposalModal
+          show={jobProposalModalShow}
+          onHide={() => setJobProposalModalShow(false)}
+          jobOffer={jobOffer}
+          candidate={selectedCandidate}
+          setDirty={() => setDirty(true)}
+        />
+      ) : (
+        <></>
+      )}
 
-      <RemoveCandidateModal
-        show={removeCandidateModalShow}
-        onHide={() => setRemoveCandidateModalShow(false)}
-        jobOffer={jobOffer}
-        candidate={selectedCandidate}
-        setDirty={() => setDirty(true)}
-      />
+      {jobProposalDetailModalShow ? (
+        <JobProposalModalDetail
+          show={jobProposalDetailModalShow}
+          onHide={() => setJobProposalDetailModalShow(false)}
+          jobOfferId={jobOffer?.id}
+          professionalId={selectedCandidate.id}
+        />
+      ) : (
+        <></>
+      )}
+      {candidateModalShow ? (
+        <SelectCandidateModal
+          show={candidateModalShow}
+          // action={candidateModalAction}
+          jobOffer={jobOffer}
+          onHide={() => setCandidateModalShow(false)}
+          setDirty={() => setDirty(true)}
+        />
+      ) : (
+        <></>
+      )}
 
-      <JobProposalModal
-        show={jobProposalModalShow}
-        onHide={() => setJobProposalModalShow(false)}
-        jobOffer={jobOffer}
-        candidate={selectedCandidate}
-        setDirty={() => setDirty(true)}
-      />
-
-      <JobProposalModalDetail
-        show={jobProposalDetailModalShow}
-        onHide={() => setJobProposalDetailModalShow(false)}
-        jobOfferId={jobOffer?.id}
-        professionalId={selectedCandidate.id}
-      />
-
-      <SelectCandidateModal
-        show={candidateModalShow}
-        // action={candidateModalAction}
-        jobOffer={jobOffer}
-        onHide={() => setCandidateModalShow(false)}
-        setDirty={() => setDirty(true)}
-      />
       <Card>
         <Card.Header>
           <Card.Title>
@@ -235,20 +253,6 @@ export default function ViewJobOfferDetailsRecruiter() {
           </Card.Title>
         </Card.Header>
         <Card.Body>
-          <JobProposalModalDetail
-            show={jobProposalDetailModalShow}
-            onHide={() => setJobProposalDetailModalShow(false)}
-            jobOfferId={jobOffer?.id}
-            professionalId={selectedCandidate.id}
-            setCustomerJobOfferDirty={() => setDirty(true)}
-          />
-          <ConfirmationModal
-            show={modalShow}
-            action={modalAction}
-            onHide={() => setModalShow(false)}
-            jobOffer={jobOffer}
-            setDirty={() => setDirty(true)}
-          />
           <Form>
             <Row className="mb-3">
               <Col>Job ID {jobOffer?.id}</Col>

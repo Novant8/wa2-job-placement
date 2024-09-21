@@ -1,5 +1,5 @@
 export interface sendEmailStruct {
-  to: String;
-  subject: String;
-  body: String;
+  to: string;
+  subject: string;
+  body: string;
 }

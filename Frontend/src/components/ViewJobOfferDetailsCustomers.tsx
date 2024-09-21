@@ -224,20 +224,30 @@ export default function ViewJobOfferDetailsCustomers() {
           </Card.Title>
         </Card.Header>
         <Card.Body>
-          <JobProposalModalDetail
-            show={jobProposalDetailModalShow}
-            onHide={() => setJobProposalDetailModalShow(false)}
-            jobOfferId={jobOffer?.id}
-            professionalId={selectedCandidate.id}
-            setCustomerJobOfferDirty={() => setDirty(true)}
-          />
-          <ConfirmationModal
-            show={modalShow}
-            action={modalAction}
-            onHide={() => setModalShow(false)}
-            jobOffer={jobOffer}
-            setDirty={() => setDirty(true)}
-          />
+          {JobProposalModalDetail ? (
+            <JobProposalModalDetail
+              show={jobProposalDetailModalShow}
+              onHide={() => setJobProposalDetailModalShow(false)}
+              jobOfferId={jobOffer?.id}
+              professionalId={selectedCandidate.id}
+              setCustomerJobOfferDirty={() => setDirty(true)}
+            />
+          ) : (
+            <></>
+          )}
+
+          {modalAction ? (
+            <ConfirmationModal
+              show={modalShow}
+              action={modalAction}
+              onHide={() => setModalShow(false)}
+              jobOffer={jobOffer}
+              setDirty={() => setDirty(true)}
+            />
+          ) : (
+            <></>
+          )}
+
           <Form>
             <Row className="mb-3">
               <Col>Job ID {jobOffer?.id}</Col>

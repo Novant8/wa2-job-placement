@@ -3,7 +3,7 @@ import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
 
 export default function RemoveCandidateModal(props: any) {
-  const handleRemoveCandidate = () => {
+  function handleRemoveCandidate() {
     if (!props.jobOffer || !props.candidate) return;
 
     API.removeCandidate(props.jobOffer.id, props.candidate.id)
@@ -15,7 +15,7 @@ export default function RemoveCandidateModal(props: any) {
         console.log(error);
       });
     //.finally(() => window.location.reload());
-  };
+  }
 
   return (
     <Modal

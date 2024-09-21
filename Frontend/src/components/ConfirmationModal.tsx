@@ -3,10 +3,6 @@ import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
 import { JobOffer, JobOfferUpdateStatus } from "../types/JobOffer.ts";
 
-import { useEffect, useState } from "react";
-import { EmailAddress, isEmailAddress } from "../types/address.ts";
-import { sendEmailStruct } from "../types/sendEmail.ts";
-
 export interface ConfirmationModalProps {
   action: string;
   onHide: () => void;
@@ -16,55 +12,7 @@ export interface ConfirmationModalProps {
 }
 
 export default function ConfirmationModal(props: ConfirmationModalProps) {
-  /* const handleAcceptDecline = (status: JobOfferUpdateStatus) => {
-    if (!props.jobOffer) return;
-
-    API.updateJobOfferStatus(props.jobOffer.id.toString(), status)
-      .then(() => {
-        //navigate(`/crm/RecruiterJobOffer/${props.jobOffer.id}`);
-        props.setDirty();
-        props.onHide();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    //.finally(() => );
-  };*/
-  const [customerMail, setCustomerMail] = useState("");
-  const [_professionalMail, setProfessionalMail] = useState("");
-
-  useEffect(() => {
-    API.getCustomerById(props.jobOffer?.customer.id)
-      .then((c) => {
-        let mail = c.contactInfo?.addresses
-          .filter((a) => isEmailAddress(a))
-          .map((a) => a as EmailAddress)[0].email;
-        setCustomerMail(mail);
-      })
-      .catch((error) => {
-        console.error("Error fetching customer by ID:", error);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (props.jobOffer?.professional == undefined) return;
-    API.getProfessionalById(props.jobOffer?.professional.id)
-      .then((c) => {
-        let mail = c.contactInfo?.addresses
-          .filter((a) => isEmailAddress(a))
-          .map((a) => a as EmailAddress)[0].email;
-        setProfessionalMail(mail);
-      })
-      .catch((error) => {
-        console.error("Error fetching professional by ID:", error);
-      });
-  }, []);
-
-  const handleAcceptDecline = (
-    status: JobOfferUpdateStatus,
-    msg: sendEmailStruct[],
-  ) => {
-    console.log(msg);
+  const handleAcceptDecline = (status: JobOfferUpdateStatus) => {
     API.updateJobOfferStatus(props.jobOffer?.id.toString(), status)
       .then(() => {
         props.onHide();
@@ -73,14 +21,6 @@ export default function ConfirmationModal(props: ConfirmationModalProps) {
         console.log(error);
       })
       .finally(() => {
-        for (let m of msg) {
-          API.sendEmail(m)
-            .then(() => {})
-            .catch((err) => {
-              console.log(err);
-            });
-        }
-
         props.setDirty();
       });
   };
@@ -113,22 +53,7 @@ export default function ConfirmationModal(props: ConfirmationModalProps) {
           <Button
             variant="success"
             onClick={() => {
-              handleAcceptDecline({ status: "SELECTION_PHASE" }, [
-                {
-                  to: customerMail,
-                  subject:
-                    "Update on Job Offer" +
-                    "[" +
-                    props.jobOffer?.description +
-                    "]",
-                  body:
-                    "Dear customer. We want to inform you that the Job Offer " +
-                    "[" +
-                    props.jobOffer?.description +
-                    "]" +
-                    "has been accepted and now it is in SELECTION PHASE. Best Regards",
-                },
-              ]);
+              handleAcceptDecline({ status: "SELECTION_PHASE" });
             }}
           >
             Accept
@@ -137,22 +62,7 @@ export default function ConfirmationModal(props: ConfirmationModalProps) {
           <Button
             variant="danger"
             onClick={() => {
-              handleAcceptDecline({ status: "ABORTED" }, [
-                {
-                  to: customerMail,
-                  subject:
-                    "Updated on Job Offer: " + props.jobOffer?.description,
-                  body:
-                    "Dear Customer " +
-                    props.jobOffer?.customer.contactInfo.name +
-                    " " +
-                    props.jobOffer?.customer.contactInfo.surname +
-                    "," +
-                    "We want to inform you that the Job [ " +
-                    props.jobOffer?.description +
-                    "]is been marked ABORTED",
-                },
-              ]);
+              handleAcceptDecline({ status: "ABORTED" });
             }}
           >
             Decline
@@ -161,22 +71,7 @@ export default function ConfirmationModal(props: ConfirmationModalProps) {
           <Button
             variant="danger"
             onClick={() => {
-              handleAcceptDecline({ status: "ABORTED" }, [
-                {
-                  to: customerMail,
-                  subject:
-                    "Updated on Job Offer: " + props.jobOffer?.description,
-                  body:
-                    "Dear Customer " +
-                    props.jobOffer?.customer.contactInfo.name +
-                    " " +
-                    props.jobOffer?.customer.contactInfo.surname +
-                    "," +
-                    "We want to inform you that the Job [ " +
-                    props.jobOffer?.description +
-                    "]is been marked ABORTED",
-                },
-              ]);
+              handleAcceptDecline({ status: "ABORTED" });
             }}
           >
             Abort
@@ -185,27 +80,7 @@ export default function ConfirmationModal(props: ConfirmationModalProps) {
           <Button
             variant="success"
             onClick={() => {
-              handleAcceptDecline({ status: "DONE" }, [
-                {
-                  to: customerMail,
-                  subject:
-                    "Updated on Job Offer " + props.jobOffer?.description,
-                  body:
-                    "Dear professional " +
-                    props.jobOffer?.professional.contactInfo.name +
-                    " " +
-                    props.jobOffer?.professional.contactInfo.surname +
-                    "." +
-                    "We want to inform you that the Job [ " +
-                    props.jobOffer?.description +
-                    " ]" +
-                    " proposed by customer [" +
-                    props.jobOffer?.customer.contactInfo.name +
-                    " " +
-                    props.jobOffer?.customer.contactInfo.name +
-                    "]is been marked COMPLETED",
-                },
-              ]);
+              handleAcceptDecline({ status: "DONE" });
             }}
           >
             DONE

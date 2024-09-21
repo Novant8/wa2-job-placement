@@ -280,40 +280,42 @@ export default function JobProposalModalDetail(props: any) {
       aria-labelledby="contained-modal-title-vcenter"
       centered
     >
-      {me?.roles.includes("customer") && (
-        <CustomerAcceptDeclineProposalModal
-          show={customerProposalConfirmationModalShow}
-          action={modalAction}
-          onHide={() => setCustomerProposalConfirmationModalShow(false)}
-          customerId={customerInfo.id}
-          customerInfo={customerInfo}
-          proposalId={jobProposal?.id}
-          jobOffer={jobProposal?.jobOffer}
-          jobOfferId={jobProposal?.jobOffer.id}
-          candidateId={jobProposal?.professional.id}
-          setDirty={() => setDirty(true)}
-          setProposalOnHide={props.onHide}
-        />
-      )}
-      {me?.roles.includes("professional") && (
-        <ProfessionalAcceptDeclineProposalModal
-          show={professionalProposalConfirmationModalShow}
-          action={modalAction}
-          onHide={() => setProfessionalProposalConfirmationModalShow(false)}
-          proposalId={jobProposal?.id}
-          jobOffer={jobProposal?.jobOffer}
-          jobOfferId={jobProposal?.jobOffer.id}
-          professionalId={jobProposal?.professional.id}
-          candidateId={jobProposal?.professional.id}
-          professionalInfo={jobProposal?.professional}
-          setDirty={() => setDirty(true)}
-          setProfessionalJobOfferDirty={() => {
-            props.setProfessionalJobOfferDirty;
-          }}
-          setProposalOnHide={props.onHide}
-          setProfessionalDirty={props.setProfessionalDirty}
-        />
-      )}
+      {me?.roles.includes("customer") &&
+        customerProposalConfirmationModalShow && (
+          <CustomerAcceptDeclineProposalModal
+            show={customerProposalConfirmationModalShow}
+            action={modalAction}
+            onHide={() => setCustomerProposalConfirmationModalShow(false)}
+            customerId={customerInfo.id}
+            customerInfo={customerInfo}
+            proposalId={jobProposal?.id}
+            jobOffer={jobProposal?.jobOffer}
+            jobOfferId={jobProposal?.jobOffer.id}
+            candidateId={jobProposal?.professional.id}
+            setDirty={() => setDirty(true)}
+            setProposalOnHide={props.onHide}
+          />
+        )}
+      {me?.roles.includes("professional") &&
+        professionalProposalConfirmationModalShow && (
+          <ProfessionalAcceptDeclineProposalModal
+            show={professionalProposalConfirmationModalShow}
+            action={modalAction}
+            onHide={() => setProfessionalProposalConfirmationModalShow(false)}
+            proposalId={jobProposal?.id}
+            jobOffer={jobProposal?.jobOffer}
+            jobOfferId={jobProposal?.jobOffer.id}
+            professionalId={jobProposal?.professional.id}
+            candidateId={jobProposal?.professional.id}
+            professionalInfo={jobProposal?.professional}
+            setDirty={() => setDirty(true)}
+            setProfessionalJobOfferDirty={() => {
+              props.setProfessionalJobOfferDirty;
+            }}
+            setProposalOnHide={props.onHide}
+            setProfessionalDirty={props.setProfessionalDirty}
+          />
+        )}
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
           {jobProposal?.jobOffer.description}

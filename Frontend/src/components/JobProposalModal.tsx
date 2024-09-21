@@ -24,13 +24,12 @@ export default function JobProposalModal(props: any) {
   }, []);
 
   useEffect(() => {
-    if (props.candidate.id === 0) return;
-
     API.getProfessionalById(props.candidate.id)
       .then((c) => {
         let mail = c.contactInfo?.addresses
           .filter((a) => isEmailAddress(a))
           .map((a) => a as EmailAddress)[0].email;
+        console.log(mail);
         setProfessionalMail(mail);
       })
       .catch((error) => {
@@ -113,7 +112,7 @@ export default function JobProposalModal(props: any) {
                   "[" +
                   props.jobOffer?.description +
                   "]" +
-                  "has been accepted and now it is in SELECTION PHASE.  Best Regards",
+                  "has a valid candidate and now it is in CANDIDATE_PROPOSAL PHASE.  Best Regards",
               },
               {
                 to: professionalMail,
