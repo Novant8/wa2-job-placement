@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Customer } from "../types/customer.ts";
 import { ReducedJobOffer } from "../types/JobOffer.ts";
-import { useAuth } from "../contexts/auth.tsx";
+import { useAuth, userHasAnyRole } from "../contexts/auth.tsx";
 import { Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
 import {
   isDwellingAddress,
@@ -129,28 +129,24 @@ export default function CustomerInfo() {
               <h3>Contacts</h3>
             </Col>
           </Row>
-          <Row className="pb-3" style={{ borderBottom: "dotted grey 1px" }}>
-            <Col sm={4}>
-              <b>Email</b>
-            </Col>
-            <Col sm={4}>
-              <b>Telephone</b>
-            </Col>
-            <Col sm={4}>
-              <b>Address </b>
-            </Col>
-
+          <Row
+            className="pb-3 justify-content-around"
+            style={{ borderBottom: "dotted grey 1px" }}
+          >
             {customer.contactInfo?.addresses.map((address) => {
               if (isEmailAddress(address)) {
                 return (
                   <Col sm={4} key={address.id}>
-                    {address.email}
+                    <b>Email</b>
                     <br />
+                    {address.email}
                   </Col>
                 );
               } else if (isPhoneAddress(address)) {
                 return (
                   <Col sm={4} key={address.id}>
+                    <b>Telephone</b>
+                    <br />
                     {address.phoneNumber}
                     <br />
                   </Col>
@@ -158,36 +154,31 @@ export default function CustomerInfo() {
               } else if (isDwellingAddress(address)) {
                 return (
                   <Col sm={4} key={address.id}>
-                    {address.street +
-                      ", " +
-                      address.city +
-                      ", " +
-                      address.district +
-                      address.country}
+                    <b>Address </b>
+                    <br />
+                    {address.street}, {address.city} ({address.district}),{" "}
+                    {address.country}
                     <br />
                   </Col>
                 );
               }
             })}
           </Row>
-          <Row style={{ borderBottom: "dotted grey 1px" }}>
-            {me?.roles.includes("operator") || me?.roles.includes("manager") ? (
+          {userHasAnyRole(me, ["operator", "manager"]) && (
+            <Row
+              className="mt-3 pb-3"
+              style={{ borderBottom: "dotted grey 1px" }}
+            >
+              <h3>Notes</h3>
               <EditableField
-                label="Notes"
                 name="Notes"
                 initValue={customer.notes || ""}
                 loading={notesLoading}
                 validate={(value) => value.trim().length > 0}
                 onEdit={(_field, val) => updateNotes(val)}
               />
-            ) : (
-              <>
-                <h3>Notes</h3>
-
-                <div> {customer.notes}</div>
-              </>
-            )}
-          </Row>
+            </Row>
+          )}
 
           <Row className="m-2">
             <CardJobOffer

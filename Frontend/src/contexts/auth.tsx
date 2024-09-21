@@ -27,7 +27,7 @@ export interface User {
 }
 
 export function userHasAnyRole(user: User | null, roles: UserRole[]) {
-  return user && user.roles.findIndex((role) => roles.includes(role)) >= 0;
+  return !!user && user.roles.findIndex((role) => roles.includes(role)) >= 0;
 }
 
 interface AuthContextOutput {

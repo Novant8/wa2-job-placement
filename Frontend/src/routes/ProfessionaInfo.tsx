@@ -23,10 +23,13 @@ import { FaCircleArrowLeft } from "react-icons/fa6";
 import CardJobOffer from "../components/Card/CardJobOffer.tsx";
 import { JobOfferFilter } from "../types/JobOfferFilter.ts";
 import PageLayout from "../components/PageLayout.tsx";
+import { useAuth, userHasAnyRole } from "../contexts/auth.tsx";
 
 export default function ProfessionaInfo() {
   const navigate = useNavigate();
   const { professionalId } = useParams();
+
+  const { me } = useAuth();
 
   const [notesLoading, setNotesLoading] = useState(false);
 
@@ -142,28 +145,24 @@ export default function ProfessionaInfo() {
               <h3>Contacts</h3>
             </Col>
           </Row>
-          <Row className="pb-3" style={{ borderBottom: "dotted grey 1px" }}>
-            <Col sm={4}>
-              <b>Email</b>
-            </Col>
-            <Col sm={4}>
-              <b>Telephone</b>
-            </Col>
-            <Col sm={4}>
-              <b>Address </b>
-            </Col>
-
+          <Row
+            className="pb-3 justify-content-around"
+            style={{ borderBottom: "dotted grey 1px" }}
+          >
             {professional.contactInfo?.addresses.map((address) => {
               if (isEmailAddress(address)) {
                 return (
                   <Col sm={4} key={address.id}>
-                    {address.email}
+                    <b>Email</b>
                     <br />
+                    {address.email}
                   </Col>
                 );
               } else if (isPhoneAddress(address)) {
                 return (
                   <Col sm={4} key={address.id}>
+                    <b>Telephone</b>
+                    <br />
                     {address.phoneNumber}
                     <br />
                   </Col>
@@ -171,12 +170,10 @@ export default function ProfessionaInfo() {
               } else if (isDwellingAddress(address)) {
                 return (
                   <Col sm={4} key={address.id}>
-                    {address.street +
-                      ", " +
-                      address.city +
-                      ", " +
-                      address.district +
-                      address.country}
+                    <b>Address </b>
+                    <br />
+                    {address.street}, {address.city} ({address.district}),{" "}
+                    {address.country}
                     <br />
                   </Col>
                 );
@@ -230,20 +227,21 @@ export default function ProfessionaInfo() {
             </Form.Group>
           </Row>
 
-          <Row
-            className="mt-3 pb-3"
-            style={{ borderBottom: "dotted grey 1px" }}
-          >
-            <h3>Notes</h3>
-            <EditableField
-              label=""
-              name="Notes"
-              initValue={professional.notes || ""}
-              loading={notesLoading}
-              validate={(value) => value.trim().length > 0}
-              onEdit={(_field, val) => updateNotes(val)}
-            />
-          </Row>
+          {userHasAnyRole(me, ["operator", "manager"]) && (
+            <Row
+              className="mt-3 pb-3"
+              style={{ borderBottom: "dotted grey 1px" }}
+            >
+              <h3>Notes</h3>
+              <EditableField
+                name="Notes"
+                initValue={professional.notes || ""}
+                loading={notesLoading}
+                validate={(value) => value.trim().length > 0}
+                onEdit={(_field, val) => updateNotes(val)}
+              />
+            </Row>
+          )}
 
           <Row className="m-2">
             <CardJobOffer
