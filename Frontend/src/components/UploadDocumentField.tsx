@@ -13,6 +13,7 @@ import {
   InputGroup,
   Spinner,
 } from "react-bootstrap";
+import ConfirmModal from "./ConfirmModal.tsx";
 
 interface UploadFileFieldProps {
   documentId: number | undefined | null;
@@ -100,6 +101,7 @@ export function UploadDocumentField({
 
           <FileField
             document={latestDoc}
+            isHistory
             onDelete={handleHistoryDelete}
             customerConfirm={customerConfirm}
             professionalConfirm={professionalConfirm}
@@ -163,6 +165,7 @@ export function UploadDocumentField({
 
 interface FileFieldProps {
   document: ReducedDocumentMetadata;
+  isHistory?: boolean;
   onDelete?: (documentId: number) => void;
   customerConfirm: boolean;
   professionalConfirm: boolean;
@@ -170,10 +173,13 @@ interface FileFieldProps {
 
 function FileField({
   document,
+  isHistory,
   onDelete,
   customerConfirm,
   professionalConfirm,
 }: FileFieldProps) {
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
   return (
     <div className="my-2">
       <span className="mx-3 my-auto">
@@ -189,12 +195,21 @@ function FileField({
           View
         </Button>
         {!customerConfirm && !professionalConfirm && (
-          <Button
-            variant="danger"
-            onClick={() => onDelete?.(document.historyId)}
-          >
-            Delete
-          </Button>
+          <>
+            <Button variant="danger" onClick={() => setShowConfirmModal(true)}>
+              Delete
+            </Button>
+            <ConfirmModal
+              title={`Confirm file${isHistory ? " history" : ""} deletion`}
+              show={showConfirmModal}
+              onConfirm={() => onDelete?.(document.historyId)}
+              onCancel={() => setShowConfirmModal(false)}
+            >
+              Are you sure you want to delete the file {document.name}
+              {isHistory && " and all of its history"}? This action cannot be
+              undone.
+            </ConfirmModal>
+          </>
         )}
       </ButtonGroup>
     </div>

@@ -10,7 +10,7 @@ import {
   Row,
   Spinner,
 } from "react-bootstrap";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/auth.tsx";
 import EditableField from "./EditableField.tsx";
 import EditableFieldGroup from "./EditableFieldGroup.tsx";
@@ -32,13 +32,16 @@ import { UploadDocumentField } from "./UploadDocumentField.tsx";
 import {
   BsBuildings,
   BsCash,
-  BsEnvelope, BsGeo,
-  BsGlobeAmericas, BsHouse,
+  BsEnvelope,
+  BsGeo,
+  BsGlobeAmericas,
+  BsHouse,
   BsMap,
   BsPersonGear,
   BsPersonVcardFill,
   BsTelephone,
 } from "react-icons/bs";
+import ConfirmModal from "./ConfirmModal.tsx";
 
 type ProfessionalUserInfo = Contact &
   Omit<Professional, "contact" | "notes"> & {
@@ -127,6 +130,12 @@ export default function EditAccountForm() {
     },
   });
 
+  const [chosenRole, setChosenRole] = useState<ContactCategory>(
+    userInfo.category,
+  );
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
   const { me, refreshToken } = useAuth();
 
   useEffect(() => {
@@ -148,13 +157,15 @@ export default function EditAccountForm() {
         request = API.getProfessionalFromCurrentUser().then(
           ({ contactInfo, ...professional }) => {
             setUserInfo({ ...contactInfo, professional });
+            setChosenRole(contactInfo.category);
           },
         );
         break;
       default:
-        request = API.getContactFromCurrentUser().then((contact) =>
-          setUserInfo(contact),
-        );
+        request = API.getContactFromCurrentUser().then((contact) => {
+          setUserInfo(contact);
+          setChosenRole(contact.category);
+        });
         break;
     }
     request
@@ -417,7 +428,11 @@ export default function EditAccountForm() {
     if (!isProfessional(userInfo)) return;
     let promise;
     if (userInfo.professional.cvDocument)
-      promise = API.updateDocument(userInfo.professional.cvDocument, document, me!);
+      promise = API.updateDocument(
+        userInfo.professional.cvDocument,
+        document,
+        me!,
+      );
     else promise = API.uploadDocument(document, me!);
 
     const prevCvDocument = userInfo.professional.cvDocument;
@@ -503,8 +518,12 @@ export default function EditAccountForm() {
     ["manager", "operator"].includes(role),
   );
 
-  const addingNewAddress = userInfo.addresses.some(address => addressIsEmpty(address))
-  const addingNewSkill = isProfessional(userInfo) && userInfo.professional.skills.some(skill => skill.length === 0)
+  const addingNewAddress = userInfo.addresses.some((address) =>
+    addressIsEmpty(address),
+  );
+  const addingNewSkill =
+    isProfessional(userInfo) &&
+    userInfo.professional.skills.some((skill) => skill.length === 0);
 
   return (
     <>
@@ -520,20 +539,22 @@ export default function EditAccountForm() {
             (loadingSubmit.category ? (
               <Spinner size="sm" />
             ) : (
-              <Form.Group controlId="register-user-userType" className="my-2">
+              <>
+                <Form.Group controlId="register-user-userType" className="my-2">
                   <InputGroup hasValidation>
                     <InputGroup.Text>
-                      <BsPersonGear /> Role
+                      <BsPersonGear className="mx-1" /> Role
                     </InputGroup.Text>
                     <Form.Select
                       name="category"
                       onChange={(e) =>
-                        updateUserCategory(e.target.value as ContactCategory)
+                        setChosenRole(e.target.value as ContactCategory)
                       }
                       disabled={
-                        userInfo.category !== "UNKNOWN" || loadingSubmit.category
+                        userInfo.category !== "UNKNOWN" ||
+                        loadingSubmit.category
                       }
-                      value={userInfo.category}
+                      value={chosenRole}
                       isInvalid={!!errors.category}
                     >
                       {userInfo.category === "UNKNOWN" ? (
@@ -548,11 +569,32 @@ export default function EditAccountForm() {
                         </option>
                       )}
                     </Form.Select>
+                    {userInfo.category === "UNKNOWN" && (
+                      <Button
+                        variant="info"
+                        disabled={chosenRole === "UNKNOWN"}
+                        onClick={() => setShowConfirmModal(true)}
+                      >
+                        Confirm
+                      </Button>
+                    )}
                     <Form.Control.Feedback type="invalid">
                       {errors.category}
                     </Form.Control.Feedback>
                   </InputGroup>
-              </Form.Group>
+                </Form.Group>
+                {userInfo.category === "UNKNOWN" && (
+                  <ConfirmModal
+                    title="Confirm Role Assignment"
+                    show={showConfirmModal}
+                    onConfirm={() => updateUserCategory(chosenRole)}
+                    onCancel={() => setShowConfirmModal(false)}
+                  >
+                    Are you sure you want to become a {chosenRole.toLowerCase()}
+                    ? This action cannot be undone.
+                  </ConfirmModal>
+                )}
+              </>
             ))}
 
           <div>
@@ -561,7 +603,11 @@ export default function EditAccountForm() {
             <Row>
               <Col sm={6}>
                 <EditableField
-                  label={<><BsPersonVcardFill className="mx-1" /> Name</>}
+                  label={
+                    <>
+                      <BsPersonVcardFill className="mx-1" /> Name
+                    </>
+                  }
                   name="name"
                   initValue={userInfo.name}
                   loading={loadingSubmit.name}
@@ -574,7 +620,11 @@ export default function EditAccountForm() {
               </Col>
               <Col sm={6}>
                 <EditableField
-                  label={<><BsPersonVcardFill className="mx-1" /> Surname</>}
+                  label={
+                    <>
+                      <BsPersonVcardFill className="mx-1" /> Surname
+                    </>
+                  }
                   name="surname"
                   initValue={userInfo.surname}
                   loading={loadingSubmit.surname}
@@ -587,7 +637,11 @@ export default function EditAccountForm() {
               </Col>
             </Row>
             <EditableField
-              label={<><BsPersonVcardFill className="mx-1" /> SSN</>}
+              label={
+                <>
+                  <BsPersonVcardFill className="mx-1" /> SSN
+                </>
+              }
               name="ssn"
               initValue={userInfo.ssn || ""}
               loading={loadingSubmit.ssn as boolean}
@@ -658,7 +712,11 @@ export default function EditAccountForm() {
                       validate={(skill) => skill.length > 0}
                     />
                   ))}
-                  <Button variant="light" disabled={addingNewSkill} onClick={addUserSkill}>
+                  <Button
+                    variant="light"
+                    disabled={addingNewSkill}
+                    onClick={addUserSkill}
+                  >
                     Add new skill
                   </Button>
                 </div>
@@ -667,7 +725,11 @@ export default function EditAccountForm() {
                 <EditableField
                   type="text"
                   name="location"
-                  label={<><BsGeo className="mx-1" /> Location</>}
+                  label={
+                    <>
+                      <BsGeo className="mx-1" /> Location
+                    </>
+                  }
                   initValue={userInfo.professional.location}
                   loading={loadingSubmit.professional.location}
                   onEdit={(name, value) => updateProfessionalField(name, value)}
@@ -675,7 +737,11 @@ export default function EditAccountForm() {
                 <EditableField
                   type="number"
                   name="dailyRate"
-                  label={<><BsCash className="mx-1" /> Daily Rate</>}
+                  label={
+                    <>
+                      <BsCash className="mx-1" /> Daily Rate
+                    </>
+                  }
                   initValue={userInfo.professional.dailyRate}
                   loading={loadingSubmit.professional.dailyRate}
                   onEdit={(name, value) => updateProfessionalField(name, value)}
@@ -724,7 +790,11 @@ function AddressFieldGroup({
         fields={[
           {
             name: "email",
-            label: <><BsEnvelope className="mx-1" /> Email</>,
+            label: (
+              <>
+                <BsEnvelope className="mx-1" /> Email
+              </>
+            ),
             type: "text",
             value: address.email,
             error: emailErrors?.email,
@@ -749,7 +819,11 @@ function AddressFieldGroup({
         fields={[
           {
             name: "phoneNumber",
-            label: <><BsTelephone className="mx-1" /> Phone Number</>,
+            label: (
+              <>
+                <BsTelephone className="mx-1" /> Phone Number
+              </>
+            ),
             type: "text",
             value: address.phoneNumber,
             error: phoneErrors?.phoneNumber,
@@ -774,28 +848,44 @@ function AddressFieldGroup({
         fields={[
           {
             name: "street",
-            label: <><BsHouse className="mx-1" /> Street</>,
+            label: (
+              <>
+                <BsHouse className="mx-1" /> Street
+              </>
+            ),
             type: "text",
             value: address.street,
             error: dwellingErrors?.street,
           },
           {
             name: "city",
-            label: <><BsBuildings className="mx-1" /> City</>,
+            label: (
+              <>
+                <BsBuildings className="mx-1" /> City
+              </>
+            ),
             type: "text",
             value: address.city,
             error: dwellingErrors?.city,
           },
           {
             name: "district",
-            label: <><BsMap className="mx-1" /> District</>,
+            label: (
+              <>
+                <BsMap className="mx-1" /> District
+              </>
+            ),
             type: "text",
             value: address.district,
             error: dwellingErrors?.district,
           },
           {
             name: "country",
-            label: <><BsGlobeAmericas className="mx-1" /> Country</>,
+            label: (
+              <>
+                <BsGlobeAmericas className="mx-1" /> Country
+              </>
+            ),
             type: "text",
             value: address.country,
             error: dwellingErrors?.country,
