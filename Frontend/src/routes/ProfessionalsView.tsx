@@ -21,6 +21,7 @@ import EmploymentBadge from "../components/Badges/EmploymentBadge.tsx";
 import { ProfessionalFilter } from "../types/professionalFilter.ts";
 import { ReducedProfessional } from "../types/professional.ts";
 import PageLayout from "../components/PageLayout.tsx";
+import React from "react";
 
 export default function ProfessionalsView() {
   const { me } = useAuth();
@@ -133,7 +134,7 @@ export default function ProfessionalsView() {
               <Col md={2}>
                 Status
                 {statuses.map((status, index) => (
-                  <>
+                  <React.Fragment key={`fragment-${index}`}>
                     <div
                       style={{
                         display: "flex",
@@ -149,9 +150,9 @@ export default function ProfessionalsView() {
                         checked={checkedItems[status]}
                         onChange={() => handleCheckboxChange(status)}
                       />
-                      <EmploymentBadge status={status} />
+                      <EmploymentBadge status={status} key={`badge-${index}`} />
                     </div>
-                  </>
+                  </React.Fragment>
                 ))}
               </Col>
               <Col>

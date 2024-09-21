@@ -1,4 +1,4 @@
-import { Button, Card, ListGroup, Spinner } from "react-bootstrap";
+import { Card, Spinner } from "react-bootstrap";
 import { useAuth } from "../contexts/auth.tsx";
 import { useEffect, useState } from "react";
 import * as API from "../../API.tsx";
@@ -15,12 +15,112 @@ export default function HomePageLoggedIn() {
     <>
       {me?.roles.includes("customer") ? (
         <DashboardCustomer />
-      ) : me?.roles.includes("operator") ? (
+      ) : me?.roles.includes("operator") || me?.roles.includes("manager") ? (
         <DashboardOperator />
       ) : (
-        <DashboardMain />
+        <DashboardProfessional />
       )}
     </>
+  );
+}
+
+function DashboardProfessional() {
+  const { me } = useAuth();
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [jobOffers, setJobOffers] = useState([]);
+
+  const [page1, setPage1] = useState(1);
+  const [totalPage1, setTotalPage1] = useState(1);
+  const [jobOffers1, setJobOffers1] = useState([]);
+  const [loading1, setLoading1] = useState(true);
+  const [loading2, setLoading2] = useState(true);
+  useEffect(() => {
+    setLoading1(true);
+    if (!me) return;
+
+    let paging = {
+      pageNumber: page - 1,
+      pageSize: 2,
+    };
+
+    API.getProfessionalFromCurrentUser()
+
+      .then((prof) => {
+        let filter: JobOfferFilter = {
+          professionalId: prof.id.toString(),
+          status: "CANDIDATE_PROPOSAL",
+          customerId: undefined,
+        };
+
+        API.getJobOffers(paging, filter)
+          .then((data) => {
+            setJobOffers([]);
+            setTotalPage(data.totalPages);
+            setJobOffers(data.content);
+            setLoading1(false);
+          })
+          .catch(() => {
+            "Failed to fetch job offers";
+          });
+      })
+      .catch(() => "Error");
+  }, [me, page]);
+
+  useEffect(() => {
+    if (!me) return;
+    setLoading2(true);
+    let paging = {
+      pageNumber: page1 - 1,
+      pageSize: 2,
+    };
+
+    API.getProfessionalFromCurrentUser()
+      .then((prof) => {
+        let filter: JobOfferFilter = {
+          professionalId: prof.id.toString(),
+          status: "CONSOLIDATED",
+          customerId: undefined,
+        };
+
+        API.getJobOffers(paging, filter)
+          .then((data) => {
+            setJobOffers1([]);
+            setTotalPage1(data.totalPages);
+            setJobOffers1(data.content);
+            setLoading2(false);
+          })
+          .catch(() => {
+            "Failed to fetch job offers";
+          });
+      })
+      .catch(() => "Error");
+  }, [me, page1]);
+  if (loading2 || loading1) {
+    return <Spinner />;
+  }
+  return (
+    <PageLayout>
+      <CardJobOffer
+        cardTitle={"Actual Job"}
+        cardInfo={"Here the Job that  you are employed"}
+        page={page1}
+        totalPage={totalPage1}
+        setPage={setPage1}
+        offers={jobOffers1}
+      />
+      <br />
+      <CardJobOffer
+        cardTitle={"Proposed job"}
+        cardInfo={
+          "Here the proposed job for you, Inspect the job offer to see the available action"
+        }
+        page={page}
+        totalPage={totalPage}
+        setPage={setPage}
+        offers={jobOffers}
+      />
+    </PageLayout>
   );
 }
 
@@ -264,75 +364,3 @@ function DashboardOperator() {
     </PageLayout>
   );
 }
-
-// Dashboard Main Component
-const DashboardMain = () => {
-  return (
-    <PageLayout>
-      <h2>Dashboard Overview</h2>
-
-      {/* Job Applications Card */}
-      <Card className="mb-4 shadow-sm">
-        <Card.Body>
-          <Card.Title>Recent Applications</Card.Title>
-          <Card.Text>Track your job application progress here.</Card.Text>
-          <ListGroup variant="flush">
-            <ListGroup.Item>
-              Software Engineer - ABC Corp
-              <Button variant="link" className="float-right">
-                View Details
-              </Button>
-            </ListGroup.Item>
-            <ListGroup.Item>
-              Product Manager - XYZ Inc
-              <Button variant="link" className="float-right">
-                View Details
-              </Button>
-            </ListGroup.Item>
-            <ListGroup.Item>
-              Data Analyst - 123 Tech
-              <Button variant="link" className="float-right">
-                View Details
-              </Button>
-            </ListGroup.Item>
-          </ListGroup>
-        </Card.Body>
-      </Card>
-
-      {/* Notifications Card */}
-      <Card className="mb-4 shadow-sm">
-        <Card.Body>
-          <Card.Title>Notifications</Card.Title>
-          <Card.Text>
-            Stay updated with the latest job openings and messages.
-          </Card.Text>
-          <ListGroup variant="flush">
-            <ListGroup.Item>
-              New job opening for Front-End Developer at DEF Corp
-              <Button variant="link" className="float-right">
-                View
-              </Button>
-            </ListGroup.Item>
-            <ListGroup.Item>
-              Reminder: Update your profile to increase visibility
-              <Button variant="link" className="float-right">
-                Update
-              </Button>
-            </ListGroup.Item>
-          </ListGroup>
-        </Card.Body>
-      </Card>
-
-      {/* Profile Status Card */}
-      <Card className="mb-4 shadow-sm">
-        <Card.Body>
-          <Card.Title>Profile Completeness</Card.Title>
-          <Card.Text>
-            Ensure your profile is up-to-date to attract more employers.
-          </Card.Text>
-          <Button variant="primary">Update Profile</Button>
-        </Card.Body>
-      </Card>
-    </PageLayout>
-  );
-};

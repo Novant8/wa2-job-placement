@@ -6,6 +6,8 @@ import it.polito.wa2.g07.crm.dtos.project.JobProposalDTO
 import it.polito.wa2.g07.crm.dtos.project.JobProposalKafkaDTO
 import it.polito.wa2.g07.crm.dtos.project.toJobProposalDTO
 import it.polito.wa2.g07.crm.dtos.project.toJobProposalKafkaDTO
+import it.polito.wa2.g07.crm.entities.lab02.AddressType
+import it.polito.wa2.g07.crm.entities.lab02.Email
 import it.polito.wa2.g07.crm.entities.project.JobProposal
 import it.polito.wa2.g07.crm.entities.project.ProposalStatus
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
@@ -15,8 +17,11 @@ import it.polito.wa2.g07.crm.repositories.lab03.JobOfferRepository
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
 import it.polito.wa2.g07.crm.repositories.project.JobProposalRepository
 import it.polito.wa2.g07.crm.services.lab03.JobOfferServiceImpl
+import org.apache.camel.ProducerTemplate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.jpa.domain.AbstractPersistable_.id
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
@@ -31,6 +36,13 @@ class JobProposalServiceImpl (
     private val proposalRepository: JobProposalRepository,
     private val kafkaTemplate: KafkaTemplate<String,JobProposalKafkaDTO>
 ):JobProposalService{
+
+    @Autowired
+    private lateinit var producerTemplate: ProducerTemplate
+
+    @Value("\${gmail.username}")
+    private lateinit var from: String
+
      @Transactional
     override fun createJobProposal(customerId: Long, professionalId: Long, jobOfferId: Long): JobProposalDTO {
         val customer = customerRepository.findById(customerId).getOrElse { throw EntityNotFoundException("The customer does not exist") }
@@ -63,6 +75,8 @@ class JobProposalServiceImpl (
     @Transactional
     override fun customerConfirmDecline(proposalId: Long,customerId: Long,customerConfirm: Boolean): JobProposalDTO {
         val proposal = proposalRepository.findById(proposalId).orElseThrow { EntityNotFoundException("The proposal with ID $proposalId is not found") }
+
+
         if(proposal.customer.customerId != customerId)
             throw EntityNotFoundException("The customer does not belong to this proposal")
 
@@ -72,13 +86,29 @@ class JobProposalServiceImpl (
         else
         {
             proposal.customerConfirm = customerConfirm
+            var msgProf= ""
             if (!customerConfirm){
                 proposal.status = ProposalStatus.DECLINED
                 logger.info("Customer ${proposal.customer.contactInfo.name} ${proposal.customer.contactInfo.surname} has declined Job Proposal #${proposal.proposalID}")
+                msgProf =  "Dear Professional, the Customer for [ "+ proposal.jobOffer.description +" ] has declined the proposal. Best regards"
             }else{
+
                 logger.info("Customer ${proposal.customer.contactInfo.name} ${proposal.customer.contactInfo.surname} has accepted Job Proposal #${proposal.proposalID}")
+                msgProf =  "Dear Professional, the Customer for [ "+ proposal.jobOffer.description +" ] has accepted the proposal. Best regards"
             }
             kafkaTemplate.send("JOB_PROPOSAL-UPDATE",proposal.toJobProposalKafkaDTO())
+            val professionalMail = proposal.professional!!.contactInfo.addresses
+                .filter { it.addressType == AddressType.EMAIL }
+                .map { it as Email } // Assuming EmailAddress is the correct type
+                .firstOrNull()?.email
+            val headers = mapOf(
+                "From" to from,
+                "To" to professionalMail,
+                "Subject" to "Update Job Offer [ "+ proposal.jobOffer.description +" ]"
+            )
+            producerTemplate.sendBodyAndHeaders("seda:sendEmail", msgProf, headers)
+
+
             return proposalRepository.save(proposal).toJobProposalDTO()
         }
 
@@ -99,17 +129,28 @@ class JobProposalServiceImpl (
         }
         else
         {
-
+            var msg = ""
             if (!professionalConfirm){
                 logger.info("Professional ${proposal.professional.contactInfo.name} ${proposal.professional.contactInfo.surname} has declined Job Proposal #${proposal.proposalID}")
                 proposal.status = ProposalStatus.DECLINED
+                msg =  "Dear Customer, the Professional proposed for [ "+ proposal.jobOffer.description +" ] has declined the proposal. Best regards"
             }
 
             else{
                 proposal.status= ProposalStatus.ACCEPTED
                 logger.info("Professional ${proposal.professional.contactInfo.name} ${proposal.professional.contactInfo.surname} has accepted Job Proposal #${proposal.proposalID}")
+                msg =  "Dear Customer, the Professional proposed for [ "+ proposal.jobOffer.description +" ] has accepted the proposal. Best regards"
             }
-
+            val customerMail = proposal.customer!!.contactInfo.addresses
+                .filter { it.addressType == AddressType.EMAIL }
+                .map { it as Email } // Assuming EmailAddress is the correct type
+                .firstOrNull()?.email
+            val headers = mapOf(
+                "From" to from,
+                "To" to customerMail,
+                "Subject" to "Update Job Offer [ "+ proposal.jobOffer.description +" ]"
+            )
+            producerTemplate.sendBodyAndHeaders("seda:sendEmail", msg, headers)
             kafkaTemplate.send("JOB_PROPOSAL-UPDATE",proposal.toJobProposalKafkaDTO())
             return proposalRepository.save(proposal).toJobProposalDTO()
         }
