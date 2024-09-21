@@ -1,4 +1,4 @@
-import { Button, Card, Col, ListGroup, Row, Spinner } from "react-bootstrap";
+import {Button, Card, Col, Container, ListGroup, Row, Spinner} from "react-bootstrap";
 import { useAuth } from "../contexts/auth.tsx";
 import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar.tsx";
@@ -100,7 +100,7 @@ function DashboardCustomer() {
     return <Spinner />;
   }
   return (
-    <>
+    <Container fluid>
       <Row>
         <Col xs={2}>
           <Sidebar />
@@ -127,7 +127,7 @@ function DashboardCustomer() {
           />
         </Col>
       </Row>
-    </>
+    </Container>
   );
 }
 
@@ -223,7 +223,7 @@ function DashboardOperator() {
     return <Spinner />;
   }
   return (
-    <>
+    <Container fluid>
       <Row>
         <Col xs={2}>
           <Sidebar />
@@ -276,14 +276,14 @@ function DashboardOperator() {
           />
         </Col>
       </Row>
-    </>
+    </Container>
   );
 }
 
 // Dashboard Main Component
 const DashboardMain = () => {
   return (
-    <>
+    <Container fluid>
       <Row>
         <Col xs={2}>
           <Sidebar />
@@ -355,6 +355,6 @@ const DashboardMain = () => {
           </Card>
         </Col>
       </Row>
-    </>
+    </Container>
   );
 };

@@ -20,6 +20,7 @@ const HeroSection = () => {
   return (
     <Container
       fluid
+      id="homepage"
       className="p-5 bg-light text-center"
       style={{ height: "50vh" }}
     >

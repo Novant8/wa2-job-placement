@@ -4,8 +4,7 @@ WORKDIR /app
 
 COPY . .
 RUN npm ci
-
-CMD [ "npm", "run", "build" ]
+RUN npm run build
 
 FROM nginx:alpine
 
