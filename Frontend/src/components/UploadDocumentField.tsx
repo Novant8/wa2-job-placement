@@ -5,8 +5,15 @@ import {
 } from "../types/documents.ts";
 import * as API from "../../API.tsx";
 import { ApiError } from "../../API.tsx";
-import { Accordion, Button, Form, InputGroup, Spinner } from "react-bootstrap";
-import { MdDelete } from "react-icons/md";
+import {
+  Accordion,
+  Button,
+  ButtonGroup,
+  Form,
+  InputGroup,
+  Spinner,
+} from "react-bootstrap";
+import ConfirmModal from "./ConfirmModal.tsx";
 
 interface UploadFileFieldProps {
   documentId: number | undefined | null;
@@ -94,6 +101,7 @@ export function UploadDocumentField({
 
           <FileField
             document={latestDoc}
+            isHistory
             onDelete={handleHistoryDelete}
             customerConfirm={customerConfirm}
             professionalConfirm={professionalConfirm}
@@ -157,6 +165,7 @@ export function UploadDocumentField({
 
 interface FileFieldProps {
   document: ReducedDocumentMetadata;
+  isHistory?: boolean;
   onDelete?: (documentId: number) => void;
   customerConfirm: boolean;
   professionalConfirm: boolean;
@@ -164,33 +173,45 @@ interface FileFieldProps {
 
 function FileField({
   document,
+  isHistory,
   onDelete,
   customerConfirm,
   professionalConfirm,
 }: FileFieldProps) {
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
   return (
     <div className="my-2">
       <span className="mx-3 my-auto">
         <strong>{document.name}</strong>
       </span>
-
-      <Button
-        variant="primary"
-        as="a"
-        href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
-        target="_blank"
-        style={{ marginRight: 10 }}
-      >
-        View
-      </Button>
-
-      {!customerConfirm && !professionalConfirm && (
-        <MdDelete
-          size={25}
-          role="button"
-          onClick={() => onDelete?.(document.historyId)}
-        />
-      )}
+      <ButtonGroup>
+        <Button
+          variant="primary"
+          as="a"
+          href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
+          target="_blank"
+        >
+          View
+        </Button>
+        {!customerConfirm && !professionalConfirm && (
+          <>
+            <Button variant="danger" onClick={() => setShowConfirmModal(true)}>
+              Delete
+            </Button>
+            <ConfirmModal
+              title={`Confirm file${isHistory ? " history" : ""} deletion`}
+              show={showConfirmModal}
+              onConfirm={() => onDelete?.(document.historyId)}
+              onCancel={() => setShowConfirmModal(false)}
+            >
+              Are you sure you want to delete the file {document.name}
+              {isHistory && " and all of its history"}? This action cannot be
+              undone.
+            </ConfirmModal>
+          </>
+        )}
+      </ButtonGroup>
     </div>
   );
 }
