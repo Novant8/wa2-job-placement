@@ -6,6 +6,10 @@ export default defineConfig({
   plugins: [react()],
   base: "/ui",
   server: {
-    host: "0.0.0.0",
+    hmr: {
+      port: 5174,
+      host: "localhost",
+      protocol: "ws",
+    },
   },
 });
