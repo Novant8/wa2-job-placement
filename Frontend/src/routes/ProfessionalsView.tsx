@@ -58,11 +58,17 @@ export default function ProfessionalsView() {
   }, []);
 
   useEffect(() => {
-    setLoading(true);
-    const token = me?.xsrfToken;
     const filteredCheckedItems = Object.entries(checkedItems)
       .filter(([_status, isChecked]) => isChecked)
       .map(([status]) => status);
+
+    if (filteredCheckedItems.length == 0) {
+      setProfessional([]);
+      return;
+    }
+    setLoading(true);
+    const token = me?.xsrfToken;
+
     //workaround
     let filterDTO: ProfessionalFilter;
     if (filteredCheckedItems.length == 2) {
