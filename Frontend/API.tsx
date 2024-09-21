@@ -22,6 +22,7 @@ import { MessageCreate, MessageEventInterface } from "./src/types/message.ts";
 
 import { Page } from "./src/types/page.ts";
 import { sendEmailStruct } from "./src/types/sendEmail.ts";
+import { User } from "./src/contexts/auth.tsx";
 
 interface ErrorResponseBody {
   type: string;
@@ -57,10 +58,10 @@ function getCSRFCookie(): string {
   return Cookies.get("XSRF-TOKEN")!;
 }
 
-async function customFetch(
+async function customFetch<T>(
   input: RequestInfo | URL,
   init?: RequestInit,
-): Promise<any | void> {
+): Promise<T> {
   let res;
   try {
     if (init && init.method !== "GET") {
@@ -376,9 +377,27 @@ export function removeCandidate(
   );
 }
 
-export function uploadDocument(document: File): Promise<DocumentMetadata> {
+function getDocumentNameWithPrefixAndSuffix(document: File, user: User) {
+  const documentNameSplit = document.name.split(".");
+  const extension = documentNameSplit.pop();
+  const documentNameWithoutExtension = documentNameSplit.join(".");
+  return `${user.name}${user.surname}_${documentNameWithoutExtension}_${Date.now()}.${extension}`;
+}
+
+function stripDocumentNamePrefixAndSuffix(documentName: string) {
+  const documentNameSplitDot = documentName.split(".");
+  const extension = documentNameSplitDot.pop();
+  const documentNameWithoutExtension = documentNameSplitDot.join(".");
+  const documentNameSplitUnderscore = documentNameWithoutExtension.split("_");
+  // Document name may not contain prefix and suffix
+  if(documentNameSplitUnderscore.length < 3)
+    return documentName;
+  return `${documentNameSplitUnderscore.slice(1,-1).join("_")}.${extension}`;
+}
+
+export function uploadDocument(document: File, user: User): Promise<DocumentMetadata> {
   const formData = new FormData();
-  formData.append("document", document, document.name);
+  formData.append("document", document, getDocumentNameWithPrefixAndSuffix(document, user));
   return customFetch(`/upload/document`, {
     method: "POST",
     body: formData,
@@ -401,9 +420,10 @@ export function createJobProposal(
 export function updateDocument(
   historyId: number,
   document: File,
+  user: User
 ): Promise<DocumentMetadata> {
   const formData = new FormData();
-  formData.append("document", document, document.name);
+  formData.append("document", document, getDocumentNameWithPrefixAndSuffix(document, user));
   return customFetch(`/upload/document/${historyId}`, {
     method: "PUT",
     body: formData,
@@ -416,10 +436,17 @@ export function getJobProposalbyId(
   return customFetch(`/crm/API/jobProposals/${proposalId}`);
 }
 
-export function getDocumentHistory(
-  historyId: number,
+export async function getDocumentHistory(
+    historyId: number,
 ): Promise<DocumentHistory> {
-  return customFetch(`/document-store/API/documents/${historyId}/history`);
+  let documentHistory: DocumentHistory = await customFetch(`/document-store/API/documents/${historyId}/history`);
+  return {
+    ...documentHistory,
+    versions: documentHistory.versions.map(document => ({
+      ...document,
+      name: stripDocumentNamePrefixAndSuffix(document.name)
+    }))
+  };
 }
 
 export function deleteDocumentHistory(historyId: number): Promise<void> {
