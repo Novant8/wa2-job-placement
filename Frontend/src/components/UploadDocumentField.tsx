@@ -5,14 +5,8 @@ import {
 } from "../types/documents.ts";
 import * as API from "../../API.tsx";
 import { ApiError } from "../../API.tsx";
-import {
-  Accordion,
-  Button,
-  ButtonGroup,
-  Form,
-  InputGroup,
-  Spinner,
-} from "react-bootstrap";
+import { Accordion, Button, Form, InputGroup, Spinner } from "react-bootstrap";
+import { MdDelete } from "react-icons/md";
 
 interface UploadFileFieldProps {
   documentId: number | undefined | null;
@@ -179,24 +173,24 @@ function FileField({
       <span className="mx-3 my-auto">
         <strong>{document.name}</strong>
       </span>
-      <ButtonGroup>
-        <Button
-          variant="primary"
-          as="a"
-          href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
-          target="_blank"
-        >
-          View
-        </Button>
-        {!customerConfirm && !professionalConfirm && (
-          <Button
-            variant="danger"
-            onClick={() => onDelete?.(document.historyId)}
-          >
-            Delete
-          </Button>
-        )}
-      </ButtonGroup>
+
+      <Button
+        variant="primary"
+        as="a"
+        href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
+        target="_blank"
+        style={{ marginRight: 10 }}
+      >
+        View
+      </Button>
+
+      {!customerConfirm && !professionalConfirm && (
+        <MdDelete
+          size={25}
+          role="button"
+          onClick={() => onDelete?.(document.historyId)}
+        />
+      )}
     </div>
   );
 }

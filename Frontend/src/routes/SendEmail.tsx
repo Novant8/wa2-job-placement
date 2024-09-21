@@ -56,6 +56,7 @@ export default function SendEmail() {
       let page = {
         pageNumber: pageProf - 1,
         pageSize: 5,
+        sort: undefined,
       };
       const { totalPages: totalPages, content: professionals } =
         await API.getProfessionals(token, undefined, page);
@@ -101,6 +102,7 @@ export default function SendEmail() {
       let page = {
         pageNumber: pageGen - 1,
         pageSize: 5,
+        sort: undefined,
       };
       // Fetch professionals in parallel
       const { totalPages: totalPages, content: Contact } =
@@ -145,6 +147,7 @@ export default function SendEmail() {
       let page = {
         pageNumber: pageCust - 1,
         pageSize: 5,
+        sort: undefined,
       };
       // Fetch professionals in parallel
       const { totalPages: totalPages, content: customers } =

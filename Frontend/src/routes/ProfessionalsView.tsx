@@ -94,6 +94,7 @@ export default function ProfessionalsView() {
     let paging = {
       pageNumber: page - 1,
       pageSize: 5,
+      sort: undefined,
     };
     API.getProfessionals(token, filterDTO, paging)
       .then((prof) => {

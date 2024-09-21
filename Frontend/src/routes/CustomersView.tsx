@@ -42,6 +42,7 @@ export default function CustomersView() {
     let paging = {
       pageNumber: page - 1,
       pageSize: 5,
+      sort: undefined,
     };
     API.getCustomers(filter, paging)
       .then((customer) => {

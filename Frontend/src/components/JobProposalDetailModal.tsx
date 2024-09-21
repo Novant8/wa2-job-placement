@@ -14,7 +14,7 @@ import { UploadDocumentField } from "./UploadDocumentField.tsx";
 import { Accordion, ButtonGroup, Spinner } from "react-bootstrap";
 import { DocumentHistory } from "../types/documents.ts";
 import { TiTick, TiTimes } from "react-icons/ti";
-import { BiSolidHourglass } from "react-icons/bi";
+import { BiInfoCircle, BiSolidHourglass } from "react-icons/bi";
 export default function JobProposalModalDetail(props: any) {
   const [jobProposal, setJobProposal] = useState<JobProposal>();
   const [modalAction, setModalAction] = useState("");
@@ -210,7 +210,7 @@ export default function JobProposalModalDetail(props: any) {
       promise = API.updateDocument(
         jobProposal.professionalSignedContract,
         document,
-        me!
+        me!,
       );
     else promise = API.uploadDocument(document, me!);
 
@@ -323,18 +323,16 @@ export default function JobProposalModalDetail(props: any) {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p>
-          {" "}
-          <strong> Customer:</strong>{" "}
-          {jobProposal?.customer.contactInfo.name +
-            " " +
-            jobProposal?.customer.contactInfo.surname}
-          <br />
-          <strong> Professional:</strong>{" "}
-          {jobProposal?.professional.contactInfo.name +
-            " " +
-            jobProposal?.professional.contactInfo.surname}
-        </p>
+        {" "}
+        <strong> Customer:</strong>{" "}
+        {jobProposal?.customer.contactInfo.name +
+          " " +
+          jobProposal?.customer.contactInfo.surname}
+        <br />
+        <strong> Professional:</strong>{" "}
+        {jobProposal?.professional.contactInfo.name +
+          " " +
+          jobProposal?.professional.contactInfo.surname}
         <hr />
         Accepted by the customer:{" "}
         {jobProposal?.customerConfirmation === false &&
@@ -357,102 +355,114 @@ export default function JobProposalModalDetail(props: any) {
         ) : (
           <TiTimes size={20} />
         )}{" "}
-        <hr />
-        <p>
-          {" "}
-          {me?.roles.includes("customer") && (
-            <>
+        <hr />{" "}
+        {me?.roles.includes("customer") && (
+          <>
+            {" "}
+            Contract for the professional:
+            <UploadDocumentField
+              documentId={jobProposal?.documentId}
+              loading={loadingDocument}
+              error={errorDocument}
+              onUpload={uploadOrUpdateContract}
+              onDelete={deleteContract}
+              customerView={true}
+              customerConfirm={customerConfirm ? customerConfirm : false}
+              professionalView={false}
+              professionalConfirm={false}
+            />
+          </>
+        )}
+        {me?.roles.includes("customer") && (
+          <>
+            <p>
               {" "}
-              Contract for the professional:
-              <UploadDocumentField
-                documentId={jobProposal?.documentId}
-                loading={loadingDocument}
-                error={errorDocument}
-                onUpload={uploadOrUpdateContract}
-                onDelete={deleteContract}
-                customerView={true}
-                customerConfirm={customerConfirm ? customerConfirm : false}
-                professionalView={false}
-                professionalConfirm={false}
-              />
-            </>
-          )}
-          {me?.roles.includes("customer") && (
-            <>
-              <p>
-                {" "}
-                {!jobProposal?.customerConfirmation &&
-                jobProposal?.status === "CREATED" ? (
-                  <>
-                    For accept the candidate, please upload a contract,
-                    otherwise if you are not interessed in the candidate decline
-                    the offer : <br />
-                    <Button
-                      variant="success"
-                      style={{ marginRight: 10 }}
-                      disabled={!jobProposal.documentId}
-                      onClick={() => {
-                        setModalAction("accept");
-                        setCustomerProposalConfirmationModalShow(true);
-                      }}
-                    >
-                      Accept
-                    </Button>
-                    <Button
-                      variant="danger"
-                      onClick={() => {
-                        setModalAction("decline");
-                        setCustomerProposalConfirmationModalShow(true);
-                      }}
-                    >
-                      Decline
-                    </Button>
-                  </>
-                ) : (
-                  <></>
-                )}
-              </p>
-            </>
-          )}
-          {me?.roles.includes("professional") && (
-            <>
-              {" "}
-              Contract for the professional:{" "}
-              {!jobProposal?.customerConfirmation ? (
-                <>Not yet available, Wait for a customer's decisions</>
+              {!jobProposal?.customerConfirmation &&
+              jobProposal?.status === "CREATED" ? (
+                <>
+                  For accept the candidate, please upload a contract, otherwise
+                  if you are not interessed in the candidate decline the offer :{" "}
+                  <br />
+                  <Button
+                    variant="success"
+                    style={{ marginRight: 10 }}
+                    disabled={!jobProposal.documentId}
+                    onClick={() => {
+                      setModalAction("accept");
+                      setCustomerProposalConfirmationModalShow(true);
+                    }}
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => {
+                      setModalAction("decline");
+                      setCustomerProposalConfirmationModalShow(true);
+                    }}
+                  >
+                    Decline
+                  </Button>
+                </>
               ) : (
                 <></>
               )}
-              <UploadDocumentField
-                documentId={jobProposal?.documentId}
-                loading={loadingDocument}
-                error={errorDocument}
-                onUpload={uploadOrUpdateContract}
-                onDelete={deleteContract}
-                customerView={false}
-                customerConfirm={customerConfirm ? customerConfirm : false}
-                professionalView={false}
-                professionalConfirm={false}
-              />
-              {me?.roles.includes("professional") &&
-                jobProposal?.customerConfirmation && (
-                  <p>
-                    <hr />
-                    Signed contract by the professional:{" "}
-                    <UploadDocumentField
-                      documentId={jobProposal?.professionalSignedContract}
-                      loading={loadingSignedDocument}
-                      error={errorSignedDocument}
-                      onUpload={uploadOrUpdateSignedContract}
-                      onDelete={deleteSignedContract}
-                      customerView={false}
-                      customerConfirm={false}
-                      professionalView={true}
-                      professionalConfirm={jobProposal?.status == "ACCEPTED"}
-                    />
-                  </p>
-                )}
-              {me?.roles.includes("professional") && (
+            </p>
+          </>
+        )}
+        {me?.roles.includes("professional") && (
+          <>
+            {" "}
+            Contract for the professional:{" "}
+            {!jobProposal?.customerConfirmation ? (
+              <>Not yet available, Wait for a customer's decisions</>
+            ) : (
+              <></>
+            )}
+            <UploadDocumentField
+              documentId={jobProposal?.documentId}
+              loading={loadingDocument}
+              error={errorDocument}
+              onUpload={uploadOrUpdateContract}
+              onDelete={deleteContract}
+              customerView={false}
+              customerConfirm={customerConfirm ? customerConfirm : false}
+              professionalView={false}
+              professionalConfirm={false}
+            />
+            {professionalInfo.employmentState == "EMPLOYED" ? (
+              <>
+                <div style={{ color: "red", textDecoration: "underline" }}>
+                  <BiInfoCircle color={"red"} size={30} />
+                  You are EMPLOYED and you cannot be enrolled in two jobs
+                  simultaneously.
+                  <BiInfoCircle color={"red"} size={30} />
+                </div>
+              </>
+            ) : (
+              <></>
+            )}
+            {me?.roles.includes("professional") &&
+              professionalInfo.employmentState == "UNEMPLOYED" &&
+              jobProposal?.customerConfirmation && (
+                <p>
+                  <hr />
+                  Signed contract by the professional:{" "}
+                  <UploadDocumentField
+                    documentId={jobProposal?.professionalSignedContract}
+                    loading={loadingSignedDocument}
+                    error={errorSignedDocument}
+                    onUpload={uploadOrUpdateSignedContract}
+                    onDelete={deleteSignedContract}
+                    customerView={false}
+                    customerConfirm={false}
+                    professionalView={true}
+                    professionalConfirm={jobProposal?.status == "ACCEPTED"}
+                  />
+                </p>
+              )}
+            {me?.roles.includes("professional") &&
+              professionalInfo.employmentState == "UNEMPLOYED" && (
                 <p>
                   {" "}
                   {jobProposal?.status === "CREATED" &&
@@ -486,69 +496,68 @@ export default function JobProposalModalDetail(props: any) {
                   )}
                 </p>
               )}
+          </>
+        )}
+        {["operator", "manager"].some((role) =>
+          me?.roles.includes(role as UserRole),
+        ) &&
+          (jobProposal?.documentId ? (
+            <>
+              <div className="my-2">
+                Contract for the professional:
+                <span className="mx-3 my-auto">
+                  <strong>{documentHistory?.versions[0].name}</strong>
+                </span>
+                <ButtonGroup>
+                  <Button
+                    variant="primary"
+                    as="a"
+                    href={`/document-store/API/documents/${documentHistory?.versions[0].historyId}/version/${documentHistory?.versions[0].versionId}/data`}
+                    target="_blank"
+                  >
+                    View
+                  </Button>
+                </ButtonGroup>
+              </div>
+              {documentHistory && documentHistory.versions.length > 1 && (
+                <Accordion>
+                  <Accordion.Item eventKey="0">
+                    <Accordion.Header>Show all versions</Accordion.Header>
+                    <Accordion.Body>
+                      {documentHistory.versions.map((document) => {
+                        return (
+                          <div className="my-2">
+                            <span className="mx-3 my-auto">
+                              <strong>{document.name}</strong>
+                            </span>
+                            <ButtonGroup>
+                              <Button
+                                variant="primary"
+                                as="a"
+                                href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
+                                target="_blank"
+                              >
+                                View
+                              </Button>
+                            </ButtonGroup>
+                          </div>
+                        );
+                      })}
+                    </Accordion.Body>
+                  </Accordion.Item>
+                </Accordion>
+              )}
             </>
-          )}
-          {["operator", "manager"].some((role) =>
-            me?.roles.includes(role as UserRole),
-          ) &&
-            (jobProposal?.documentId ? (
-              <>
-                <div className="my-2">
-                  Contract for the professional:
-                  <span className="mx-3 my-auto">
-                    <strong>{documentHistory?.versions[0].name}</strong>
-                  </span>
-                  <ButtonGroup>
-                    <Button
-                      variant="primary"
-                      as="a"
-                      href={`/document-store/API/documents/${documentHistory?.versions[0].historyId}/version/${documentHistory?.versions[0].versionId}/data`}
-                      target="_blank"
-                    >
-                      View
-                    </Button>
-                  </ButtonGroup>
-                </div>
-                {documentHistory && documentHistory.versions.length > 1 && (
-                  <Accordion>
-                    <Accordion.Item eventKey="0">
-                      <Accordion.Header>Show all versions</Accordion.Header>
-                      <Accordion.Body>
-                        {documentHistory.versions.map((document) => {
-                          return (
-                            <div className="my-2">
-                              <span className="mx-3 my-auto">
-                                <strong>{document.name}</strong>
-                              </span>
-                              <ButtonGroup>
-                                <Button
-                                  variant="primary"
-                                  as="a"
-                                  href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
-                                  target="_blank"
-                                >
-                                  View
-                                </Button>
-                              </ButtonGroup>
-                            </div>
-                          );
-                        })}
-                      </Accordion.Body>
-                    </Accordion.Item>
-                  </Accordion>
-                )}
-              </>
-            ) : (
-              "No contract yet submitted "
-            ))}
-        </p>
+          ) : (
+            "No contract yet submitted "
+          ))}
         {["operator", "manager", "customer"].some((role) =>
           me?.roles.includes(role as UserRole),
         ) &&
           jobProposal?.customerConfirmation && (
             <div>
               <hr />
-              <p></p>
+
               {jobProposal?.professionalSignedContract ? (
                 <div className="my-2">
                   Signed contract by the professional:

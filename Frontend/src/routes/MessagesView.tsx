@@ -177,6 +177,7 @@ export default function MessagesView() {
     let paging = {
       pageNumber: page - 1,
       pageSize: 5,
+      sort: undefined,
     };
 
     API.getMessagges(token, status, paging)

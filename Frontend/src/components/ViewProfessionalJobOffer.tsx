@@ -8,6 +8,7 @@ import { Contact, ContactCategory } from "../types/contact.ts";
 import { ReducedJobOffer } from "../types/JobOffer.ts";
 
 import CardJobOffer from "./Card/CardJobOffer.tsx";
+import { JobOfferFilter } from "../types/JobOfferFilter.ts";
 
 export default function ViewProfessionalJobOffer() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
@@ -45,7 +46,7 @@ export default function ViewProfessionalJobOffer() {
   }
 
   useEffect(() => {
-    if (!me || userInfo.id > 0) return;
+    if (!me) return;
 
     const registeredRole = me.roles.find((role) =>
       ["customer", "professional"].includes(role),
@@ -58,9 +59,20 @@ export default function ViewProfessionalJobOffer() {
 
     setLoading(true);
     API.getProfessionalFromCurrentUser()
-      .then((customer) => {
-        setUserInfo(customer);
-        API.getProfessionalJobOffer(customer.id)
+      .then((prof) => {
+        setUserInfo(prof);
+        let paging = {
+          pageSize: 5,
+          pageNumber: page - 1,
+          sort: "status,asc",
+        };
+        let filter: JobOfferFilter = {
+          customerId: undefined,
+          status: undefined,
+          professionalId: prof.id.toString(),
+        };
+
+        API.getJobOffers(paging, filter)
           .then((data) => {
             setJobOffers([]);
             setJobOffers(data.content);

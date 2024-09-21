@@ -42,6 +42,7 @@ function DashboardProfessional() {
     let paging = {
       pageNumber: page - 1,
       pageSize: 2,
+      sort: undefined,
     };
 
     API.getProfessionalFromCurrentUser()
@@ -73,6 +74,7 @@ function DashboardProfessional() {
     let paging = {
       pageNumber: page1 - 1,
       pageSize: 2,
+      sort: undefined,
     };
 
     API.getProfessionalFromCurrentUser()
@@ -142,6 +144,7 @@ function DashboardCustomer() {
     let paging = {
       pageNumber: page - 1,
       pageSize: 2,
+      sort: undefined,
     };
 
     API.getCustomerFromCurrentUser()
@@ -173,6 +176,7 @@ function DashboardCustomer() {
     let paging = {
       pageNumber: page1 - 1,
       pageSize: 2,
+      sort: undefined,
     };
 
     API.getCustomerFromCurrentUser()
@@ -245,6 +249,7 @@ function DashboardOperator() {
     let paging = {
       pageNumber: page - 1,
       pageSize: 2,
+      sort: undefined,
     };
 
     let filter: JobOfferFilter = {
@@ -271,6 +276,7 @@ function DashboardOperator() {
     let paging = {
       pageNumber: page1 - 1,
       pageSize: 2,
+      sort: undefined,
     };
 
     let filter: JobOfferFilter = {
@@ -296,6 +302,7 @@ function DashboardOperator() {
     setLoading(true);
     let paging = {
       pageNumber: page2 - 1,
+      sort: undefined,
       pageSize: 5,
     };
 

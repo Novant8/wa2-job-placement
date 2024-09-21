@@ -15,6 +15,7 @@ export default function ViewCustomerJobOffer() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [dirty, setDirty] = useState(false);
   const [totalPage, setTotalPage] = useState(1);
   const { me } = useAuth();
 
@@ -58,9 +59,11 @@ export default function ViewCustomerJobOffer() {
     let paging = {
       pageNumber: page - 1,
       pageSize: 5,
+      sort: "status,asc",
     };
 
     setLoading(true);
+    setDirty(false);
     API.getCustomerFromCurrentUser()
       .then((customer) => {
         setUserInfo(customer);
@@ -82,7 +85,7 @@ export default function ViewCustomerJobOffer() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [me, userInfo.id, page]);
+  }, [me, userInfo.id, page, dirty]);
 
   if (loading) {
     return (
@@ -129,7 +132,7 @@ export default function ViewCustomerJobOffer() {
 
         <Card className={"m-2"}>
           <Card.Body>
-            <CreateJobOffer addJobOffer={addJobOffer} />
+            <CreateJobOffer addJobOffer={addJobOffer} setDirty={setDirty} />
           </Card.Body>
         </Card>
       </Card>

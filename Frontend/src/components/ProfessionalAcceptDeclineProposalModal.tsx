@@ -1,8 +1,11 @@
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import * as API from "../../API.tsx";
+import { useEffect } from "react";
 
 export default function ProfessionalAcceptDeclineProposalModal(props: any) {
+  useEffect(() => {}, []);
+
   const handleAcceptDecline = (professionalConfirm: boolean) => {
     if (!props.proposalId) return;
 

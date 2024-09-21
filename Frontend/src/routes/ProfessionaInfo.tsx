@@ -67,6 +67,7 @@ export default function ProfessionaInfo() {
         let paging = {
           pageNumber: page - 1,
           pageSize: 5,
+          sort: undefined,
         };
         let filter: JobOfferFilter = {
           professionalId: professionalId,

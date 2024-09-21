@@ -51,6 +51,7 @@ export default function CustomerInfo() {
         let paging = {
           pageNumber: page - 1,
           pageSize: 5,
+          sort: undefined,
         };
         let filter: JobOfferFilter = {
           customerId: customerId,

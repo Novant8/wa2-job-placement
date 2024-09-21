@@ -127,9 +127,10 @@ export default function ViewRecruiterJobOffer() {
       customerId: customerId,
     };
 
-    const paging = {
+    let paging = {
       pageNumber: page - 1,
       pageSize: 5,
+      sort: "status,asc",
     };
     setLoading(true);
     API.getJobOffers(paging, filterDTO)

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -23,6 +22,7 @@ import { FaCircleArrowLeft } from "react-icons/fa6";
 import JobOfferBadge from "./Badges/JobOfferBadge.tsx";
 import { CiZoomIn } from "react-icons/ci";
 import { MdDelete } from "react-icons/md";
+import { useEffect, useState } from "react";
 
 type Candidate = {
   id: number;

@@ -26,6 +26,8 @@ class DocumentServiceImpl(
     private val kafkaTemplate: KafkaTemplate<String, DocumentMetadataDTO>
 ) : DocumentService {
 
+
+
     fun createDocumentMetadata(name: String, size: Long, contentType: String?, file: ByteArray): DocumentMetadata {
         val doc = Document(file)
 

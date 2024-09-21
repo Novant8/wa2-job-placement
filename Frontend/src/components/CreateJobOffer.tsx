@@ -19,6 +19,7 @@ import { JobOffer } from "../types/JobOffer.ts";
 
 export type CreateJobOfferProps = {
   addJobOffer: (o: JobOffer) => void;
+  setDirty: (b: boolean) => void;
 };
 
 export default function CreateJobOffer(props: CreateJobOfferProps) {
@@ -102,13 +103,13 @@ export default function CreateJobOffer(props: CreateJobOfferProps) {
     };
 
     API.addJobOffer(jobOffer, userInfo.id)
-      .then((j) => {
+      .then(() => {
         setDescription("");
         setRequiredSkills([""]);
         setDuration("");
         setNotes("");
+        props.setDirty(true);
         setSuccessMessage("Job Offer created successfully!");
-        props.addJobOffer(j);
         setTimeout(() => {
           setSuccessMessage("");
         }, 3000);

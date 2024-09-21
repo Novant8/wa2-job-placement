@@ -390,14 +390,20 @@ function stripDocumentNamePrefixAndSuffix(documentName: string) {
   const documentNameWithoutExtension = documentNameSplitDot.join(".");
   const documentNameSplitUnderscore = documentNameWithoutExtension.split("_");
   // Document name may not contain prefix and suffix
-  if(documentNameSplitUnderscore.length < 3)
-    return documentName;
-  return `${documentNameSplitUnderscore.slice(1,-1).join("_")}.${extension}`;
+  if (documentNameSplitUnderscore.length < 3) return documentName;
+  return `${documentNameSplitUnderscore.slice(1, -1).join("_")}.${extension}`;
 }
 
-export function uploadDocument(document: File, user: User): Promise<DocumentMetadata> {
+export function uploadDocument(
+  document: File,
+  user: User,
+): Promise<DocumentMetadata> {
   const formData = new FormData();
-  formData.append("document", document, getDocumentNameWithPrefixAndSuffix(document, user));
+  formData.append(
+    "document",
+    document,
+    getDocumentNameWithPrefixAndSuffix(document, user),
+  );
   return customFetch(`/upload/document`, {
     method: "POST",
     body: formData,
@@ -420,10 +426,14 @@ export function createJobProposal(
 export function updateDocument(
   historyId: number,
   document: File,
-  user: User
+  user: User,
 ): Promise<DocumentMetadata> {
   const formData = new FormData();
-  formData.append("document", document, getDocumentNameWithPrefixAndSuffix(document, user));
+  formData.append(
+    "document",
+    document,
+    getDocumentNameWithPrefixAndSuffix(document, user),
+  );
   return customFetch(`/upload/document/${historyId}`, {
     method: "PUT",
     body: formData,
@@ -437,15 +447,17 @@ export function getJobProposalbyId(
 }
 
 export async function getDocumentHistory(
-    historyId: number,
+  historyId: number,
 ): Promise<DocumentHistory> {
-  let documentHistory: DocumentHistory = await customFetch(`/document-store/API/documents/${historyId}/history`);
+  let documentHistory: DocumentHistory = await customFetch(
+    `/document-store/API/documents/${historyId}/history`,
+  );
   return {
     ...documentHistory,
-    versions: documentHistory.versions.map(document => ({
+    versions: documentHistory.versions.map((document) => ({
       ...document,
-      name: stripDocumentNamePrefixAndSuffix(document.name)
-    }))
+      name: stripDocumentNamePrefixAndSuffix(document.name),
+    })),
   };
 }
 
@@ -751,6 +763,7 @@ export async function getJobOffers(
     if (page && (page?.pageNumber == 0 || page?.pageNumber))
       params.append("page", String(page.pageNumber));
     if (page && page?.pageSize) params.append("size", String(page.pageSize));
+    if (page && page?.sort) params.append("sort", String(page.sort));
 
     const queryString = params.toString();
     if (queryString) {
