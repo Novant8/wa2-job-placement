@@ -73,7 +73,7 @@ export default function ConfirmationModal(props: ConfirmationModalProps) {
 
     API.updateJobOfferStatus(props.jobOffer?.id.toString(), status)
       .then(() => {
-        props.onHide;
+        props.onHide();
       })
       .catch((error) => {
         console.log(error);
