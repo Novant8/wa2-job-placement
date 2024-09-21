@@ -16,6 +16,7 @@ export default function CardCustomer(props: CustomerAccordionProps) {
               {props.cust.contactInfo?.name} {props.cust.contactInfo?.surname}
             </b>
           </Col>
+          {/*
           <Col
             xs={9}
             className="border border-top-0 border-bottom-0 border-start-0 p-1 "
@@ -28,6 +29,7 @@ export default function CardCustomer(props: CustomerAccordionProps) {
               )}
             </Col>
           </Col>
+            */}
           <Col xs={1}>
             <CiZoomIn
               size={30}

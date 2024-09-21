@@ -417,8 +417,8 @@ export default function EditAccountForm() {
     if (!isProfessional(userInfo)) return;
     let promise;
     if (userInfo.professional.cvDocument)
-      promise = API.updateDocument(userInfo.professional.cvDocument, document);
-    else promise = API.uploadDocument(document);
+      promise = API.updateDocument(userInfo.professional.cvDocument, document, me!);
+    else promise = API.uploadDocument(document, me!);
 
     const prevCvDocument = userInfo.professional.cvDocument;
     setUserInfo({
