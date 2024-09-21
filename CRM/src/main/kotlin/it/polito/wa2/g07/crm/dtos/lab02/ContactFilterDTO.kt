@@ -52,7 +52,7 @@ data class ContactFilterDTO(
 
         if(!this.ssn.isNullOrBlank()) {
             spec = spec.and { root, _, builder ->
-                builder.equal(root.get<String?>("ssn"), this.ssn.uppercase())
+                builder.equal(builder.upper(root.get("ssn")), this.ssn.uppercase())
             }
         }
 
@@ -63,7 +63,7 @@ data class ContactFilterDTO(
                 subquery
                     .select(email)
                     .where(
-                        builder.equal(email.get<String>("email"),this.email),
+                        builder.like(builder.lower(email.get("email")), "%${this.email}%".lowercase()),
                         builder.isMember(root, email.get<Collection<Contact>>("contacts"))
                     )
                 builder.exists(subquery)
@@ -77,7 +77,7 @@ data class ContactFilterDTO(
                 subquery
                     .select(telephone)
                     .where(
-                        builder.equal(telephone.get<String>("number"), this.telephone),
+                        builder.like(telephone.get("number"), "%${this.telephone}%"),
                         builder.isMember(root, telephone.get<Collection<Contact>>("contacts"))
                     )
                 builder.exists(subquery)
