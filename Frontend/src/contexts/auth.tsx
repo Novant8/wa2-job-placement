@@ -26,6 +26,10 @@ export interface User {
   email: string;
 }
 
+export function userHasAnyRole(user: User | null, roles: UserRole[]) {
+  return user && user.roles.findIndex((role) => roles.includes(role)) >= 0;
+}
+
 interface AuthContextOutput {
   me: User | null;
   refreshToken: () => Promise<void>;

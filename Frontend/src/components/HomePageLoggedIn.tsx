@@ -1,13 +1,13 @@
-import {Button, Card, Col, Container, ListGroup, Row, Spinner} from "react-bootstrap";
+import { Button, Card, ListGroup, Spinner } from "react-bootstrap";
 import { useAuth } from "../contexts/auth.tsx";
 import { useEffect, useState } from "react";
-import Sidebar from "./Sidebar.tsx";
 import * as API from "../../API.tsx";
 import CardJobOffer from "./Card/CardJobOffer.tsx";
 import { JobOfferFilter } from "../types/JobOfferFilter.ts";
 import { Message } from "../types/message.ts";
 import { CiCircleInfo } from "react-icons/ci";
 import PaginationCustom from "./PaginationCustom.tsx";
+import PageLayout from "./PageLayout.tsx";
 
 export default function HomePageLoggedIn() {
   const { me } = useAuth();
@@ -100,34 +100,27 @@ function DashboardCustomer() {
     return <Spinner />;
   }
   return (
-    <Container fluid>
-      <Row>
-        <Col xs={2}>
-          <Sidebar />
-        </Col>
-        <Col xs={10}>
-          <CardJobOffer
-            cardTitle={"Candidate to your job"}
-            cardInfo={
-              "Here the proposed candidate for your job, Inspect the job offer to see the available action"
-            }
-            page={page}
-            totalPage={totalPage}
-            setPage={setPage}
-            offers={jobOffers}
-          />
-          <br />
-          <CardJobOffer
-            cardTitle={"Working for you"}
-            cardInfo={"Here the professionals working for you"}
-            page={page1}
-            totalPage={totalPage1}
-            setPage={setPage1}
-            offers={jobOffers1}
-          />
-        </Col>
-      </Row>
-    </Container>
+    <PageLayout>
+      <CardJobOffer
+        cardTitle={"Candidate to your job"}
+        cardInfo={
+          "Here the proposed candidate for your job, Inspect the job offer to see the available action"
+        }
+        page={page}
+        totalPage={totalPage}
+        setPage={setPage}
+        offers={jobOffers}
+      />
+      <br />
+      <CardJobOffer
+        cardTitle={"Working for you"}
+        cardInfo={"Here the professionals working for you"}
+        page={page1}
+        totalPage={totalPage1}
+        setPage={setPage1}
+        offers={jobOffers1}
+      />
+    </PageLayout>
   );
 }
 
@@ -223,138 +216,123 @@ function DashboardOperator() {
     return <Spinner />;
   }
   return (
-    <Container fluid>
-      <Row>
-        <Col xs={2}>
-          <Sidebar />
-        </Col>
+    <PageLayout>
+      <Card>
+        <Card.Header>
+          <Card.Title>Messages Received</Card.Title>
+        </Card.Header>
 
-        <Col xs={10}>
-          <Card>
-            <Card.Header>
-              <Card.Title>Messages Received</Card.Title>
-            </Card.Header>
-
-            <Card.Body>
-              <div className="d-flex">
-                <CiCircleInfo size={30} color="green" className="me-2" />
-                <span>Here the messages that has to be processed</span>
+        <Card.Body>
+          <div className="d-flex">
+            <CiCircleInfo size={30} color="green" className="me-2" />
+            <span>Here the messages that has to be processed</span>
+          </div>
+          <hr />
+          {msg.map((m, index) => (
+            <div className="row mb-2" key={index}>
+              <div className="col">
+                <strong>{m.subject}</strong>
               </div>
-              <hr />
-              {msg.map((m, index) => (
-                <div className="row mb-2" key={index}>
-                  <div className="col">
-                    <strong>{m.subject}</strong>
-                  </div>
-                  <div className="col">{m.sender.email}</div>
-                </div>
-              ))}
-              <PaginationCustom
-                totalPage={totalPage2}
-                page={page2}
-                setPage={setPage2}
-              />
-            </Card.Body>
-          </Card>
-          <br />
-          <CardJobOffer
-            cardTitle={"Job offer to process"}
-            cardInfo={"Here the new Job Offer, ready to be processed"}
-            page={page}
-            totalPage={totalPage}
-            setPage={setPage}
-            offers={jobOffers}
+              <div className="col">{m.sender.email}</div>
+            </div>
+          ))}
+          <PaginationCustom
+            totalPage={totalPage2}
+            page={page2}
+            setPage={setPage2}
           />
-          <br />
-          <CardJobOffer
-            cardTitle={"Waiting for interview"}
-            cardInfo={"Here the Job Offer in Selection Phase"}
-            page={page1}
-            totalPage={totalPage1}
-            setPage={setPage1}
-            offers={jobOffers1}
-          />
-        </Col>
-      </Row>
-    </Container>
+        </Card.Body>
+      </Card>
+      <br />
+      <CardJobOffer
+        cardTitle={"Job offer to process"}
+        cardInfo={"Here the new Job Offer, ready to be processed"}
+        page={page}
+        totalPage={totalPage}
+        setPage={setPage}
+        offers={jobOffers}
+      />
+      <br />
+      <CardJobOffer
+        cardTitle={"Waiting for interview"}
+        cardInfo={"Here the Job Offer in Selection Phase"}
+        page={page1}
+        totalPage={totalPage1}
+        setPage={setPage1}
+        offers={jobOffers1}
+      />
+    </PageLayout>
   );
 }
 
 // Dashboard Main Component
 const DashboardMain = () => {
   return (
-    <Container fluid>
-      <Row>
-        <Col xs={2}>
-          <Sidebar />
-        </Col>
-        <Col xs={10}>
-          <h2>Dashboard Overview</h2>
+    <PageLayout>
+      <h2>Dashboard Overview</h2>
 
-          {/* Job Applications Card */}
-          <Card className="mb-4 shadow-sm">
-            <Card.Body>
-              <Card.Title>Recent Applications</Card.Title>
-              <Card.Text>Track your job application progress here.</Card.Text>
-              <ListGroup variant="flush">
-                <ListGroup.Item>
-                  Software Engineer - ABC Corp
-                  <Button variant="link" className="float-right">
-                    View Details
-                  </Button>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  Product Manager - XYZ Inc
-                  <Button variant="link" className="float-right">
-                    View Details
-                  </Button>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  Data Analyst - 123 Tech
-                  <Button variant="link" className="float-right">
-                    View Details
-                  </Button>
-                </ListGroup.Item>
-              </ListGroup>
-            </Card.Body>
-          </Card>
+      {/* Job Applications Card */}
+      <Card className="mb-4 shadow-sm">
+        <Card.Body>
+          <Card.Title>Recent Applications</Card.Title>
+          <Card.Text>Track your job application progress here.</Card.Text>
+          <ListGroup variant="flush">
+            <ListGroup.Item>
+              Software Engineer - ABC Corp
+              <Button variant="link" className="float-right">
+                View Details
+              </Button>
+            </ListGroup.Item>
+            <ListGroup.Item>
+              Product Manager - XYZ Inc
+              <Button variant="link" className="float-right">
+                View Details
+              </Button>
+            </ListGroup.Item>
+            <ListGroup.Item>
+              Data Analyst - 123 Tech
+              <Button variant="link" className="float-right">
+                View Details
+              </Button>
+            </ListGroup.Item>
+          </ListGroup>
+        </Card.Body>
+      </Card>
 
-          {/* Notifications Card */}
-          <Card className="mb-4 shadow-sm">
-            <Card.Body>
-              <Card.Title>Notifications</Card.Title>
-              <Card.Text>
-                Stay updated with the latest job openings and messages.
-              </Card.Text>
-              <ListGroup variant="flush">
-                <ListGroup.Item>
-                  New job opening for Front-End Developer at DEF Corp
-                  <Button variant="link" className="float-right">
-                    View
-                  </Button>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  Reminder: Update your profile to increase visibility
-                  <Button variant="link" className="float-right">
-                    Update
-                  </Button>
-                </ListGroup.Item>
-              </ListGroup>
-            </Card.Body>
-          </Card>
+      {/* Notifications Card */}
+      <Card className="mb-4 shadow-sm">
+        <Card.Body>
+          <Card.Title>Notifications</Card.Title>
+          <Card.Text>
+            Stay updated with the latest job openings and messages.
+          </Card.Text>
+          <ListGroup variant="flush">
+            <ListGroup.Item>
+              New job opening for Front-End Developer at DEF Corp
+              <Button variant="link" className="float-right">
+                View
+              </Button>
+            </ListGroup.Item>
+            <ListGroup.Item>
+              Reminder: Update your profile to increase visibility
+              <Button variant="link" className="float-right">
+                Update
+              </Button>
+            </ListGroup.Item>
+          </ListGroup>
+        </Card.Body>
+      </Card>
 
-          {/* Profile Status Card */}
-          <Card className="mb-4 shadow-sm">
-            <Card.Body>
-              <Card.Title>Profile Completeness</Card.Title>
-              <Card.Text>
-                Ensure your profile is up-to-date to attract more employers.
-              </Card.Text>
-              <Button variant="primary">Update Profile</Button>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+      {/* Profile Status Card */}
+      <Card className="mb-4 shadow-sm">
+        <Card.Body>
+          <Card.Title>Profile Completeness</Card.Title>
+          <Card.Text>
+            Ensure your profile is up-to-date to attract more employers.
+          </Card.Text>
+          <Button variant="primary">Update Profile</Button>
+        </Card.Body>
+      </Card>
+    </PageLayout>
   );
 };

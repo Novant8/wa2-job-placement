@@ -7,18 +7,16 @@ import {
   Accordion,
   Button,
   Card,
-  Col,
   Container,
-  Row,
   Spinner,
   Tab,
   Tabs,
 } from "react-bootstrap";
 import UpdateMessageStatusModal from "../components/UpdateMessageStatusModal.tsx";
 import { ApiError } from "../../API.tsx";
-import Sidebar from "../components/Sidebar.tsx";
 import { CiCircleInfo } from "react-icons/ci";
 import PaginationCustom from "../components/PaginationCustom.tsx";
+import PageLayout from "../components/PageLayout.tsx";
 
 export default function MessagesView() {
   const { me } = useAuth();
@@ -210,183 +208,173 @@ export default function MessagesView() {
   }
 
   return (
-    <>
-      <Container fluid>
-        <Row>
-          <Col xs={2}>
-            <Sidebar />
-          </Col>
-          <Col xs={10}>
-            <Container>
-              <UpdateMessageStatusModal
-                show={modalStatusShow}
-                action={modalAction}
-                onHide={() => setModalStatusShow(false)}
-                message={selected}
-                setDirty={() => setDirty(true)}
-              />
-              <Card>
-                <Card.Title>Messages Tool</Card.Title>
-                <Card.Body>
-                  <CiCircleInfo size={30} color={"green"} /> In this section,
-                  you can explore all the messages received, allowing you to
-                  process them
-                </Card.Body>
-              </Card>
-              <br />
-              <Card>
-                <Card.Body>
-                  <Tabs
-                    defaultActiveKey="received"
-                    id="justify-tab-example"
-                    className="mb-3"
-                    justify
-                    onSelect={(eventKey) => handleSelect(eventKey)}
-                  >
-                    <Tab eventKey="received" title="Received">
-                      {loading && (
-                        <Container className="text-center mt-5">
-                          <Spinner animation="border" />
-                        </Container>
-                      )}
-                      {messages?.length > 0 ? (
-                        <Accordion>
-                          {messages &&
-                            messages.map((e) => (
-                              <MessageAccordion key={e.id} msg={e} />
-                            ))}
-                        </Accordion>
-                      ) : (
-                        <div>There no received messages</div>
-                      )}
-                      <PaginationCustom
-                        setPage={setPage}
-                        page={page}
-                        totalPage={totalPage}
-                      />
-                    </Tab>
-                    <Tab eventKey="read" title="Read">
-                      {loading && (
-                        <Container className="text-center mt-5">
-                          <Spinner animation="border" />
-                        </Container>
-                      )}
+    <PageLayout>
+      <Container>
+        <UpdateMessageStatusModal
+          show={modalStatusShow}
+          action={modalAction}
+          onHide={() => setModalStatusShow(false)}
+          message={selected}
+          setDirty={() => setDirty(true)}
+        />
+        <Card>
+          <Card.Title>Messages Tool</Card.Title>
+          <Card.Body>
+            <CiCircleInfo size={30} color={"green"} /> In this section, you can
+            explore all the messages received, allowing you to process them
+          </Card.Body>
+        </Card>
+        <br />
+        <Card>
+          <Card.Body>
+            <Tabs
+              defaultActiveKey="received"
+              id="justify-tab-example"
+              className="mb-3"
+              justify
+              onSelect={(eventKey) => handleSelect(eventKey)}
+            >
+              <Tab eventKey="received" title="Received">
+                {loading && (
+                  <Container className="text-center mt-5">
+                    <Spinner animation="border" />
+                  </Container>
+                )}
+                {messages?.length > 0 ? (
+                  <Accordion>
+                    {messages &&
+                      messages.map((e) => (
+                        <MessageAccordion key={e.id} msg={e} />
+                      ))}
+                  </Accordion>
+                ) : (
+                  <div>There no received messages</div>
+                )}
+                <PaginationCustom
+                  setPage={setPage}
+                  page={page}
+                  totalPage={totalPage}
+                />
+              </Tab>
+              <Tab eventKey="read" title="Read">
+                {loading && (
+                  <Container className="text-center mt-5">
+                    <Spinner animation="border" />
+                  </Container>
+                )}
 
-                      {messages?.length > 0 ? (
-                        <Accordion>
-                          {messages &&
-                            messages.map((e) => (
-                              <MessageAccordion key={e.id} msg={e} />
-                            ))}
-                        </Accordion>
-                      ) : (
-                        <div>There no read messages</div>
-                      )}
-                      <PaginationCustom
-                        setPage={setPage}
-                        page={page}
-                        totalPage={totalPage}
-                      />
-                    </Tab>
-                    <Tab eventKey="processing" title="Processing">
-                      {loading && (
-                        <Container className="text-center mt-5">
-                          <Spinner animation="border" />
-                        </Container>
-                      )}
+                {messages?.length > 0 ? (
+                  <Accordion>
+                    {messages &&
+                      messages.map((e) => (
+                        <MessageAccordion key={e.id} msg={e} />
+                      ))}
+                  </Accordion>
+                ) : (
+                  <div>There no read messages</div>
+                )}
+                <PaginationCustom
+                  setPage={setPage}
+                  page={page}
+                  totalPage={totalPage}
+                />
+              </Tab>
+              <Tab eventKey="processing" title="Processing">
+                {loading && (
+                  <Container className="text-center mt-5">
+                    <Spinner animation="border" />
+                  </Container>
+                )}
 
-                      {messages?.length > 0 ? (
-                        <Accordion>
-                          {messages &&
-                            messages.map((e) => (
-                              <MessageAccordion key={e.id} msg={e} />
-                            ))}
-                        </Accordion>
-                      ) : (
-                        <div>There no processing messages</div>
-                      )}
-                      <PaginationCustom
-                        setPage={setPage}
-                        page={page}
-                        totalPage={totalPage}
-                      />
-                    </Tab>
-                    <Tab eventKey="done" title="Done">
-                      {loading && (
-                        <Container className="text-center mt-5">
-                          <Spinner animation="border" />
-                        </Container>
-                      )}
+                {messages?.length > 0 ? (
+                  <Accordion>
+                    {messages &&
+                      messages.map((e) => (
+                        <MessageAccordion key={e.id} msg={e} />
+                      ))}
+                  </Accordion>
+                ) : (
+                  <div>There no processing messages</div>
+                )}
+                <PaginationCustom
+                  setPage={setPage}
+                  page={page}
+                  totalPage={totalPage}
+                />
+              </Tab>
+              <Tab eventKey="done" title="Done">
+                {loading && (
+                  <Container className="text-center mt-5">
+                    <Spinner animation="border" />
+                  </Container>
+                )}
 
-                      {messages?.length > 0 ? (
-                        <Accordion>
-                          {messages &&
-                            messages.map((e) => (
-                              <MessageAccordion key={e.id} msg={e} />
-                            ))}
-                        </Accordion>
-                      ) : (
-                        <div>There no done messages</div>
-                      )}
-                      <PaginationCustom
-                        setPage={setPage}
-                        page={page}
-                        totalPage={totalPage}
-                      />
-                    </Tab>
-                    <Tab eventKey="discarded" title="Discarded">
-                      {loading && (
-                        <Container className="text-center mt-5">
-                          <Spinner animation="border" />
-                        </Container>
-                      )}
+                {messages?.length > 0 ? (
+                  <Accordion>
+                    {messages &&
+                      messages.map((e) => (
+                        <MessageAccordion key={e.id} msg={e} />
+                      ))}
+                  </Accordion>
+                ) : (
+                  <div>There no done messages</div>
+                )}
+                <PaginationCustom
+                  setPage={setPage}
+                  page={page}
+                  totalPage={totalPage}
+                />
+              </Tab>
+              <Tab eventKey="discarded" title="Discarded">
+                {loading && (
+                  <Container className="text-center mt-5">
+                    <Spinner animation="border" />
+                  </Container>
+                )}
 
-                      {messages?.length > 0 ? (
-                        <Accordion>
-                          {messages &&
-                            messages.map((e) => (
-                              <MessageAccordion key={e.id} msg={e} />
-                            ))}
-                        </Accordion>
-                      ) : (
-                        <div>There no discarded messages</div>
-                      )}
-                      <PaginationCustom
-                        setPage={setPage}
-                        page={page}
-                        totalPage={totalPage}
-                      />
-                    </Tab>
-                    <Tab eventKey="failed" title="Failed">
-                      {loading && (
-                        <Container className="text-center mt-5">
-                          <Spinner animation="border" />
-                        </Container>
-                      )}
+                {messages?.length > 0 ? (
+                  <Accordion>
+                    {messages &&
+                      messages.map((e) => (
+                        <MessageAccordion key={e.id} msg={e} />
+                      ))}
+                  </Accordion>
+                ) : (
+                  <div>There no discarded messages</div>
+                )}
+                <PaginationCustom
+                  setPage={setPage}
+                  page={page}
+                  totalPage={totalPage}
+                />
+              </Tab>
+              <Tab eventKey="failed" title="Failed">
+                {loading && (
+                  <Container className="text-center mt-5">
+                    <Spinner animation="border" />
+                  </Container>
+                )}
 
-                      {messages?.length > 0 ? (
-                        <Accordion>
-                          {messages &&
-                            messages.map((e) => (
-                              <MessageAccordion key={e.id} msg={e} />
-                            ))}
-                        </Accordion>
-                      ) : (
-                        <div>There no failed messages</div>
-                      )}
-                      <PaginationCustom
-                        setPage={setPage}
-                        page={page}
-                        totalPage={totalPage}
-                      />
-                    </Tab>
-                  </Tabs>
-                </Card.Body>
-              </Card>
-            </Container>
-          </Col>
-        </Row>
+                {messages?.length > 0 ? (
+                  <Accordion>
+                    {messages &&
+                      messages.map((e) => (
+                        <MessageAccordion key={e.id} msg={e} />
+                      ))}
+                  </Accordion>
+                ) : (
+                  <div>There no failed messages</div>
+                )}
+                <PaginationCustom
+                  setPage={setPage}
+                  page={page}
+                  totalPage={totalPage}
+                />
+              </Tab>
+            </Tabs>
+          </Card.Body>
+        </Card>
       </Container>
-    </>
+    </PageLayout>
   );
 }

@@ -19,10 +19,10 @@ import {
 } from "../types/address.ts";
 import EditableField from "../components/EditableField.tsx";
 import { Professional } from "../types/professional.ts";
-import Sidebar from "../components/Sidebar.tsx";
 import { FaCircleArrowLeft } from "react-icons/fa6";
 import CardJobOffer from "../components/Card/CardJobOffer.tsx";
 import { JobOfferFilter } from "../types/JobOfferFilter.ts";
+import PageLayout from "../components/PageLayout.tsx";
 
 export default function ProfessionaInfo() {
   const navigate = useNavigate();
@@ -113,168 +113,152 @@ export default function ProfessionaInfo() {
   }
 
   return (
-    <>
-      <Container fluid>
-        <Row>
-          <Col xs={2}>
-            <Sidebar />
-          </Col>
-          <Col xs={10}>
-            <Card>
-              <Card.Header>
-                <Card.Title as="h2">
-                  <Row className="justify-content-begin">
-                    <Col xs={4}>
-                      <Button
-                        className="d-flex align-items-center text-sm-start"
-                        onClick={() => navigate(-1)}
-                      >
-                        <FaCircleArrowLeft /> &nbsp; Back
-                      </Button>
-                    </Col>
-                    <Col xs={4}>
-                      <div className="text-center">
-                        {professional.contactInfo?.name +
-                          " " +
-                          professional.contactInfo?.surname}
-                      </div>
-                    </Col>
-                  </Row>
-                </Card.Title>
-              </Card.Header>
-              <Card.Body>
-                <Row>
-                  <Col>
-                    <h3>Contacts</h3>
-                  </Col>
-                </Row>
-                <Row
-                  className="pb-3"
-                  style={{ borderBottom: "dotted grey 1px" }}
+    <PageLayout>
+      <Card>
+        <Card.Header>
+          <Card.Title as="h2">
+            <Row className="justify-content-begin">
+              <Col xs={4}>
+                <Button
+                  className="d-flex align-items-center text-sm-start"
+                  onClick={() => navigate(-1)}
                 >
-                  <Col sm={4}>
-                    <b>Email</b>
-                  </Col>
-                  <Col sm={4}>
-                    <b>Telephone</b>
-                  </Col>
-                  <Col sm={4}>
-                    <b>Address </b>
-                  </Col>
+                  <FaCircleArrowLeft /> &nbsp; Back
+                </Button>
+              </Col>
+              <Col xs={4}>
+                <div className="text-center">
+                  {professional.contactInfo?.name +
+                    " " +
+                    professional.contactInfo?.surname}
+                </div>
+              </Col>
+            </Row>
+          </Card.Title>
+        </Card.Header>
+        <Card.Body>
+          <Row>
+            <Col>
+              <h3>Contacts</h3>
+            </Col>
+          </Row>
+          <Row className="pb-3" style={{ borderBottom: "dotted grey 1px" }}>
+            <Col sm={4}>
+              <b>Email</b>
+            </Col>
+            <Col sm={4}>
+              <b>Telephone</b>
+            </Col>
+            <Col sm={4}>
+              <b>Address </b>
+            </Col>
 
-                  {professional.contactInfo?.addresses.map((address) => {
-                    if (isEmailAddress(address)) {
-                      return (
-                        <Col sm={4} key={address.id}>
-                          {address.email}
-                          <br />
-                        </Col>
-                      );
-                    } else if (isPhoneAddress(address)) {
-                      return (
-                        <Col sm={4} key={address.id}>
-                          {address.phoneNumber}
-                          <br />
-                        </Col>
-                      );
-                    } else if (isDwellingAddress(address)) {
-                      return (
-                        <Col sm={4} key={address.id}>
-                          {address.street +
-                            ", " +
-                            address.city +
-                            ", " +
-                            address.district +
-                            address.country}
-                          <br />
-                        </Col>
-                      );
-                    }
-                  })}
-                </Row>
-                <Row
-                  className="mt-3"
-                  style={{
-                    justifyContent: "center",
-                    borderBottom: "dotted grey 1px",
-                  }}
-                >
-                  <Col sm={6}>
-                    <h3>Information</h3>
+            {professional.contactInfo?.addresses.map((address) => {
+              if (isEmailAddress(address)) {
+                return (
+                  <Col sm={4} key={address.id}>
+                    {address.email}
+                    <br />
                   </Col>
-                  <Row className="mt-3 pb-3">
-                    <Col sm={3}>
-                      <b> Location </b>: <br /> {professional?.location}
-                    </Col>
-                    <Col sm={3}>
-                      <b> SSN </b>: <br />{" "}
-                      {professional?.contactInfo.ssn
-                        ? professional?.contactInfo.ssn
-                        : "N/A"}
-                    </Col>
-                    <Col sm={3}>
-                      <b> Employment State </b>: <br />{" "}
-                      {professional?.employmentState}
-                    </Col>
-                    <Col sm={3}>
-                      <b> Daily Rate </b>: <br /> {professional?.dailyRate}
-                    </Col>
-                  </Row>
-                </Row>
+                );
+              } else if (isPhoneAddress(address)) {
+                return (
+                  <Col sm={4} key={address.id}>
+                    {address.phoneNumber}
+                    <br />
+                  </Col>
+                );
+              } else if (isDwellingAddress(address)) {
+                return (
+                  <Col sm={4} key={address.id}>
+                    {address.street +
+                      ", " +
+                      address.city +
+                      ", " +
+                      address.district +
+                      address.country}
+                    <br />
+                  </Col>
+                );
+              }
+            })}
+          </Row>
+          <Row
+            className="mt-3"
+            style={{
+              justifyContent: "center",
+              borderBottom: "dotted grey 1px",
+            }}
+          >
+            <Col sm={6}>
+              <h3>Information</h3>
+            </Col>
+            <Row className="mt-3 pb-3">
+              <Col sm={3}>
+                <b> Location </b>: <br /> {professional?.location}
+              </Col>
+              <Col sm={3}>
+                <b> SSN </b>: <br />{" "}
+                {professional?.contactInfo.ssn
+                  ? professional?.contactInfo.ssn
+                  : "N/A"}
+              </Col>
+              <Col sm={3}>
+                <b> Employment State </b>: <br />{" "}
+                {professional?.employmentState}
+              </Col>
+              <Col sm={3}>
+                <b> Daily Rate </b>: <br /> {professional?.dailyRate}
+              </Col>
+            </Row>
+          </Row>
 
-                <Row
-                  className="mt-3"
-                  style={{
-                    justifyContent: "center",
-                    borderBottom: "dotted grey 1px",
-                  }}
-                >
-                  <h3>Skills</h3>
-                  <Form.Group controlId="formRequiredSkills" className="mb-3">
-                    {professional.skills.map((skill, index) => (
-                      <InputGroup key={index} className="mb-2">
-                        <Form.Control
-                          type="text"
-                          value={skill}
-                          disabled={true}
-                        />
-                      </InputGroup>
-                    ))}
-                  </Form.Group>
-                </Row>
+          <Row
+            className="mt-3"
+            style={{
+              justifyContent: "center",
+              borderBottom: "dotted grey 1px",
+            }}
+          >
+            <h3>Skills</h3>
+            <Form.Group controlId="formRequiredSkills" className="mb-3">
+              {professional.skills.map((skill, index) => (
+                <InputGroup key={index} className="mb-2">
+                  <Form.Control type="text" value={skill} disabled={true} />
+                </InputGroup>
+              ))}
+            </Form.Group>
+          </Row>
 
-                <Row
-                  className="mt-3 pb-3"
-                  style={{ borderBottom: "dotted grey 1px" }}
-                >
-                  <h3>Notes</h3>
-                  <EditableField
-                    label=""
-                    name="Notes"
-                    initValue={professional.notes || ""}
-                    loading={notesLoading}
-                    validate={(value) => value.trim().length > 0}
-                    onEdit={(_field, val) => updateNotes(val)}
-                  />
-                </Row>
+          <Row
+            className="mt-3 pb-3"
+            style={{ borderBottom: "dotted grey 1px" }}
+          >
+            <h3>Notes</h3>
+            <EditableField
+              label=""
+              name="Notes"
+              initValue={professional.notes || ""}
+              loading={notesLoading}
+              validate={(value) => value.trim().length > 0}
+              onEdit={(_field, val) => updateNotes(val)}
+            />
+          </Row>
 
-                <Row className="m-2">
-                  <CardJobOffer
-                    page={page}
-                    setPage={setPage}
-                    totalPage={totalPage}
-                    cardInfo={
-                      "In this section you can consult all the job offers where the professional is involved"
-                    }
-                    cardTitle={"Job Offers"}
-                    offers={jobOffers}
-                  />
-                </Row>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-    </>
+          <Row className="m-2">
+            <CardJobOffer
+              page={page}
+              setPage={setPage}
+              totalPage={totalPage}
+              cardInfo={
+                "In this section you can consult all the job offers where the professional is involved"
+              }
+              cardTitle={"Job Offers"}
+              offers={jobOffers}
+            />
+          </Row>
+        </Card.Body>
+      </Card>
+    </PageLayout>
   );
 }
