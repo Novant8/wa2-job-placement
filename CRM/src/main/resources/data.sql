@@ -71,7 +71,7 @@ BEGIN
         VALUES (currval(''contact_seq''), currval(''address_seq''));
 
         INSERT INTO professional(professional_id, contact_info_contact_id, daily_rate, employment_state, location)
-        VALUES (nextval(''professional_seq''), currval(''contact_seq''), 0, 0, ''Torino'');
+        VALUES (nextval(''professional_seq''), currval(''contact_seq''), 10, 0, ''Torino'');
 
         INSERT INTO professional_skills(professional_professional_id, skills)
         VALUES (currval(''professional_seq''), ''Proficient in Java'');
@@ -104,7 +104,7 @@ BEGIN
         VALUES (currval(''contact_seq''), currval(''address_seq''));
 
         INSERT INTO professional(professional_id, contact_info_contact_id, daily_rate, employment_state, location)
-        VALUES (nextval(''professional_seq''), currval(''contact_seq''), 0, 0, ''Milano'');
+        VALUES (nextval(''professional_seq''), currval(''contact_seq''), 5, 0, ''Milano'');
 
         INSERT INTO professional_skills(professional_professional_id, skills)
         VALUES (currval(''professional_seq''), ''Proficient in Kotlin'');
