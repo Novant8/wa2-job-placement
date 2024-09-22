@@ -185,9 +185,12 @@ export default function CreateJobOffer(props: CreateJobOfferProps) {
                 <Row key={index} className="mb-">
                   <Col>
                     <InputGroup className="mb-3">
+                      {/* Box con icona e testo "Skill" */}
                       <InputGroup.Text id="duration">
-                        <Icon.Award className="mx-1" /> Skill
+                        <Icon.Award className="me-2" /> Skill
                       </InputGroup.Text>
+
+                      {/* Input del form */}
                       <Form.Control
                         type="text"
                         placeholder="Enter a required skill"
@@ -197,14 +200,15 @@ export default function CreateJobOffer(props: CreateJobOfferProps) {
                         }
                         required
                       />
-                      {requiredSkills.length > 1 ? (
-                        <MdDelete
-                          size={25}
+
+                      {/* Pulsante di cancellazione se ci sono più skill */}
+                      {requiredSkills.length > 1 && (
+                        <InputGroup.Text
                           role="button"
                           onClick={() => handleRemoveSkill(index)}
-                        />
-                      ) : (
-                        <></>
+                        >
+                          <MdDelete size={20} />
+                        </InputGroup.Text>
                       )}
                     </InputGroup>
                   </Col>
