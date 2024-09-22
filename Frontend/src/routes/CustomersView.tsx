@@ -10,6 +10,7 @@ import {
   InputGroup,
   Pagination,
   Row,
+  Spinner,
 } from "react-bootstrap";
 import * as Icon from "react-bootstrap-icons";
 import { Customer } from "../types/customer.ts";
@@ -32,7 +33,9 @@ export default function CustomersView() {
   const [address, setAddress] = useState("");
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
+    setLoading(true);
     const filter = {
       fullName: fullName,
       email: email,
@@ -52,14 +55,9 @@ export default function CustomersView() {
       })
       .catch((err) => {
         console.log(err);
-      });
+      })
+      .finally(() => setLoading(false));
   }, [fullName, address, email, telephone, page]);
-
-  //TODO: remove this useEffect
-  useEffect(() => {
-    console.log(customers);
-    //console.log(candidates.content);
-  }, [customers]);
 
   return (
     <PageLayout>
@@ -152,7 +150,9 @@ export default function CustomersView() {
             <Card.Title> Customers's List</Card.Title>
           </Card.Header>
           <Card.Body>
-            {customers && customers.length > 0 ? (
+            {loading ? (
+              <Spinner />
+            ) : customers && customers.length > 0 ? (
               customers.map((c) => (
                 <>
                   <CardCustomer key={c.id} cust={c} />

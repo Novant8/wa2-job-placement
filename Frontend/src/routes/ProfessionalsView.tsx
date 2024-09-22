@@ -55,7 +55,8 @@ export default function ProfessionalsView() {
       })
       .catch((err) => {
         console.log(err);
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -67,9 +68,8 @@ export default function ProfessionalsView() {
       setProfessional([]);
       return;
     }
-    setLoading(true);
     const token = me?.xsrfToken;
-
+    setLoading(true);
     //workaround
     let filterDTO: ProfessionalFilter;
     if (filteredCheckedItems.length == 2) {
@@ -100,16 +100,12 @@ export default function ProfessionalsView() {
       .then((prof) => {
         setTotalPage(prof.totalPages);
         setProfessional(prof.content);
-        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
-      });
+      })
+      .finally(() => setLoading(false));
   }, [location, skills, page, checkedItems]);
-
-  if (loading) {
-    return <Spinner />;
-  }
 
   return (
     <PageLayout>
@@ -198,7 +194,9 @@ export default function ProfessionalsView() {
           </Card.Header>
 
           <Card.Body>
-            {professional?.length > 0 ? (
+            {loading ? (
+              <Spinner />
+            ) : professional?.length > 0 ? (
               professional?.map((e: ReducedProfessional) => (
                 <>
                   <CardProfessional key={e.id} prof={e} />

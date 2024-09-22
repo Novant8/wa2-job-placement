@@ -5,14 +5,7 @@ import {
 } from "../types/documents.ts";
 import * as API from "../../API.tsx";
 import { ApiError } from "../../API.tsx";
-import {
-  Accordion,
-  Button,
-  ButtonGroup,
-  Form,
-  InputGroup,
-  Spinner,
-} from "react-bootstrap";
+import { Accordion, Button, Form, InputGroup, Spinner } from "react-bootstrap";
 import ConfirmModal from "./ConfirmModal.tsx";
 import { MdDelete } from "react-icons/md";
 
