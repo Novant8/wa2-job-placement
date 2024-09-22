@@ -87,7 +87,6 @@ export default function ViewJobOfferDetailProfessional() {
         setUserInfo(professional);
         API.getJobOfferDetails(jobOfferId)
           .then((data) => {
-            console.log("DATA JOB OFFER PROFESSIONAL :" + data);
             setJobOffer(data);
           })
           .catch(() => {

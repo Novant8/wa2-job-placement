@@ -198,10 +198,10 @@ export default function ProfessionalsView() {
               <Spinner />
             ) : professional?.length > 0 ? (
               professional?.map((e: ReducedProfessional) => (
-                <>
+                <React.Fragment key={e.id}>
                   <CardProfessional key={e.id} prof={e} />
                   <br />
-                </>
+                </React.Fragment>
               ))
             ) : (
               <div>There no professionals matching the filters</div>

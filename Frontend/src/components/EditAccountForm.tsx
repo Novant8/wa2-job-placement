@@ -405,7 +405,6 @@ export default function EditAccountForm() {
 
     return API.updateProfessionalField(userInfo.professional.id, field, value)
       .then(({ contactInfo, ...professional }) => {
-        console.log(professional);
         setUserInfo({ ...contactInfo, professional });
       })
       .catch((err: ApiError) => {

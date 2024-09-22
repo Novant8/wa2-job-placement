@@ -230,7 +230,6 @@ export default function ViewJobOfferDetailsCustomers() {
               onHide={() => setJobProposalDetailModalShow(false)}
               jobOfferId={jobOffer?.id}
               professionalId={selectedCandidate.id}
-              setCustomerJobOfferDirty={() => setDirty(true)}
             />
           ) : (
             <></>

@@ -134,7 +134,6 @@ export default function SendEmail() {
         const uniqueContacts = contacts.filter((c) => !existingIds.has(c.id));
         return [...prevContacts, ...uniqueContacts];
       });
-      console.log(emailContactsGen);
     } catch (error) {
       console.error("Error fetching uknown:", error);
     }

@@ -29,7 +29,6 @@ export default function JobProposalModal(props: any) {
         let mail = c.contactInfo?.addresses
           .filter((a) => isEmailAddress(a))
           .map((a) => a as EmailAddress)[0].email;
-        console.log(mail);
         setProfessionalMail(mail);
       })
       .catch((error) => {

@@ -13,7 +13,6 @@ export default function CustomerAcceptDeclineProposalModal(props: any) {
     )
       .then(() => {
         if (!customerConfirm) {
-          console.log("HERE CUSTOMER CONFIRM " + customerConfirm);
           API.updateJobOfferStatus(props.jobOfferId, {
             status: "SELECTION_PHASE",
           })
@@ -43,9 +42,10 @@ export default function CustomerAcceptDeclineProposalModal(props: any) {
       });
   };
 
+  const { jobOfferId, professionalId, ...modalProps } = props;
   return (
     <Modal
-      {...props}
+      {...modalProps}
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
       centered

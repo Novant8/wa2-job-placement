@@ -14,7 +14,6 @@ export default function RemoveCandidateModal(props: any) {
       .catch((error) => {
         console.log(error);
       });
-    //.finally(() => window.location.reload());
   }
 
   return (

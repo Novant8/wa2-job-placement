@@ -18,6 +18,7 @@ import { CiCircleInfo, CiSearch } from "react-icons/ci";
 import * as Icon from "react-bootstrap-icons";
 import JobOfferBadge from "./Badges/JobOfferBadge.tsx";
 import { JobOfferFilter } from "../types/JobOfferFilter.ts";
+import React from "react";
 
 export default function ViewRecruiterJobOffer() {
   const [jobOffers, setJobOffers] = useState<ReducedJobOffer[]>([]);
@@ -115,8 +116,6 @@ export default function ViewRecruiterJobOffer() {
   }, []);
 
   useEffect(() => {
-    console.log(checkedItems);
-
     const filteredCheckedItems = Object.entries(checkedItems)
       .filter(([_status, isChecked]) => isChecked)
       .map(([status]) => status);
@@ -184,7 +183,7 @@ export default function ViewRecruiterJobOffer() {
           <Col md={2} className="border">
             Status
             {statuses.map((status, index) => (
-              <>
+              <React.Fragment key={index}>
                 <div
                   style={{
                     display: "flex",
@@ -202,7 +201,7 @@ export default function ViewRecruiterJobOffer() {
                   />
                   <JobOfferBadge status={status} />
                 </div>
-              </>
+              </React.Fragment>
             ))}
           </Col>
 

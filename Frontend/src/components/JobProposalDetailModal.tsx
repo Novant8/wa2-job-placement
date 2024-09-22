@@ -149,7 +149,6 @@ export default function JobProposalModalDetail(props: any) {
       props.professionalId,
     )
       .then((data) => {
-        console.log(data);
         setJobProposal(data);
         setCustomerConfirm(data.customerConfirmation);
         if (data.documentId) {
@@ -445,21 +444,23 @@ export default function JobProposalModalDetail(props: any) {
             {me?.roles.includes("professional") &&
               professionalInfo.employmentState == "UNEMPLOYED" &&
               jobProposal?.customerConfirmation && (
-                <p>
+                <>
                   <hr />
-                  Signed contract by the professional:{" "}
-                  <UploadDocumentField
-                    documentId={jobProposal?.professionalSignedContract}
-                    loading={loadingSignedDocument}
-                    error={errorSignedDocument}
-                    onUpload={uploadOrUpdateSignedContract}
-                    onDelete={deleteSignedContract}
-                    customerView={false}
-                    customerConfirm={false}
-                    professionalView={true}
-                    professionalConfirm={jobProposal?.status == "ACCEPTED"}
-                  />
-                </p>
+                  <p>
+                    Signed contract by the professional:{" "}
+                    <UploadDocumentField
+                      documentId={jobProposal?.professionalSignedContract}
+                      loading={loadingSignedDocument}
+                      error={errorSignedDocument}
+                      onUpload={uploadOrUpdateSignedContract}
+                      onDelete={deleteSignedContract}
+                      customerView={false}
+                      customerConfirm={false}
+                      professionalView={true}
+                      professionalConfirm={jobProposal?.status == "ACCEPTED"}
+                    />
+                  </p>
+                </>
               )}
             {me?.roles.includes("professional") &&
               professionalInfo.employmentState == "UNEMPLOYED" && (

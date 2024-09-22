@@ -18,6 +18,7 @@ import { Customer } from "../types/customer.ts";
 import { CiCircleInfo, CiSearch } from "react-icons/ci";
 import CardCustomer from "../components/Card/CardCustomer.tsx";
 import PageLayout from "../components/PageLayout.tsx";
+import React from "react";
 
 export type CustomerAccordionProps = {
   cust: Customer;
@@ -154,10 +155,10 @@ export default function CustomersView() {
               <Spinner />
             ) : customers && customers.length > 0 ? (
               customers.map((c) => (
-                <>
+                <React.Fragment key={c.id}>
                   <CardCustomer key={c.id} cust={c} />
                   <br />
-                </>
+                </React.Fragment>
               ))
             ) : (
               <div className="text-center">

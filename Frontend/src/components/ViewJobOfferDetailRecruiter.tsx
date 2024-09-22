@@ -62,7 +62,6 @@ export default function ViewJobOfferDetailsRecruiter() {
     setLoading(true);
     API.getJobOfferDetails(jobOfferId)
       .then((data) => {
-        console.log("DATI JOB OFFER Recruiter :" + data);
         setJobOffer(data);
         setDirty(false);
         if (data.offerStatus !== "CREATED") {
