@@ -191,6 +191,7 @@ export default function ViewJobOfferDetailsRecruiter() {
           onHide={() => setJobProposalDetailModalShow(false)}
           jobOfferId={jobOffer?.id}
           professionalId={selectedCandidate.id}
+          setDirty={() => setDirty(!dirty)}
         />
       ) : (
         <></>

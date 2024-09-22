@@ -798,7 +798,6 @@ export async function getJobOffers(
     const queryString = params.toString();
     if (queryString) {
       endpoint += "?" + queryString;
-      console.log(endpoint);
     }
   }
 

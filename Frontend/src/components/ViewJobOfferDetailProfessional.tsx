@@ -115,14 +115,18 @@ export default function ViewJobOfferDetailProfessional() {
 
   return (
     <>
-      <JobProposalModalDetail
-        show={jobProposalDetailModalShow}
-        onHide={() => setJobProposalDetailModalShow(false)}
-        jobOfferId={jobOffer?.id}
-        professionalId={selectedCandidate.id}
-        setProfessionalDirty={() => setDirty(true)}
-        setProfessionalJobOfferDirty={() => setDirty(true)}
-      />
+      {jobProposalDetailModalShow ? (
+        <JobProposalModalDetail
+          show={jobProposalDetailModalShow}
+          onHide={() => setJobProposalDetailModalShow(false)}
+          jobOfferId={jobOffer?.id}
+          professionalId={selectedCandidate.id}
+          setDirty={() => setDirty(!dirty)}
+        />
+      ) : (
+        <></>
+      )}
+
       <Card>
         <Card.Header>
           <Card.Title>
@@ -234,53 +238,6 @@ export default function ViewJobOfferDetailProfessional() {
                 >
                   Show Job Proposal
                 </Button>
-                {/*
-            <h2>Proposed Professional</h2>
-            <Row>
-              <Col md={12} key={jobOffer.professional.id} className="mb-4">
-                <Card>
-                  <Card.Body>
-                    <Card.Title>{`${jobOffer.professional.contactInfo.name} ${jobOffer.professional.contactInfo.surname}`}</Card.Title>
-                    <Card.Subtitle className="mb-2 text-muted">
-                      Location: {jobOffer.professional.location}
-                    </Card.Subtitle>
-                    <Card.Text>
-                      Employment State: {jobOffer.professional.employmentState}
-                      <br />
-                      Skills: {jobOffer.professional.skills.join(", ")}
-                    </Card.Text>
-
-
-
-                    <Button
-                      variant="warning"
-                      onClick={() => {
-                        //setJobProposalDetailModalShow(true);
-
-                        let selected: Candidate = {
-                          id: jobOffer.professional.id,
-                          name: jobOffer.professional.contactInfo.name,
-                          surname: jobOffer.professional.contactInfo.surname,
-                        };
-                        setSelectedCandidate(selected);
-                        setJobProposalDetailModalShow(true);
-                      }}
-                      className="me-2"
-                    >
-                      Show Job Proposal
-                    </Button>
-
-                    <Button
-                      variant="primary"
-                      //onClick={() => handleCandidateAction("download", candidate.id)}
-                    >
-                      Download CV
-                    </Button>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-        */}
               </Container>
             )}
           </Form>

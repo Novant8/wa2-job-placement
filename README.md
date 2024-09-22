@@ -36,7 +36,7 @@ You can manually start each microservice by navigating to the root directory of 
 |----------------------|----------------------|-----------------|
 | mario.rossi          | mario.rossi.g07       | Manager         |
 | luigi.verdi          | luigi.verdi.g07       | Operator        |
-| luigi.verdi          | luigi.verdi.g07       | Operator        |
+| silvio.pellico| silvio.pellico.g07| Operator|
 | company.a            | company.a.g07         | Customer        |
 | company.b            | company.b.g07         | Customer        |
 | luca.rossi           | luca.rossi.g07        | Professional    |
@@ -56,10 +56,12 @@ You can manually start each microservice by navigating to the root directory of 
 6. Once the customer believes the job is complete, they can conclude the job offer, making the professional available for other work.
 
 <b>Professional Workflow:</b>
+
 2. The professional receives proposals for job offers selected by the operator.
 3. The professional waits for the customer to submit a valid contract.
 4. The professional can either accept the terms of the contract or reject the proposal.
 5. If the professional accepts, they can start working; otherwise, they remain available for other job offers.
+
 
 
 ## FAQ

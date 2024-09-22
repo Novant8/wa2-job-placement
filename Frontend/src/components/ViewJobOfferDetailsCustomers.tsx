@@ -35,7 +35,9 @@ export default function ViewJobOfferDetailsCustomers() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [newSkill, setNewSkill] = useState<string>("");
+
   const [dirty, setDirty] = useState(false);
+
   const [modalShow, setModalShow] = useState<boolean>(false);
   const [modalAction, setModalAction] = useState<string>("");
   const navigate = useNavigate();
@@ -93,7 +95,6 @@ export default function ViewJobOfferDetailsCustomers() {
         API.getJobOfferDetails(jobOfferId)
           .then((data) => {
             setJobOffer(data);
-            setDirty(false);
           })
           .catch(() => {
             setError("Failed to fetch job offer details");
@@ -214,24 +215,25 @@ export default function ViewJobOfferDetailsCustomers() {
           </Card.Title>
         </Card.Header>
         <Card.Body>
-          {JobProposalModalDetail ? (
+          {jobProposalDetailModalShow ? (
             <JobProposalModalDetail
               show={jobProposalDetailModalShow}
               onHide={() => setJobProposalDetailModalShow(false)}
               jobOfferId={jobOffer?.id}
               professionalId={selectedCandidate.id}
+              setDirty={() => setDirty(!dirty)}
             />
           ) : (
             <></>
           )}
 
-          {modalAction ? (
+          {modalShow ? (
             <ConfirmationModal
               show={modalShow}
               action={modalAction}
               onHide={() => setModalShow(false)}
               jobOffer={jobOffer}
-              setDirty={() => setDirty(true)}
+              setDirty={() => setDirty(!dirty)}
             />
           ) : (
             <></>
@@ -493,8 +495,6 @@ export default function ViewJobOfferDetailsCustomers() {
               <Button
                 variant="warning"
                 onClick={() => {
-                  //setJobProposalDetailModalShow(true);
-
                   let selected: Candidate = {
                     id: jobOffer.professional.id,
                     name: jobOffer.professional.contactInfo.name,

@@ -15,7 +15,16 @@ import { Accordion, ButtonGroup, Spinner } from "react-bootstrap";
 import { DocumentHistory } from "../types/documents.ts";
 import { TiTick, TiTimes } from "react-icons/ti";
 import { BiInfoCircle, BiSolidHourglass } from "react-icons/bi";
-export default function JobProposalModalDetail(props: any) {
+interface JobProposalModalDetailProps {
+  show: boolean; // Controls visibility of the modal
+  onHide: () => void; // Callback to hide the modal
+  jobOfferId: number | undefined; // ID of the job offer, possibly undefined if jobOffer is not set
+  professionalId: number; // ID of the selected candidate (professional)
+  setDirty: () => void; // Callback to toggle the dirty state
+}
+export default function JobProposalModalDetail(
+  props: JobProposalModalDetailProps,
+) {
   const [jobProposal, setJobProposal] = useState<JobProposal>();
   const [modalAction, setModalAction] = useState("");
   const [
@@ -42,7 +51,7 @@ export default function JobProposalModalDetail(props: any) {
     jobProposal?.customerConfirmation,
   );
   const { me } = useAuth();
-  const [dirty, setDirty] = useState<boolean>(false);
+
   const [customerInfo, setCustomerInfo] = useState<Customer>({
     id: 0,
     contactInfo: {
@@ -165,10 +174,9 @@ export default function JobProposalModalDetail(props: any) {
       })
       .catch((err) => console.log(err))
       .finally(() => {
-        setDirty(false);
         setLoading(false);
       });
-  }, [props.professionalId, dirty]);
+  }, [props.professionalId]);
 
   function uploadOrUpdateContract(document: File) {
     if (!jobProposal) return;
@@ -186,7 +194,7 @@ export default function JobProposalModalDetail(props: any) {
         API.loadJobProposalDocument(jobProposal.id, document.historyId).then(
           (proposal) => {
             setJobProposal(proposal);
-            setDirty(true);
+            props.setDirty();
           },
         );
       })
@@ -221,7 +229,7 @@ export default function JobProposalModalDetail(props: any) {
           document.historyId,
         ).then((proposal) => {
           setJobProposal(proposal);
-          setDirty(true);
+          props.setDirty();
         });
       })
       .catch((err) => {
@@ -243,7 +251,7 @@ export default function JobProposalModalDetail(props: any) {
       .then((proposal) => {
         setJobProposal(proposal);
         API.deleteDocumentHistory(documentId);
-        setDirty(true);
+        props.setDirty();
       })
       .catch((err) => {
         console.log(err);
@@ -259,7 +267,7 @@ export default function JobProposalModalDetail(props: any) {
       .then((proposal) => {
         setJobProposal(proposal);
         API.deleteDocumentHistory(documentId);
-        setDirty(true);
+        props.setDirty();
       })
       .catch((err) => {
         console.log(err);
@@ -273,7 +281,8 @@ export default function JobProposalModalDetail(props: any) {
   }
   return (
     <Modal
-      {...props}
+      show={props.show}
+      onHide={props.onHide}
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
       centered
@@ -290,30 +299,28 @@ export default function JobProposalModalDetail(props: any) {
             jobOffer={jobProposal?.jobOffer}
             jobOfferId={jobProposal?.jobOffer.id}
             candidateId={jobProposal?.professional.id}
-            setDirty={() => setDirty(true)}
+            setDirty={props.setDirty}
             setProposalOnHide={props.onHide}
           />
         )}
       {me?.roles.includes("professional") &&
-        professionalProposalConfirmationModalShow && (
-          <ProfessionalAcceptDeclineProposalModal
-            show={professionalProposalConfirmationModalShow}
-            action={modalAction}
-            onHide={() => setProfessionalProposalConfirmationModalShow(false)}
-            proposalId={jobProposal?.id}
-            jobOffer={jobProposal?.jobOffer}
-            jobOfferId={jobProposal?.jobOffer.id}
-            professionalId={jobProposal?.professional.id}
-            candidateId={jobProposal?.professional.id}
-            professionalInfo={jobProposal?.professional}
-            setDirty={() => setDirty(true)}
-            setProfessionalJobOfferDirty={() => {
-              props.setProfessionalJobOfferDirty;
-            }}
-            setProposalOnHide={props.onHide}
-            setProfessionalDirty={props.setProfessionalDirty}
-          />
-        )}
+      professionalProposalConfirmationModalShow ? (
+        <ProfessionalAcceptDeclineProposalModal
+          show={professionalProposalConfirmationModalShow}
+          action={modalAction}
+          onHide={() => setProfessionalProposalConfirmationModalShow(false)}
+          proposalId={jobProposal?.id}
+          jobOffer={jobProposal?.jobOffer}
+          jobOfferId={jobProposal?.jobOffer.id}
+          professionalId={jobProposal?.professional.id}
+          candidateId={jobProposal?.professional.id}
+          professionalInfo={jobProposal?.professional}
+          setDirty={props.setDirty}
+          setProposalOnHide={props.onHide}
+        />
+      ) : (
+        <></>
+      )}
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
           {jobProposal?.jobOffer.description}
@@ -381,7 +388,7 @@ export default function JobProposalModalDetail(props: any) {
         )}
         {me?.roles.includes("customer") && (
           <>
-            <p>
+            <div>
               {" "}
               {!jobProposal?.customerConfirmation &&
               jobProposal?.status === "CREATED" ? (
@@ -413,7 +420,7 @@ export default function JobProposalModalDetail(props: any) {
               ) : (
                 <></>
               )}
-            </p>
+            </div>
           </>
         )}
         {me?.roles.includes("professional") && (
@@ -465,7 +472,7 @@ export default function JobProposalModalDetail(props: any) {
               jobProposal?.customerConfirmation && (
                 <>
                   <hr />
-                  <p>
+                  <div>
                     Signed contract by the professional:{" "}
                     <UploadDocumentField
                       documentId={jobProposal?.professionalSignedContract}
@@ -487,12 +494,12 @@ export default function JobProposalModalDetail(props: any) {
                       professionalView={true}
                       professionalConfirm={jobProposal?.status == "ACCEPTED"}
                     />
-                  </p>
+                  </div>
                 </>
               )}
             {me?.roles.includes("professional") &&
               professionalInfo.employmentState == "UNEMPLOYED" && (
-                <p>
+                <div>
                   {" "}
                   {jobProposal?.status === "CREATED" &&
                   jobProposal.customerConfirmation ? (
@@ -523,7 +530,7 @@ export default function JobProposalModalDetail(props: any) {
                   ) : (
                     ""
                   )}
-                </p>
+                </div>
               )}
           </>
         )}
