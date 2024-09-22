@@ -164,7 +164,7 @@ export default function ViewRecruiterJobOffer() {
   return (
     <Container className="mt-5">
       <Card>
-        <Card.Title>Job Offers Tool</Card.Title>
+        <Card.Title className="my-3">Job Offers Tool</Card.Title>
         <Card.Body>
           <CiCircleInfo size={30} color={"green"} /> In this section, you can
           efficiently manage your job offers by filtering and sorting them to
@@ -175,10 +175,12 @@ export default function ViewRecruiterJobOffer() {
       </Card>
       <br />
       <Card>
-        <Card.Title>
-          <CiSearch size={30} />
-          Find by ...
-        </Card.Title>
+        <Card.Header>
+          <Card.Title>
+            <CiSearch size={30} />
+            Find by ...
+          </Card.Title>
+        </Card.Header>
         <Row className="mb-4  pt-5 px-4">
           <Col md={2} className="border">
             Status

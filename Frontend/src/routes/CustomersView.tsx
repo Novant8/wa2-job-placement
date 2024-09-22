@@ -64,7 +64,7 @@ export default function CustomersView() {
     <PageLayout>
       <Container>
         <Card>
-          <Card.Title>Customers Research Tool</Card.Title>
+          <Card.Title className="my-3">Customers Research Tool</Card.Title>
           <Card.Body>
             <CiCircleInfo size={30} color={"green"} /> In this section, you can
             explore customers enrolled in our system, allowing you to search for
@@ -148,7 +148,7 @@ export default function CustomersView() {
         <br />
         <Card>
           <Card.Header>
-            <Card.Title> Customers's List</Card.Title>
+            <Card.Title> Customers List</Card.Title>
           </Card.Header>
           <Card.Body>
             {loading ? (

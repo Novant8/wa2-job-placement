@@ -267,11 +267,11 @@ export default function SendEmail() {
 
   return (
     <PageLayout>
-      <Container fluid>
+      <Container>
         <Row>
           <Col>
             <Card>
-              <Card.Title>Email's sender</Card.Title>
+              <Card.Title className="my-3">Email sender</Card.Title>
               <Card.Body>
                 <Card.Text>
                   <CiCircleInfo size={30} color={"green"} />
@@ -321,10 +321,10 @@ export default function SendEmail() {
 
               <Card.Body>
                 <Form>
-                  <Form.Group controlId="Subject(s)">
+                  <Form.Group controlId="Subject(s)" className="my-2">
                     <Form.Label>Email Addresses</Form.Label>
                     {EmailAddr.map((email, index) => (
-                      <Row key={index}>
+                      <Row key={index} className="my-2">
                         <Col>
                           <Form.Control
                             type="text"
@@ -355,7 +355,7 @@ export default function SendEmail() {
                     </Button>
                   </Form.Group>
 
-                  <Form.Group className="mb-8" controlId="subjectInput">
+                  <Form.Group className="mb-8 my-2" controlId="subjectInput">
                     <Form.Label>Subject</Form.Label>
                     <Form.Control
                       type="text"
@@ -364,7 +364,7 @@ export default function SendEmail() {
                       onChange={(e) => setSubject(e.target.value)}
                     />
                   </Form.Group>
-                  <Form.Group className="mb-8" controlId="messageTextarea">
+                  <Form.Group className="mb-8 my-2" controlId="messageTextarea">
                     <Form.Label>Message</Form.Label>
                     <Form.Control
                       as="textarea"

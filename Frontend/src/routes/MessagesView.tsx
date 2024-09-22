@@ -219,7 +219,7 @@ export default function MessagesView() {
           setDirty={() => setDirty(true)}
         />
         <Card>
-          <Card.Title>Messages Tool</Card.Title>
+          <Card.Title className="my-3">Messages Tool</Card.Title>
           <Card.Body>
             <CiCircleInfo size={30} color={"green"} /> In this section, you can
             explore all the messages received, allowing you to process them

@@ -111,7 +111,7 @@ export default function ProfessionalsView() {
     <PageLayout>
       <Container>
         <Card>
-          <Card.Title>Professionals Research Tool</Card.Title>
+          <Card.Title className="my-3">Professionals Research Tool</Card.Title>
           <Card.Body>
             <CiCircleInfo size={30} color={"green"} /> In this section, you can
             explore professionals enrolled in our system, allowing you to search
@@ -190,7 +190,7 @@ export default function ProfessionalsView() {
         <br />
         <Card>
           <Card.Header>
-            <Card.Title> Professionals's List</Card.Title>
+            <Card.Title> Professionals List</Card.Title>
           </Card.Header>
 
           <Card.Body>

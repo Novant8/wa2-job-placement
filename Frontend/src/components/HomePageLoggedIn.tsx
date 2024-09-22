@@ -1,4 +1,4 @@
-import { Card, Spinner } from "react-bootstrap";
+import { Card, Container, Spinner } from "react-bootstrap";
 import { useAuth } from "../contexts/auth.tsx";
 import { useEffect, useState } from "react";
 import * as API from "../../API.tsx";
@@ -208,25 +208,27 @@ function DashboardCustomer() {
   }
   return (
     <PageLayout>
-      <CardJobOffer
-        cardTitle={"Candidate to your job"}
-        cardInfo={
-          "Here the proposed candidate for your job, Inspect the job offer to see the available action"
-        }
-        page={page}
-        totalPage={totalPage}
-        setPage={setPage}
-        offers={jobOffers}
-      />
-      <br />
-      <CardJobOffer
-        cardTitle={"Working for you"}
-        cardInfo={"Here the professionals working for you"}
-        page={page1}
-        totalPage={totalPage1}
-        setPage={setPage1}
-        offers={jobOffers1}
-      />
+      <Container>
+        <CardJobOffer
+          cardTitle={"Candidate to your job"}
+          cardInfo={
+            "Here the proposed candidate for your job, Inspect the job offer to see the available action"
+          }
+          page={page}
+          totalPage={totalPage}
+          setPage={setPage}
+          offers={jobOffers}
+        />
+        <br />
+        <CardJobOffer
+          cardTitle={"Working for you"}
+          cardInfo={"Here the professionals working for you"}
+          page={page1}
+          totalPage={totalPage1}
+          setPage={setPage1}
+          offers={jobOffers1}
+        />
+      </Container>
     </PageLayout>
   );
 }
@@ -327,50 +329,52 @@ function DashboardOperator() {
   }
   return (
     <PageLayout>
-      <Card>
-        <Card.Header>
-          <Card.Title>Messages Received</Card.Title>
-        </Card.Header>
+      <Container>
+        <Card>
+          <Card.Header>
+            <Card.Title>Messages Received</Card.Title>
+          </Card.Header>
 
-        <Card.Body>
-          <div className="d-flex">
-            <CiCircleInfo size={30} color="green" className="me-2" />
-            <span>Here the messages that has to be processed</span>
-          </div>
-          <hr />
-          {msg.map((m, index) => (
-            <div className="row mb-2" key={index}>
-              <div className="col">
-                <strong>{m.subject}</strong>
-              </div>
-              <div className="col">{m.sender.email}</div>
+          <Card.Body>
+            <div className="d-flex">
+              <CiCircleInfo size={30} color="green" className="me-2" />
+              <span>Here the messages that has to be processed</span>
             </div>
-          ))}
-          <PaginationCustom
-            totalPage={totalPage2}
-            page={page2}
-            setPage={setPage2}
-          />
-        </Card.Body>
-      </Card>
-      <br />
-      <CardJobOffer
-        cardTitle={"Job offer to process"}
-        cardInfo={"Here the new Job Offer, ready to be processed"}
-        page={page}
-        totalPage={totalPage}
-        setPage={setPage}
-        offers={jobOffers}
-      />
-      <br />
-      <CardJobOffer
-        cardTitle={"Waiting for interview"}
-        cardInfo={"Here the Job Offer in Selection Phase"}
-        page={page1}
-        totalPage={totalPage1}
-        setPage={setPage1}
-        offers={jobOffers1}
-      />
+            <hr />
+            {msg.map((m, index) => (
+              <div className="row mb-2" key={index}>
+                <div className="col">
+                  <strong>{m.subject}</strong>
+                </div>
+                <div className="col">{m.sender.email}</div>
+              </div>
+            ))}
+            <PaginationCustom
+              totalPage={totalPage2}
+              page={page2}
+              setPage={setPage2}
+            />
+          </Card.Body>
+        </Card>
+        <br />
+        <CardJobOffer
+          cardTitle={"Job offer to process"}
+          cardInfo={"Here the new Job Offer, ready to be processed"}
+          page={page}
+          totalPage={totalPage}
+          setPage={setPage}
+          offers={jobOffers}
+        />
+        <br />
+        <CardJobOffer
+          cardTitle={"Waiting for interview"}
+          cardInfo={"Here the Job Offer in Selection Phase"}
+          page={page1}
+          totalPage={totalPage1}
+          setPage={setPage1}
+          offers={jobOffers1}
+        />
+      </Container>
     </PageLayout>
   );
 }
@@ -378,22 +382,24 @@ function DashboardOperator() {
 function DashboardUnknown() {
   return (
     <PageLayout>
-      <Card>
-        <Card.Header>
-          <Card.Title>Unknown role</Card.Title>
-        </Card.Header>
+      <Container>
+        <Card>
+          <Card.Header>
+            <Card.Title>Unknown role</Card.Title>
+          </Card.Header>
 
-        <Card.Body>
-          <div className="d-flex">
-            <CiCircleInfo size={30} color="green" className="me-2" />
-            <span>
-              You have not yet chosen a role for your account. Please select it
-              by navigating to the{" "}
-              <Link to="/edit-account">Manage Profile</Link> section.
-            </span>
-          </div>
-        </Card.Body>
-      </Card>
+          <Card.Body>
+            <div className="d-flex">
+              <CiCircleInfo size={30} color="green" className="me-2" />
+              <span>
+                You have not yet chosen a role for your account. Please select
+                it by navigating to the{" "}
+                <Link to="/edit-account">Manage Profile</Link> section.
+              </span>
+            </div>
+          </Card.Body>
+        </Card>
+      </Container>
     </PageLayout>
   );
 }
