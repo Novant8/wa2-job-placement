@@ -16,16 +16,8 @@ class DocumentKafkaConsumerService(private val documentMonitoringMetadataReposit
     @KafkaListener(topics = ["DOCUMENT"], groupId = "consumer-monitoring-group",containerFactory = "kafkaDocumentListenerContainerFactory")
     fun messageListener( document: DocumentMetadataMonitoringDTO) {
 
-        var doc = documentMonitoringMetadataRepository.findById(document.id)
-        if (doc.isEmpty){
-            documentMonitoringMetadataRepository.save(DocumentMetadataMonitoring(document.id,document.name,document.size,document.contentType,document.creationTimestamp))
-        }else{
-            doc.get().name = document.name
-            doc.get().size =document.size
-            doc.get().contentType = document.contentType
-            doc.get().creationTimestamp = document.creationTimestamp
-            documentMonitoringMetadataRepository.save(doc.get())
-        }
+        documentMonitoringMetadataRepository.save(DocumentMetadataMonitoring(document.id,document.version,document.name,document.size,document.contentType,document.creationTimestamp))
+
 
     }
 
