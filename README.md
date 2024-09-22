@@ -72,3 +72,14 @@ You can manually start each microservice by navigating to the root directory of 
 
 **Who can see the statistics and KPIs?**
 - Only managers have the privileges to view the statistics and KPIs.
+
+**Who can view the professionals' CVs?**
+
+- Managers and operators can view every professional's CV.
+- No professional other than the uploader can view the CV.
+- The customers can only view the CVs of the professionals that have been assigned to their job offers.
+
+**Who can view the job contracts?**
+
+- Managers and operators can view every job contract.
+- Only the customer and professional related to the specific job proposal can see the relative contract.
