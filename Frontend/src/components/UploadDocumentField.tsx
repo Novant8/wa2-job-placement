@@ -14,6 +14,7 @@ import {
   Spinner,
 } from "react-bootstrap";
 import ConfirmModal from "./ConfirmModal.tsx";
+import { MdDelete } from "react-icons/md";
 
 interface UploadFileFieldProps {
   documentId: number | undefined | null;
@@ -185,33 +186,41 @@ function FileField({
       <span className="mx-3 my-auto">
         <strong>{document.name}</strong>
       </span>
-      <ButtonGroup>
-        <Button
-          variant="primary"
-          as="a"
-          href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
-          target="_blank"
-        >
-          View
-        </Button>
-        {!customerConfirm && !professionalConfirm && (
-          <>
-            <Button variant="danger" onClick={() => setShowConfirmModal(true)}>
-              Delete
-            </Button>
-            <ConfirmModal
-              title={`Confirm file${isHistory ? " history" : ""} deletion`}
-              show={showConfirmModal}
-              onConfirm={() => onDelete?.(document.historyId)}
-              onCancel={() => setShowConfirmModal(false)}
-            >
-              Are you sure you want to delete the file {document.name}
-              {isHistory && " and all of its history"}? This action cannot be
-              undone.
-            </ConfirmModal>
-          </>
-        )}
-      </ButtonGroup>
+
+      <Button
+        variant="primary"
+        as="a"
+        href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
+        target="_blank"
+      >
+        View
+      </Button>
+      {!customerConfirm && !professionalConfirm && (
+        <>
+          <MdDelete size={20} onClick={() => setShowConfirmModal(true)} />
+
+          <ConfirmModal
+            title={`Confirm file${isHistory ? " history" : ""} deletion`}
+            show={showConfirmModal}
+            onConfirm={() => onDelete?.(document.historyId)}
+            onCancel={() => setShowConfirmModal(false)}
+          >
+            Are you sure you want to delete the file{" "}
+            {isHistory ? (
+              <>
+                <strong>{document.name}</strong> and{" "}
+                <strong> all of its history </strong>{" "}
+              </>
+            ) : (
+              <>
+                <strong>{document.name}</strong>
+              </>
+            )}
+            <br />
+            This action cannot be undone.
+          </ConfirmModal>
+        </>
+      )}
     </div>
   );
 }
