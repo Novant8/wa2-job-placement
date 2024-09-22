@@ -53,6 +53,20 @@ class JobOfferServiceImpl(
         jobOffer = jobOfferRepository.save(jobOffer)
         logger.info("Created Job Offer with ID #${jobOffer.offerId}")
         kafkaTemplate.send("JOB_OFFER-CREATE",jobOffer.toJobOfferKafkaDTO())
+
+        val customerMail = jobOffer.customer.contactInfo.addresses
+            .filter { it.addressType == AddressType.EMAIL }
+            .map { it as Email } // Assuming EmailAddress is the correct type
+            .firstOrNull()?.email
+        val headers = mapOf(
+            "From" to from,
+            "To" to customerMail,
+            "Subject" to "Created Job Offer [ "+ jobOffer.description +" ]"
+        )
+        producerTemplate.sendBodyAndHeaders("seda:sendEmail", "Dear Customer, the Job Offer [ "+ jobOffer.description +" ] has been CREATED correctly. Best regards", headers)
+
+
+
         return jobOffer.toJobOfferDTO()
     }
     @Transactional
