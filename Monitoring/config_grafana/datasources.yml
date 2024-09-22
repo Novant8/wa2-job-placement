@@ -9,3 +9,16 @@ datasources:
     basicAuthUser: admin
     secureJsonData:
       basicAuthPassword: admin
+
+  - name: Postgres-Monitoring
+    type: postgres
+    access: proxy
+    url: host.docker.internal:5434  # Replace with your PostgreSQL host and port
+    isDefault: false      # Set this to true if you want this as the default datasource
+    database: mydatabase  # Replace with your PostgreSQL database name
+    user: myuser      # Replace with your PostgreSQL username
+    secureJsonData:
+      password: secret
+    jsonData:
+      sslmode: "disable"       # Set SSL mode as required ('disable', 'require', 'verify-ca', or 'verify-full')
+
