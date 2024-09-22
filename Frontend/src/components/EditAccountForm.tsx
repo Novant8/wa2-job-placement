@@ -684,6 +684,15 @@ export default function EditAccountForm() {
                   <hr />
                   <UploadDocumentField
                     documentId={userInfo.professional.cvDocument}
+                    getDocumentHistory={() =>
+                      API.getProfessionalCvHistory(userInfo.professional.id)
+                    }
+                    getDocumentHistoryDataUrl={() =>
+                      `/crm/API/professionals/${userInfo.professional.id}/cv/data`
+                    }
+                    getDocumentVersionDataUrl={(_, versionId) =>
+                      `/crm/API/professionals/${userInfo.professional.id}/cv/version/${versionId}/data`
+                    }
                     loading={loadingSubmit.professional.cvDocument}
                     error={errors.professional.cvDocument}
                     onUpload={uploadOrUpdateResume}

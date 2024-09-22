@@ -11,6 +11,9 @@ import { MdDelete } from "react-icons/md";
 
 interface UploadFileFieldProps {
   documentId: number | undefined | null;
+  getDocumentHistory: (documentId: number) => Promise<DocumentHistory>;
+  getDocumentHistoryDataUrl: (historyId: number) => string;
+  getDocumentVersionDataUrl: (historyId: number, versionId: number) => string;
   loading?: boolean;
   error?: string;
   onUpload?: (file: File) => void;
@@ -23,6 +26,9 @@ interface UploadFileFieldProps {
 
 export function UploadDocumentField({
   documentId,
+  getDocumentHistory,
+  getDocumentHistoryDataUrl,
+  getDocumentVersionDataUrl,
   error,
   loading,
   onUpload,
@@ -44,7 +50,7 @@ export function UploadDocumentField({
   useEffect(() => {
     if (!documentId) return;
     setDocumentError("");
-    API.getDocumentHistory(documentId)
+    getDocumentHistory(documentId)
       .then((history) => {
         setDocumentHistory(history);
         setVersionDeleteLoading(Array(history.versions.length).fill(false));
@@ -95,6 +101,7 @@ export function UploadDocumentField({
 
           <FileField
             document={latestDoc}
+            viewUrl={getDocumentHistoryDataUrl(documentId)}
             isHistory
             onDelete={handleHistoryDelete}
             customerConfirm={customerConfirm}
@@ -143,6 +150,10 @@ export function UploadDocumentField({
                     <FileField
                       key={`version-${index}`}
                       document={document}
+                      viewUrl={getDocumentVersionDataUrl(
+                        document.historyId,
+                        document.versionId,
+                      )}
                       onDelete={() => handleVersionDelete(index)}
                       customerConfirm={customerConfirm}
                       professionalConfirm={professionalConfirm}
@@ -159,6 +170,7 @@ export function UploadDocumentField({
 
 interface FileFieldProps {
   document: ReducedDocumentMetadata;
+  viewUrl: string;
   isHistory?: boolean;
   onDelete?: (documentId: number) => void;
   customerConfirm: boolean;
@@ -167,6 +179,7 @@ interface FileFieldProps {
 
 function FileField({
   document,
+  viewUrl,
   isHistory,
   onDelete,
   customerConfirm,
@@ -180,12 +193,7 @@ function FileField({
         <strong>{document.name}</strong>
       </span>
 
-      <Button
-        variant="primary"
-        as="a"
-        href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
-        target="_blank"
-      >
+      <Button variant="primary" as="a" href={viewUrl} target="_blank">
         View
       </Button>
       {!customerConfirm && !professionalConfirm && (

@@ -23,11 +23,13 @@ import org.springframework.web.multipart.MultipartFile
 @EnableMethodSecurity(prePostEnabled = true)
 class DocumentController(private val documentService: DocumentService) {
 
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @GetMapping("/", "")
     fun getDocuments(pageable: Pageable): Page<DocumentReducedMetadataDTO> {
        return  documentService.getAllDocuments(pageable)
     }
 
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @GetMapping("/{historyId}/data","/{historyId}/data/")
     fun getDocumentContent(@PathVariable("historyId") historyId: Long): ResponseEntity<ByteArray> {
         val document = documentService.getDocumentContent(historyId)
@@ -38,16 +40,19 @@ class DocumentController(private val documentService: DocumentService) {
         return ResponseEntity<ByteArray>(document.content, headers, HttpStatus.OK)
     }
 
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @GetMapping("/{historyId}","/{historyId}/")
     fun getDocumentMetadata(@PathVariable("historyId") historyId: Long): DocumentMetadataDTO  {
         return documentService.getDocumentMetadata(historyId)
     }
 
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @GetMapping("/{historyId}/history","/{historyId}/history")
     fun getDocumentHistory(@PathVariable("historyId") historyId: Long): DocumentHistoryDTO {
         return documentService.getDocumentHistory(historyId)
     }
 
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @GetMapping("/{historyId}/version/{metadataId}/data")
     fun getDocumentVersionContent(
         @PathVariable("historyId") historyId: Long,
@@ -61,6 +66,7 @@ class DocumentController(private val documentService: DocumentService) {
         return ResponseEntity<ByteArray>(document.content, headers, HttpStatus.OK)
     }
 
+    @PreAuthorize("hasAnyRole('operator', 'manager')")
     @GetMapping("/{historyId}/version/{metadataId}")
     fun getDocumentVersionMetadata(
         @PathVariable("historyId") historyId: Long,
@@ -86,7 +92,7 @@ class DocumentController(private val documentService: DocumentService) {
 
     @PutMapping("/{historyId}","/{historyId}/")
     // Authorize only if the authenticated user is an operator/manager, or if the user is trying to modify their own document.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @documentHistoryRepository.findById(#historyId).orElse(null)?.ownerUserId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @documentServiceImpl.userIsDocumentOwner(authentication.name, #historyId)")
     fun putDocuments(@PathVariable("historyId") historyId: Long,
                      @RequestPart("document") document: MultipartFile) : DocumentMetadataDTO {
 
@@ -106,7 +112,7 @@ class DocumentController(private val documentService: DocumentService) {
     @DeleteMapping("/{historyId}","/{historyId}/")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     // Authorize only if the authenticated user is an operator/manager, or if the user is trying to modify their own document.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @documentHistoryRepository.findById(#historyId).orElse(null)?.ownerUserId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @documentServiceImpl.userIsDocumentOwner(authentication.name, #historyId)")
     fun deleteHistory(@PathVariable("historyId") historyId: Long){
        documentService.deleteDocumentHistory(historyId)
     }
@@ -114,7 +120,7 @@ class DocumentController(private val documentService: DocumentService) {
     @DeleteMapping("/{historyId}/version/{metadataId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     // Authorize only if the authenticated user is an operator/manager, or if the user is trying to modify their own document.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @documentHistoryRepository.findById(#historyId).orElse(null)?.ownerUserId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @documentServiceImpl.userIsDocumentOwner(authentication.name, #historyId)")
     fun deleteVersion(
         @PathVariable("historyId") historyId: Long,
         @PathVariable("metadataId") metadataId: Long

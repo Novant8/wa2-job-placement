@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.jvm.optionals.getOrDefault
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class ContactServiceImpl(
@@ -204,6 +205,11 @@ class ContactServiceImpl(
         val contact = contactRepository.findById(contactId).orElseThrow { EntityNotFoundException("Contact not found with ID : $contactId") }
         contact.ssn = ssnDTO.ssn
         return contactRepository.save(contact).toContactDto()
+    }
+
+    @Transactional(readOnly = true)
+    override fun userIsContactWithId(userId: String, contactId: Long): Boolean {
+        return contactRepository.findById(contactId).getOrNull()?.userId == userId
     }
 
     companion object{

@@ -446,11 +446,11 @@ export function getJobProposalbyId(
   return customFetch(`/crm/API/jobProposals/${proposalId}`);
 }
 
-export async function getDocumentHistory(
-  historyId: number,
+export async function getProfessionalCvHistory(
+  professionalId: number,
 ): Promise<DocumentHistory> {
   let documentHistory: DocumentHistory = await customFetch(
-    `/document-store/API/documents/${historyId}/history`,
+    `/crm/API/professionals/${professionalId}/cv/history`,
   );
   return {
     ...documentHistory,
@@ -513,6 +513,36 @@ export function professionalConfirmDeclineJobProposal(
       body: JSON.stringify(professionalConfirm),
     },
   );
+}
+
+export async function getJobProposalDocumentHistory(
+  proposalId: number,
+): Promise<DocumentHistory> {
+  let documentHistory: DocumentHistory = await customFetch(
+    `/crm/API/jobProposals/${proposalId}/document/history`,
+  );
+  return {
+    ...documentHistory,
+    versions: documentHistory.versions.map((document) => ({
+      ...document,
+      name: stripDocumentNamePrefixAndSuffix(document.name),
+    })),
+  };
+}
+
+export async function getJobProposalSignedContractHistory(
+  proposalId: number,
+): Promise<DocumentHistory> {
+  let documentHistory: DocumentHistory = await customFetch(
+    `/crm/API/jobProposals/${proposalId}/document/signed/history`,
+  );
+  return {
+    ...documentHistory,
+    versions: documentHistory.versions.map((document) => ({
+      ...document,
+      name: stripDocumentNamePrefixAndSuffix(document.name),
+    })),
+  };
 }
 
 export function loadJobProposalDocument(

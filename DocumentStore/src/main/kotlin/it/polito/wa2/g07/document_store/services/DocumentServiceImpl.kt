@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 @Transactional
@@ -139,6 +140,10 @@ class DocumentServiceImpl(
         kafkaTemplate.send("DOCUMENT", newMetadata.toMetadataDto())
         logger.info("Edited Document {} - {} -> {}", newMetadata.metadataID, oldMetadata.name, newMetadata.name)
         return newMetadata.toMetadataDto()
+    }
+
+    override fun userIsDocumentOwner(userId: String, historyId: Long): Boolean {
+        return documentHistoryRepository.findById(historyId).getOrNull()?.ownerUserId == userId
     }
 
     companion object{

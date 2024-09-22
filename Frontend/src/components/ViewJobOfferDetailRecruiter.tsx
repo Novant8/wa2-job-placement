@@ -98,16 +98,6 @@ export default function ViewJobOfferDetailsRecruiter() {
       });
   };
 
-  function handleViewDocument(documentId: number) {
-    API.getDocumentHistory(documentId)
-      .then((history) => {
-        let document = history.versions[0];
-        const url = `/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`;
-        window.open(url, "_blank");
-      })
-      .catch(() => "Error");
-  }
-
   const handleInputChange = (field: keyof JobOffer, value: any) => {
     setJobOffer({
       ...jobOffer!,
@@ -524,12 +514,9 @@ export default function ViewJobOfferDetailsRecruiter() {
                               </Button>
                               <Button
                                 variant="primary"
+                                href={`/crm/API/professionals/${candidate.id}/cv/data`}
+                                target="_blank"
                                 disabled={!candidate.cvDocument}
-                                onClick={() =>
-                                  candidate.cvDocument != undefined
-                                    ? handleViewDocument(candidate.cvDocument)
-                                    : null
-                                }
                               >
                                 Download CV
                               </Button>
@@ -587,14 +574,9 @@ export default function ViewJobOfferDetailsRecruiter() {
 
                           <Button
                             variant="primary"
+                            href={`/crm/API/professionals/${jobOffer?.professional.id}/cv/data`}
+                            target="_blank"
                             disabled={!jobOffer?.professional.cvDocument}
-                            onClick={() =>
-                              jobOffer?.professional.cvDocument != undefined
-                                ? handleViewDocument(
-                                    jobOffer?.professional.cvDocument,
-                                  )
-                                : null
-                            }
                           >
                             Download CV
                           </Button>

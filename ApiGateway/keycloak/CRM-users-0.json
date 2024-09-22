@@ -168,7 +168,8 @@
     "requiredActions" : [ ],
     "realmRoles" : [ "default-roles-crm" ],
     "clientRoles" : {
-      "realm-management" : [ "view-users", "manage-users", "view-clients", "view-realm" ]
+      "realm-management" : [ "view-users", "manage-users", "view-clients", "view-realm" ],
+      "crmclient" : [ "manager" ]
     },
     "notBefore" : 0,
     "groups" : [ ]

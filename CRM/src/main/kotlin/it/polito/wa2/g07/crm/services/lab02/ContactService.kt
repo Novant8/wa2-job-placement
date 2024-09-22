@@ -24,4 +24,6 @@ interface ContactService {
     fun updateName(contactId: Long, nameDTO: NameDTO): ContactDTO
     fun updateSurname(contactId: Long, surnameDTO: SurnameDTO): ContactDTO
     fun updateSSN(contactId: Long, ssnDTO: SsnDTO): ContactDTO
+
+    fun userIsContactWithId(userId: String, contactId: Long): Boolean
 }

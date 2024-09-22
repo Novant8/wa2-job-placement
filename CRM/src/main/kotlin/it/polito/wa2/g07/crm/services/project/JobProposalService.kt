@@ -17,4 +17,6 @@ interface JobProposalService {
 
     fun loadDocument(proposalId: Long, documentId : Long?) : JobProposalDTO
     fun loadSignedDocument(proposalId: Long, documentId : Long?) : JobProposalDTO
+
+    fun userCanAccessContract(userId: String, proposalId: Long): Boolean
 }

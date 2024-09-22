@@ -25,4 +25,6 @@ interface DocumentService {
 
  fun deleteDocumentHistory(historyId: Long)
  fun deleteDocumentVersion(historyId:Long, metadataId:Long)
+
+ fun userIsDocumentOwner(userId: String, historyId: Long): Boolean
 }

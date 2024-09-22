@@ -20,6 +20,7 @@ import it.polito.wa2.g07.crm.entities.lab02.ContactCategory
 
 
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
+import it.polito.wa2.g07.crm.repositories.lab03.CustomerRepository
 
 
 import it.polito.wa2.g07.crm.repositories.lab03.ProfessionalRepository
@@ -31,11 +32,13 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.jvm.optionals.getOrNull
 
 
 @Service
 class ProfessionalServiceImpl (
     private val professionalRepository: ProfessionalRepository,
+    private val customerRepository: CustomerRepository,
     private val contactRepository: ContactRepository,
     private val keycloakUserService: KeycloakUserService
 ) : ProfessionalService {
@@ -213,6 +216,25 @@ class ProfessionalServiceImpl (
 
         return professionalDTO
     }
+
+    @Transactional(readOnly = true)
+    override fun userIsProfessionalWithId(userId: String, professionalId: Long): Boolean {
+        return professionalRepository.findById(professionalId).getOrNull()?.contactInfo?.userId == userId
+    }
+
+    @Transactional(readOnly = true)
+    override fun userCanAccessProfessionalCv(userId: String, professionalId: Long): Boolean {
+        return (
+            // The professional is trying to access their own CV
+            professionalRepository.findByUserId(userId).getOrNull()?.professionalId == professionalId
+        ||
+            // A customer is trying to access a job proposal candidate's CV
+            customerRepository.findByUserId(userId).getOrNull()?.jobProposals?.find {
+                it.professional.professionalId == professionalId
+            } != null
+        )
+    }
+
     companion object{
         val logger: Logger = LoggerFactory.getLogger(ContactServiceImpl::class.java)
     }

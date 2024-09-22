@@ -152,17 +152,15 @@ export default function JobProposalModalDetail(props: any) {
         setJobProposal(data);
         setCustomerConfirm(data.customerConfirmation);
         if (data.documentId) {
-          API.getDocumentHistory(data.documentId).then((history) => {
+          API.getJobProposalDocumentHistory(data.id).then((history) => {
             setDocumentHistory(history);
           });
         }
 
         if (data.professionalSignedContract) {
-          API.getDocumentHistory(data.professionalSignedContract).then(
-            (history) => {
-              setSignedDocumentHistory(history);
-            },
-          );
+          API.getJobProposalSignedContractHistory(data.id).then((history) => {
+            setSignedDocumentHistory(history);
+          });
         }
       })
       .catch((err) => console.log(err))
@@ -361,6 +359,15 @@ export default function JobProposalModalDetail(props: any) {
             Contract for the professional:
             <UploadDocumentField
               documentId={jobProposal?.documentId}
+              getDocumentHistory={() =>
+                API.getJobProposalDocumentHistory(jobProposal!.id)
+              }
+              getDocumentHistoryDataUrl={() =>
+                `/crm/API/jobProposals/${jobProposal?.id}/document/data`
+              }
+              getDocumentVersionDataUrl={(_, versionId) =>
+                `/crm/API/jobProposals/${jobProposal?.id}/document/version/${versionId}/data`
+              }
               loading={loadingDocument}
               error={errorDocument}
               onUpload={uploadOrUpdateContract}
@@ -420,6 +427,15 @@ export default function JobProposalModalDetail(props: any) {
             )}
             <UploadDocumentField
               documentId={jobProposal?.documentId}
+              getDocumentHistory={() =>
+                API.getJobProposalDocumentHistory(jobProposal!.id)
+              }
+              getDocumentHistoryDataUrl={() =>
+                `/crm/API/jobProposals/${jobProposal?.id}/document/data`
+              }
+              getDocumentVersionDataUrl={(_, versionId) =>
+                `/crm/API/jobProposals/${jobProposal?.id}/document/version/${versionId}/data`
+              }
               loading={loadingDocument}
               error={errorDocument}
               onUpload={uploadOrUpdateContract}
@@ -450,6 +466,15 @@ export default function JobProposalModalDetail(props: any) {
                     Signed contract by the professional:{" "}
                     <UploadDocumentField
                       documentId={jobProposal?.professionalSignedContract}
+                      getDocumentHistory={() =>
+                          API.getJobProposalSignedContractHistory(jobProposal!.id)
+                      }
+                      getDocumentHistoryDataUrl={() =>
+                          `/crm/API/jobProposals/${jobProposal?.id}/document/signed/data`
+                      }
+                      getDocumentVersionDataUrl={(_, versionId) =>
+                          `/crm/API/jobProposals/${jobProposal?.id}/document/signed/version/${versionId}/data`
+                      }
                       loading={loadingSignedDocument}
                       error={errorSignedDocument}
                       onUpload={uploadOrUpdateSignedContract}
@@ -513,7 +538,7 @@ export default function JobProposalModalDetail(props: any) {
                   <Button
                     variant="primary"
                     as="a"
-                    href={`/document-store/API/documents/${documentHistory?.versions[0].historyId}/version/${documentHistory?.versions[0].versionId}/data`}
+                    href={`/crm/API/jobProposals/${jobProposal?.id}/document/data`}
                     target="_blank"
                   >
                     View
@@ -535,7 +560,7 @@ export default function JobProposalModalDetail(props: any) {
                               <Button
                                 variant="primary"
                                 as="a"
-                                href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
+                                href={`/crm/API/jobProposals/${jobProposal?.id}/document/version/${document.versionId}/data`}
                                 target="_blank"
                               >
                                 View
@@ -569,7 +594,7 @@ export default function JobProposalModalDetail(props: any) {
                     <Button
                       variant="primary"
                       as="a"
-                      href={`/document-store/API/documents/${signedDocumentHistory?.versions[0].historyId}/version/${signedDocumentHistory?.versions[0].versionId}/data`}
+                      href={`/crm/API/jobProposals/${jobProposal?.id}/document/signed/data`}
                       target="_blank"
                     >
                       View
@@ -595,7 +620,7 @@ export default function JobProposalModalDetail(props: any) {
                               <Button
                                 variant="primary"
                                 as="a"
-                                href={`/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`}
+                                href={`/crm/API/jobProposals/${jobProposal?.id}/document/signed/version/${document.versionId}/data`}
                                 target="_blank"
                               >
                                 View

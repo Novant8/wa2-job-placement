@@ -22,4 +22,7 @@ interface ProfessionalService {
 
     //fun create(professional: CreateProfessionalDTO): ProfessionalDTO
     fun bindContactToProfessional(contactId: Long, createProfessionalReducedDTO: CreateProfessionalReducedDTO): ProfessionalDTO
+
+    fun userIsProfessionalWithId(userId: String, professionalId: Long): Boolean
+    fun userCanAccessProfessionalCv(userId: String, professionalId: Long): Boolean
 }

@@ -13,12 +13,16 @@ import it.polito.wa2.g07.crm.dtos.lab02.EmailDTO
 import it.polito.wa2.g07.crm.dtos.lab02.NotesDTO
 import it.polito.wa2.g07.crm.dtos.lab02.TelephoneDTO
 import it.polito.wa2.g07.crm.dtos.lab03.*
+import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.services.lab02.ContactService
 import it.polito.wa2.g07.crm.services.lab03.ProfessionalService
 import jakarta.validation.Valid
+import org.keycloak.admin.client.Keycloak
 import org.springdoc.core.annotations.ParameterObject
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.data.domain.Page
-import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -27,17 +31,32 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.data.domain.Pageable
-import org.springframework.http.ProblemDetail
+import org.springframework.http.*
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.RestClientException
+import org.springframework.web.client.RestTemplate
 
 @Tag(name = "4. Professionals", description = "Create, search and update professionals' information")
 @RestController
 @EnableMethodSecurity(prePostEnabled = true)
 @RequestMapping("/API/professionals")
 class ProfessionalController (private val professionalService: ProfessionalService,private val contactService: ContactService) {
+
+    private lateinit var restTemplate: RestTemplate
+
+    @Value("\${job-placement.document-store-url}")
+    lateinit var documentStorePath: String
+
+    @Autowired
+    fun setRestTemplate(restTemplateBuilder: RestTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build()
+    }
+
+    @Autowired
+    private lateinit var keycloak: Keycloak
 
     @Operation(summary = "Create a new professional")
     @ApiResponses(value=[
@@ -85,7 +104,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
             content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
         )
     ])
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalRepository.findById(#professionalId).orElse(null)?.contactInfo?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalServiceImpl.userIsProfessionalWithId(authentication.name, #professionalId)")
     @PutMapping("{professionalId}/location")
     fun updateProfessionalLocation(
         @PathVariable professionalId:Long,
@@ -105,7 +124,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
         )
     ])
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalRepository.findById(#professionalId).orElse(null)?.contactInfo?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalServiceImpl.userIsProfessionalWithId(authentication.name, #professionalId)")
     @PutMapping("{professionalId}/skills")
     fun updateProfessionalSkills(
         @PathVariable professionalId:Long,
@@ -144,7 +163,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
         )
     ])
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalRepository.findById(#professionalId).orElse(null)?.contactInfo?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalServiceImpl.userIsProfessionalWithId(authentication.name, #professionalId)")
     @PutMapping("{professionalId}/dailyRate")
     fun updateProfessionalDailyRate(@PathVariable professionalId:Long,
                                           @RequestBody dailyRateDTO: DailyRateDTO
@@ -163,7 +182,7 @@ class ProfessionalController (private val professionalService: ProfessionalServi
         )
     ])
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalRepository.findById(#professionalId).orElse(null)?.contactInfo?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalServiceImpl.userIsProfessionalWithId(authentication.name, #professionalId)")
     @PutMapping("{professionalId}/cvDocument")
     fun updateProfessionalCvDocument(@PathVariable professionalId:Long,
                                     @RequestBody cvDocumentDTO: CvDocumentDTO
@@ -279,5 +298,91 @@ class ProfessionalController (private val professionalService: ProfessionalServi
     @GetMapping("/{professionalId}", "/{professionalId}/")
     fun getProfessionalById(@PathVariable professionalId: Long): ProfessionalDTO {
         return professionalService.getProfessionalById(professionalId)
+    }
+
+    @Operation(summary = "Retrieve a specific professional's CV document's history")
+    @ApiResponses(value=[
+        ApiResponse(responseCode = "200"),
+        ApiResponse(
+            responseCode = "404",
+            description = "The professional was not found or has no CV",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalServiceImpl.userCanAccessProfessionalCv(authentication.name, #professionalId)")
+    @GetMapping("/{professionalId}/cv/history")
+    fun getProfessionalCVHistory(
+        @RequestHeader httpHeaders: HttpHeaders,
+        @PathVariable professionalId: Long
+    ): ResponseEntity<*> {
+        val documentId = professionalService.getProfessionalById(professionalId).cvDocument
+            ?: throw EntityNotFoundException("The professional does not have a CV.")
+        val processedHeaders = httpHeaders.apply {
+            setBearerAuth(keycloak.tokenManager().accessTokenString)
+        }
+        println(processedHeaders["Authorization"])
+        return restTemplate.exchange(
+            "$documentStorePath/API/documents/$documentId/history",
+            HttpMethod.GET,
+            HttpEntity<ByteArray>(processedHeaders),
+            ByteArray::class.java
+        )
+    }
+
+    @Operation(summary = "Retrieve the content of a specific professional's CV document's latest version")
+    @ApiResponses(value=[
+        ApiResponse(responseCode = "200"),
+        ApiResponse(
+            responseCode = "404",
+            description = "The professional was not found or has no CV",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalServiceImpl.userCanAccessProfessionalCv(authentication.name, #professionalId)")
+    @GetMapping("/{professionalId}/cv/data")
+    fun getProfessionalCVData(
+        @RequestHeader httpHeaders: HttpHeaders,
+        @PathVariable professionalId: Long
+    ): ResponseEntity<*> {
+        val documentId = professionalService.getProfessionalById(professionalId).cvDocument
+            ?: throw EntityNotFoundException("The professional does not have a CV.")
+        val processedHeaders = httpHeaders.apply {
+            setBearerAuth(keycloak.tokenManager().accessTokenString)
+        }
+        return restTemplate.exchange(
+            "$documentStorePath/API/documents/$documentId/data",
+            HttpMethod.GET,
+            HttpEntity<ByteArray>(processedHeaders),
+            ByteArray::class.java
+        )
+    }
+
+    @Operation(summary = "Retrieve the content of a specific professional's CV document's version")
+    @ApiResponses(value=[
+        ApiResponse(responseCode = "200"),
+        ApiResponse(
+            responseCode = "404",
+            description = "The professional was not found or has no CV",
+            content = [ Content(mediaType = "application/problem+json", schema = Schema(implementation = ProblemDetail::class)) ]
+        )
+    ])
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @professionalServiceImpl.userCanAccessProfessionalCv(authentication.name, #professionalId)")
+    @GetMapping("/{professionalId}/cv/version/{versionId}/data")
+    fun getProfessionalCVVersionData(
+        @RequestHeader httpHeaders: HttpHeaders,
+        @PathVariable professionalId: Long,
+        @PathVariable versionId: Long,
+    ): ResponseEntity<*> {
+        val documentId = professionalService.getProfessionalById(professionalId).cvDocument
+            ?: throw EntityNotFoundException("The professional does not have a CV.")
+        val processedHeaders = httpHeaders.apply {
+            setBearerAuth(keycloak.tokenManager().accessTokenString)
+        }
+        return restTemplate.exchange(
+            "$documentStorePath/API/documents/$documentId/version/$versionId/data",
+            HttpMethod.GET,
+            HttpEntity<ByteArray>(processedHeaders),
+            ByteArray::class.java
+        )
     }
 }

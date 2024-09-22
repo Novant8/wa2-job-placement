@@ -27,6 +27,7 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.jvm.optionals.getOrElse
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class JobProposalServiceImpl (
@@ -187,6 +188,12 @@ class JobProposalServiceImpl (
         proposal.professionalSignedContract = documentId;
         kafkaTemplate.send("JOB_PROPOSAL-UPDATE",proposal.toJobProposalKafkaDTO())
         return proposalRepository.save(proposal).toJobProposalDTO()
+    }
+
+    override fun userCanAccessContract(userId: String, proposalId: Long): Boolean {
+        // User is the customer or professional that is part of the job proposal
+        val proposal = proposalRepository.findById(proposalId).getOrNull() ?: return false
+        return proposal.customer.contactInfo.userId == userId || proposal.professional.contactInfo.userId == userId
     }
 
     companion object{

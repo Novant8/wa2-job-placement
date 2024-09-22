@@ -73,7 +73,7 @@ class ContactController(private val contactService: ContactService,
     ])
     @ResponseStatus(HttpStatus.CREATED)
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @PostMapping("/{contactId}/customer")
     fun saveCustomer (
         @PathVariable("contactId") contactId : Long,
@@ -101,7 +101,7 @@ class ContactController(private val contactService: ContactService,
     ])
     @ResponseStatus(HttpStatus.CREATED)
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @PostMapping("/{contactId}/professional")
     fun saveProfessional (
         @PathVariable("contactId") contactId : Long,
@@ -135,7 +135,7 @@ class ContactController(private val contactService: ContactService,
     ])
     @ResponseStatus(HttpStatus.CREATED)
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @PostMapping("/{contactId}/email")
     fun addEmail (
         @PathVariable("contactId") contactId : Long,
@@ -168,7 +168,7 @@ class ContactController(private val contactService: ContactService,
     ])
     @ResponseStatus(HttpStatus.CREATED)
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @PostMapping("/{contactId}/telephone")
     fun addTelephone (
         @PathVariable("contactId") contactId : Long,
@@ -200,7 +200,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @PostMapping("/{contactId}/address")
     fun addDwelling (
         @PathVariable("contactId") contactId : Long,
@@ -271,7 +271,7 @@ class ContactController(private val contactService: ContactService,
     ])
     @ResponseStatus(HttpStatus.NO_CONTENT)
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @DeleteMapping("/{contactId}/email/{emailId}")
     fun deleteEmail (@PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long) {
         return contactService.deleteAddress(contactId, emailId, AddressType.EMAIL)
@@ -291,7 +291,7 @@ class ContactController(private val contactService: ContactService,
     ])
     @ResponseStatus(HttpStatus.NO_CONTENT)
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @DeleteMapping("/{contactId}/telephone/{telephoneId}")
     fun deleteTelephone (@PathVariable("contactId") contactId: Long, @PathVariable("telephoneId") telephoneId: Long) {
         return contactService.deleteAddress(contactId, telephoneId, AddressType.TELEPHONE)
@@ -311,7 +311,7 @@ class ContactController(private val contactService: ContactService,
     ])
     @ResponseStatus(HttpStatus.NO_CONTENT)
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @DeleteMapping("/{contactId}/address/{dwellingId}")
     fun deleteDwelling (@PathVariable("contactId") contactId: Long, @PathVariable("dwellingId") dwellingId: Long) {
         return contactService.deleteAddress(contactId, dwellingId, AddressType.DWELLING)
@@ -335,7 +335,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @PutMapping("/{contactId}/email/{emailId}")
     fun updateEmail (
         @PathVariable("contactId") contactId: Long, @PathVariable("emailId") emailId : Long,
@@ -363,7 +363,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @PutMapping("/{contactId}/telephone/{telephoneId}")
     fun updateTelephone (
         @PathVariable("contactId") contactId: Long,
@@ -391,7 +391,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @PutMapping("/{contactId}/address/{dwellingId}")
     fun updateDwelling (
         @PathVariable("contactId") contactId: Long,
@@ -419,7 +419,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @PutMapping("/{contactId}/name")
     fun updateName(
         @PathVariable("contactId") contactId: Long,
@@ -446,7 +446,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @PutMapping("/{contactId}/surname")
     fun updateSurname(
         @PathVariable("contactId") contactId: Long,
@@ -473,7 +473,7 @@ class ContactController(private val contactService: ContactService,
         )
     ])
     // Authorize only if the authenticated user is an operator/manager, or if they are trying to modify their own attributes.
-    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactRepository.findById(#contactId).orElse(null)?.userId == authentication.name")
+    @PreAuthorize("hasAnyRole('operator', 'manager') or @contactServiceImpl.userIsContactWithId(authentication.name, #contactId)")
     @PutMapping("/{contactId}/ssn")
     fun updateSsn(
         @PathVariable("contactId") contactId: Long,

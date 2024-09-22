@@ -161,16 +161,6 @@ export default function ViewJobOfferDetailsCustomers() {
     });
   };
 
-  function handleViewDocument(documentId: number) {
-    API.getDocumentHistory(documentId)
-      .then((history) => {
-        let document = history.versions[0];
-        const url = `/document-store/API/documents/${document.historyId}/version/${document.versionId}/data`;
-        window.open(url, "_blank");
-      })
-      .catch(() => "Error");
-  }
-
   if (loading) {
     return (
       <Container className="text-center mt-5">
@@ -480,14 +470,9 @@ export default function ViewJobOfferDetailsCustomers() {
 
                           <Button
                             variant="primary"
+                            href={`/crm/API/professionals/${jobOffer?.professional.id}/cv/data`}
+                            target="_blank"
                             disabled={!jobOffer?.professional.cvDocument}
-                            onClick={() =>
-                              jobOffer?.professional.cvDocument != undefined
-                                ? handleViewDocument(
-                                    jobOffer?.professional.cvDocument,
-                                  )
-                                : null
-                            }
                           >
                             Download CV
                           </Button>

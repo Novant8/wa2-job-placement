@@ -72,3 +72,4 @@ camel:
 
 management.endpoints.web.exposure.include: '*'
 management.endpoint.health.show.details: always
+job-placement.document-store-url: http://localhost:8081
