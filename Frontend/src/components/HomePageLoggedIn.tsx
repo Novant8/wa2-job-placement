@@ -8,6 +8,7 @@ import { Message } from "../types/message.ts";
 import { CiCircleInfo } from "react-icons/ci";
 import PaginationCustom from "./PaginationCustom.tsx";
 import PageLayout from "./PageLayout.tsx";
+import { Link } from "react-router-dom";
 
 export default function HomePageLoggedIn() {
   const { me } = useAuth();
@@ -17,8 +18,10 @@ export default function HomePageLoggedIn() {
         <DashboardCustomer />
       ) : me?.roles.includes("operator") || me?.roles.includes("manager") ? (
         <DashboardOperator />
-      ) : (
+      ) : me?.roles.includes("professional") ? (
         <DashboardProfessional />
+      ) : (
+        <DashboardUnknown />
       )}
     </>
   );
@@ -368,6 +371,29 @@ function DashboardOperator() {
         setPage={setPage1}
         offers={jobOffers1}
       />
+    </PageLayout>
+  );
+}
+
+function DashboardUnknown() {
+  return (
+    <PageLayout>
+      <Card>
+        <Card.Header>
+          <Card.Title>Unknown role</Card.Title>
+        </Card.Header>
+
+        <Card.Body>
+          <div className="d-flex">
+            <CiCircleInfo size={30} color="green" className="me-2" />
+            <span>
+              You have not yet chosen a role for your account. Please select it
+              by navigating to the{" "}
+              <Link to="/edit-account">Manage Profile</Link> section.
+            </span>
+          </div>
+        </Card.Body>
+      </Card>
     </PageLayout>
   );
 }

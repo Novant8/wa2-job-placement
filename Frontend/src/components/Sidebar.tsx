@@ -32,17 +32,24 @@ export default function Sidebar() {
         >
           Manage Profile
         </ListGroup.Item>
-        <ListGroup.Item
-          action
-          active={location.pathname === "/crm/job-offers"}
-          onClick={() => navigate("/crm/job-offers")}
-        >
-          Job Offers
-        </ListGroup.Item>
+        {userHasAnyRole(me, [
+          "manager",
+          "operator",
+          "customer",
+          "professional",
+        ]) && (
+          <ListGroup.Item
+            action
+            active={location.pathname.includes("/crm/job-offers")}
+            onClick={() => navigate("/crm/job-offers")}
+          >
+            Job Offers
+          </ListGroup.Item>
+        )}
         {userHasAnyRole(me, ["manager", "operator", "customer"]) && (
           <ListGroup.Item
             action
-            active={location.pathname === "/crm/professionals"}
+            active={location.pathname.includes("/crm/professionals")}
             onClick={() => navigate("/crm/professionals")}
           >
             Professionals
@@ -51,7 +58,7 @@ export default function Sidebar() {
         {userHasAnyRole(me, ["manager", "operator", "professional"]) && (
           <ListGroup.Item
             action
-            active={location.pathname === "/crm/customers"}
+            active={location.pathname.includes("/crm/customers")}
             onClick={() => navigate("/crm/customers")}
           >
             Customers

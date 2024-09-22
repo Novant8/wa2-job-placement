@@ -277,12 +277,12 @@ export default function EditAccountForm() {
             skills: [],
             dailyRate: 0,
           });
-        await refreshToken();
         setUserInfo({ ...contactInfo, professional });
       } else {
         const { contactInfo } = await API.bindContactToCustomer(userInfo.id);
         setUserInfo(contactInfo);
       }
+      await refreshToken();
     } catch (err: any) {
       if (err instanceof ApiError)
         setErrors({ ...errors, category: err.message });
