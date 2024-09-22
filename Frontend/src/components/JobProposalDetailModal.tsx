@@ -445,7 +445,9 @@ export default function JobProposalModalDetail(props: any) {
               professionalView={false}
               professionalConfirm={false}
             />
-            {professionalInfo.employmentState == "EMPLOYED" ? (
+            {professionalInfo.employmentState == "EMPLOYED" &&
+            jobProposal?.jobOffer.offerStatus != "CONSOLIDATED" &&
+            jobProposal?.customerConfirmation ? (
               <>
                 <div style={{ color: "red", textDecoration: "underline" }}>
                   <BiInfoCircle color={"red"} size={30} />
@@ -458,7 +460,8 @@ export default function JobProposalModalDetail(props: any) {
               <></>
             )}
             {me?.roles.includes("professional") &&
-              professionalInfo.employmentState == "UNEMPLOYED" &&
+              (professionalInfo.employmentState == "UNEMPLOYED" ||
+                jobProposal?.jobOffer.offerStatus == "CONSOLIDATED") &&
               jobProposal?.customerConfirmation && (
                 <>
                   <hr />
@@ -467,13 +470,13 @@ export default function JobProposalModalDetail(props: any) {
                     <UploadDocumentField
                       documentId={jobProposal?.professionalSignedContract}
                       getDocumentHistory={() =>
-                          API.getJobProposalSignedContractHistory(jobProposal!.id)
+                        API.getJobProposalSignedContractHistory(jobProposal!.id)
                       }
                       getDocumentHistoryDataUrl={() =>
-                          `/crm/API/jobProposals/${jobProposal?.id}/document/signed/data`
+                        `/crm/API/jobProposals/${jobProposal?.id}/document/signed/data`
                       }
                       getDocumentVersionDataUrl={(_, versionId) =>
-                          `/crm/API/jobProposals/${jobProposal?.id}/document/signed/version/${versionId}/data`
+                        `/crm/API/jobProposals/${jobProposal?.id}/document/signed/version/${versionId}/data`
                       }
                       loading={loadingSignedDocument}
                       error={errorSignedDocument}
