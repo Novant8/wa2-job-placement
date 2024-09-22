@@ -409,7 +409,10 @@ export default function ViewJobOfferDetailsCustomers() {
             </Row>
             {jobOffer?.offerStatus === "CREATED" && (
               <>
-                <Button variant="primary" onClick={handleEditClick}>
+                <Button
+                  variant={isEditable ? "danger" : "primary"}
+                  onClick={handleEditClick}
+                >
                   {isEditable ? "Cancel" : "Edit"}
                 </Button>
                 {isEditable && (

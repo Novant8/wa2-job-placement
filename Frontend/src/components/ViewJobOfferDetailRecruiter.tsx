@@ -416,7 +416,7 @@ export default function ViewJobOfferDetailsRecruiter() {
             {jobOffer?.offerStatus === "CREATED" && (
               <>
                 <Button
-                  variant="primary"
+                  variant={isEditable ? "danger" : "primary"}
                   onClick={handleEditClick}
                   disabled={!editableOffer}
                   style={{ marginRight: 10 }}
