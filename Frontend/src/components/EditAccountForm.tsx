@@ -423,16 +423,8 @@ export default function EditAccountForm() {
     return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
   }
 
-  function uploadOrUpdateResume(document: File) {
+  async function uploadOrUpdateResume(document: File) {
     if (!isProfessional(userInfo)) return;
-    let promise;
-    if (userInfo.professional.cvDocument)
-      promise = API.updateDocument(
-        userInfo.professional.cvDocument,
-        document,
-        me!,
-      );
-    else promise = API.uploadDocument(document, me!);
 
     const prevCvDocument = userInfo.professional.cvDocument;
     setUserInfo({
@@ -443,35 +435,40 @@ export default function EditAccountForm() {
       ...loadingSubmit,
       professional: { ...loadingSubmit.professional, cvDocument: true },
     });
-    promise
-      .then((document) => {
-        setUserInfo({
-          ...userInfo,
-          professional: {
-            ...userInfo.professional,
-            cvDocument: document.historyId,
-          },
-        });
-        return updateProfessionalField("cvDocument", document.historyId);
-      })
-      .catch((err: ApiError) => {
-        setUserInfo({
-          ...userInfo,
-          professional: {
-            ...userInfo.professional,
-            cvDocument: prevCvDocument,
-          },
-        });
+
+    try {
+      let documentMetadata = userInfo.professional.cvDocument
+        ? await API.updateDocument(
+            userInfo.professional.cvDocument,
+            document,
+            me!,
+          )
+        : await API.uploadDocument(document, me!);
+      await updateProfessionalField("cvDocument", documentMetadata.historyId);
+      setUserInfo({
+        ...userInfo,
+        professional: {
+          ...userInfo.professional,
+          cvDocument: documentMetadata.historyId,
+        },
+      });
+    } catch (err) {
+      setUserInfo({
+        ...userInfo,
+        professional: {
+          ...userInfo.professional,
+          cvDocument: prevCvDocument,
+        },
+      });
+      if (err instanceof ApiError)
         errors.professional.cvDocument =
           err.fieldErrors?.cvDocument || err.message;
-        setErrors({ ...errors });
-      })
-      .finally(() => {
-        setLoadingSubmit({
-          ...loadingSubmit,
-          professional: { ...loadingSubmit.professional, cvDocument: false },
-        });
+    } finally {
+      setLoadingSubmit({
+        ...loadingSubmit,
+        professional: { ...loadingSubmit.professional, cvDocument: false },
       });
+    }
   }
 
   function deleteResume(documentId: number) {
