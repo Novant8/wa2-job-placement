@@ -21,7 +21,6 @@ import org.keycloak.admin.client.Keycloak
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.data.domain.Page
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -45,15 +44,11 @@ import org.springframework.web.client.RestTemplate
 @RequestMapping("/API/professionals")
 class ProfessionalController (private val professionalService: ProfessionalService,private val contactService: ContactService) {
 
+    @Autowired
     private lateinit var restTemplate: RestTemplate
 
     @Value("\${job-placement.document-store-url}")
     lateinit var documentStorePath: String
-
-    @Autowired
-    fun setRestTemplate(restTemplateBuilder: RestTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder.build()
-    }
 
     @Autowired
     private lateinit var keycloak: Keycloak

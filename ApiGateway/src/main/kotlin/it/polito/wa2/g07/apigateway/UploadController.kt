@@ -2,7 +2,6 @@ package it.polito.wa2.g07.apigateway
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -18,12 +17,8 @@ import org.springframework.web.client.RestTemplate
 @RequestMapping("/upload")
 class UploadController {
 
-    private lateinit var restTemplate: RestTemplate
-
     @Autowired
-    fun setRestTemplate(restTemplateBuilder: RestTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder.build()
-    }
+    private lateinit var restTemplate: RestTemplate
 
     @Autowired
     private lateinit var authorizedClientService: OAuth2AuthorizedClientService

@@ -5,15 +5,12 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import it.polito.wa2.g07.crm.dtos.lab03.JobOfferDTO
-import it.polito.wa2.g07.crm.dtos.lab03.JobOfferUpdateDTO
 import it.polito.wa2.g07.crm.dtos.project.JobProposalDTO
 import it.polito.wa2.g07.crm.exceptions.EntityNotFoundException
 import it.polito.wa2.g07.crm.services.project.JobProposalService
 import org.keycloak.admin.client.Keycloak
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.*
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
@@ -25,15 +22,11 @@ import org.springframework.web.client.RestTemplate
 @RequestMapping("/API/jobProposals")
 class JobProposalController(private val jobProposalService: JobProposalService) {
 
+    @Autowired
     private lateinit var restTemplate: RestTemplate
 
     @Value("\${job-placement.document-store-url}")
     lateinit var documentStorePath: String
-
-    @Autowired
-    fun setRestTemplate(restTemplateBuilder: RestTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder.build()
-    }
 
     @Autowired
     private lateinit var keycloak: Keycloak
